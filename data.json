@@ -1,0 +1,5317 @@
+[
+  {
+    "id": "gokcekaya",
+    "name": "Gökçekaya PSPP",
+    "concept": "classic",
+    "conceptLabel": "Klasik kapalı devre / mevcut rezervuar",
+    "lat": 40.035,
+    "lon": 31.021,
+    "region": "Sakarya havzasi - Gokcekaya Baraji",
+    "score": 84,
+    "head": 379.5,
+    "tunnelKm": 4.05,
+    "activeMcm": 10.8,
+    "powerMW": 1400,
+    "energyGWh": 9.8,
+    "capexBn": 2.59,
+    "revenueM": 252,
+    "payback": 10.3,
+    "gridDistKm": 7.1,
+    "lower": "Gökçekaya Barajı / mevcut HES şaltı",
+    "upper": "~800 m HWL üst rezervuar",
+    "thesis": "İlk 24 ayda fizibiliteye taşınabilecek en hızlı klasik PSPP adayı.",
+    "risks": [
+      "İletim takviyesi",
+      "ayrıntılı jeoloji",
+      "mevcut HES işletme rejimi",
+      "kamulaştırma"
+    ],
+    "scores": {
+      "topo": 83,
+      "grid": 86,
+      "env": 70,
+      "geology": 68,
+      "access": 82,
+      "market": 88
+    },
+    "view": {
+      "center": [
+        31.021,
+        40.035
+      ],
+      "zoom": 10.9,
+      "pitch": 58,
+      "bearing": -28
+    },
+    "color": "#3d7dff",
+    "layout": {
+      "bearing": -32,
+      "upper": [
+        30.972,
+        40.072
+      ],
+      "lower": [
+        31.021,
+        40.035
+      ],
+      "power": [
+        31.006,
+        40.027
+      ],
+      "surge": [
+        30.988,
+        40.052
+      ],
+      "switchyard": [
+        31.025,
+        40.03
+      ],
+      "gridA": [
+        30.437708,
+        39.818699
+      ],
+      "gridB": [
+        30.563097,
+        39.858431
+      ],
+      "risk": [
+        31.021,
+        40.035
+      ],
+      "gridTap": [
+        30.563097,
+        39.858431
+      ]
+    },
+    "timeline": [
+      {
+        "date": "2011",
+        "title": "JICA kavramsal çalışma",
+        "text": "1.400 MW / 7 saat ölçeğinde PSPP konsepti ve kısa su yolu ön çalışması."
+      },
+      {
+        "date": "2026 Q1",
+        "title": "Masaüstü yeniden doğrulama",
+        "text": "DEM, rezervuar kotları, mevcut şalt ve bağlantı mesafesi güncellenir."
+      },
+      {
+        "date": "2026 Q2",
+        "title": "TEİAŞ + DSİ ön görüş paketi",
+        "text": "380 kV bağlantı, su kullanım rejimi ve N-1 ön etüt soruları hazırlanır."
+      },
+      {
+        "date": "2026 Q4",
+        "title": "Ön fizibilite kapısı",
+        "text": "Jeoloji, CAPEX P50/P90, ÇED yol haritası ve finansman modeli tamamlanır."
+      }
+    ],
+    "nearest380Km": 7.1,
+    "nearest154Km": 9.1,
+    "nearestSubstation": {
+      "name": "KARTAL RES",
+      "voltage_kv": 154,
+      "coord": [
+        30.426507,
+        39.930818
+      ],
+      "distance_km": 9.1
+    },
+    "nMinusOneNote": "N-1 ve kısa devre gücü için TEİAŞ sistem etüdü kritik; 380 kV takviye ihtimali yüksek.",
+    "gridConnection": {
+      "preferredVoltageKv": 380,
+      "preferredLineName": "400kV ESKİŞEHİR3 - GÖKÇEKAYA HES EİH",
+      "preferredLineDistanceKm": 7.1,
+      "tapCoord": [
+        30.563097,
+        39.858431
+      ],
+      "lineSegment": [
+        [
+          30.437708,
+          39.818699
+        ],
+        [
+          30.563097,
+          39.858431
+        ]
+      ],
+      "nearest380": {
+        "lineName": "400kV ESKİŞEHİR3 - GÖKÇEKAYA HES EİH",
+        "distanceKm": 7.1,
+        "tapCoord": [
+          30.563097,
+          39.858431
+        ]
+      },
+      "nearest154": {
+        "lineName": "154kV ESKİŞEHİR3 - KARTAL RES EİH",
+        "distanceKm": 9.1,
+        "tapCoord": [
+          30.426507,
+          39.930818
+        ]
+      }
+    },
+    "components_detail": {
+      "upper_reservoir": {
+        "elevation_m": 801,
+        "active_volume_mcm": 10.8,
+        "dam_height_m": 38,
+        "lining": "kil çekirdekli set ve yerel geomembran alternatifi",
+        "geology_note": "İletim takviyesi"
+      },
+      "lower_reservoir": {
+        "elevation_m": 421,
+        "min_level_m": 413,
+        "note": "Gökçekaya Barajı / mevcut HES şaltı; DSİ işletme rejimi ve ekolojik akış doğrulanmalı."
+      },
+      "penstock": {
+        "diameter_m": 8.2,
+        "length_m": 4050,
+        "material": "çelik kaplı basınç tüneli",
+        "pressure_class": "~37 bar statik basınç sınıfı",
+        "count": 2
+      },
+      "powerhouse": {
+        "cavern_width_m": 36,
+        "cavern_length_m": 266,
+        "cavern_height_m": 39,
+        "units": 6,
+        "turbine_type": "ayarlanabilir hızlı Francis pompa-türbin"
+      },
+      "surge_tank": {
+        "type": "denge şaftı / surge tank",
+        "height_m": 112,
+        "diameter_m": 33
+      },
+      "switchyard": {
+        "voltage_kv": 380,
+        "transformer_count": 3,
+        "connection_line_km": 7.1
+      },
+      "tunnel": {
+        "length_m": 4050,
+        "diameter_m": 8.2,
+        "excavation_type": "TBM veya drill-and-blast karma kazı"
+      },
+      "intake_outfall": null
+    },
+    "pdhesType": "YARI_PDHES",
+    "province": "Eskisehir / Bilecik",
+    "locationConfidence": "medium",
+    "isApproximate": true,
+    "confidence": "reference_based",
+    "technologyReadiness": "pre_feasibility",
+    "coordinates": {
+      "mapAnchor": [
+        31.021,
+        40.035
+      ],
+      "lowerReservoir": [
+        31.021,
+        40.035
+      ],
+      "upperReservoir": [
+        30.972,
+        40.072
+      ],
+      "powerhouse": [
+        31.006,
+        40.027
+      ],
+      "surgeTank": [
+        30.988,
+        40.052
+      ],
+      "switchyard": [
+        31.025,
+        40.03
+      ],
+      "gridConnection": [
+        31.021,
+        40.035
+      ],
+      "intakeOutfall": null,
+      "bbox": [
+        [
+          30.94,
+          39.99
+        ],
+        [
+          31.06,
+          40.09
+        ]
+      ]
+    },
+    "evidence": [
+      "jicaGokcekaya",
+      "jicaStudy",
+      "teiasGrid"
+    ],
+    "note": "JICA proje sahasi Gokcekaya olarak dogrulandi; bileşen koordinatlari masaüstü GIS ve mevcut HES/rezervuar baglamindan türetilmiştir.",
+    "capacityClass": "macro",
+    "lowerReservoirType": "existing_dam",
+    "upperReservoirType": "new_lined_reservoir",
+    "oldCoordinates": [
+      30.52,
+      39.93
+    ],
+    "verifiedAt": "2026-05-11",
+    "verificationNotes": "JICA proje sahasi Gokcekaya olarak dogrulandi; bileşen koordinatlari masaüstü GIS ve mevcut HES/rezervuar baglamindan türetilmiştir.",
+    "locationEvidence": [
+      {
+        "field": "mapAnchor",
+        "sourceName": "JICA Gokcekaya PSPP environmental page",
+        "sourceType": "official",
+        "sourceUrl": "https://www.jica.go.jp/english/about/policy/environment/id/europe/a_b_fi/turkey/c8h0vm000090rdja.html",
+        "method": "dam/reservoir lookup",
+        "confidence": "medium",
+        "note": "JICA proje sahasi Gokcekaya olarak dogrulandi; bileşen koordinatlari masaüstü GIS ve mevcut HES/rezervuar baglamindan türetilmiştir."
+      },
+      {
+        "field": "upperReservoir",
+        "sourceName": "JICA Study on Optimal Power Generation for Peak Demand in Turkey",
+        "sourceType": "report",
+        "sourceUrl": "https://openjicareport.jica.go.jp/pdf/12019808_01.pdf",
+        "method": "dam/reservoir lookup",
+        "confidence": "medium",
+        "note": "JICA proje sahasi Gokcekaya olarak dogrulandi; bileşen koordinatlari masaüstü GIS ve mevcut HES/rezervuar baglamindan türetilmiştir."
+      },
+      {
+        "field": "gridConnection",
+        "sourceName": "TEIAS KML-derived local grid layer",
+        "sourceType": "official",
+        "sourceUrl": "grid_assets.json",
+        "method": "coast-grid",
+        "confidence": "medium",
+        "note": "JICA proje sahasi Gokcekaya olarak dogrulandi; bileşen koordinatlari masaüstü GIS ve mevcut HES/rezervuar baglamindan türetilmiştir."
+      }
+    ],
+    "layout3D": {
+      "scale": "macro",
+      "preferredBearing": -32,
+      "componentFootprints": []
+    }
+  },
+  {
+    "id": "tasucu",
+    "name": "Taşucu-Gülnar Deniz Suyu PSPP",
+    "concept": "sea",
+    "conceptLabel": "Deniz suyu / kıyı tipi",
+    "lat": 36.37,
+    "lon": 33.95,
+    "region": "Mersin - Taşucu/Gülnar kıyı kuşağı",
+    "score": 79,
+    "head": 780,
+    "tunnelKm": 9.5,
+    "activeMcm": 2.51,
+    "powerMW": 600,
+    "energyGWh": 4.8,
+    "capexBn": 1.44,
+    "revenueM": 81,
+    "payback": 17.8,
+    "gridDistKm": 0.7,
+    "lower": "Akdeniz - deniz alt rezervuarı",
+    "upper": "700-900 m bandında kaplamalı üst rezervuar",
+    "thesis": "Deniz suyu kıyı taraması ve farklılaştırıcı aday portföyü için en iyi ilk odak.",
+    "risks": [
+      "Karst",
+      "kıyı izinleri",
+      "liner/sızdırmazlık",
+      "korozyon ve biyofouling"
+    ],
+    "scores": {
+      "topo": 88,
+      "grid": 76,
+      "env": 62,
+      "geology": 58,
+      "access": 73,
+      "market": 82
+    },
+    "view": {
+      "center": [
+        33.95,
+        36.37
+      ],
+      "zoom": 10.8,
+      "pitch": 58,
+      "bearing": 26
+    },
+    "color": "#15cfe8",
+    "layout": {
+      "bearing": 32,
+      "upper": [
+        33.996,
+        36.415
+      ],
+      "lower": [
+        33.913,
+        36.318
+      ],
+      "power": [
+        33.953,
+        36.371
+      ],
+      "surge": [
+        33.976,
+        36.394
+      ],
+      "switchyard": [
+        33.97,
+        36.355
+      ],
+      "gridA": [
+        33.926979,
+        36.35572
+      ],
+      "gridB": [
+        34.013315,
+        36.366399
+      ],
+      "risk": [
+        33.95,
+        36.37
+      ],
+      "gridTap": [
+        33.970828,
+        36.361144
+      ]
+    },
+    "timeline": [
+      {
+        "date": "2026 Q1",
+        "title": "1 km kıyı-grid taraması",
+        "text": "DEM, kıyı çizgisi, korunan alan ve şebeke yakınlığı puanlanır."
+      },
+      {
+        "date": "2026 Q2",
+        "title": "Konsept mühendislik",
+        "text": "Üst rezervuar, deniz alım/deşarj, tünel ve kavern seçenekleri modellenir."
+      },
+      {
+        "date": "2026 Q3",
+        "title": "Marine + izin stratejisi",
+        "text": "Batimetri, ekosistem, kıyı izinleri ve liner/korozyon paketi taranır."
+      },
+      {
+        "date": "2027",
+        "title": "Go / no-go kararı",
+        "text": "Tam EPC fizibilitesi yerine önce iki finalistte izin ve jeoteknik derinleşme."
+      }
+    ],
+    "nearest380Km": 6.8,
+    "nearest154Km": 0.7,
+    "nearestSubstation": {
+      "name": "TAŞUCU",
+      "voltage_kv": 154,
+      "coord": [
+        33.894,
+        36.332
+      ],
+      "distance_km": 7.4
+    },
+    "nMinusOneNote": "Ön N-1 kontrolü bağlantı fideri ve yerel trafo kapasitesi üzerinden yapılmalı.",
+    "gridConnection": {
+      "preferredVoltageKv": 154,
+      "preferredLineName": "154kV TAŞUCU - MERSİN3 EİH",
+      "preferredLineDistanceKm": 0.7,
+      "tapCoord": [
+        33.970828,
+        36.361144
+      ],
+      "lineSegment": [
+        [
+          33.926979,
+          36.35572
+        ],
+        [
+          34.013315,
+          36.366399
+        ]
+      ],
+      "nearest380": {
+        "lineName": "400kV MERSİN380 -> KARATAY - AKKUYU NGS GİS EİH",
+        "distanceKm": 6.8,
+        "tapCoord": [
+          33.92399,
+          36.402452
+        ]
+      },
+      "nearest154": {
+        "lineName": "154kV TAŞUCU - MERSİN3 EİH",
+        "distanceKm": 0.7,
+        "tapCoord": [
+          33.970828,
+          36.361144
+        ]
+      }
+    },
+    "components_detail": {
+      "upper_reservoir": {
+        "elevation_m": 780,
+        "active_volume_mcm": 2.51,
+        "dam_height_m": 44,
+        "lining": "HDPE geomembran + beton koruma kaplaması",
+        "geology_note": "Karst"
+      },
+      "lower_reservoir": {
+        "elevation_m": 0,
+        "min_level_m": 0,
+        "note": "Deniz seviyesi alt rezervuar; intake/outfall ve ekolojik karışım modellemesi gerekli."
+      },
+      "penstock": {
+        "diameter_m": 6.2,
+        "length_m": 9500,
+        "material": "epoksi kaplı çelik, duplex paslanmaz kritik parçalar",
+        "pressure_class": "~76 bar statik basınç sınıfı",
+        "count": 1
+      },
+      "powerhouse": {
+        "cavern_width_m": 27,
+        "cavern_length_m": 188,
+        "cavern_height_m": 44,
+        "units": 3,
+        "turbine_type": "Francis pompa-türbin"
+      },
+      "surge_tank": {
+        "type": "kule + hidrolik kondisyonlama şaftı",
+        "height_m": 145,
+        "diameter_m": 29
+      },
+      "switchyard": {
+        "voltage_kv": 154,
+        "transformer_count": 2,
+        "connection_line_km": 0.7
+      },
+      "tunnel": {
+        "length_m": 9500,
+        "diameter_m": 6.2,
+        "excavation_type": "TBM + kıyı portalında NATM/drill-blast"
+      },
+      "intake_outfall": {
+        "type": "deniz alımı/desarj",
+        "corrosion_control": "duplex paslanmaz, katodik koruma, biyofouling izleme",
+        "note": "Deniz suyu hidroligi ve ekolojik karisim modeli gerekir."
+      }
+    },
+    "pdhesType": "MAKRO_DENIZ_PDHES",
+    "province": "Mersin",
+    "locationConfidence": "medium",
+    "isApproximate": true,
+    "confidence": "gis_inferred",
+    "technologyReadiness": "concept",
+    "coordinates": {
+      "mapAnchor": [
+        33.95,
+        36.37
+      ],
+      "lowerReservoir": [
+        33.913,
+        36.318
+      ],
+      "upperReservoir": [
+        33.996,
+        36.415
+      ],
+      "powerhouse": [
+        33.953,
+        36.371
+      ],
+      "surgeTank": [
+        33.976,
+        36.394
+      ],
+      "switchyard": [
+        33.97,
+        36.355
+      ],
+      "gridConnection": [
+        33.970828,
+        36.361144
+      ],
+      "intakeOutfall": [
+        33.913,
+        36.318
+      ],
+      "bbox": [
+        [
+          33.88,
+          36.3
+        ],
+        [
+          34.03,
+          36.44
+        ]
+      ]
+    },
+    "evidence": [
+      "osm",
+      "copernicus",
+      "teiasGrid"
+    ],
+    "note": "Deniz alımı Taşucu kıyısina, ust rezervuar Gülnar arka sırtı yukselti bandina yerleştirildi; saha mühendislik teyidi gerektirir.",
+    "capacityClass": "macro",
+    "lowerReservoirType": "sea",
+    "upperReservoirType": "new_lined_reservoir",
+    "oldCoordinates": [
+      33.95,
+      36.37
+    ],
+    "verifiedAt": "2026-05-11",
+    "verificationNotes": "Deniz alımı Taşucu kıyısina, ust rezervuar Gülnar arka sırtı yukselti bandina yerleştirildi; saha mühendislik teyidi gerektirir.",
+    "locationEvidence": [
+      {
+        "field": "mapAnchor",
+        "sourceName": "OpenStreetMap / visual map context",
+        "sourceType": "osm",
+        "sourceUrl": "https://www.openstreetmap.org/",
+        "method": "manual visual check",
+        "confidence": "medium",
+        "note": "Deniz alımı Taşucu kıyısina, ust rezervuar Gülnar arka sırtı yukselti bandina yerleştirildi; saha mühendislik teyidi gerektirir."
+      },
+      {
+        "field": "upperReservoir",
+        "sourceName": "Copernicus DEM GLO-30/GLO-90 reference",
+        "sourceType": "satellite",
+        "sourceUrl": "https://dataspace.copernicus.eu/explore-data/data-collections/copernicus-contributing-missions/collections-description/COP-DEM",
+        "method": "DEM inference",
+        "confidence": "low",
+        "note": "Deniz alımı Taşucu kıyısina, ust rezervuar Gülnar arka sırtı yukselti bandina yerleştirildi; saha mühendislik teyidi gerektirir."
+      },
+      {
+        "field": "gridConnection",
+        "sourceName": "TEIAS KML-derived local grid layer",
+        "sourceType": "official",
+        "sourceUrl": "grid_assets.json",
+        "method": "coast-grid",
+        "confidence": "medium",
+        "note": "Deniz alımı Taşucu kıyısina, ust rezervuar Gülnar arka sırtı yukselti bandina yerleştirildi; saha mühendislik teyidi gerektirir."
+      }
+    ],
+    "layout3D": {
+      "scale": "macro",
+      "preferredBearing": 32,
+      "componentFootprints": []
+    }
+  },
+  {
+    "id": "altinkaya",
+    "name": "Altınkaya PSPP",
+    "concept": "classic",
+    "conceptLabel": "Klasik / stratejik ölçek",
+    "lat": 41.364,
+    "lon": 35.729,
+    "region": "Kizilirmak havzasi - Altinkaya Baraji",
+    "score": 81,
+    "head": 611,
+    "tunnelKm": 5.5,
+    "activeMcm": 8.4,
+    "powerMW": 1800,
+    "energyGWh": 12.6,
+    "capexBn": 3.42,
+    "revenueM": 297,
+    "payback": 11.5,
+    "gridDistKm": 1.5,
+    "lower": "Altınkaya rezervuarı",
+    "upper": "Yüksek kotlu üst rezervuar",
+    "thesis": "Stratejik ölçekte çok güçlü; ancak 380 kV takviye ihtiyacı ilk sprint hızını düşürür.",
+    "risks": [
+      "Bölgesel iletim güçlendirmesi",
+      "yüksek CAPEX",
+      "uzun geliştirme takvimi"
+    ],
+    "scores": {
+      "topo": 91,
+      "grid": 62,
+      "env": 68,
+      "geology": 63,
+      "access": 70,
+      "market": 80
+    },
+    "view": {
+      "center": [
+        35.729,
+        41.364
+      ],
+      "zoom": 10.9,
+      "pitch": 58,
+      "bearing": -18
+    },
+    "color": "#3d7dff",
+    "layout": {
+      "bearing": -12,
+      "upper": [
+        35.665,
+        41.405
+      ],
+      "lower": [
+        35.729,
+        41.364
+      ],
+      "power": [
+        35.707,
+        41.357
+      ],
+      "surge": [
+        35.684,
+        41.384
+      ],
+      "switchyard": [
+        35.735,
+        41.358
+      ],
+      "gridA": [
+        35.882981,
+        41.032409
+      ],
+      "gridB": [
+        35.951895,
+        41.066893
+      ],
+      "risk": [
+        35.729,
+        41.364
+      ],
+      "gridTap": [
+        35.935124,
+        41.058501
+      ]
+    },
+    "timeline": [
+      {
+        "date": "2011",
+        "title": "JICA genel sıralama",
+        "text": "Büyük ölçekli PSPP sahası olarak çalışılmış stratejik aday."
+      },
+      {
+        "date": "2026",
+        "title": "Sistem etkisi testi",
+        "text": "Yerel hat yanında bölgesel 380 kV reinforcement ayrı CAPEX olarak ayrıştırılır."
+      },
+      {
+        "date": "2027",
+        "title": "Stratejik ölçek dosyası",
+        "text": "İlk 24 ay sprintinden ayrı, sistem planlaması ağırlıklı dosya olarak tutulur."
+      }
+    ],
+    "nearest380Km": 3.3,
+    "nearest154Km": 1.5,
+    "nearestSubstation": {
+      "name": "KAVAK OSB",
+      "voltage_kv": 154,
+      "coord": [
+        36.045,
+        41.087
+      ],
+      "distance_km": 10.2
+    },
+    "nMinusOneNote": "N-1 ve kısa devre gücü için TEİAŞ sistem etüdü kritik; 380 kV takviye ihtimali yüksek.",
+    "gridConnection": {
+      "preferredVoltageKv": 154,
+      "preferredLineName": "154kV HAVZA RES - KAVAK OSB EİH",
+      "preferredLineDistanceKm": 1.5,
+      "tapCoord": [
+        35.935124,
+        41.058501
+      ],
+      "lineSegment": [
+        [
+          35.882981,
+          41.032409
+        ],
+        [
+          35.951895,
+          41.066893
+        ]
+      ],
+      "nearest380": {
+        "lineName": "400kV ALTINKAYA HES - KAYABAŞI EİH",
+        "distanceKm": 3.3,
+        "tapCoord": [
+          35.887235,
+          41.076955
+        ]
+      },
+      "nearest154": {
+        "lineName": "154kV HAVZA RES - KAVAK OSB EİH",
+        "distanceKm": 1.5,
+        "tapCoord": [
+          35.935124,
+          41.058501
+        ]
+      }
+    },
+    "components_detail": {
+      "upper_reservoir": {
+        "elevation_m": 691,
+        "active_volume_mcm": 8.4,
+        "dam_height_m": 46,
+        "lining": "kil çekirdekli set ve yerel geomembran alternatifi",
+        "geology_note": "Bölgesel iletim güçlendirmesi"
+      },
+      "lower_reservoir": {
+        "elevation_m": 80,
+        "min_level_m": 72,
+        "note": "Altınkaya rezervuarı; DSİ işletme rejimi ve ekolojik akış doğrulanmalı."
+      },
+      "penstock": {
+        "diameter_m": 8.2,
+        "length_m": 5500,
+        "material": "çelik kaplı basınç tüneli",
+        "pressure_class": "~60 bar statik basınç sınıfı",
+        "count": 2
+      },
+      "powerhouse": {
+        "cavern_width_m": 36,
+        "cavern_length_m": 266,
+        "cavern_height_m": 42,
+        "units": 6,
+        "turbine_type": "ayarlanabilir hızlı Francis pompa-türbin"
+      },
+      "surge_tank": {
+        "type": "denge şaftı / surge tank",
+        "height_m": 141,
+        "diameter_m": 33
+      },
+      "switchyard": {
+        "voltage_kv": 154,
+        "transformer_count": 3,
+        "connection_line_km": 1.5
+      },
+      "tunnel": {
+        "length_m": 5500,
+        "diameter_m": 8.2,
+        "excavation_type": "TBM veya drill-and-blast karma kazı"
+      },
+      "intake_outfall": null
+    },
+    "pdhesType": "YARI_PDHES",
+    "province": "Samsun",
+    "locationConfidence": "medium",
+    "isApproximate": true,
+    "confidence": "reference_based",
+    "technologyReadiness": "pre_feasibility",
+    "coordinates": {
+      "mapAnchor": [
+        35.729,
+        41.364
+      ],
+      "lowerReservoir": [
+        35.729,
+        41.364
+      ],
+      "upperReservoir": [
+        35.665,
+        41.405
+      ],
+      "powerhouse": [
+        35.707,
+        41.357
+      ],
+      "surgeTank": [
+        35.684,
+        41.384
+      ],
+      "switchyard": [
+        35.735,
+        41.358
+      ],
+      "gridConnection": [
+        35.729,
+        41.364
+      ],
+      "intakeOutfall": null,
+      "bbox": [
+        [
+          35.63,
+          41.32
+        ],
+        [
+          35.78,
+          41.43
+        ]
+      ]
+    },
+    "evidence": [
+      "jicaStudy",
+      "teiasGrid",
+      "osm"
+    ],
+    "note": "Altinkaya HES/rezervuar baglami TEIAS KML ve kamu harita referanslariyla hizalandi; ust rezervuar kavramsaldir.",
+    "capacityClass": "macro",
+    "lowerReservoirType": "existing_dam",
+    "upperReservoirType": "new_lined_reservoir",
+    "oldCoordinates": [
+      35.89,
+      41.08
+    ],
+    "verifiedAt": "2026-05-11",
+    "verificationNotes": "Altinkaya HES/rezervuar baglami TEIAS KML ve kamu harita referanslariyla hizalandi; ust rezervuar kavramsaldir.",
+    "locationEvidence": [
+      {
+        "field": "mapAnchor",
+        "sourceName": "JICA Study on Optimal Power Generation for Peak Demand in Turkey",
+        "sourceType": "report",
+        "sourceUrl": "https://openjicareport.jica.go.jp/pdf/12019808_01.pdf",
+        "method": "dam/reservoir lookup",
+        "confidence": "medium",
+        "note": "Altinkaya HES/rezervuar baglami TEIAS KML ve kamu harita referanslariyla hizalandi; ust rezervuar kavramsaldir."
+      },
+      {
+        "field": "upperReservoir",
+        "sourceName": "TEIAS KML-derived local grid layer",
+        "sourceType": "official",
+        "sourceUrl": "grid_assets.json",
+        "method": "coast-grid",
+        "confidence": "medium",
+        "note": "Altinkaya HES/rezervuar baglami TEIAS KML ve kamu harita referanslariyla hizalandi; ust rezervuar kavramsaldir."
+      },
+      {
+        "field": "gridConnection",
+        "sourceName": "OpenStreetMap / visual map context",
+        "sourceType": "osm",
+        "sourceUrl": "https://www.openstreetmap.org/",
+        "method": "manual visual check",
+        "confidence": "medium",
+        "note": "Altinkaya HES/rezervuar baglami TEIAS KML ve kamu harita referanslariyla hizalandi; ust rezervuar kavramsaldir."
+      }
+    ],
+    "layout3D": {
+      "scale": "macro",
+      "preferredBearing": -12,
+      "componentFootprints": []
+    }
+  },
+  {
+    "id": "oymapinar",
+    "name": "Oymapınar Off-river PSPP",
+    "concept": "classic",
+    "conceptLabel": "Klasik / mevcut HES çevresi",
+    "lat": 36.889,
+    "lon": 31.525,
+    "region": "Antalya - Manavgat/Oymapinar",
+    "score": 76,
+    "head": 420,
+    "tunnelKm": 4.8,
+    "activeMcm": 6.21,
+    "powerMW": 800,
+    "energyGWh": 6.4,
+    "capexBn": 1.48,
+    "revenueM": 128,
+    "payback": 11.6,
+    "gridDistKm": 11.6,
+    "lower": "Oymapınar mevcut rezervuar çevresi",
+    "upper": "Off-river üst havza",
+    "thesis": "Mevcut HES altyapısı ve kısa su yolu nedeniyle güçlü üçüncü seçenek.",
+    "risks": [
+      "Turizm baskısı",
+      "çevresel akış",
+      "su rejimi koordinasyonu"
+    ],
+    "scores": {
+      "topo": 76,
+      "grid": 72,
+      "env": 58,
+      "geology": 66,
+      "access": 78,
+      "market": 74
+    },
+    "view": {
+      "center": [
+        31.525,
+        36.889
+      ],
+      "zoom": 10.9,
+      "pitch": 58,
+      "bearing": 12
+    },
+    "color": "#3d7dff",
+    "layout": {
+      "bearing": 18,
+      "upper": [
+        31.47,
+        36.952
+      ],
+      "lower": [
+        31.525,
+        36.889
+      ],
+      "power": [
+        31.503,
+        36.91
+      ],
+      "surge": [
+        31.487,
+        36.933
+      ],
+      "switchyard": [
+        31.528,
+        36.907
+      ],
+      "gridA": [
+        31.527863,
+        36.905516
+      ],
+      "gridB": [
+        31.529798,
+        36.907854
+      ],
+      "risk": [
+        31.525,
+        36.889
+      ],
+      "gridTap": [
+        31.529798,
+        36.907854
+      ]
+    },
+    "timeline": [
+      {
+        "date": "2026 Q1",
+        "title": "Mevcut HES overlay",
+        "text": "Rezervuar kotları, HES işletmesi ve 154 kV çevre bağlantısı taranır."
+      },
+      {
+        "date": "2026 Q2",
+        "title": "Çevresel akış senaryosu",
+        "text": "Turizm ve ekoloji nedeniyle su rejimi/operasyon çakışmaları test edilir."
+      }
+    ],
+    "nearest380Km": 11.6,
+    "nearest154Km": 12.5,
+    "nearestSubstation": {
+      "name": "OYMAPINAR HES",
+      "voltage_kv": 400,
+      "coord": [
+        31.529937,
+        36.907958
+      ],
+      "distance_km": 11.6
+    },
+    "nMinusOneNote": "Ön N-1 kontrolü bağlantı fideri ve yerel trafo kapasitesi üzerinden yapılmalı.",
+    "gridConnection": {
+      "preferredVoltageKv": 380,
+      "preferredLineName": "400kV OYMAPINAR - OYMAPINAR HES - II EİH",
+      "preferredLineDistanceKm": 11.6,
+      "tapCoord": [
+        31.529798,
+        36.907854
+      ],
+      "lineSegment": [
+        [
+          31.527863,
+          36.905516
+        ],
+        [
+          31.529798,
+          36.907854
+        ]
+      ],
+      "nearest380": {
+        "lineName": "400kV OYMAPINAR - OYMAPINAR HES - II EİH",
+        "distanceKm": 11.6,
+        "tapCoord": [
+          31.529798,
+          36.907854
+        ]
+      },
+      "nearest154": {
+        "lineName": "154kV OYMAPINAR HES - MAHMUTLAR EİH",
+        "distanceKm": 12.5,
+        "tapCoord": [
+          31.521323,
+          36.888665
+        ]
+      }
+    },
+    "components_detail": {
+      "upper_reservoir": {
+        "elevation_m": 600,
+        "active_volume_mcm": 6.21,
+        "dam_height_m": 34,
+        "lining": "kil çekirdekli set ve yerel geomembran alternatifi",
+        "geology_note": "Turizm baskısı"
+      },
+      "lower_reservoir": {
+        "elevation_m": 180,
+        "min_level_m": 172,
+        "note": "Oymapınar mevcut rezervuar çevresi; DSİ işletme rejimi ve ekolojik akış doğrulanmalı."
+      },
+      "penstock": {
+        "diameter_m": 6.2,
+        "length_m": 4800,
+        "material": "çelik kaplı basınç tüneli",
+        "pressure_class": "~41 bar statik basınç sınıfı",
+        "count": 1
+      },
+      "powerhouse": {
+        "cavern_width_m": 27,
+        "cavern_length_m": 188,
+        "cavern_height_m": 39,
+        "units": 3,
+        "turbine_type": "Francis pompa-türbin"
+      },
+      "surge_tank": {
+        "type": "denge şaftı / surge tank",
+        "height_m": 118,
+        "diameter_m": 29
+      },
+      "switchyard": {
+        "voltage_kv": 380,
+        "transformer_count": 2,
+        "connection_line_km": 11.6
+      },
+      "tunnel": {
+        "length_m": 4800,
+        "diameter_m": 6.2,
+        "excavation_type": "TBM veya drill-and-blast karma kazı"
+      },
+      "intake_outfall": null
+    },
+    "pdhesType": "YARI_PDHES",
+    "province": "Antalya",
+    "locationConfidence": "medium",
+    "isApproximate": true,
+    "confidence": "gis_inferred",
+    "technologyReadiness": "pre_feasibility",
+    "coordinates": {
+      "mapAnchor": [
+        31.525,
+        36.889
+      ],
+      "lowerReservoir": [
+        31.525,
+        36.889
+      ],
+      "upperReservoir": [
+        31.47,
+        36.952
+      ],
+      "powerhouse": [
+        31.503,
+        36.91
+      ],
+      "surgeTank": [
+        31.487,
+        36.933
+      ],
+      "switchyard": [
+        31.528,
+        36.907
+      ],
+      "gridConnection": [
+        31.529798,
+        36.907854
+      ],
+      "intakeOutfall": null,
+      "bbox": [
+        [
+          31.44,
+          36.86
+        ],
+        [
+          31.55,
+          36.98
+        ]
+      ]
+    },
+    "evidence": [
+      "teiasGrid",
+      "osm",
+      "copernicus"
+    ],
+    "note": "Oymapinar HES merkezi ve rezervuar cevresiyle yeniden hizalandi; turizm/cevre etkisi nedeniyle alan yaklasiktir.",
+    "capacityClass": "macro",
+    "lowerReservoirType": "existing_dam",
+    "upperReservoirType": "new_lined_reservoir",
+    "oldCoordinates": [
+      31.4,
+      36.98
+    ],
+    "verifiedAt": "2026-05-11",
+    "verificationNotes": "Oymapinar HES merkezi ve rezervuar cevresiyle yeniden hizalandi; turizm/cevre etkisi nedeniyle alan yaklasiktir.",
+    "locationEvidence": [
+      {
+        "field": "mapAnchor",
+        "sourceName": "TEIAS KML-derived local grid layer",
+        "sourceType": "official",
+        "sourceUrl": "grid_assets.json",
+        "method": "coast-grid",
+        "confidence": "medium",
+        "note": "Oymapinar HES merkezi ve rezervuar cevresiyle yeniden hizalandi; turizm/cevre etkisi nedeniyle alan yaklasiktir."
+      },
+      {
+        "field": "upperReservoir",
+        "sourceName": "OpenStreetMap / visual map context",
+        "sourceType": "osm",
+        "sourceUrl": "https://www.openstreetmap.org/",
+        "method": "manual visual check",
+        "confidence": "medium",
+        "note": "Oymapinar HES merkezi ve rezervuar cevresiyle yeniden hizalandi; turizm/cevre etkisi nedeniyle alan yaklasiktir."
+      },
+      {
+        "field": "gridConnection",
+        "sourceName": "Copernicus DEM GLO-30/GLO-90 reference",
+        "sourceType": "satellite",
+        "sourceUrl": "https://dataspace.copernicus.eu/explore-data/data-collections/copernicus-contributing-missions/collections-description/COP-DEM",
+        "method": "DEM inference",
+        "confidence": "low",
+        "note": "Oymapinar HES merkezi ve rezervuar cevresiyle yeniden hizalandi; turizm/cevre etkisi nedeniyle alan yaklasiktir."
+      }
+    ],
+    "layout3D": {
+      "scale": "macro",
+      "preferredBearing": 18,
+      "componentFootprints": []
+    }
+  },
+  {
+    "id": "karaburun",
+    "name": "Karaburun Sırtı Deniz Suyu PSPP",
+    "concept": "sea",
+    "conceptLabel": "Deniz suyu / görsel etki hassas",
+    "lat": 38.63,
+    "lon": 26.57,
+    "region": "Izmir - Karaburun yarımadası",
+    "score": 72,
+    "head": 620,
+    "tunnelKm": 6.5,
+    "activeMcm": 2.63,
+    "powerMW": 500,
+    "energyGWh": 4,
+    "capexBn": 1.25,
+    "revenueM": 70,
+    "payback": 17.9,
+    "gridDistKm": 14.5,
+    "lower": "Ege Denizi",
+    "upper": "Karaburun sırtlarında üst rezervuar",
+    "thesis": "Teknik olarak yakın yük merkezi premiumu sunar; izin ve sosyal kabul daha zor.",
+    "risks": [
+      "Turizm",
+      "korunan alan",
+      "görsel etki",
+      "imar baskısı"
+    ],
+    "scores": {
+      "topo": 74,
+      "grid": 78,
+      "env": 48,
+      "geology": 62,
+      "access": 69,
+      "market": 86
+    },
+    "view": {
+      "center": [
+        26.57,
+        38.63
+      ],
+      "zoom": 10.8,
+      "pitch": 58,
+      "bearing": 38
+    },
+    "color": "#15cfe8",
+    "layout": {
+      "bearing": 42,
+      "upper": [
+        26.565,
+        38.614
+      ],
+      "lower": [
+        26.5,
+        38.646
+      ],
+      "power": [
+        26.535,
+        38.63
+      ],
+      "surge": [
+        26.553,
+        38.622
+      ],
+      "switchyard": [
+        26.505556,
+        38.443611
+      ],
+      "gridA": [
+        26.440771,
+        38.561567
+      ],
+      "gridB": [
+        26.441944,
+        38.561944
+      ],
+      "risk": [
+        26.57,
+        38.63
+      ],
+      "gridTap": [
+        26.441944,
+        38.561944
+      ]
+    },
+    "timeline": [
+      {
+        "date": "2026 Q1",
+        "title": "Kıyı-grid teknik tarama",
+        "text": "Kısa su yolu ve yük merkezine yakınlık pozitif skora çevrilir."
+      },
+      {
+        "date": "2026 Q2",
+        "title": "Görsel etki ve sosyal kabul",
+        "text": "Turizm sezonu, korunan alan ve imar hassasiyeti ayrı overlay yapılır."
+      }
+    ],
+    "nearest380Km": 14.5,
+    "nearest154Km": 27.1,
+    "nearestSubstation": {
+      "name": "LODOS RES",
+      "voltage_kv": 400,
+      "coord": [
+        26.441944,
+        38.561944
+      ],
+      "distance_km": 14.5
+    },
+    "nMinusOneNote": "Ön N-1 kontrolü bağlantı fideri ve yerel trafo kapasitesi üzerinden yapılmalı.",
+    "gridConnection": {
+      "preferredVoltageKv": 380,
+      "preferredLineName": "400kV KARABURUN - LODOS RES EİH",
+      "preferredLineDistanceKm": 14.5,
+      "tapCoord": [
+        26.441944,
+        38.561944
+      ],
+      "lineSegment": [
+        [
+          26.440771,
+          38.561567
+        ],
+        [
+          26.441944,
+          38.561944
+        ]
+      ],
+      "nearest380": {
+        "lineName": "400kV KARABURUN - LODOS RES EİH",
+        "distanceKm": 14.5,
+        "tapCoord": [
+          26.441944,
+          38.561944
+        ]
+      },
+      "nearest154": {
+        "lineName": "154kV ULUCAK - KOZBEYLİ RES EİH",
+        "distanceKm": 27.1,
+        "tapCoord": [
+          26.885513,
+          38.702597
+        ]
+      }
+    },
+    "components_detail": {
+      "upper_reservoir": {
+        "elevation_m": 620,
+        "active_volume_mcm": 2.63,
+        "dam_height_m": 36,
+        "lining": "HDPE geomembran + beton koruma kaplaması",
+        "geology_note": "Turizm"
+      },
+      "lower_reservoir": {
+        "elevation_m": 0,
+        "min_level_m": 0,
+        "note": "Deniz seviyesi alt rezervuar; intake/outfall ve ekolojik karışım modellemesi gerekli."
+      },
+      "penstock": {
+        "diameter_m": 5.2,
+        "length_m": 6500,
+        "material": "epoksi kaplı çelik, duplex paslanmaz kritik parçalar",
+        "pressure_class": "~61 bar statik basınç sınıfı",
+        "count": 1
+      },
+      "powerhouse": {
+        "cavern_width_m": 24,
+        "cavern_length_m": 162,
+        "cavern_height_m": 42,
+        "units": 2,
+        "turbine_type": "Francis pompa-türbin"
+      },
+      "surge_tank": {
+        "type": "kule + hidrolik kondisyonlama şaftı",
+        "height_m": 143,
+        "diameter_m": 27
+      },
+      "switchyard": {
+        "voltage_kv": 380,
+        "transformer_count": 2,
+        "connection_line_km": 14.5
+      },
+      "tunnel": {
+        "length_m": 6500,
+        "diameter_m": 5.2,
+        "excavation_type": "TBM + kıyı portalında NATM/drill-blast"
+      },
+      "intake_outfall": {
+        "type": "deniz alımı/desarj",
+        "corrosion_control": "duplex paslanmaz, katodik koruma, biyofouling izleme",
+        "note": "Deniz suyu hidroligi ve ekolojik karisim modeli gerekir."
+      }
+    },
+    "pdhesType": "MAKRO_DENIZ_PDHES",
+    "province": "Izmir",
+    "locationConfidence": "low",
+    "isApproximate": true,
+    "confidence": "gis_inferred",
+    "technologyReadiness": "concept",
+    "coordinates": {
+      "mapAnchor": [
+        26.57,
+        38.63
+      ],
+      "lowerReservoir": [
+        26.5,
+        38.646
+      ],
+      "upperReservoir": [
+        26.565,
+        38.614
+      ],
+      "powerhouse": [
+        26.535,
+        38.63
+      ],
+      "surgeTank": [
+        26.553,
+        38.622
+      ],
+      "switchyard": [
+        26.505556,
+        38.443611
+      ],
+      "gridConnection": [
+        26.505556,
+        38.443611
+      ],
+      "intakeOutfall": [
+        26.5,
+        38.646
+      ],
+      "bbox": [
+        [
+          26.47,
+          38.58
+        ],
+        [
+          26.6,
+          38.67
+        ]
+      ]
+    },
+    "evidence": [
+      "osm",
+      "copernicus",
+      "teiasGrid"
+    ],
+    "note": "Karaburun sırtları görsel etki ve korunan alan hassasiyeti taşır; koordinatlar kavramsal kıyı-sirt eşleştirmesidir.",
+    "capacityClass": "macro",
+    "lowerReservoirType": "sea",
+    "upperReservoirType": "new_lined_reservoir",
+    "oldCoordinates": [
+      26.57,
+      38.63
+    ],
+    "verifiedAt": "2026-05-11",
+    "verificationNotes": "Karaburun sırtları görsel etki ve korunan alan hassasiyeti taşır; koordinatlar kavramsal kıyı-sirt eşleştirmesidir.",
+    "locationEvidence": [
+      {
+        "field": "mapAnchor",
+        "sourceName": "OpenStreetMap / visual map context",
+        "sourceType": "osm",
+        "sourceUrl": "https://www.openstreetmap.org/",
+        "method": "manual visual check",
+        "confidence": "medium",
+        "note": "Karaburun sırtları görsel etki ve korunan alan hassasiyeti taşır; koordinatlar kavramsal kıyı-sirt eşleştirmesidir."
+      },
+      {
+        "field": "upperReservoir",
+        "sourceName": "Copernicus DEM GLO-30/GLO-90 reference",
+        "sourceType": "satellite",
+        "sourceUrl": "https://dataspace.copernicus.eu/explore-data/data-collections/copernicus-contributing-missions/collections-description/COP-DEM",
+        "method": "DEM inference",
+        "confidence": "low",
+        "note": "Karaburun sırtları görsel etki ve korunan alan hassasiyeti taşır; koordinatlar kavramsal kıyı-sirt eşleştirmesidir."
+      },
+      {
+        "field": "gridConnection",
+        "sourceName": "TEIAS KML-derived local grid layer",
+        "sourceType": "official",
+        "sourceUrl": "grid_assets.json",
+        "method": "coast-grid",
+        "confidence": "medium",
+        "note": "Karaburun sırtları görsel etki ve korunan alan hassasiyeti taşır; koordinatlar kavramsal kıyı-sirt eşleştirmesidir."
+      }
+    ],
+    "layout3D": {
+      "scale": "macro",
+      "preferredBearing": 42,
+      "componentFootprints": []
+    }
+  },
+  {
+    "id": "bozyazi_anamur",
+    "name": "Bozyazı-Anamur Deniz Suyu PSPP",
+    "concept": "sea",
+    "conceptLabel": "Deniz suyu / yüksek düşülü kıyı tipi",
+    "lat": 36.12,
+    "lon": 32.99,
+    "region": "Mersin - Bozyazi/Anamur kıyı daglari",
+    "score": 76,
+    "head": 900,
+    "tunnelKm": 11,
+    "activeMcm": 2.54,
+    "powerMW": 700,
+    "energyGWh": 5.6,
+    "capexBn": 1.78,
+    "revenueM": 89.6,
+    "payback": 19.9,
+    "gridDistKm": 3.6,
+    "lower": "Akdeniz - Anamur kıyısı deniz alt rezervuarı",
+    "upper": "~900 m bandında kaplamalı kıyı üst rezervuarı",
+    "thesis": "Taşucu sonrası ikinci Akdeniz deniz suyu finalisti; yüksek düşü güçlü enerji yoğunluğu sağlar, ancak kıyı-çevre ve bağlantı riski daha ağırdır.",
+    "risks": [
+      "Kıyı ekolojisi",
+      "uzun bağlantı hattı",
+      "deprem/heyelan",
+      "liner ve korozyon"
+    ],
+    "scores": {
+      "topo": 87,
+      "grid": 68,
+      "env": 58,
+      "geology": 55,
+      "access": 69,
+      "market": 75
+    },
+    "view": {
+      "center": [
+        32.99,
+        36.12
+      ],
+      "zoom": 10.8,
+      "pitch": 58,
+      "bearing": 30
+    },
+    "color": "#15cfe8",
+    "layout": {
+      "bearing": 35,
+      "upper": [
+        33.03,
+        36.17
+      ],
+      "lower": [
+        32.895,
+        36.087
+      ],
+      "power": [
+        32.965,
+        36.122
+      ],
+      "surge": [
+        33,
+        36.148
+      ],
+      "switchyard": [
+        32.867,
+        36.093
+      ],
+      "gridA": [
+        32.867,
+        36.093
+      ],
+      "gridB": [
+        33.547,
+        36.167
+      ],
+      "risk": [
+        32.99,
+        36.12
+      ],
+      "gridTap": [
+        32.915296,
+        36.098256
+      ]
+    },
+    "timeline": [
+      {
+        "date": "2026 Q2",
+        "title": "Kıyı-grid doğrulama",
+        "text": "Anamur-Bozyazı kıyı çizgisi, üst kot çanakları ve 154 kV yaklaşımı birlikte taranır."
+      },
+      {
+        "date": "2026 Q3",
+        "title": "Marine/jeoloji elemesi",
+        "text": "Kıyı ekolojisi, heyelan, liner geçirimsizliği ve deniz yapısı izinleri kısa listeye alınır."
+      },
+      {
+        "date": "2027 Q1",
+        "title": "Ön bağlantı görüşü",
+        "text": "154 kV bağlantı ve 380 kV takviye gereksinimi için TEİAŞ ön etüt paketi hazırlanır."
+      }
+    ],
+    "nearest380Km": 48.8,
+    "nearest154Km": 3.6,
+    "nearestSubstation": {
+      "name": "ANAMUR",
+      "voltage_kv": 154,
+      "coord": [
+        32.867,
+        36.093
+      ],
+      "distance_km": 5.6
+    },
+    "nMinusOneNote": "Ön N-1 kontrolü bağlantı fideri ve yerel trafo kapasitesi üzerinden yapılmalı.",
+    "gridConnection": {
+      "preferredVoltageKv": 154,
+      "preferredLineName": "154kV ANAMUR -> GÜLNAR HAVZA - AKKUYU GEÇİCİ EİH",
+      "preferredLineDistanceKm": 3.6,
+      "tapCoord": [
+        32.915296,
+        36.098256
+      ],
+      "lineSegment": [
+        [
+          32.867,
+          36.093
+        ],
+        [
+          33.547,
+          36.167
+        ]
+      ],
+      "nearest380": {
+        "lineName": "400kV ERMENEK HES - MERSİN380 EİH",
+        "distanceKm": 48.8,
+        "tapCoord": [
+          33.170473,
+          36.515231
+        ]
+      },
+      "nearest154": {
+        "lineName": "154kV ANAMUR -> GÜLNAR HAVZA - AKKUYU GEÇİCİ EİH",
+        "distanceKm": 3.6,
+        "tapCoord": [
+          32.915296,
+          36.098256
+        ]
+      }
+    },
+    "components_detail": {
+      "upper_reservoir": {
+        "elevation_m": 900,
+        "active_volume_mcm": 2.54,
+        "dam_height_m": 48,
+        "lining": "HDPE geomembran + beton koruma kaplaması",
+        "geology_note": "Kıyı ekolojisi"
+      },
+      "lower_reservoir": {
+        "elevation_m": 0,
+        "min_level_m": 0,
+        "note": "Deniz seviyesi alt rezervuar; intake/outfall ve ekolojik karışım modellemesi gerekli."
+      },
+      "penstock": {
+        "diameter_m": 6.2,
+        "length_m": 11000,
+        "material": "epoksi kaplı çelik, duplex paslanmaz kritik parçalar",
+        "pressure_class": "~88 bar statik basınç sınıfı",
+        "count": 1
+      },
+      "powerhouse": {
+        "cavern_width_m": 27,
+        "cavern_length_m": 188,
+        "cavern_height_m": 45,
+        "units": 3,
+        "turbine_type": "Francis pompa-türbin"
+      },
+      "surge_tank": {
+        "type": "kule + hidrolik kondisyonlama şaftı",
+        "height_m": 145,
+        "diameter_m": 29
+      },
+      "switchyard": {
+        "voltage_kv": 154,
+        "transformer_count": 2,
+        "connection_line_km": 3.6
+      },
+      "tunnel": {
+        "length_m": 11000,
+        "diameter_m": 6.2,
+        "excavation_type": "TBM + kıyı portalında NATM/drill-blast"
+      },
+      "intake_outfall": {
+        "type": "deniz alımı/desarj",
+        "corrosion_control": "duplex paslanmaz, katodik koruma, biyofouling izleme",
+        "note": "Deniz suyu hidroligi ve ekolojik karisim modeli gerekir."
+      }
+    },
+    "pdhesType": "MAKRO_DENIZ_PDHES",
+    "province": "Mersin",
+    "locationConfidence": "medium",
+    "isApproximate": true,
+    "confidence": "gis_inferred",
+    "technologyReadiness": "concept",
+    "coordinates": {
+      "mapAnchor": [
+        32.99,
+        36.12
+      ],
+      "lowerReservoir": [
+        32.895,
+        36.087
+      ],
+      "upperReservoir": [
+        33.03,
+        36.17
+      ],
+      "powerhouse": [
+        32.965,
+        36.122
+      ],
+      "surgeTank": [
+        33,
+        36.148
+      ],
+      "switchyard": [
+        32.867,
+        36.093
+      ],
+      "gridConnection": [
+        32.867,
+        36.093
+      ],
+      "intakeOutfall": [
+        32.895,
+        36.087
+      ],
+      "bbox": [
+        [
+          32.84,
+          36.06
+        ],
+        [
+          33.07,
+          36.2
+        ]
+      ]
+    },
+    "evidence": [
+      "osm",
+      "copernicus",
+      "teiasGrid"
+    ],
+    "note": "Alt rezervuar Akdeniz kıyısina, ust rezervuar Toros arka sırtı yukselti bandina kondu; karst ve kıyı izinleri belirsizdir.",
+    "capacityClass": "macro",
+    "lowerReservoirType": "sea",
+    "upperReservoirType": "new_lined_reservoir",
+    "oldCoordinates": [
+      32.9,
+      36.17
+    ],
+    "verifiedAt": "2026-05-11",
+    "verificationNotes": "Alt rezervuar Akdeniz kıyısina, ust rezervuar Toros arka sırtı yukselti bandina kondu; karst ve kıyı izinleri belirsizdir.",
+    "locationEvidence": [
+      {
+        "field": "mapAnchor",
+        "sourceName": "OpenStreetMap / visual map context",
+        "sourceType": "osm",
+        "sourceUrl": "https://www.openstreetmap.org/",
+        "method": "manual visual check",
+        "confidence": "medium",
+        "note": "Alt rezervuar Akdeniz kıyısina, ust rezervuar Toros arka sırtı yukselti bandina kondu; karst ve kıyı izinleri belirsizdir."
+      },
+      {
+        "field": "upperReservoir",
+        "sourceName": "Copernicus DEM GLO-30/GLO-90 reference",
+        "sourceType": "satellite",
+        "sourceUrl": "https://dataspace.copernicus.eu/explore-data/data-collections/copernicus-contributing-missions/collections-description/COP-DEM",
+        "method": "DEM inference",
+        "confidence": "low",
+        "note": "Alt rezervuar Akdeniz kıyısina, ust rezervuar Toros arka sırtı yukselti bandina kondu; karst ve kıyı izinleri belirsizdir."
+      },
+      {
+        "field": "gridConnection",
+        "sourceName": "TEIAS KML-derived local grid layer",
+        "sourceType": "official",
+        "sourceUrl": "grid_assets.json",
+        "method": "coast-grid",
+        "confidence": "medium",
+        "note": "Alt rezervuar Akdeniz kıyısina, ust rezervuar Toros arka sırtı yukselti bandina kondu; karst ve kıyı izinleri belirsizdir."
+      }
+    ],
+    "layout3D": {
+      "scale": "macro",
+      "preferredBearing": 35,
+      "componentFootprints": []
+    }
+  },
+  {
+    "id": "ordu_persembe",
+    "name": "Ordu-Perşembe Arka Sırt Deniz Suyu PSPP",
+    "concept": "sea",
+    "conceptLabel": "Deniz suyu / Karadeniz kıyı tipi",
+    "lat": 40.96,
+    "lon": 37.76,
+    "region": "Ordu - Persembe/Altinordu arka sırtları",
+    "score": 57,
+    "head": 550,
+    "tunnelKm": 8,
+    "activeMcm": 2.08,
+    "powerMW": 350,
+    "energyGWh": 2.8,
+    "capexBn": 0.84,
+    "revenueM": 38.5,
+    "payback": 21.8,
+    "gridDistKm": 0.3,
+    "lower": "Karadeniz - Perşembe kıyısı deniz alt rezervuarı",
+    "upper": "~550 m bandında küçük kaplamalı üst rezervuar",
+    "thesis": "Karadeniz kıyısı için ürün kapsama alanını genişleten daha küçük ölçekli aday; yoğun yağış ve heyelan riski nedeniyle temkinli puanlanır.",
+    "risks": [
+      "Heyelan",
+      "yoğun yağış",
+      "kıyı yerleşimi",
+      "Karadeniz deniz koşulları"
+    ],
+    "scores": {
+      "topo": 66,
+      "grid": 74,
+      "env": 52,
+      "geology": 45,
+      "access": 62,
+      "market": 58
+    },
+    "view": {
+      "center": [
+        37.76,
+        40.96
+      ],
+      "zoom": 10.8,
+      "pitch": 58,
+      "bearing": -24
+    },
+    "color": "#15cfe8",
+    "layout": {
+      "bearing": -28,
+      "upper": [
+        37.825,
+        40.915
+      ],
+      "lower": [
+        37.735,
+        41.005
+      ],
+      "power": [
+        37.78,
+        40.958
+      ],
+      "surge": [
+        37.802,
+        40.935
+      ],
+      "switchyard": [
+        37.72,
+        40.94
+      ],
+      "gridA": [
+        37.654008,
+        40.954148
+      ],
+      "gridB": [
+        37.730882,
+        40.941291
+      ],
+      "risk": [
+        37.76,
+        40.96
+      ],
+      "gridTap": [
+        37.720869,
+        40.942966
+      ]
+    },
+    "timeline": [
+      {
+        "date": "2026 Q2",
+        "title": "Karadeniz kıyı taraması",
+        "text": "Yağış, heyelan envanteri ve kıyı yerleşimi katmanları ön elemeden geçirilir."
+      },
+      {
+        "date": "2026 Q4",
+        "title": "Şebeke ve jeoloji ön kontrolü",
+        "text": "Altınordu 400 kV çevresi ve 154 kV yerel bağlantı birlikte değerlendirilir."
+      },
+      {
+        "date": "2027 Q2",
+        "title": "Go / no-go",
+        "text": "Heyelan ve kıyı izinleri netleşirse küçük ölçekli demonstrasyon fizibilitesi açılır."
+      }
+    ],
+    "nearest380Km": 0.3,
+    "nearest154Km": 6.9,
+    "nearestSubstation": {
+      "name": "ALTINORDU",
+      "voltage_kv": 400,
+      "coord": [
+        37.856,
+        40.916
+      ],
+      "distance_km": 11.7
+    },
+    "nMinusOneNote": "Ön N-1 kontrolü bağlantı fideri ve yerel trafo kapasitesi üzerinden yapılmalı.",
+    "gridConnection": {
+      "preferredVoltageKv": 380,
+      "preferredLineName": "400kV BİLGİN SAMSUN DGKÇ - ALTINORDU EİH",
+      "preferredLineDistanceKm": 0.3,
+      "tapCoord": [
+        37.720869,
+        40.942966
+      ],
+      "lineSegment": [
+        [
+          37.654008,
+          40.954148
+        ],
+        [
+          37.730882,
+          40.941291
+        ]
+      ],
+      "nearest380": {
+        "lineName": "400kV BİLGİN SAMSUN DGKÇ - ALTINORDU EİH",
+        "distanceKm": 0.3,
+        "tapCoord": [
+          37.720869,
+          40.942966
+        ]
+      },
+      "nearest154": {
+        "lineName": "154kV ORDU - FATSA EİH",
+        "distanceKm": 6.9,
+        "tapCoord": [
+          37.721944,
+          41.00178
+        ]
+      }
+    },
+    "components_detail": {
+      "upper_reservoir": {
+        "elevation_m": 550,
+        "active_volume_mcm": 2.08,
+        "dam_height_m": 32,
+        "lining": "HDPE geomembran + beton koruma kaplaması",
+        "geology_note": "Heyelan"
+      },
+      "lower_reservoir": {
+        "elevation_m": 0,
+        "min_level_m": 0,
+        "note": "Deniz seviyesi alt rezervuar; intake/outfall ve ekolojik karışım modellemesi gerekli."
+      },
+      "penstock": {
+        "diameter_m": 5.2,
+        "length_m": 8000,
+        "material": "epoksi kaplı çelik, duplex paslanmaz kritik parçalar",
+        "pressure_class": "~54 bar statik basınç sınıfı",
+        "count": 1
+      },
+      "powerhouse": {
+        "cavern_width_m": 24,
+        "cavern_length_m": 162,
+        "cavern_height_m": 41,
+        "units": 2,
+        "turbine_type": "Francis pompa-türbin"
+      },
+      "surge_tank": {
+        "type": "kule + hidrolik kondisyonlama şaftı",
+        "height_m": 134,
+        "diameter_m": 27
+      },
+      "switchyard": {
+        "voltage_kv": 380,
+        "transformer_count": 2,
+        "connection_line_km": 0.3
+      },
+      "tunnel": {
+        "length_m": 8000,
+        "diameter_m": 5.2,
+        "excavation_type": "TBM + kıyı portalında NATM/drill-blast"
+      },
+      "intake_outfall": {
+        "type": "deniz alımı/desarj",
+        "corrosion_control": "duplex paslanmaz, katodik koruma, biyofouling izleme",
+        "note": "Deniz suyu hidroligi ve ekolojik karisim modeli gerekir."
+      }
+    },
+    "pdhesType": "MAKRO_DENIZ_PDHES",
+    "province": "Ordu",
+    "locationConfidence": "low",
+    "isApproximate": true,
+    "confidence": "gis_inferred",
+    "technologyReadiness": "concept",
+    "coordinates": {
+      "mapAnchor": [
+        37.76,
+        40.96
+      ],
+      "lowerReservoir": [
+        37.735,
+        41.005
+      ],
+      "upperReservoir": [
+        37.825,
+        40.915
+      ],
+      "powerhouse": [
+        37.78,
+        40.958
+      ],
+      "surgeTank": [
+        37.802,
+        40.935
+      ],
+      "switchyard": [
+        37.72,
+        40.94
+      ],
+      "gridConnection": [
+        37.720869,
+        40.942966
+      ],
+      "intakeOutfall": [
+        37.735,
+        41.005
+      ],
+      "bbox": [
+        [
+          37.7,
+          40.89
+        ],
+        [
+          37.85,
+          41.02
+        ]
+      ]
+    },
+    "evidence": [
+      "osm",
+      "copernicus",
+      "teiasGrid",
+      "mta"
+    ],
+    "note": "Karadeniz heyelan duyarliligi yüksek olduğundan alan düşük güvenli kavramsal adaydır.",
+    "capacityClass": "macro",
+    "lowerReservoirType": "sea",
+    "upperReservoirType": "new_lined_reservoir",
+    "oldCoordinates": [
+      37.76,
+      40.96
+    ],
+    "verifiedAt": "2026-05-11",
+    "verificationNotes": "Karadeniz heyelan duyarliligi yüksek olduğundan alan düşük güvenli kavramsal adaydır.",
+    "locationEvidence": [
+      {
+        "field": "mapAnchor",
+        "sourceName": "OpenStreetMap / visual map context",
+        "sourceType": "osm",
+        "sourceUrl": "https://www.openstreetmap.org/",
+        "method": "manual visual check",
+        "confidence": "medium",
+        "note": "Karadeniz heyelan duyarliligi yüksek olduğundan alan düşük güvenli kavramsal adaydır."
+      },
+      {
+        "field": "upperReservoir",
+        "sourceName": "Copernicus DEM GLO-30/GLO-90 reference",
+        "sourceType": "satellite",
+        "sourceUrl": "https://dataspace.copernicus.eu/explore-data/data-collections/copernicus-contributing-missions/collections-description/COP-DEM",
+        "method": "DEM inference",
+        "confidence": "low",
+        "note": "Karadeniz heyelan duyarliligi yüksek olduğundan alan düşük güvenli kavramsal adaydır."
+      },
+      {
+        "field": "gridConnection",
+        "sourceName": "TEIAS KML-derived local grid layer",
+        "sourceType": "official",
+        "sourceUrl": "grid_assets.json",
+        "method": "coast-grid",
+        "confidence": "medium",
+        "note": "Karadeniz heyelan duyarliligi yüksek olduğundan alan düşük güvenli kavramsal adaydır."
+      },
+      {
+        "field": "gridConnection",
+        "sourceName": "MTA Yerbilimleri / Diri Fay and geology references",
+        "sourceType": "official",
+        "sourceUrl": "https://yerbilimleri.mta.gov.tr/referans.aspx",
+        "method": "manual visual check",
+        "confidence": "medium",
+        "note": "Karadeniz heyelan duyarliligi yüksek olduğundan alan düşük güvenli kavramsal adaydır."
+      }
+    ],
+    "layout3D": {
+      "scale": "macro",
+      "preferredBearing": -28,
+      "componentFootprints": []
+    }
+  },
+  {
+    "id": "menzelet",
+    "name": "Menzelet Off-river PSPP",
+    "concept": "classic",
+    "conceptLabel": "Klasik / mevcut rezervuar destekli off-river",
+    "lat": 37.57,
+    "lon": 36.86,
+    "region": "Ceyhan havzasi - Menzelet Baraji",
+    "score": 74,
+    "head": 450,
+    "tunnelKm": 5.5,
+    "activeMcm": 5.71,
+    "powerMW": 900,
+    "energyGWh": 6.3,
+    "capexBn": 1.71,
+    "revenueM": 139.5,
+    "payback": 12.3,
+    "gridDistKm": 1.1,
+    "lower": "Menzelet rezervuarı / mevcut HES omurgası",
+    "upper": "Menzelet kuzeybatı yüksek plato üst rezervuarı",
+    "thesis": "Ceyhan havzasında mevcut HES altyapısına yakın klasik aday; orta head ve yakın 154 kV hat ile dengeli bir ikinci dalga seçeneği sunar.",
+    "risks": [
+      "Jeoloji",
+      "rezervuar işletme rejimi",
+      "deprem etkisi",
+      "kamulaştırma"
+    ],
+    "scores": {
+      "topo": 78,
+      "grid": 82,
+      "env": 63,
+      "geology": 58,
+      "access": 73,
+      "market": 72
+    },
+    "view": {
+      "center": [
+        36.86,
+        37.57
+      ],
+      "zoom": 10.9,
+      "pitch": 58,
+      "bearing": -12
+    },
+    "color": "#3d7dff",
+    "layout": {
+      "bearing": -8,
+      "upper": [
+        36.93,
+        37.64
+      ],
+      "lower": [
+        36.86,
+        37.57
+      ],
+      "power": [
+        36.9,
+        37.6
+      ],
+      "surge": [
+        36.918,
+        37.622
+      ],
+      "switchyard": [
+        36.88,
+        37.58
+      ],
+      "gridA": [
+        36.925629,
+        37.555124
+      ],
+      "gridB": [
+        36.862165,
+        37.574992
+      ],
+      "risk": [
+        36.86,
+        37.57
+      ],
+      "gridTap": [
+        36.875433,
+        37.570838
+      ]
+    },
+    "timeline": [
+      {
+        "date": "2026 Q2",
+        "title": "Rezervuar işletme taraması",
+        "text": "Menzelet HES işletme rejimi ve çevresel akış kısıtları masaüstü olarak kontrol edilir."
+      },
+      {
+        "date": "2026 Q3",
+        "title": "154 kV bağlantı kontrolü",
+        "text": "Kahramanmaraş-Menzelet hattına bağlantı ve N-1 ön değerlendirme hazırlanır."
+      },
+      {
+        "date": "2027 Q1",
+        "title": "Ön fizibilite kapsamı",
+        "text": "Jeoloji, üst rezervuar geçirimsizliği ve tünel güzergahı seçenekleri derinleştirilir."
+      }
+    ],
+    "nearest380Km": 17.9,
+    "nearest154Km": 1.1,
+    "nearestSubstation": {
+      "name": "KAHRAMANMARAŞ",
+      "voltage_kv": 154,
+      "coord": [
+        36.943066,
+        37.566179
+      ],
+      "distance_km": 5.8
+    },
+    "nMinusOneNote": "Ön N-1 kontrolü bağlantı fideri ve yerel trafo kapasitesi üzerinden yapılmalı.",
+    "gridConnection": {
+      "preferredVoltageKv": 154,
+      "preferredLineName": "154kV KAHRAMANMARAŞ - MENZELET HES EİH",
+      "preferredLineDistanceKm": 1.1,
+      "tapCoord": [
+        36.875433,
+        37.570838
+      ],
+      "lineSegment": [
+        [
+          36.925629,
+          37.555124
+        ],
+        [
+          36.862165,
+          37.574992
+        ]
+      ],
+      "nearest380": {
+        "lineName": "400kV KAPIÇAM - BAŞPINAR OSB EİH",
+        "distanceKm": 17.9,
+        "tapCoord": [
+          37.019946,
+          37.463204
+        ]
+      },
+      "nearest154": {
+        "lineName": "154kV KAHRAMANMARAŞ - MENZELET HES EİH",
+        "distanceKm": 1.1,
+        "tapCoord": [
+          36.875433,
+          37.570838
+        ]
+      }
+    },
+    "components_detail": {
+      "upper_reservoir": {
+        "elevation_m": 970,
+        "active_volume_mcm": 5.71,
+        "dam_height_m": 36,
+        "lining": "kil çekirdekli set ve yerel geomembran alternatifi",
+        "geology_note": "Jeoloji"
+      },
+      "lower_reservoir": {
+        "elevation_m": 520,
+        "min_level_m": 512,
+        "note": "Menzelet rezervuarı / mevcut HES omurgası; DSİ işletme rejimi ve ekolojik akış doğrulanmalı."
+      },
+      "penstock": {
+        "diameter_m": 7.2,
+        "length_m": 5500,
+        "material": "çelik kaplı basınç tüneli",
+        "pressure_class": "~44 bar statik basınç sınıfı",
+        "count": 2
+      },
+      "powerhouse": {
+        "cavern_width_m": 30,
+        "cavern_length_m": 214,
+        "cavern_height_m": 40,
+        "units": 4,
+        "turbine_type": "ayarlanabilir hızlı Francis pompa-türbin"
+      },
+      "surge_tank": {
+        "type": "denge şaftı / surge tank",
+        "height_m": 121,
+        "diameter_m": 31
+      },
+      "switchyard": {
+        "voltage_kv": 154,
+        "transformer_count": 2,
+        "connection_line_km": 1.1
+      },
+      "tunnel": {
+        "length_m": 5500,
+        "diameter_m": 7.2,
+        "excavation_type": "TBM veya drill-and-blast karma kazı"
+      },
+      "intake_outfall": null
+    },
+    "pdhesType": "YARI_PDHES",
+    "province": "Kahramanmaras",
+    "locationConfidence": "medium",
+    "isApproximate": true,
+    "confidence": "gis_inferred",
+    "technologyReadiness": "pre_feasibility",
+    "coordinates": {
+      "mapAnchor": [
+        36.86,
+        37.57
+      ],
+      "lowerReservoir": [
+        36.86,
+        37.57
+      ],
+      "upperReservoir": [
+        36.93,
+        37.64
+      ],
+      "powerhouse": [
+        36.9,
+        37.6
+      ],
+      "surgeTank": [
+        36.918,
+        37.622
+      ],
+      "switchyard": [
+        36.88,
+        37.58
+      ],
+      "gridConnection": [
+        36.875433,
+        37.570838
+      ],
+      "intakeOutfall": null,
+      "bbox": [
+        [
+          36.83,
+          37.54
+        ],
+        [
+          36.95,
+          37.66
+        ]
+      ]
+    },
+    "evidence": [
+      "teiasGrid",
+      "osm",
+      "afad",
+      "mta"
+    ],
+    "note": "Menzelet HES baglami korunur; deprem ve jeoloji için AFAD/MTA saha teyidi gerekir.",
+    "capacityClass": "macro",
+    "lowerReservoirType": "existing_dam",
+    "upperReservoirType": "new_lined_reservoir",
+    "oldCoordinates": [
+      36.9,
+      37.6
+    ],
+    "verifiedAt": "2026-05-11",
+    "verificationNotes": "Menzelet HES baglami korunur; deprem ve jeoloji için AFAD/MTA saha teyidi gerekir.",
+    "locationEvidence": [
+      {
+        "field": "mapAnchor",
+        "sourceName": "TEIAS KML-derived local grid layer",
+        "sourceType": "official",
+        "sourceUrl": "grid_assets.json",
+        "method": "coast-grid",
+        "confidence": "medium",
+        "note": "Menzelet HES baglami korunur; deprem ve jeoloji için AFAD/MTA saha teyidi gerekir."
+      },
+      {
+        "field": "upperReservoir",
+        "sourceName": "OpenStreetMap / visual map context",
+        "sourceType": "osm",
+        "sourceUrl": "https://www.openstreetmap.org/",
+        "method": "manual visual check",
+        "confidence": "medium",
+        "note": "Menzelet HES baglami korunur; deprem ve jeoloji için AFAD/MTA saha teyidi gerekir."
+      },
+      {
+        "field": "gridConnection",
+        "sourceName": "AFAD Turkiye Deprem Tehlike Haritasi",
+        "sourceType": "official",
+        "sourceUrl": "https://afad.gov.tr/turkiye-deprem-tehlike-haritasi",
+        "method": "manual visual check",
+        "confidence": "medium",
+        "note": "Menzelet HES baglami korunur; deprem ve jeoloji için AFAD/MTA saha teyidi gerekir."
+      },
+      {
+        "field": "gridConnection",
+        "sourceName": "MTA Yerbilimleri / Diri Fay and geology references",
+        "sourceType": "official",
+        "sourceUrl": "https://yerbilimleri.mta.gov.tr/referans.aspx",
+        "method": "manual visual check",
+        "confidence": "medium",
+        "note": "Menzelet HES baglami korunur; deprem ve jeoloji için AFAD/MTA saha teyidi gerekir."
+      }
+    ],
+    "layout3D": {
+      "scale": "macro",
+      "preferredBearing": -8,
+      "componentFootprints": []
+    }
+  },
+  {
+    "id": "hasan_suat",
+    "name": "Hasan Uğurlu-Suat Uğurlu PSPP",
+    "concept": "classic",
+    "conceptLabel": "Klasik / Karadeniz mevcut hidro omurgası",
+    "lat": 41,
+    "lon": 36.62,
+    "region": "Yesilirmak havzasi - Hasan Ugurlu/Suat Ugurlu",
+    "score": 71,
+    "head": 390,
+    "tunnelKm": 4,
+    "activeMcm": 5.12,
+    "powerMW": 700,
+    "energyGWh": 4.9,
+    "capexBn": 1.26,
+    "revenueM": 105,
+    "payback": 12,
+    "gridDistKm": 1.7,
+    "lower": "Hasan Uğurlu-Suat Uğurlu hidro sistemi",
+    "upper": "Yeşilırmak vadisi arka sırt üst rezervuarı",
+    "thesis": "Karadeniz hidro omurgasında mevcut rezervuar avantajı olan klasik aday; kısa su yolu güçlü, heyelan ve ekolojik etki kritik filtrelerdir.",
+    "risks": [
+      "Ekolojik etki",
+      "Karadeniz heyelanı",
+      "rezervuar koordinasyonu",
+      "yerel izinler"
+    ],
+    "scores": {
+      "topo": 74,
+      "grid": 80,
+      "env": 60,
+      "geology": 52,
+      "access": 70,
+      "market": 68
+    },
+    "view": {
+      "center": [
+        36.62,
+        41
+      ],
+      "zoom": 10.9,
+      "pitch": 58,
+      "bearing": -20
+    },
+    "color": "#3d7dff",
+    "layout": {
+      "bearing": -18,
+      "upper": [
+        36.58,
+        41.055
+      ],
+      "lower": [
+        36.647,
+        40.939
+      ],
+      "power": [
+        36.62,
+        40.995
+      ],
+      "surge": [
+        36.6,
+        41.025
+      ],
+      "switchyard": [
+        36.647,
+        40.939
+      ],
+      "gridA": [
+        36.34013,
+        41.172585
+      ],
+      "gridB": [
+        36.36217,
+        41.18166
+      ],
+      "risk": [
+        36.62,
+        41
+      ],
+      "gridTap": [
+        36.349775,
+        41.176556
+      ]
+    },
+    "timeline": [
+      {
+        "date": "2026 Q2",
+        "title": "Hidro omurga eşleştirme",
+        "text": "Hasan Uğurlu ve Suat Uğurlu işletme rejimleri pompaj döngüsü açısından kontrol edilir."
+      },
+      {
+        "date": "2026 Q4",
+        "title": "Heyelan ve ekoloji filtresi",
+        "text": "Karadeniz heyelan duyarlılığı ve nehir ekolojisi etkileri ön risk matrisine işlenir."
+      },
+      {
+        "date": "2027 Q1",
+        "title": "Bağlantı/trafo çalışması",
+        "text": "400 kV Kayabaşı-Çarşamba hattı ve yerel 154 kV merkezler için ön bağlantı paketi çıkarılır."
+      }
+    ],
+    "nearest380Km": 1.7,
+    "nearest154Km": 7.1,
+    "nearestSubstation": {
+      "name": "SAMSUN3",
+      "voltage_kv": 154,
+      "coord": [
+        36.41,
+        41.231
+      ],
+      "distance_km": 7.4
+    },
+    "nMinusOneNote": "Ön N-1 kontrolü bağlantı fideri ve yerel trafo kapasitesi üzerinden yapılmalı.",
+    "gridConnection": {
+      "preferredVoltageKv": 380,
+      "preferredLineName": "400kV KAYABAŞI - ÇARŞAMBA EİH",
+      "preferredLineDistanceKm": 1.7,
+      "tapCoord": [
+        36.349775,
+        41.176556
+      ],
+      "lineSegment": [
+        [
+          36.34013,
+          41.172585
+        ],
+        [
+          36.36217,
+          41.18166
+        ]
+      ],
+      "nearest380": {
+        "lineName": "400kV KAYABAŞI - ÇARŞAMBA EİH",
+        "distanceKm": 1.7,
+        "tapCoord": [
+          36.349775,
+          41.176556
+        ]
+      },
+      "nearest154": {
+        "lineName": "154kV SAMSUN1 - SAMSUN OSB DGKÇ EİH",
+        "distanceKm": 7.1,
+        "tapCoord": [
+          36.354086,
+          41.252559
+        ]
+      }
+    },
+    "components_detail": {
+      "upper_reservoir": {
+        "elevation_m": 475,
+        "active_volume_mcm": 5.12,
+        "dam_height_m": 34,
+        "lining": "kil çekirdekli set ve yerel geomembran alternatifi",
+        "geology_note": "Ekolojik etki"
+      },
+      "lower_reservoir": {
+        "elevation_m": 85,
+        "min_level_m": 77,
+        "note": "Hasan Uğurlu-Suat Uğurlu hidro sistemi; DSİ işletme rejimi ve ekolojik akış doğrulanmalı."
+      },
+      "penstock": {
+        "diameter_m": 6.2,
+        "length_m": 4000,
+        "material": "çelik kaplı basınç tüneli",
+        "pressure_class": "~38 bar statik basınç sınıfı",
+        "count": 1
+      },
+      "powerhouse": {
+        "cavern_width_m": 27,
+        "cavern_length_m": 188,
+        "cavern_height_m": 39,
+        "units": 3,
+        "turbine_type": "Francis pompa-türbin"
+      },
+      "surge_tank": {
+        "type": "denge şaftı / surge tank",
+        "height_m": 114,
+        "diameter_m": 29
+      },
+      "switchyard": {
+        "voltage_kv": 380,
+        "transformer_count": 2,
+        "connection_line_km": 1.7
+      },
+      "tunnel": {
+        "length_m": 4000,
+        "diameter_m": 6.2,
+        "excavation_type": "TBM veya drill-and-blast karma kazı"
+      },
+      "intake_outfall": null
+    },
+    "pdhesType": "YARI_PDHES",
+    "province": "Samsun",
+    "locationConfidence": "medium",
+    "isApproximate": true,
+    "confidence": "gis_inferred",
+    "technologyReadiness": "pre_feasibility",
+    "coordinates": {
+      "mapAnchor": [
+        36.62,
+        41
+      ],
+      "lowerReservoir": [
+        36.647,
+        40.939
+      ],
+      "upperReservoir": [
+        36.58,
+        41.055
+      ],
+      "powerhouse": [
+        36.62,
+        40.995
+      ],
+      "surgeTank": [
+        36.6,
+        41.025
+      ],
+      "switchyard": [
+        36.647,
+        40.939
+      ],
+      "gridConnection": [
+        36.647,
+        40.939
+      ],
+      "intakeOutfall": null,
+      "bbox": [
+        [
+          36.55,
+          40.91
+        ],
+        [
+          36.68,
+          41.08
+        ]
+      ]
+    },
+    "evidence": [
+      "teiasGrid",
+      "osm",
+      "mta"
+    ],
+    "note": "Hasan Ugurlu HES referansi TEIAS katmaninda vardir; Suat Ugurlu eslestirmesi rezervuar zinciri olarak yaklasiktir.",
+    "capacityClass": "macro",
+    "lowerReservoirType": "existing_dam",
+    "upperReservoirType": "new_lined_reservoir",
+    "oldCoordinates": [
+      36.28,
+      41.2
+    ],
+    "verifiedAt": "2026-05-11",
+    "verificationNotes": "Hasan Ugurlu HES referansi TEIAS katmaninda vardir; Suat Ugurlu eslestirmesi rezervuar zinciri olarak yaklasiktir.",
+    "locationEvidence": [
+      {
+        "field": "mapAnchor",
+        "sourceName": "TEIAS KML-derived local grid layer",
+        "sourceType": "official",
+        "sourceUrl": "grid_assets.json",
+        "method": "coast-grid",
+        "confidence": "medium",
+        "note": "Hasan Ugurlu HES referansi TEIAS katmaninda vardir; Suat Ugurlu eslestirmesi rezervuar zinciri olarak yaklasiktir."
+      },
+      {
+        "field": "upperReservoir",
+        "sourceName": "OpenStreetMap / visual map context",
+        "sourceType": "osm",
+        "sourceUrl": "https://www.openstreetmap.org/",
+        "method": "manual visual check",
+        "confidence": "medium",
+        "note": "Hasan Ugurlu HES referansi TEIAS katmaninda vardir; Suat Ugurlu eslestirmesi rezervuar zinciri olarak yaklasiktir."
+      },
+      {
+        "field": "gridConnection",
+        "sourceName": "MTA Yerbilimleri / Diri Fay and geology references",
+        "sourceType": "official",
+        "sourceUrl": "https://yerbilimleri.mta.gov.tr/referans.aspx",
+        "method": "manual visual check",
+        "confidence": "medium",
+        "note": "Hasan Ugurlu HES referansi TEIAS katmaninda vardir; Suat Ugurlu eslestirmesi rezervuar zinciri olarak yaklasiktir."
+      }
+    ],
+    "layout3D": {
+      "scale": "macro",
+      "preferredBearing": -18,
+      "componentFootprints": []
+    }
+  },
+  {
+    "id": "sariyar_aug",
+    "name": "Sarıyar-Gökçekaya Augmentasyon PSPP",
+    "concept": "classic",
+    "conceptLabel": "Stratejik hibrit / Sakarya rezervuar augmentasyonu",
+    "lat": 40.06,
+    "lon": 31.35,
+    "region": "Sakarya havzasi - Sariyar/Gokcekaya koridoru",
+    "score": 67,
+    "head": 300,
+    "tunnelKm": 6,
+    "activeMcm": 7.61,
+    "powerMW": 700,
+    "energyGWh": 5.6,
+    "capexBn": 1.26,
+    "revenueM": 105,
+    "payback": 12,
+    "gridDistKm": 6.1,
+    "lower": "Sarıyar-Gökçekaya rezervuar sistemi",
+    "upper": "Sakarya koridorunda ilave off-river üst rezervuar",
+    "thesis": "Mevcut Sakarya hidro zincirini güçlendiren stratejik augmentasyon adayı; tekil saha kadar hızlı değil, ancak sistem optimizasyonu değeri yüksektir.",
+    "risks": [
+      "Kümülatif çevresel etki",
+      "Sakarya işletme rejimi",
+      "rezervuar koordinasyonu",
+      "iletim koridoru"
+    ],
+    "scores": {
+      "topo": 68,
+      "grid": 72,
+      "env": 56,
+      "geology": 62,
+      "access": 74,
+      "market": 73
+    },
+    "view": {
+      "center": [
+        31.35,
+        40.06
+      ],
+      "zoom": 10.9,
+      "pitch": 58,
+      "bearing": -26
+    },
+    "color": "#3d7dff",
+    "layout": {
+      "bearing": -24,
+      "upper": [
+        31.31,
+        40.1
+      ],
+      "lower": [
+        31.39,
+        40.04
+      ],
+      "power": [
+        31.35,
+        40.06
+      ],
+      "surge": [
+        31.33,
+        40.082
+      ],
+      "switchyard": [
+        31.52,
+        40.02
+      ],
+      "gridA": [
+        31.560063,
+        40.106827
+      ],
+      "gridB": [
+        31.61748,
+        40.052849
+      ],
+      "risk": [
+        31.35,
+        40.06
+      ],
+      "gridTap": [
+        31.605179,
+        40.064413
+      ]
+    },
+    "timeline": [
+      {
+        "date": "2026 Q2",
+        "title": "Sakarya zincir analizi",
+        "text": "Sarıyar, Gökçekaya ve akış rejimi birlikte ele alınarak augmentasyon faydası hesaplanır."
+      },
+      {
+        "date": "2026 Q3",
+        "title": "Kümülatif etki elemesi",
+        "text": "Mevcut hidro işletme, çevresel akış ve ilave rezervuar etkileri ayrı risk başlıklarına ayrılır."
+      },
+      {
+        "date": "2027 Q1",
+        "title": "Sistem değeri paketi",
+        "text": "Ankara/Batı yük merkezine yakınlık, 400 kV koridoru ve yardımcı hizmet değeri birlikte sunulur."
+      }
+    ],
+    "nearest380Km": 6.1,
+    "nearest154Km": 7.2,
+    "nearestSubstation": {
+      "name": "YUNUS EMRE TES",
+      "voltage_kv": 400,
+      "coord": [
+        31.638,
+        39.986
+      ],
+      "distance_km": 8.9
+    },
+    "nMinusOneNote": "Ön N-1 kontrolü bağlantı fideri ve yerel trafo kapasitesi üzerinden yapılmalı.",
+    "gridConnection": {
+      "preferredVoltageKv": 380,
+      "preferredLineName": "400kV ADA1 DGKÇ - TEMELLİ EİH",
+      "preferredLineDistanceKm": 6.1,
+      "tapCoord": [
+        31.605179,
+        40.064413
+      ],
+      "lineSegment": [
+        [
+          31.560063,
+          40.106827
+        ],
+        [
+          31.61748,
+          40.052849
+        ]
+      ],
+      "nearest380": {
+        "lineName": "400kV ADA1 DGKÇ - TEMELLİ EİH",
+        "distanceKm": 6.1,
+        "tapCoord": [
+          31.605179,
+          40.064413
+        ]
+      },
+      "nearest154": {
+        "lineName": "154kV ÇAYIRHAN TES - NALLIHAN EİH",
+        "distanceKm": 7.2,
+        "tapCoord": [
+          31.538108,
+          40.09416
+        ]
+      }
+    },
+    "components_detail": {
+      "upper_reservoir": {
+        "elevation_m": 775,
+        "active_volume_mcm": 7.61,
+        "dam_height_m": 30,
+        "lining": "kil çekirdekli set ve yerel geomembran alternatifi",
+        "geology_note": "Kümülatif çevresel etki"
+      },
+      "lower_reservoir": {
+        "elevation_m": 475,
+        "min_level_m": 467,
+        "note": "Sarıyar-Gökçekaya rezervuar sistemi; DSİ işletme rejimi ve ekolojik akış doğrulanmalı."
+      },
+      "penstock": {
+        "diameter_m": 6.2,
+        "length_m": 6000,
+        "material": "çelik kaplı basınç tüneli",
+        "pressure_class": "~29 bar statik basınç sınıfı",
+        "count": 1
+      },
+      "powerhouse": {
+        "cavern_width_m": 27,
+        "cavern_length_m": 188,
+        "cavern_height_m": 38,
+        "units": 3,
+        "turbine_type": "Francis pompa-türbin"
+      },
+      "surge_tank": {
+        "type": "denge şaftı / surge tank",
+        "height_m": 103,
+        "diameter_m": 29
+      },
+      "switchyard": {
+        "voltage_kv": 380,
+        "transformer_count": 2,
+        "connection_line_km": 6.1
+      },
+      "tunnel": {
+        "length_m": 6000,
+        "diameter_m": 6.2,
+        "excavation_type": "TBM veya drill-and-blast karma kazı"
+      },
+      "intake_outfall": null
+    },
+    "pdhesType": "YARI_PDHES",
+    "province": "Ankara / Eskisehir",
+    "locationConfidence": "low",
+    "isApproximate": true,
+    "confidence": "gis_inferred",
+    "technologyReadiness": "concept",
+    "coordinates": {
+      "mapAnchor": [
+        31.35,
+        40.06
+      ],
+      "lowerReservoir": [
+        31.39,
+        40.04
+      ],
+      "upperReservoir": [
+        31.31,
+        40.1
+      ],
+      "powerhouse": [
+        31.35,
+        40.06
+      ],
+      "surgeTank": [
+        31.33,
+        40.082
+      ],
+      "switchyard": [
+        31.52,
+        40.02
+      ],
+      "gridConnection": [
+        31.605179,
+        40.064413
+      ],
+      "intakeOutfall": null,
+      "bbox": [
+        [
+          31.25,
+          39.99
+        ],
+        [
+          31.62,
+          40.12
+        ]
+      ]
+    },
+    "evidence": [
+      "jicaStudy",
+      "teiasGrid",
+      "osm"
+    ],
+    "note": "Sakarya rezervuar zinciri augmentasyonu sistem konseptidir; noktasal saha seçimi kesin değildir.",
+    "capacityClass": "macro",
+    "lowerReservoirType": "existing_dam",
+    "upperReservoirType": "new_lined_reservoir",
+    "oldCoordinates": [
+      31.47,
+      40.05
+    ],
+    "verifiedAt": "2026-05-11",
+    "verificationNotes": "Sakarya rezervuar zinciri augmentasyonu sistem konseptidir; noktasal saha seçimi kesin değildir.",
+    "locationEvidence": [
+      {
+        "field": "mapAnchor",
+        "sourceName": "JICA Study on Optimal Power Generation for Peak Demand in Turkey",
+        "sourceType": "report",
+        "sourceUrl": "https://openjicareport.jica.go.jp/pdf/12019808_01.pdf",
+        "method": "dam/reservoir lookup",
+        "confidence": "medium",
+        "note": "Sakarya rezervuar zinciri augmentasyonu sistem konseptidir; noktasal saha seçimi kesin değildir."
+      },
+      {
+        "field": "upperReservoir",
+        "sourceName": "TEIAS KML-derived local grid layer",
+        "sourceType": "official",
+        "sourceUrl": "grid_assets.json",
+        "method": "coast-grid",
+        "confidence": "medium",
+        "note": "Sakarya rezervuar zinciri augmentasyonu sistem konseptidir; noktasal saha seçimi kesin değildir."
+      },
+      {
+        "field": "gridConnection",
+        "sourceName": "OpenStreetMap / visual map context",
+        "sourceType": "osm",
+        "sourceUrl": "https://www.openstreetmap.org/",
+        "method": "manual visual check",
+        "confidence": "medium",
+        "note": "Sakarya rezervuar zinciri augmentasyonu sistem konseptidir; noktasal saha seçimi kesin değildir."
+      }
+    ],
+    "layout3D": {
+      "scale": "macro",
+      "preferredBearing": -24,
+      "componentFootprints": []
+    }
+  },
+  {
+    "id": "gazipasa_toros",
+    "name": "Gazipaşa Kıyı-Toros Deniz Suyu PDHES",
+    "pdhesType": "MAKRO_DENIZ_PDHES",
+    "concept": "sea",
+    "conceptLabel": "Makro Deniz PDHES / Akdeniz kıyı-sirt",
+    "capacityClass": "macro",
+    "technologyReadiness": "concept",
+    "confidence": "gis_inferred",
+    "province": "Antalya",
+    "region": "Gazipaşa kıyı - Toros arka sırtı",
+    "color": "#15cfe8",
+    "powerMW": 420,
+    "energyGWh": 3.2,
+    "head": 640,
+    "tunnelKm": 7.4,
+    "activeMcm": 2.12,
+    "capexBn": 1.05,
+    "revenueM": 58,
+    "payback": 18.1,
+    "gridDistKm": 8.5,
+    "score": 69,
+    "scores": {
+      "topo": 82,
+      "grid": 66,
+      "env": 55,
+      "geology": 56,
+      "access": 68,
+      "market": 76
+    },
+    "lower": "Akdeniz kıyısi / deniz intake-outfall",
+    "upper": "Gazipaşa arka sırtında kaplamali ust rezervuar konsepti",
+    "thesis": "Yüksek head potansiyeli olan Akdeniz kıyı-sirt adayi; turizm ve kıyı izinleri ana karar filtresidir.",
+    "risks": [
+      "kıyı izinleri",
+      "liner/sızdırmazlık",
+      "korozyon",
+      "biofouling",
+      "turizm/görsel etki",
+      "heyelan/yamaç kararlılığı",
+      "şebeke uzaklığı"
+    ],
+    "coordinates": {
+      "mapAnchor": [
+        32.33,
+        36.3
+      ],
+      "lowerReservoir": [
+        32.295,
+        36.258
+      ],
+      "upperReservoir": [
+        32.372,
+        36.36
+      ],
+      "powerhouse": [
+        32.335,
+        36.307
+      ],
+      "surgeTank": [
+        32.355,
+        36.335
+      ],
+      "switchyard": [
+        32.358,
+        36.3
+      ],
+      "gridConnection": [
+        32.31,
+        36.36
+      ],
+      "intakeOutfall": [
+        32.295,
+        36.258
+      ],
+      "bbox": [
+        [
+          32.27,
+          36.24
+        ],
+        [
+          32.39,
+          36.38
+        ]
+      ]
+    },
+    "nearest380Km": 22,
+    "nearest154Km": 8.5,
+    "nearestSubstation": {
+      "name": "GAZIPASA/ALANYA 154 kV bolgesi",
+      "voltage_kv": 154,
+      "coord": [
+        32.31,
+        36.36
+      ],
+      "distance_km": 8.5
+    },
+    "lowerReservoirType": "sea",
+    "upperReservoirType": "new_lined_reservoir",
+    "locationConfidence": "medium",
+    "isApproximate": true,
+    "verifiedAt": "2026-05-11",
+    "verificationNotes": "Yüksek head potansiyeli olan Akdeniz kıyı-sirt adayi; turizm ve kıyı izinleri ana karar filtresidir. Koordinatlar masaüstü DEM/kıyı-şebeke mantığıyla üretilmiştir; saha teyidi gerekir.",
+    "locationEvidence": [
+      {
+        "field": "mapAnchor",
+        "sourceName": "OpenStreetMap / visual map context",
+        "sourceType": "osm",
+        "sourceUrl": "https://www.openstreetmap.org/",
+        "method": "manual visual check",
+        "confidence": "medium",
+        "note": "Yeni aday için masaüstü kaynak ve DEM/kıyı-şebeke çıkarımı."
+      },
+      {
+        "field": "upperReservoir",
+        "sourceName": "Copernicus DEM GLO-30/GLO-90 reference",
+        "sourceType": "satellite",
+        "sourceUrl": "https://dataspace.copernicus.eu/explore-data/data-collections/copernicus-contributing-missions/collections-description/COP-DEM",
+        "method": "DEM inference",
+        "confidence": "low",
+        "note": "Yeni aday için masaüstü kaynak ve DEM/kıyı-şebeke çıkarımı."
+      },
+      {
+        "field": "gridConnection",
+        "sourceName": "TEIAS KML-derived local grid layer",
+        "sourceType": "official",
+        "sourceUrl": "grid_assets.json",
+        "method": "coast-grid",
+        "confidence": "medium",
+        "note": "Yeni aday için masaüstü kaynak ve DEM/kıyı-şebeke çıkarımı."
+      }
+    ],
+    "oldCoordinates": null,
+    "lat": 36.3,
+    "lon": 32.33,
+    "view": {
+      "center": [
+        32.33,
+        36.3
+      ],
+      "zoom": 10.8,
+      "pitch": 58,
+      "bearing": 26
+    },
+    "layout": {
+      "bearing": 26,
+      "upper": [
+        32.372,
+        36.36
+      ],
+      "lower": [
+        32.295,
+        36.258
+      ],
+      "power": [
+        32.335,
+        36.307
+      ],
+      "surge": [
+        32.355,
+        36.335
+      ],
+      "switchyard": [
+        32.358,
+        36.3
+      ],
+      "gridA": [
+        32.31,
+        36.36
+      ],
+      "gridB": [
+        32.31,
+        36.36
+      ],
+      "risk": [
+        32.33,
+        36.3
+      ],
+      "gridTap": [
+        32.31,
+        36.36
+      ]
+    },
+    "timeline": [
+      {
+        "date": "2026 Q2",
+        "title": "Masaustu GIS taramasi",
+        "text": "DEM, kıyı, şebeke, yerleşim ve risk katmanlariyla ilk eleme yapilir."
+      },
+      {
+        "date": "2026 Q3",
+        "title": "Saha on teyidi",
+        "text": "Gorsel etki, jeoloji, izin ve baglanti belirsizlikleri saha notuna donusturulur."
+      },
+      {
+        "date": "2027",
+        "title": "Go / no-go",
+        "text": "Parsel, jeoteknik, CED ve TEIAS/DSI gorusleriyle aday korunur veya elenir."
+      }
+    ],
+    "layout3D": {
+      "scale": "macro",
+      "preferredBearing": 26,
+      "componentFootprints": []
+    },
+    "components_detail": {
+      "upper_reservoir": {
+        "elevation_m": 640,
+        "active_volume_mcm": 2.12,
+        "dam_height_m": 36,
+        "lining": "HDPE geomembran + beton koruma kaplamasi",
+        "geology_note": "kıyı izinleri"
+      },
+      "lower_reservoir": {
+        "elevation_m": 0,
+        "min_level_m": 0,
+        "note": "Akdeniz kıyısi / deniz intake-outfall"
+      },
+      "penstock": {
+        "diameter_m": 6.2,
+        "length_m": 7400,
+        "material": "epoksi kapli celik, duplex paslanmaz kritik parcalar",
+        "pressure_class": "~63 bar statik basinc sinifi",
+        "count": 1
+      },
+      "powerhouse": {
+        "cavern_width_m": 27,
+        "cavern_length_m": 188,
+        "cavern_height_m": 40,
+        "units": 3,
+        "turbine_type": "Francis pompa-turbin"
+      },
+      "surge_tank": {
+        "type": "hidrolik kondisyonlama safti / surge tank",
+        "height_m": 160,
+        "diameter_m": 28
+      },
+      "switchyard": {
+        "voltage_kv": 154,
+        "transformer_count": 2,
+        "connection_line_km": 8.5
+      },
+      "tunnel": {
+        "length_m": 7400,
+        "diameter_m": 5.8,
+        "excavation_type": "TBM + kıyı portalinda NATM/drill-blast"
+      },
+      "intake_outfall": {
+        "type": "deniz alımı/desarj",
+        "corrosion_control": "duplex paslanmaz, katodik koruma, biyofouling izleme",
+        "note": "Deniz suyu hidroligi ve ekolojik karisim modeli gerekir."
+      }
+    }
+  },
+  {
+    "id": "finike_kumluca",
+    "name": "Finike-Kumluca Deniz Suyu PDHES",
+    "pdhesType": "MAKRO_DENIZ_PDHES",
+    "concept": "sea",
+    "conceptLabel": "Makro Deniz PDHES / bati Antalya",
+    "capacityClass": "macro",
+    "technologyReadiness": "concept",
+    "confidence": "gis_inferred",
+    "province": "Antalya",
+    "region": "Finike-Kumluca kıyı ve Beydağları eteği",
+    "color": "#15cfe8",
+    "powerMW": 520,
+    "energyGWh": 4,
+    "head": 720,
+    "tunnelKm": 8.6,
+    "activeMcm": 2.35,
+    "capexBn": 1.32,
+    "revenueM": 70,
+    "payback": 18.9,
+    "gridDistKm": 10.4,
+    "score": 71,
+    "scores": {
+      "topo": 86,
+      "grid": 63,
+      "env": 54,
+      "geology": 57,
+      "access": 70,
+      "market": 78
+    },
+    "lower": "Finike/Kumluca kıyısi deniz alımı",
+    "upper": "Beydağları eteğinde kaplamali ust rezervuar konsepti",
+    "thesis": "Yüksek düşü avantajli, ancak tarim, turizm ve korunan alan hassasiyeti yüksek bati Antalya adayi.",
+    "risks": [
+      "kıyı izinleri",
+      "liner/sızdırmazlık",
+      "korozyon",
+      "biofouling",
+      "turizm/görsel etki",
+      "korunan alan",
+      "deprem/fay"
+    ],
+    "coordinates": {
+      "mapAnchor": [
+        30.18,
+        36.36
+      ],
+      "lowerReservoir": [
+        30.148,
+        36.301
+      ],
+      "upperReservoir": [
+        30.232,
+        36.43
+      ],
+      "powerhouse": [
+        30.185,
+        36.365
+      ],
+      "surgeTank": [
+        30.208,
+        36.398
+      ],
+      "switchyard": [
+        30.218,
+        36.352
+      ],
+      "gridConnection": [
+        30.28,
+        36.36
+      ],
+      "intakeOutfall": [
+        30.148,
+        36.301
+      ],
+      "bbox": [
+        [
+          30.12,
+          36.28
+        ],
+        [
+          30.25,
+          36.45
+        ]
+      ]
+    },
+    "nearest380Km": 30,
+    "nearest154Km": 10.4,
+    "nearestSubstation": {
+      "name": "FINIKE/KUMLUCA 154 kV bolgesi",
+      "voltage_kv": 154,
+      "coord": [
+        30.28,
+        36.36
+      ],
+      "distance_km": 10.4
+    },
+    "lowerReservoirType": "sea",
+    "upperReservoirType": "new_lined_reservoir",
+    "locationConfidence": "medium",
+    "isApproximate": true,
+    "verifiedAt": "2026-05-11",
+    "verificationNotes": "Yüksek düşü avantajli, ancak tarim, turizm ve korunan alan hassasiyeti yüksek bati Antalya adayi. Koordinatlar masaüstü DEM/kıyı-şebeke mantığıyla üretilmiştir; saha teyidi gerekir.",
+    "locationEvidence": [
+      {
+        "field": "mapAnchor",
+        "sourceName": "OpenStreetMap / visual map context",
+        "sourceType": "osm",
+        "sourceUrl": "https://www.openstreetmap.org/",
+        "method": "manual visual check",
+        "confidence": "medium",
+        "note": "Yeni aday için masaüstü kaynak ve DEM/kıyı-şebeke çıkarımı."
+      },
+      {
+        "field": "upperReservoir",
+        "sourceName": "Copernicus DEM GLO-30/GLO-90 reference",
+        "sourceType": "satellite",
+        "sourceUrl": "https://dataspace.copernicus.eu/explore-data/data-collections/copernicus-contributing-missions/collections-description/COP-DEM",
+        "method": "DEM inference",
+        "confidence": "low",
+        "note": "Yeni aday için masaüstü kaynak ve DEM/kıyı-şebeke çıkarımı."
+      },
+      {
+        "field": "gridConnection",
+        "sourceName": "TEIAS KML-derived local grid layer",
+        "sourceType": "official",
+        "sourceUrl": "grid_assets.json",
+        "method": "coast-grid",
+        "confidence": "medium",
+        "note": "Yeni aday için masaüstü kaynak ve DEM/kıyı-şebeke çıkarımı."
+      },
+      {
+        "field": "gridConnection",
+        "sourceName": "AFAD Turkiye Deprem Tehlike Haritasi",
+        "sourceType": "official",
+        "sourceUrl": "https://afad.gov.tr/turkiye-deprem-tehlike-haritasi",
+        "method": "manual visual check",
+        "confidence": "medium",
+        "note": "Yeni aday için masaüstü kaynak ve DEM/kıyı-şebeke çıkarımı."
+      },
+      {
+        "field": "gridConnection",
+        "sourceName": "MTA Yerbilimleri / Diri Fay and geology references",
+        "sourceType": "official",
+        "sourceUrl": "https://yerbilimleri.mta.gov.tr/referans.aspx",
+        "method": "manual visual check",
+        "confidence": "medium",
+        "note": "Yeni aday için masaüstü kaynak ve DEM/kıyı-şebeke çıkarımı."
+      }
+    ],
+    "oldCoordinates": null,
+    "lat": 36.36,
+    "lon": 30.18,
+    "view": {
+      "center": [
+        30.18,
+        36.36
+      ],
+      "zoom": 10.8,
+      "pitch": 58,
+      "bearing": 26
+    },
+    "layout": {
+      "bearing": 26,
+      "upper": [
+        30.232,
+        36.43
+      ],
+      "lower": [
+        30.148,
+        36.301
+      ],
+      "power": [
+        30.185,
+        36.365
+      ],
+      "surge": [
+        30.208,
+        36.398
+      ],
+      "switchyard": [
+        30.218,
+        36.352
+      ],
+      "gridA": [
+        30.28,
+        36.36
+      ],
+      "gridB": [
+        30.28,
+        36.36
+      ],
+      "risk": [
+        30.18,
+        36.36
+      ],
+      "gridTap": [
+        30.28,
+        36.36
+      ]
+    },
+    "timeline": [
+      {
+        "date": "2026 Q2",
+        "title": "Masaustu GIS taramasi",
+        "text": "DEM, kıyı, şebeke, yerleşim ve risk katmanlariyla ilk eleme yapilir."
+      },
+      {
+        "date": "2026 Q3",
+        "title": "Saha on teyidi",
+        "text": "Gorsel etki, jeoloji, izin ve baglanti belirsizlikleri saha notuna donusturulur."
+      },
+      {
+        "date": "2027",
+        "title": "Go / no-go",
+        "text": "Parsel, jeoteknik, CED ve TEIAS/DSI gorusleriyle aday korunur veya elenir."
+      }
+    ],
+    "layout3D": {
+      "scale": "macro",
+      "preferredBearing": 26,
+      "componentFootprints": []
+    },
+    "components_detail": {
+      "upper_reservoir": {
+        "elevation_m": 720,
+        "active_volume_mcm": 2.35,
+        "dam_height_m": 36,
+        "lining": "HDPE geomembran + beton koruma kaplamasi",
+        "geology_note": "kıyı izinleri"
+      },
+      "lower_reservoir": {
+        "elevation_m": 0,
+        "min_level_m": 0,
+        "note": "Finike/Kumluca kıyısi deniz alımı"
+      },
+      "penstock": {
+        "diameter_m": 6.2,
+        "length_m": 8600,
+        "material": "epoksi kapli celik, duplex paslanmaz kritik parcalar",
+        "pressure_class": "~71 bar statik basinc sinifi",
+        "count": 1
+      },
+      "powerhouse": {
+        "cavern_width_m": 27,
+        "cavern_length_m": 188,
+        "cavern_height_m": 40,
+        "units": 3,
+        "turbine_type": "Francis pompa-turbin"
+      },
+      "surge_tank": {
+        "type": "hidrolik kondisyonlama safti / surge tank",
+        "height_m": 170,
+        "diameter_m": 28
+      },
+      "switchyard": {
+        "voltage_kv": 154,
+        "transformer_count": 2,
+        "connection_line_km": 10.4
+      },
+      "tunnel": {
+        "length_m": 8600,
+        "diameter_m": 5.8,
+        "excavation_type": "TBM + kıyı portalinda NATM/drill-blast"
+      },
+      "intake_outfall": {
+        "type": "deniz alımı/desarj",
+        "corrosion_control": "duplex paslanmaz, katodik koruma, biyofouling izleme",
+        "note": "Deniz suyu hidroligi ve ekolojik karisim modeli gerekir."
+      }
+    }
+  },
+  {
+    "id": "samandag_musa",
+    "name": "Samandağ-Musa Dağı Deniz Suyu PDHES",
+    "pdhesType": "MAKRO_DENIZ_PDHES",
+    "concept": "sea",
+    "conceptLabel": "Makro Deniz PDHES / Dogu Akdeniz",
+    "capacityClass": "macro",
+    "technologyReadiness": "concept",
+    "confidence": "gis_inferred",
+    "province": "Hatay",
+    "region": "Samandağ kıyısi - Musa Dağı",
+    "color": "#15cfe8",
+    "powerMW": 300,
+    "energyGWh": 2.1,
+    "head": 560,
+    "tunnelKm": 6.8,
+    "activeMcm": 1.6,
+    "capexBn": 0.82,
+    "revenueM": 42,
+    "payback": 19.5,
+    "gridDistKm": 9.2,
+    "score": 62,
+    "scores": {
+      "topo": 76,
+      "grid": 70,
+      "env": 48,
+      "geology": 40,
+      "access": 64,
+      "market": 74
+    },
+    "lower": "Samandağ kıyısi deniz alımı",
+    "upper": "Musa Dağı yamaçinda kaplamali ust rezervuar konsepti",
+    "thesis": "Sistem değeri yüksek doğu Akdeniz adayi; deprem/fay ve korunan alan riski nedeniyle düşük güvenlidir.",
+    "risks": [
+      "kıyı izinleri",
+      "liner/sızdırmazlık",
+      "korozyon",
+      "biofouling",
+      "korunan alan",
+      "deprem/fay",
+      "heyelan/yamaç kararlılığı"
+    ],
+    "coordinates": {
+      "mapAnchor": [
+        35.97,
+        36.16
+      ],
+      "lowerReservoir": [
+        35.928,
+        36.115
+      ],
+      "upperReservoir": [
+        36.005,
+        36.215
+      ],
+      "powerhouse": [
+        35.967,
+        36.162
+      ],
+      "surgeTank": [
+        35.988,
+        36.19
+      ],
+      "switchyard": [
+        36.03,
+        36.18
+      ],
+      "gridConnection": [
+        36.113,
+        36.205
+      ],
+      "intakeOutfall": [
+        35.928,
+        36.115
+      ],
+      "bbox": [
+        [
+          35.9,
+          36.09
+        ],
+        [
+          36.04,
+          36.24
+        ]
+      ]
+    },
+    "nearest380Km": 16,
+    "nearest154Km": 9.2,
+    "nearestSubstation": {
+      "name": "HATAY 400/154 kV bolgesi",
+      "voltage_kv": 400,
+      "coord": [
+        36.113,
+        36.205
+      ],
+      "distance_km": 16
+    },
+    "lowerReservoirType": "sea",
+    "upperReservoirType": "new_lined_reservoir",
+    "locationConfidence": "medium",
+    "isApproximate": true,
+    "verifiedAt": "2026-05-11",
+    "verificationNotes": "Sistem değeri yüksek doğu Akdeniz adayi; deprem/fay ve korunan alan riski nedeniyle düşük güvenlidir. Koordinatlar masaüstü DEM/kıyı-şebeke mantığıyla üretilmiştir; saha teyidi gerekir.",
+    "locationEvidence": [
+      {
+        "field": "mapAnchor",
+        "sourceName": "OpenStreetMap / visual map context",
+        "sourceType": "osm",
+        "sourceUrl": "https://www.openstreetmap.org/",
+        "method": "manual visual check",
+        "confidence": "medium",
+        "note": "Yeni aday için masaüstü kaynak ve DEM/kıyı-şebeke çıkarımı."
+      },
+      {
+        "field": "upperReservoir",
+        "sourceName": "Copernicus DEM GLO-30/GLO-90 reference",
+        "sourceType": "satellite",
+        "sourceUrl": "https://dataspace.copernicus.eu/explore-data/data-collections/copernicus-contributing-missions/collections-description/COP-DEM",
+        "method": "DEM inference",
+        "confidence": "low",
+        "note": "Yeni aday için masaüstü kaynak ve DEM/kıyı-şebeke çıkarımı."
+      },
+      {
+        "field": "gridConnection",
+        "sourceName": "TEIAS KML-derived local grid layer",
+        "sourceType": "official",
+        "sourceUrl": "grid_assets.json",
+        "method": "coast-grid",
+        "confidence": "medium",
+        "note": "Yeni aday için masaüstü kaynak ve DEM/kıyı-şebeke çıkarımı."
+      },
+      {
+        "field": "gridConnection",
+        "sourceName": "AFAD Turkiye Deprem Tehlike Haritasi",
+        "sourceType": "official",
+        "sourceUrl": "https://afad.gov.tr/turkiye-deprem-tehlike-haritasi",
+        "method": "manual visual check",
+        "confidence": "medium",
+        "note": "Yeni aday için masaüstü kaynak ve DEM/kıyı-şebeke çıkarımı."
+      },
+      {
+        "field": "gridConnection",
+        "sourceName": "MTA Yerbilimleri / Diri Fay and geology references",
+        "sourceType": "official",
+        "sourceUrl": "https://yerbilimleri.mta.gov.tr/referans.aspx",
+        "method": "manual visual check",
+        "confidence": "medium",
+        "note": "Yeni aday için masaüstü kaynak ve DEM/kıyı-şebeke çıkarımı."
+      }
+    ],
+    "oldCoordinates": null,
+    "lat": 36.16,
+    "lon": 35.97,
+    "view": {
+      "center": [
+        35.97,
+        36.16
+      ],
+      "zoom": 10.8,
+      "pitch": 58,
+      "bearing": 26
+    },
+    "layout": {
+      "bearing": 26,
+      "upper": [
+        36.005,
+        36.215
+      ],
+      "lower": [
+        35.928,
+        36.115
+      ],
+      "power": [
+        35.967,
+        36.162
+      ],
+      "surge": [
+        35.988,
+        36.19
+      ],
+      "switchyard": [
+        36.03,
+        36.18
+      ],
+      "gridA": [
+        36.113,
+        36.205
+      ],
+      "gridB": [
+        36.113,
+        36.205
+      ],
+      "risk": [
+        35.97,
+        36.16
+      ],
+      "gridTap": [
+        36.113,
+        36.205
+      ]
+    },
+    "timeline": [
+      {
+        "date": "2026 Q2",
+        "title": "Masaustu GIS taramasi",
+        "text": "DEM, kıyı, şebeke, yerleşim ve risk katmanlariyla ilk eleme yapilir."
+      },
+      {
+        "date": "2026 Q3",
+        "title": "Saha on teyidi",
+        "text": "Gorsel etki, jeoloji, izin ve baglanti belirsizlikleri saha notuna donusturulur."
+      },
+      {
+        "date": "2027",
+        "title": "Go / no-go",
+        "text": "Parsel, jeoteknik, CED ve TEIAS/DSI gorusleriyle aday korunur veya elenir."
+      }
+    ],
+    "layout3D": {
+      "scale": "macro",
+      "preferredBearing": 26,
+      "componentFootprints": []
+    },
+    "components_detail": {
+      "upper_reservoir": {
+        "elevation_m": 560,
+        "active_volume_mcm": 1.6,
+        "dam_height_m": 36,
+        "lining": "HDPE geomembran + beton koruma kaplamasi",
+        "geology_note": "kıyı izinleri"
+      },
+      "lower_reservoir": {
+        "elevation_m": 0,
+        "min_level_m": 0,
+        "note": "Samandağ kıyısi deniz alımı"
+      },
+      "penstock": {
+        "diameter_m": 4.5,
+        "length_m": 6800,
+        "material": "epoksi kapli celik, duplex paslanmaz kritik parcalar",
+        "pressure_class": "~55 bar statik basinc sinifi",
+        "count": 1
+      },
+      "powerhouse": {
+        "cavern_width_m": 27,
+        "cavern_length_m": 188,
+        "cavern_height_m": 40,
+        "units": 2,
+        "turbine_type": "Francis pompa-turbin"
+      },
+      "surge_tank": {
+        "type": "hidrolik kondisyonlama safti / surge tank",
+        "height_m": 150,
+        "diameter_m": 28
+      },
+      "switchyard": {
+        "voltage_kv": 400,
+        "transformer_count": 2,
+        "connection_line_km": 9.2
+      },
+      "tunnel": {
+        "length_m": 6800,
+        "diameter_m": 5.8,
+        "excavation_type": "TBM + kıyı portalinda NATM/drill-blast"
+      },
+      "intake_outfall": {
+        "type": "deniz alımı/desarj",
+        "corrosion_control": "duplex paslanmaz, katodik koruma, biyofouling izleme",
+        "note": "Deniz suyu hidroligi ve ekolojik karisim modeli gerekir."
+      }
+    }
+  },
+  {
+    "id": "edremit_kazdagi",
+    "name": "Edremit-Kazdağı Güney Eteği Deniz Suyu PDHES",
+    "pdhesType": "MAKRO_DENIZ_PDHES",
+    "concept": "sea",
+    "conceptLabel": "Makro Deniz PDHES / Körfez-Kazdağı",
+    "capacityClass": "macro",
+    "technologyReadiness": "concept",
+    "confidence": "gis_inferred",
+    "province": "Balikesir",
+    "region": "Edremit Körfezi - Kazdağı güney eteği",
+    "color": "#15cfe8",
+    "powerMW": 260,
+    "energyGWh": 1.9,
+    "head": 520,
+    "tunnelKm": 5.9,
+    "activeMcm": 1.55,
+    "capexBn": 0.7,
+    "revenueM": 36,
+    "payback": 19.4,
+    "gridDistKm": 12,
+    "score": 60,
+    "scores": {
+      "topo": 72,
+      "grid": 62,
+      "env": 42,
+      "geology": 50,
+      "access": 76,
+      "market": 70
+    },
+    "lower": "Edremit Körfezi deniz alımı",
+    "upper": "Kazdağı güney eteği kaplamali ust rezervuar konsepti",
+    "thesis": "Kısa kıyı-sirt mesafesi cazip; Kazdağı koruma, turizm ve görsel etki riski belirleyicidir.",
+    "risks": [
+      "kıyı izinleri",
+      "liner/sızdırmazlık",
+      "korozyon",
+      "biofouling",
+      "turizm/görsel etki",
+      "korunan alan",
+      "deprem/fay",
+      "kamulaştırma/imar"
+    ],
+    "coordinates": {
+      "mapAnchor": [
+        26.96,
+        39.62
+      ],
+      "lowerReservoir": [
+        26.94,
+        39.575
+      ],
+      "upperReservoir": [
+        26.99,
+        39.69
+      ],
+      "powerhouse": [
+        26.962,
+        39.623
+      ],
+      "surgeTank": [
+        26.977,
+        39.66
+      ],
+      "switchyard": [
+        27,
+        39.61
+      ],
+      "gridConnection": [
+        27.05,
+        39.65
+      ],
+      "intakeOutfall": [
+        26.94,
+        39.575
+      ],
+      "bbox": [
+        [
+          26.91,
+          39.55
+        ],
+        [
+          27.02,
+          39.71
+        ]
+      ]
+    },
+    "nearest380Km": 28,
+    "nearest154Km": 12,
+    "nearestSubstation": {
+      "name": "EDREMIT/BALIKESIR 154 kV bolgesi",
+      "voltage_kv": 154,
+      "coord": [
+        27.05,
+        39.65
+      ],
+      "distance_km": 12
+    },
+    "lowerReservoirType": "sea",
+    "upperReservoirType": "new_lined_reservoir",
+    "locationConfidence": "medium",
+    "isApproximate": true,
+    "verifiedAt": "2026-05-11",
+    "verificationNotes": "Kısa kıyı-sirt mesafesi cazip; Kazdağı koruma, turizm ve görsel etki riski belirleyicidir. Koordinatlar masaüstü DEM/kıyı-şebeke mantığıyla üretilmiştir; saha teyidi gerekir.",
+    "locationEvidence": [
+      {
+        "field": "mapAnchor",
+        "sourceName": "OpenStreetMap / visual map context",
+        "sourceType": "osm",
+        "sourceUrl": "https://www.openstreetmap.org/",
+        "method": "manual visual check",
+        "confidence": "medium",
+        "note": "Yeni aday için masaüstü kaynak ve DEM/kıyı-şebeke çıkarımı."
+      },
+      {
+        "field": "upperReservoir",
+        "sourceName": "Copernicus DEM GLO-30/GLO-90 reference",
+        "sourceType": "satellite",
+        "sourceUrl": "https://dataspace.copernicus.eu/explore-data/data-collections/copernicus-contributing-missions/collections-description/COP-DEM",
+        "method": "DEM inference",
+        "confidence": "low",
+        "note": "Yeni aday için masaüstü kaynak ve DEM/kıyı-şebeke çıkarımı."
+      },
+      {
+        "field": "gridConnection",
+        "sourceName": "TEIAS KML-derived local grid layer",
+        "sourceType": "official",
+        "sourceUrl": "grid_assets.json",
+        "method": "coast-grid",
+        "confidence": "medium",
+        "note": "Yeni aday için masaüstü kaynak ve DEM/kıyı-şebeke çıkarımı."
+      },
+      {
+        "field": "gridConnection",
+        "sourceName": "AFAD Turkiye Deprem Tehlike Haritasi",
+        "sourceType": "official",
+        "sourceUrl": "https://afad.gov.tr/turkiye-deprem-tehlike-haritasi",
+        "method": "manual visual check",
+        "confidence": "medium",
+        "note": "Yeni aday için masaüstü kaynak ve DEM/kıyı-şebeke çıkarımı."
+      },
+      {
+        "field": "gridConnection",
+        "sourceName": "MTA Yerbilimleri / Diri Fay and geology references",
+        "sourceType": "official",
+        "sourceUrl": "https://yerbilimleri.mta.gov.tr/referans.aspx",
+        "method": "manual visual check",
+        "confidence": "medium",
+        "note": "Yeni aday için masaüstü kaynak ve DEM/kıyı-şebeke çıkarımı."
+      }
+    ],
+    "oldCoordinates": null,
+    "lat": 39.62,
+    "lon": 26.96,
+    "view": {
+      "center": [
+        26.96,
+        39.62
+      ],
+      "zoom": 10.8,
+      "pitch": 58,
+      "bearing": 26
+    },
+    "layout": {
+      "bearing": 26,
+      "upper": [
+        26.99,
+        39.69
+      ],
+      "lower": [
+        26.94,
+        39.575
+      ],
+      "power": [
+        26.962,
+        39.623
+      ],
+      "surge": [
+        26.977,
+        39.66
+      ],
+      "switchyard": [
+        27,
+        39.61
+      ],
+      "gridA": [
+        27.05,
+        39.65
+      ],
+      "gridB": [
+        27.05,
+        39.65
+      ],
+      "risk": [
+        26.96,
+        39.62
+      ],
+      "gridTap": [
+        27.05,
+        39.65
+      ]
+    },
+    "timeline": [
+      {
+        "date": "2026 Q2",
+        "title": "Masaustu GIS taramasi",
+        "text": "DEM, kıyı, şebeke, yerleşim ve risk katmanlariyla ilk eleme yapilir."
+      },
+      {
+        "date": "2026 Q3",
+        "title": "Saha on teyidi",
+        "text": "Gorsel etki, jeoloji, izin ve baglanti belirsizlikleri saha notuna donusturulur."
+      },
+      {
+        "date": "2027",
+        "title": "Go / no-go",
+        "text": "Parsel, jeoteknik, CED ve TEIAS/DSI gorusleriyle aday korunur veya elenir."
+      }
+    ],
+    "layout3D": {
+      "scale": "macro",
+      "preferredBearing": 26,
+      "componentFootprints": []
+    },
+    "components_detail": {
+      "upper_reservoir": {
+        "elevation_m": 520,
+        "active_volume_mcm": 1.55,
+        "dam_height_m": 36,
+        "lining": "HDPE geomembran + beton koruma kaplamasi",
+        "geology_note": "kıyı izinleri"
+      },
+      "lower_reservoir": {
+        "elevation_m": 0,
+        "min_level_m": 0,
+        "note": "Edremit Körfezi deniz alımı"
+      },
+      "penstock": {
+        "diameter_m": 4.5,
+        "length_m": 5900,
+        "material": "epoksi kapli celik, duplex paslanmaz kritik parcalar",
+        "pressure_class": "~51 bar statik basinc sinifi",
+        "count": 1
+      },
+      "powerhouse": {
+        "cavern_width_m": 27,
+        "cavern_length_m": 188,
+        "cavern_height_m": 40,
+        "units": 2,
+        "turbine_type": "Francis pompa-turbin"
+      },
+      "surge_tank": {
+        "type": "hidrolik kondisyonlama safti / surge tank",
+        "height_m": 145,
+        "diameter_m": 28
+      },
+      "switchyard": {
+        "voltage_kv": 154,
+        "transformer_count": 2,
+        "connection_line_km": 12
+      },
+      "tunnel": {
+        "length_m": 5900,
+        "diameter_m": 5.8,
+        "excavation_type": "TBM + kıyı portalinda NATM/drill-blast"
+      },
+      "intake_outfall": {
+        "type": "deniz alımı/desarj",
+        "corrosion_control": "duplex paslanmaz, katodik koruma, biyofouling izleme",
+        "note": "Deniz suyu hidroligi ve ekolojik karisim modeli gerekir."
+      }
+    }
+  },
+  {
+    "id": "datca_guney",
+    "name": "Datça Güney Sırtı Deniz Suyu PDHES",
+    "pdhesType": "MAKRO_DENIZ_PDHES",
+    "concept": "sea",
+    "conceptLabel": "Makro Deniz PDHES / Ege yarimada",
+    "capacityClass": "macro",
+    "technologyReadiness": "concept",
+    "confidence": "gis_inferred",
+    "province": "Mugla",
+    "region": "Datça yarımadası güney sırtı",
+    "color": "#15cfe8",
+    "powerMW": 180,
+    "energyGWh": 1.2,
+    "head": 430,
+    "tunnelKm": 4.7,
+    "activeMcm": 1.18,
+    "capexBn": 0.52,
+    "revenueM": 26,
+    "payback": 20,
+    "gridDistKm": 18,
+    "score": 55,
+    "scores": {
+      "topo": 68,
+      "grid": 45,
+      "env": 40,
+      "geology": 52,
+      "access": 62,
+      "market": 66
+    },
+    "lower": "Datça güney kıyısi deniz alımı",
+    "upper": "Yarimada güney sırtında küçük kaplamali ust rezervuar",
+    "thesis": "Ada/yarimada arz güvenliği anlatimi güçlü; şebeke ve koruma hassasiyeti nedeniyle temkinli aday.",
+    "risks": [
+      "kıyı izinleri",
+      "liner/sızdırmazlık",
+      "korozyon",
+      "biofouling",
+      "turizm/görsel etki",
+      "korunan alan",
+      "şebeke uzaklığı",
+      "kamulaştırma/imar"
+    ],
+    "coordinates": {
+      "mapAnchor": [
+        27.7,
+        36.71
+      ],
+      "lowerReservoir": [
+        27.68,
+        36.67
+      ],
+      "upperReservoir": [
+        27.725,
+        36.755
+      ],
+      "powerhouse": [
+        27.702,
+        36.713
+      ],
+      "surgeTank": [
+        27.715,
+        36.735
+      ],
+      "switchyard": [
+        27.735,
+        36.73
+      ],
+      "gridConnection": [
+        27.75,
+        36.75
+      ],
+      "intakeOutfall": [
+        27.68,
+        36.67
+      ],
+      "bbox": [
+        [
+          27.65,
+          36.65
+        ],
+        [
+          27.75,
+          36.77
+        ]
+      ]
+    },
+    "nearest380Km": 60,
+    "nearest154Km": 18,
+    "nearestSubstation": {
+      "name": "DATCA/MARMARIS 154 kV bolgesi",
+      "voltage_kv": 154,
+      "coord": [
+        27.75,
+        36.75
+      ],
+      "distance_km": 18
+    },
+    "lowerReservoirType": "sea",
+    "upperReservoirType": "new_lined_reservoir",
+    "locationConfidence": "medium",
+    "isApproximate": true,
+    "verifiedAt": "2026-05-11",
+    "verificationNotes": "Ada/yarimada arz güvenliği anlatimi güçlü; şebeke ve koruma hassasiyeti nedeniyle temkinli aday. Koordinatlar masaüstü DEM/kıyı-şebeke mantığıyla üretilmiştir; saha teyidi gerekir.",
+    "locationEvidence": [
+      {
+        "field": "mapAnchor",
+        "sourceName": "OpenStreetMap / visual map context",
+        "sourceType": "osm",
+        "sourceUrl": "https://www.openstreetmap.org/",
+        "method": "manual visual check",
+        "confidence": "medium",
+        "note": "Yeni aday için masaüstü kaynak ve DEM/kıyı-şebeke çıkarımı."
+      },
+      {
+        "field": "upperReservoir",
+        "sourceName": "Copernicus DEM GLO-30/GLO-90 reference",
+        "sourceType": "satellite",
+        "sourceUrl": "https://dataspace.copernicus.eu/explore-data/data-collections/copernicus-contributing-missions/collections-description/COP-DEM",
+        "method": "DEM inference",
+        "confidence": "low",
+        "note": "Yeni aday için masaüstü kaynak ve DEM/kıyı-şebeke çıkarımı."
+      },
+      {
+        "field": "gridConnection",
+        "sourceName": "TEIAS KML-derived local grid layer",
+        "sourceType": "official",
+        "sourceUrl": "grid_assets.json",
+        "method": "coast-grid",
+        "confidence": "medium",
+        "note": "Yeni aday için masaüstü kaynak ve DEM/kıyı-şebeke çıkarımı."
+      }
+    ],
+    "oldCoordinates": null,
+    "lat": 36.71,
+    "lon": 27.7,
+    "view": {
+      "center": [
+        27.7,
+        36.71
+      ],
+      "zoom": 10.8,
+      "pitch": 58,
+      "bearing": 26
+    },
+    "layout": {
+      "bearing": 26,
+      "upper": [
+        27.725,
+        36.755
+      ],
+      "lower": [
+        27.68,
+        36.67
+      ],
+      "power": [
+        27.702,
+        36.713
+      ],
+      "surge": [
+        27.715,
+        36.735
+      ],
+      "switchyard": [
+        27.735,
+        36.73
+      ],
+      "gridA": [
+        27.75,
+        36.75
+      ],
+      "gridB": [
+        27.75,
+        36.75
+      ],
+      "risk": [
+        27.7,
+        36.71
+      ],
+      "gridTap": [
+        27.75,
+        36.75
+      ]
+    },
+    "timeline": [
+      {
+        "date": "2026 Q2",
+        "title": "Masaustu GIS taramasi",
+        "text": "DEM, kıyı, şebeke, yerleşim ve risk katmanlariyla ilk eleme yapilir."
+      },
+      {
+        "date": "2026 Q3",
+        "title": "Saha on teyidi",
+        "text": "Gorsel etki, jeoloji, izin ve baglanti belirsizlikleri saha notuna donusturulur."
+      },
+      {
+        "date": "2027",
+        "title": "Go / no-go",
+        "text": "Parsel, jeoteknik, CED ve TEIAS/DSI gorusleriyle aday korunur veya elenir."
+      }
+    ],
+    "layout3D": {
+      "scale": "macro",
+      "preferredBearing": 26,
+      "componentFootprints": []
+    },
+    "components_detail": {
+      "upper_reservoir": {
+        "elevation_m": 430,
+        "active_volume_mcm": 1.18,
+        "dam_height_m": 36,
+        "lining": "HDPE geomembran + beton koruma kaplamasi",
+        "geology_note": "kıyı izinleri"
+      },
+      "lower_reservoir": {
+        "elevation_m": 0,
+        "min_level_m": 0,
+        "note": "Datça güney kıyısi deniz alımı"
+      },
+      "penstock": {
+        "diameter_m": 4.5,
+        "length_m": 4700,
+        "material": "epoksi kapli celik, duplex paslanmaz kritik parcalar",
+        "pressure_class": "~42 bar statik basinc sinifi",
+        "count": 1
+      },
+      "powerhouse": {
+        "cavern_width_m": 27,
+        "cavern_length_m": 188,
+        "cavern_height_m": 40,
+        "units": 2,
+        "turbine_type": "Francis pompa-turbin"
+      },
+      "surge_tank": {
+        "type": "hidrolik kondisyonlama safti / surge tank",
+        "height_m": 134,
+        "diameter_m": 28
+      },
+      "switchyard": {
+        "voltage_kv": 154,
+        "transformer_count": 2,
+        "connection_line_km": 18
+      },
+      "tunnel": {
+        "length_m": 4700,
+        "diameter_m": 5.8,
+        "excavation_type": "TBM + kıyı portalinda NATM/drill-blast"
+      },
+      "intake_outfall": {
+        "type": "deniz alımı/desarj",
+        "corrosion_control": "duplex paslanmaz, katodik koruma, biyofouling izleme",
+        "note": "Deniz suyu hidroligi ve ekolojik karisim modeli gerekir."
+      }
+    }
+  },
+  {
+    "id": "gokceada_mikro_deniz",
+    "name": "Gökçeada Mikro Deniz PDHES Pilot",
+    "pdhesType": "MIKRO_DENIZ_PDHES",
+    "concept": "sea",
+    "conceptLabel": "Mikro Deniz PDHES / ada pilotu",
+    "capacityClass": "micro",
+    "technologyReadiness": "pilot",
+    "confidence": "conceptual",
+    "province": "Canakkale",
+    "region": "Gökçeada mikro şebekesi",
+    "color": "#b277ff",
+    "powerMW": 20,
+    "energyGWh": 0.1,
+    "head": 230,
+    "tunnelKm": 1.8,
+    "activeMcm": 0.18,
+    "capexBn": 0.09,
+    "revenueM": 3.2,
+    "payback": 28.1,
+    "gridDistKm": 4,
+    "score": 48,
+    "scores": {
+      "topo": 58,
+      "grid": 44,
+      "env": 44,
+      "geology": 52,
+      "access": 60,
+      "market": 50
+    },
+    "lower": "Gökçeada kıyısi küçük deniz alımı",
+    "upper": "Ada içinde kaplamali mikro ust havuz",
+    "thesis": "Yatırım shortlist değil; mikro şebeke, teknoloji pilotu ve eğitim demonstrasyonu olarak etiketlenmelidir.",
+    "risks": [
+      "kıyı izinleri",
+      "liner/sızdırmazlık",
+      "korozyon",
+      "biofouling",
+      "turizm/görsel etki",
+      "korunan alan",
+      "şebeke uzaklığı"
+    ],
+    "coordinates": {
+      "mapAnchor": [
+        25.9,
+        40.18
+      ],
+      "lowerReservoir": [
+        25.884,
+        40.151
+      ],
+      "upperReservoir": [
+        25.905,
+        40.186
+      ],
+      "powerhouse": [
+        25.895,
+        40.17
+      ],
+      "surgeTank": [
+        25.9,
+        40.18
+      ],
+      "switchyard": [
+        25.91,
+        40.175
+      ],
+      "gridConnection": [
+        25.91,
+        40.18
+      ],
+      "intakeOutfall": [
+        25.884,
+        40.151
+      ],
+      "bbox": [
+        [
+          25.86,
+          40.14
+        ],
+        [
+          25.93,
+          40.2
+        ]
+      ]
+    },
+    "nearest380Km": 75,
+    "nearest154Km": 4,
+    "nearestSubstation": {
+      "name": "GOKCEADA dağıtım/ada şebekesi",
+      "voltage_kv": 34.5,
+      "coord": [
+        25.91,
+        40.18
+      ],
+      "distance_km": 4
+    },
+    "lowerReservoirType": "sea",
+    "upperReservoirType": "new_lined_reservoir",
+    "locationConfidence": "low",
+    "isApproximate": true,
+    "verifiedAt": "2026-05-11",
+    "verificationNotes": "Yatırım shortlist değil; mikro şebeke, teknoloji pilotu ve eğitim demonstrasyonu olarak etiketlenmelidir. Koordinatlar masaüstü DEM/kıyı-şebeke mantığıyla üretilmiştir; saha teyidi gerekir.",
+    "locationEvidence": [
+      {
+        "field": "mapAnchor",
+        "sourceName": "OpenStreetMap / visual map context",
+        "sourceType": "osm",
+        "sourceUrl": "https://www.openstreetmap.org/",
+        "method": "manual visual check",
+        "confidence": "medium",
+        "note": "Yeni aday için masaüstü kaynak ve DEM/kıyı-şebeke çıkarımı."
+      },
+      {
+        "field": "upperReservoir",
+        "sourceName": "Copernicus DEM GLO-30/GLO-90 reference",
+        "sourceType": "satellite",
+        "sourceUrl": "https://dataspace.copernicus.eu/explore-data/data-collections/copernicus-contributing-missions/collections-description/COP-DEM",
+        "method": "DEM inference",
+        "confidence": "low",
+        "note": "Yeni aday için masaüstü kaynak ve DEM/kıyı-şebeke çıkarımı."
+      },
+      {
+        "field": "gridConnection",
+        "sourceName": "TEIAS KML-derived local grid layer",
+        "sourceType": "official",
+        "sourceUrl": "grid_assets.json",
+        "method": "coast-grid",
+        "confidence": "medium",
+        "note": "Yeni aday için masaüstü kaynak ve DEM/kıyı-şebeke çıkarımı."
+      }
+    ],
+    "oldCoordinates": null,
+    "lat": 40.18,
+    "lon": 25.9,
+    "view": {
+      "center": [
+        25.9,
+        40.18
+      ],
+      "zoom": 12,
+      "pitch": 58,
+      "bearing": 18
+    },
+    "layout": {
+      "bearing": 18,
+      "upper": [
+        25.905,
+        40.186
+      ],
+      "lower": [
+        25.884,
+        40.151
+      ],
+      "power": [
+        25.895,
+        40.17
+      ],
+      "surge": [
+        25.9,
+        40.18
+      ],
+      "switchyard": [
+        25.91,
+        40.175
+      ],
+      "gridA": [
+        25.91,
+        40.18
+      ],
+      "gridB": [
+        25.91,
+        40.18
+      ],
+      "risk": [
+        25.9,
+        40.18
+      ],
+      "gridTap": [
+        25.91,
+        40.18
+      ]
+    },
+    "timeline": [
+      {
+        "date": "2026 Q2",
+        "title": "Masaustu GIS taramasi",
+        "text": "DEM, kıyı, şebeke, yerleşim ve risk katmanlariyla ilk eleme yapilir."
+      },
+      {
+        "date": "2026 Q3",
+        "title": "Saha on teyidi",
+        "text": "Gorsel etki, jeoloji, izin ve baglanti belirsizlikleri saha notuna donusturulur."
+      },
+      {
+        "date": "2027",
+        "title": "Go / no-go",
+        "text": "Parsel, jeoteknik, CED ve TEIAS/DSI gorusleriyle aday korunur veya elenir."
+      }
+    ],
+    "layout3D": {
+      "scale": "micro",
+      "preferredBearing": 18,
+      "componentFootprints": []
+    },
+    "components_detail": {
+      "upper_reservoir": {
+        "elevation_m": 230,
+        "active_volume_mcm": 0.18,
+        "dam_height_m": 16,
+        "lining": "HDPE geomembran + beton koruma kaplamasi",
+        "geology_note": "kıyı izinleri"
+      },
+      "lower_reservoir": {
+        "elevation_m": 0,
+        "min_level_m": 0,
+        "note": "Gökçeada kıyısi küçük deniz alımı"
+      },
+      "penstock": {
+        "diameter_m": 1.8,
+        "length_m": 1800,
+        "material": "epoksi kapli celik, duplex paslanmaz kritik parcalar",
+        "pressure_class": "~23 bar statik basinc sinifi",
+        "count": 1
+      },
+      "powerhouse": {
+        "cavern_width_m": 12,
+        "cavern_length_m": 48,
+        "cavern_height_m": 18,
+        "units": 1,
+        "turbine_type": "kompakt reversible pompa-turbin pilot seti"
+      },
+      "surge_tank": {
+        "type": "hidrolik kondisyonlama safti / surge tank",
+        "height_m": 36,
+        "diameter_m": 9
+      },
+      "switchyard": {
+        "voltage_kv": 34.5,
+        "transformer_count": 1,
+        "connection_line_km": 4
+      },
+      "tunnel": {
+        "length_m": 1800,
+        "diameter_m": 2.2,
+        "excavation_type": "TBM + kıyı portalinda NATM/drill-blast"
+      },
+      "intake_outfall": {
+        "type": "deniz alımı/desarj",
+        "corrosion_control": "duplex paslanmaz, katodik koruma, biyofouling izleme",
+        "note": "Deniz suyu hidroligi ve ekolojik karisim modeli gerekir."
+      }
+    }
+  },
+  {
+    "id": "bozcaada_mikro_deniz",
+    "name": "Bozcaada Mikro Deniz PDHES Pilot",
+    "pdhesType": "MIKRO_DENIZ_PDHES",
+    "concept": "sea",
+    "conceptLabel": "Mikro Deniz PDHES / ada pilotu",
+    "capacityClass": "micro",
+    "technologyReadiness": "pilot",
+    "confidence": "conceptual",
+    "province": "Canakkale",
+    "region": "Bozcaada mikro şebekesi",
+    "color": "#b277ff",
+    "powerMW": 12,
+    "energyGWh": 0.06,
+    "head": 150,
+    "tunnelKm": 1.2,
+    "activeMcm": 0.17,
+    "capexBn": 0.06,
+    "revenueM": 2,
+    "payback": 30,
+    "gridDistKm": 3,
+    "score": 45,
+    "scores": {
+      "topo": 46,
+      "grid": 48,
+      "env": 42,
+      "geology": 55,
+      "access": 68,
+      "market": 46
+    },
+    "lower": "Bozcaada kıyısi küçük deniz alımı",
+    "upper": "Ada içinde küçük kaplamali ust havuz",
+    "thesis": "Küçük ölçek maliyet primi yüksek; eğitim, ada sistemi ve pilot teknoloji değeri için tutulur.",
+    "risks": [
+      "kıyı izinleri",
+      "liner/sızdırmazlık",
+      "korozyon",
+      "biofouling",
+      "turizm/görsel etki",
+      "korunan alan",
+      "kamulaştırma/imar"
+    ],
+    "coordinates": {
+      "mapAnchor": [
+        26.04,
+        39.84
+      ],
+      "lowerReservoir": [
+        26.028,
+        39.823
+      ],
+      "upperReservoir": [
+        26.05,
+        39.855
+      ],
+      "powerhouse": [
+        26.04,
+        39.84
+      ],
+      "surgeTank": [
+        26.047,
+        39.85
+      ],
+      "switchyard": [
+        26.055,
+        39.842
+      ],
+      "gridConnection": [
+        26.05,
+        39.84
+      ],
+      "intakeOutfall": [
+        26.028,
+        39.823
+      ],
+      "bbox": [
+        [
+          26.01,
+          39.81
+        ],
+        [
+          26.07,
+          39.87
+        ]
+      ]
+    },
+    "nearest380Km": 70,
+    "nearest154Km": 3,
+    "nearestSubstation": {
+      "name": "BOZCAADA dağıtım/ada şebekesi",
+      "voltage_kv": 34.5,
+      "coord": [
+        26.05,
+        39.84
+      ],
+      "distance_km": 3
+    },
+    "lowerReservoirType": "sea",
+    "upperReservoirType": "new_lined_reservoir",
+    "locationConfidence": "low",
+    "isApproximate": true,
+    "verifiedAt": "2026-05-11",
+    "verificationNotes": "Küçük ölçek maliyet primi yüksek; eğitim, ada sistemi ve pilot teknoloji değeri için tutulur. Koordinatlar masaüstü DEM/kıyı-şebeke mantığıyla üretilmiştir; saha teyidi gerekir.",
+    "locationEvidence": [
+      {
+        "field": "mapAnchor",
+        "sourceName": "OpenStreetMap / visual map context",
+        "sourceType": "osm",
+        "sourceUrl": "https://www.openstreetmap.org/",
+        "method": "manual visual check",
+        "confidence": "medium",
+        "note": "Yeni aday için masaüstü kaynak ve DEM/kıyı-şebeke çıkarımı."
+      },
+      {
+        "field": "upperReservoir",
+        "sourceName": "Copernicus DEM GLO-30/GLO-90 reference",
+        "sourceType": "satellite",
+        "sourceUrl": "https://dataspace.copernicus.eu/explore-data/data-collections/copernicus-contributing-missions/collections-description/COP-DEM",
+        "method": "DEM inference",
+        "confidence": "low",
+        "note": "Yeni aday için masaüstü kaynak ve DEM/kıyı-şebeke çıkarımı."
+      },
+      {
+        "field": "gridConnection",
+        "sourceName": "TEIAS KML-derived local grid layer",
+        "sourceType": "official",
+        "sourceUrl": "grid_assets.json",
+        "method": "coast-grid",
+        "confidence": "medium",
+        "note": "Yeni aday için masaüstü kaynak ve DEM/kıyı-şebeke çıkarımı."
+      }
+    ],
+    "oldCoordinates": null,
+    "lat": 39.84,
+    "lon": 26.04,
+    "view": {
+      "center": [
+        26.04,
+        39.84
+      ],
+      "zoom": 12,
+      "pitch": 58,
+      "bearing": 18
+    },
+    "layout": {
+      "bearing": 18,
+      "upper": [
+        26.05,
+        39.855
+      ],
+      "lower": [
+        26.028,
+        39.823
+      ],
+      "power": [
+        26.04,
+        39.84
+      ],
+      "surge": [
+        26.047,
+        39.85
+      ],
+      "switchyard": [
+        26.055,
+        39.842
+      ],
+      "gridA": [
+        26.05,
+        39.84
+      ],
+      "gridB": [
+        26.05,
+        39.84
+      ],
+      "risk": [
+        26.04,
+        39.84
+      ],
+      "gridTap": [
+        26.05,
+        39.84
+      ]
+    },
+    "timeline": [
+      {
+        "date": "2026 Q2",
+        "title": "Masaustu GIS taramasi",
+        "text": "DEM, kıyı, şebeke, yerleşim ve risk katmanlariyla ilk eleme yapilir."
+      },
+      {
+        "date": "2026 Q3",
+        "title": "Saha on teyidi",
+        "text": "Gorsel etki, jeoloji, izin ve baglanti belirsizlikleri saha notuna donusturulur."
+      },
+      {
+        "date": "2027",
+        "title": "Go / no-go",
+        "text": "Parsel, jeoteknik, CED ve TEIAS/DSI gorusleriyle aday korunur veya elenir."
+      }
+    ],
+    "layout3D": {
+      "scale": "micro",
+      "preferredBearing": 18,
+      "componentFootprints": []
+    },
+    "components_detail": {
+      "upper_reservoir": {
+        "elevation_m": 150,
+        "active_volume_mcm": 0.17,
+        "dam_height_m": 16,
+        "lining": "HDPE geomembran + beton koruma kaplamasi",
+        "geology_note": "kıyı izinleri"
+      },
+      "lower_reservoir": {
+        "elevation_m": 0,
+        "min_level_m": 0,
+        "note": "Bozcaada kıyısi küçük deniz alımı"
+      },
+      "penstock": {
+        "diameter_m": 1.8,
+        "length_m": 1200,
+        "material": "epoksi kapli celik, duplex paslanmaz kritik parcalar",
+        "pressure_class": "~15 bar statik basinc sinifi",
+        "count": 1
+      },
+      "powerhouse": {
+        "cavern_width_m": 12,
+        "cavern_length_m": 48,
+        "cavern_height_m": 18,
+        "units": 1,
+        "turbine_type": "kompakt reversible pompa-turbin pilot seti"
+      },
+      "surge_tank": {
+        "type": "hidrolik kondisyonlama safti / surge tank",
+        "height_m": 36,
+        "diameter_m": 9
+      },
+      "switchyard": {
+        "voltage_kv": 34.5,
+        "transformer_count": 1,
+        "connection_line_km": 3
+      },
+      "tunnel": {
+        "length_m": 1200,
+        "diameter_m": 2.2,
+        "excavation_type": "TBM + kıyı portalinda NATM/drill-blast"
+      },
+      "intake_outfall": {
+        "type": "deniz alımı/desarj",
+        "corrosion_control": "duplex paslanmaz, katodik koruma, biyofouling izleme",
+        "note": "Deniz suyu hidroligi ve ekolojik karisim modeli gerekir."
+      }
+    }
+  },
+  {
+    "id": "afyon_sultandagi_mustakil",
+    "name": "Afyon-Sultandağı Kapalı Çevrim Müstakil PDHES",
+    "pdhesType": "MUSTAKIL_PDHES",
+    "concept": "classic",
+    "conceptLabel": "Müstakil PDHES / kapalı Çevrim",
+    "capacityClass": "macro",
+    "technologyReadiness": "concept",
+    "confidence": "conceptual",
+    "province": "Afyonkarahisar / Konya",
+    "region": "Sultandağı etekleri kapalı Çevrim konsepti",
+    "color": "#4ade80",
+    "powerMW": 320,
+    "energyGWh": 2.4,
+    "head": 520,
+    "tunnelKm": 4.9,
+    "activeMcm": 1.98,
+    "capexBn": 0.86,
+    "revenueM": 42,
+    "payback": 20.5,
+    "gridDistKm": 14,
+    "score": 58,
+    "scores": {
+      "topo": 70,
+      "grid": 56,
+      "env": 60,
+      "geology": 48,
+      "access": 66,
+      "market": 60
+    },
+    "lower": "Yeni yapay alt rezervuar",
+    "upper": "Yeni kaplamali ust rezervuar",
+    "thesis": "Mevcut baraja bağlı olmayan kapalı Çevrim demo adayi; su temini, parsel ve jeoteknik saha seçimi açıktır.",
+    "risks": [
+      "liner/sızdırmazlık",
+      "deprem/fay",
+      "heyelan/yamaç kararlılığı",
+      "şebeke uzaklığı",
+      "kamulaştırma/imar"
+    ],
+    "coordinates": {
+      "mapAnchor": [
+        31.16,
+        38.45
+      ],
+      "lowerReservoir": [
+        31.135,
+        38.425
+      ],
+      "upperReservoir": [
+        31.185,
+        38.485
+      ],
+      "powerhouse": [
+        31.16,
+        38.455
+      ],
+      "surgeTank": [
+        31.172,
+        38.472
+      ],
+      "switchyard": [
+        31.145,
+        38.445
+      ],
+      "gridConnection": [
+        31.12,
+        38.43
+      ],
+      "intakeOutfall": null,
+      "bbox": [
+        [
+          31.1,
+          38.4
+        ],
+        [
+          31.21,
+          38.51
+        ]
+      ]
+    },
+    "nearest380Km": 24,
+    "nearest154Km": 14,
+    "nearestSubstation": {
+      "name": "AFYON/KONYA 154 kV bolgesi",
+      "voltage_kv": 154,
+      "coord": [
+        31.12,
+        38.43
+      ],
+      "distance_km": 14
+    },
+    "lowerReservoirType": "new_reservoir",
+    "upperReservoirType": "new_lined_reservoir",
+    "locationConfidence": "low",
+    "isApproximate": true,
+    "verifiedAt": "2026-05-11",
+    "verificationNotes": "Mevcut baraja bağlı olmayan kapalı Çevrim demo adayi; su temini, parsel ve jeoteknik saha seçimi açıktır. Koordinatlar masaüstü DEM/kıyı-şebeke mantığıyla üretilmiştir; saha teyidi gerekir.",
+    "locationEvidence": [
+      {
+        "field": "mapAnchor",
+        "sourceName": "OpenStreetMap / visual map context",
+        "sourceType": "osm",
+        "sourceUrl": "https://www.openstreetmap.org/",
+        "method": "manual visual check",
+        "confidence": "medium",
+        "note": "Yeni aday için masaüstü kaynak ve DEM/kıyı-şebeke çıkarımı."
+      },
+      {
+        "field": "upperReservoir",
+        "sourceName": "Copernicus DEM GLO-30/GLO-90 reference",
+        "sourceType": "satellite",
+        "sourceUrl": "https://dataspace.copernicus.eu/explore-data/data-collections/copernicus-contributing-missions/collections-description/COP-DEM",
+        "method": "DEM inference",
+        "confidence": "low",
+        "note": "Yeni aday için masaüstü kaynak ve DEM/kıyı-şebeke çıkarımı."
+      },
+      {
+        "field": "gridConnection",
+        "sourceName": "TEIAS KML-derived local grid layer",
+        "sourceType": "official",
+        "sourceUrl": "grid_assets.json",
+        "method": "coast-grid",
+        "confidence": "medium",
+        "note": "Yeni aday için masaüstü kaynak ve DEM/kıyı-şebeke çıkarımı."
+      },
+      {
+        "field": "gridConnection",
+        "sourceName": "AFAD Turkiye Deprem Tehlike Haritasi",
+        "sourceType": "official",
+        "sourceUrl": "https://afad.gov.tr/turkiye-deprem-tehlike-haritasi",
+        "method": "manual visual check",
+        "confidence": "medium",
+        "note": "Yeni aday için masaüstü kaynak ve DEM/kıyı-şebeke çıkarımı."
+      },
+      {
+        "field": "gridConnection",
+        "sourceName": "MTA Yerbilimleri / Diri Fay and geology references",
+        "sourceType": "official",
+        "sourceUrl": "https://yerbilimleri.mta.gov.tr/referans.aspx",
+        "method": "manual visual check",
+        "confidence": "medium",
+        "note": "Yeni aday için masaüstü kaynak ve DEM/kıyı-şebeke çıkarımı."
+      },
+      {
+        "field": "upperReservoir",
+        "sourceName": "NASA SRTM mission reference",
+        "sourceType": "satellite",
+        "sourceUrl": "https://science.nasa.gov/mission/srtm",
+        "method": "DEM inference",
+        "confidence": "low",
+        "note": "Kapalı Çevrim müstakil aday DEM mantığıyla kavramsal olarak oluşturuldu."
+      }
+    ],
+    "oldCoordinates": null,
+    "lat": 38.45,
+    "lon": 31.16,
+    "view": {
+      "center": [
+        31.16,
+        38.45
+      ],
+      "zoom": 10.8,
+      "pitch": 58,
+      "bearing": 26
+    },
+    "layout": {
+      "bearing": 26,
+      "upper": [
+        31.185,
+        38.485
+      ],
+      "lower": [
+        31.135,
+        38.425
+      ],
+      "power": [
+        31.16,
+        38.455
+      ],
+      "surge": [
+        31.172,
+        38.472
+      ],
+      "switchyard": [
+        31.145,
+        38.445
+      ],
+      "gridA": [
+        31.12,
+        38.43
+      ],
+      "gridB": [
+        31.12,
+        38.43
+      ],
+      "risk": [
+        31.16,
+        38.45
+      ],
+      "gridTap": [
+        31.12,
+        38.43
+      ]
+    },
+    "timeline": [
+      {
+        "date": "2026 Q2",
+        "title": "Masaustu GIS taramasi",
+        "text": "DEM, kıyı, şebeke, yerleşim ve risk katmanlariyla ilk eleme yapilir."
+      },
+      {
+        "date": "2026 Q3",
+        "title": "Saha on teyidi",
+        "text": "Gorsel etki, jeoloji, izin ve baglanti belirsizlikleri saha notuna donusturulur."
+      },
+      {
+        "date": "2027",
+        "title": "Go / no-go",
+        "text": "Parsel, jeoteknik, CED ve TEIAS/DSI gorusleriyle aday korunur veya elenir."
+      }
+    ],
+    "layout3D": {
+      "scale": "macro",
+      "preferredBearing": 26,
+      "componentFootprints": []
+    },
+    "components_detail": {
+      "upper_reservoir": {
+        "elevation_m": 940,
+        "active_volume_mcm": 1.98,
+        "dam_height_m": 36,
+        "lining": "HDPE geomembran + beton koruma kaplamasi",
+        "geology_note": "liner/sızdırmazlık"
+      },
+      "lower_reservoir": {
+        "elevation_m": 130,
+        "min_level_m": 122,
+        "note": "Yeni yapay alt rezervuar"
+      },
+      "penstock": {
+        "diameter_m": 4.5,
+        "length_m": 4900,
+        "material": "celik kapli basinc tuneli",
+        "pressure_class": "~51 bar statik basinc sinifi",
+        "count": 1
+      },
+      "powerhouse": {
+        "cavern_width_m": 27,
+        "cavern_length_m": 188,
+        "cavern_height_m": 40,
+        "units": 2,
+        "turbine_type": "Francis pompa-turbin"
+      },
+      "surge_tank": {
+        "type": "denge safti / surge tank",
+        "height_m": 145,
+        "diameter_m": 28
+      },
+      "switchyard": {
+        "voltage_kv": 154,
+        "transformer_count": 2,
+        "connection_line_km": 14
+      },
+      "tunnel": {
+        "length_m": 4900,
+        "diameter_m": 5.8,
+        "excavation_type": "TBM veya drill-and-blast karma kazi"
+      },
+      "intake_outfall": null
+    }
+  },
+  {
+    "id": "kayseri_yahyali_mustakil",
+    "name": "Kayseri-Yahyalı Kapalı Çevrim Müstakil PDHES",
+    "pdhesType": "MUSTAKIL_PDHES",
+    "concept": "classic",
+    "conceptLabel": "Müstakil PDHES / kapalı Çevrim",
+    "capacityClass": "macro",
+    "technologyReadiness": "concept",
+    "confidence": "conceptual",
+    "province": "Kayseri",
+    "region": "Yahyalı-Aladağlar etekleri kapalı Çevrim konsepti",
+    "color": "#4ade80",
+    "powerMW": 450,
+    "energyGWh": 3.2,
+    "head": 650,
+    "tunnelKm": 5.8,
+    "activeMcm": 2.11,
+    "capexBn": 1.15,
+    "revenueM": 56,
+    "payback": 20.5,
+    "gridDistKm": 16,
+    "score": 61,
+    "scores": {
+      "topo": 78,
+      "grid": 54,
+      "env": 56,
+      "geology": 50,
+      "access": 62,
+      "market": 66
+    },
+    "lower": "Yeni yapay alt rezervuar",
+    "upper": "Yeni kaplamali ust rezervuar",
+    "thesis": "Yüksek düşü potansiyelli müstakil kapalı Çevrim konsepti; Aladağlar koruma ve jeoloji filtreleri belirleyicidir.",
+    "risks": [
+      "liner/sızdırmazlık",
+      "korunan alan",
+      "deprem/fay",
+      "heyelan/yamaç kararlılığı",
+      "şebeke uzaklığı",
+      "kamulaştırma/imar"
+    ],
+    "coordinates": {
+      "mapAnchor": [
+        35.35,
+        38.08
+      ],
+      "lowerReservoir": [
+        35.32,
+        38.055
+      ],
+      "upperReservoir": [
+        35.38,
+        38.125
+      ],
+      "powerhouse": [
+        35.35,
+        38.085
+      ],
+      "surgeTank": [
+        35.365,
+        38.105
+      ],
+      "switchyard": [
+        35.33,
+        38.075
+      ],
+      "gridConnection": [
+        35.3,
+        38.08
+      ],
+      "intakeOutfall": null,
+      "bbox": [
+        [
+          35.29,
+          38.03
+        ],
+        [
+          35.4,
+          38.15
+        ]
+      ]
+    },
+    "nearest380Km": 30,
+    "nearest154Km": 16,
+    "nearestSubstation": {
+      "name": "YAHYALI/KAYSERI 154 kV bolgesi",
+      "voltage_kv": 154,
+      "coord": [
+        35.3,
+        38.08
+      ],
+      "distance_km": 16
+    },
+    "lowerReservoirType": "new_reservoir",
+    "upperReservoirType": "new_lined_reservoir",
+    "locationConfidence": "low",
+    "isApproximate": true,
+    "verifiedAt": "2026-05-11",
+    "verificationNotes": "Yüksek düşü potansiyelli müstakil kapalı Çevrim konsepti; Aladağlar koruma ve jeoloji filtreleri belirleyicidir. Koordinatlar masaüstü DEM/kıyı-şebeke mantığıyla üretilmiştir; saha teyidi gerekir.",
+    "locationEvidence": [
+      {
+        "field": "mapAnchor",
+        "sourceName": "OpenStreetMap / visual map context",
+        "sourceType": "osm",
+        "sourceUrl": "https://www.openstreetmap.org/",
+        "method": "manual visual check",
+        "confidence": "medium",
+        "note": "Yeni aday için masaüstü kaynak ve DEM/kıyı-şebeke çıkarımı."
+      },
+      {
+        "field": "upperReservoir",
+        "sourceName": "Copernicus DEM GLO-30/GLO-90 reference",
+        "sourceType": "satellite",
+        "sourceUrl": "https://dataspace.copernicus.eu/explore-data/data-collections/copernicus-contributing-missions/collections-description/COP-DEM",
+        "method": "DEM inference",
+        "confidence": "low",
+        "note": "Yeni aday için masaüstü kaynak ve DEM/kıyı-şebeke çıkarımı."
+      },
+      {
+        "field": "gridConnection",
+        "sourceName": "TEIAS KML-derived local grid layer",
+        "sourceType": "official",
+        "sourceUrl": "grid_assets.json",
+        "method": "coast-grid",
+        "confidence": "medium",
+        "note": "Yeni aday için masaüstü kaynak ve DEM/kıyı-şebeke çıkarımı."
+      },
+      {
+        "field": "gridConnection",
+        "sourceName": "AFAD Turkiye Deprem Tehlike Haritasi",
+        "sourceType": "official",
+        "sourceUrl": "https://afad.gov.tr/turkiye-deprem-tehlike-haritasi",
+        "method": "manual visual check",
+        "confidence": "medium",
+        "note": "Yeni aday için masaüstü kaynak ve DEM/kıyı-şebeke çıkarımı."
+      },
+      {
+        "field": "gridConnection",
+        "sourceName": "MTA Yerbilimleri / Diri Fay and geology references",
+        "sourceType": "official",
+        "sourceUrl": "https://yerbilimleri.mta.gov.tr/referans.aspx",
+        "method": "manual visual check",
+        "confidence": "medium",
+        "note": "Yeni aday için masaüstü kaynak ve DEM/kıyı-şebeke çıkarımı."
+      },
+      {
+        "field": "upperReservoir",
+        "sourceName": "NASA SRTM mission reference",
+        "sourceType": "satellite",
+        "sourceUrl": "https://science.nasa.gov/mission/srtm",
+        "method": "DEM inference",
+        "confidence": "low",
+        "note": "Kapalı Çevrim müstakil aday DEM mantığıyla kavramsal olarak oluşturuldu."
+      }
+    ],
+    "oldCoordinates": null,
+    "lat": 38.08,
+    "lon": 35.35,
+    "view": {
+      "center": [
+        35.35,
+        38.08
+      ],
+      "zoom": 10.8,
+      "pitch": 58,
+      "bearing": 26
+    },
+    "layout": {
+      "bearing": 26,
+      "upper": [
+        35.38,
+        38.125
+      ],
+      "lower": [
+        35.32,
+        38.055
+      ],
+      "power": [
+        35.35,
+        38.085
+      ],
+      "surge": [
+        35.365,
+        38.105
+      ],
+      "switchyard": [
+        35.33,
+        38.075
+      ],
+      "gridA": [
+        35.3,
+        38.08
+      ],
+      "gridB": [
+        35.3,
+        38.08
+      ],
+      "risk": [
+        35.35,
+        38.08
+      ],
+      "gridTap": [
+        35.3,
+        38.08
+      ]
+    },
+    "timeline": [
+      {
+        "date": "2026 Q2",
+        "title": "Masaustu GIS taramasi",
+        "text": "DEM, kıyı, şebeke, yerleşim ve risk katmanlariyla ilk eleme yapilir."
+      },
+      {
+        "date": "2026 Q3",
+        "title": "Saha on teyidi",
+        "text": "Gorsel etki, jeoloji, izin ve baglanti belirsizlikleri saha notuna donusturulur."
+      },
+      {
+        "date": "2027",
+        "title": "Go / no-go",
+        "text": "Parsel, jeoteknik, CED ve TEIAS/DSI gorusleriyle aday korunur veya elenir."
+      }
+    ],
+    "layout3D": {
+      "scale": "macro",
+      "preferredBearing": 26,
+      "componentFootprints": []
+    },
+    "components_detail": {
+      "upper_reservoir": {
+        "elevation_m": 1070,
+        "active_volume_mcm": 2.11,
+        "dam_height_m": 36,
+        "lining": "HDPE geomembran + beton koruma kaplamasi",
+        "geology_note": "liner/sızdırmazlık"
+      },
+      "lower_reservoir": {
+        "elevation_m": 163,
+        "min_level_m": 155,
+        "note": "Yeni yapay alt rezervuar"
+      },
+      "penstock": {
+        "diameter_m": 6.2,
+        "length_m": 5800,
+        "material": "celik kapli basinc tuneli",
+        "pressure_class": "~64 bar statik basinc sinifi",
+        "count": 1
+      },
+      "powerhouse": {
+        "cavern_width_m": 27,
+        "cavern_length_m": 188,
+        "cavern_height_m": 40,
+        "units": 3,
+        "turbine_type": "Francis pompa-turbin"
+      },
+      "surge_tank": {
+        "type": "denge safti / surge tank",
+        "height_m": 161,
+        "diameter_m": 28
+      },
+      "switchyard": {
+        "voltage_kv": 154,
+        "transformer_count": 2,
+        "connection_line_km": 16
+      },
+      "tunnel": {
+        "length_m": 5800,
+        "diameter_m": 5.8,
+        "excavation_type": "TBM veya drill-and-blast karma kazi"
+      },
+      "intake_outfall": null
+    }
+  }
+]
