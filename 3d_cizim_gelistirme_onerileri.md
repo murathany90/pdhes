@@ -51,13 +51,79 @@ Bu durum, deniz kıyısında olması gereken yapının karanın içinde yapay bi
 
 ---
 
-## 4. Çizimleri Nasıl Daha İyi Geliştirebiliriz? (Görsel Kalite)
+## 4. Çizimleri Nasıl Daha İyi Geliştirebiliriz? (Görsel Kalite Ayrıntıları)
 
-MapLibre 3D haritası üzerindeki çizimlerin görsel kalitesini premium seviyeye çıkarmak için şu adımlar uygulanabilir:
+MapLibre 3D haritası üzerindeki çizimlerin görsel kalitesini premium seviyeye çıkarmak için şu detaylar ve formüller uygulanabilir:
 
 1. **Vektör Eğim Kaplaması (Hillshading)**:
-   - 3D arazi üzerine gölgelendirme katmanı (`hillshade`) eklenerek vadi ve dağların gölge detayları daha belirgin hale getirilebilir.
-2. **3D Model Simgeleri (3D Model Markers)**:
-   - MapLibre üzerinde basit fill-extrusion kutuları yerine, Three.js veya gLTF formatındaki gerçekçi 3D baraj setleri, jeneratör binaları ve şalt direkleri haritaya yerleştirilebilir (MapLibre'nin 3D model ekleme desteği kullanılarak).
-3. **Şeffaf Su Katmanı**:
-   - Rezervuar alanlarının üstü, içini gösteren yarı şeffaf mavi renkli bir su katmanıyla kaplanmalı ve doluluk/boşalma efektleri bu katman üzerinden simüle edilmelidir.
+   - **Detay**: Sadece araziyi yükseltmek yetmez; güneş açısına göre dağ ve vadilerin gölgelendirilmesi (hillshade) derinlik hissini 3 katına çıkarır. MapLibre'nin `hillshade` katman türü, `terrainSource` (AWS Terrarium) kaynağını girdi olarak kullanabilir.
+   - **Teknik Parametreler**:
+     - `hillshade-shadow-color`: HSL tonlu koyu lacivert/yeşil gölgeler (`#0c151c` veya `#0f172a`) ile haritanın karanlık temasına uyum sağlanır.
+     - `hillshade-illumination-direction`: Güneş ışığı açısı `315` derece (kuzeybatıdan gelen ışık, 3D algısı için idealdir).
+     - `hillshade-exaggeration`: `0.75` ile belirgin sırtlar ve vadiler oluşturulur.
+
+2. **Çift Katmanlı Şeffaf Su ve Beton Baraj Rezervuarları**:
+   - **Detay**: Tek bir düz mavi kutu yerine, rezervuarlar iki katmandan oluşmalıdır:
+     - **Dış Çeper (Baraj Gövdesi / Set)**: Rezervuar çokgeninin dış çeperi (stroke/boundary), 5-10 metre genişliğinde bir şerit olarak çizilir ve gri beton renginde (`#7f8c8d` veya `#475569`) set yüksekliğinde (örneğin 30m) extrude edilir.
+     - **İç Su Kütlesi (Yarı Şeffaf Su)**: Çokgenin iç kısmı, beton set yüksekliğinden 2-3 metre daha alçak olacak şekilde su yüksekliğinde (örneğin 27m) extrude edilir. Rengi cam mavisi (`#0ea5e9` veya `#38bdf8`) ve opaklığı `0.55` yapılarak altındaki uydu arazisinin görünmesi sağlanır.
+
+3. **MapLibre WebGL Custom Layer ile 3D GLTF Model Entegrasyonu**:
+   - **Detay**: Güç evi, şalt sahası ve su alma yapıları için basit kutular yerine gerçekçi 3D modeller (.gltf / .glb) yerleştirilebilir.
+   - MapLibre, WebGL Custom Layer aracılığıyla Three.js sahnelerini doğrudan harita koordinat sistemine entegre etmeyi destekler.
+   - Bu sayede jeneratör binası, yüksek gerilim direkleri ve transformatör modelleri gerçek konumlarında, harita döndürüldüğünde ve eğildiğinde perspektifi bozmayacak şekilde 3D olarak çizilebilir.
+
+---
+
+## 5. Uygulama Planı (Implementation Plan)
+
+### Durum Özeti (Mevcut Durumda Yapılanlar)
+*   **[YAPILDI]** **"3D Yerleşim" (ThreeDModel.tsx) Sekmesi**: Bu sekmede zaten tam donanımlı bir Three.js sahnesi çalışmaktadır. Alçak poligonlu ağaçlar, gerçekçi arazi engebesi (Cesima Dağı gürültü fonksiyonu), 4 hatlı cebri borular, boruların içinden akan instanced su partikülleri ve kuyu tipi güç evi animasyonları premium seviyede uygulanmıştır.
+*   **[YAPILDI]** **Harita Konum Hizalaması**: Presenzano santralindeki tüm yapılar ve rezervuarlar (Cesima gölü ve oval beşgen havuz), OpenStreetMap'ten çekilen gerçek koordinatlar ve göl sınırları ile harita üzerinde 1:1 hizalanmıştır.
+*   **[YAPILDI]** **Deniz Suyu Kıyı Yapısı**: Deniz suyu projelerinde (`concept === 'sea'`) yapay kara rezervuarı kaldırılmış, sahil şeridine beton renkli su alma yapısı çizilmiştir.
+
+---
+
+### Adım Adım Harita Görsel Kalitesini Artırma Planı
+
+#### Adım 1: MapLibre Hillshade (Eğim Gölgelendirmesi) Katmanının Eklenmesi
+*   **Dosya**: [useMapLibre.ts](file:///c:/yazilim_projeler/zPompaj_DHES/app/src/hooks/useMapLibre.ts)
+*   **İşlem**: `queueDrawLayers` fonksiyonu içerisine, arazi açıkken (`layers.terrain3d` aktifken) çalışacak şekilde bir `hillshade` katmanı eklenmelidir:
+```typescript
+if (layers.terrain3d && !map.getLayer('hillshade-layer')) {
+  map.addLayer({
+    id: 'hillshade-layer',
+    type: 'hillshade',
+    source: 'terrainSource',
+    paint: {
+      'hillshade-shadow-color': '#0f172a',
+      'hillshade-illumination-direction': 315,
+      'hillshade-exaggeration': 0.75
+    }
+  }, 'base'); // base (uydu) katmanının hemen üzerine eklenerek harmanlanır
+}
+```
+
+#### Adım 2: Çift Katmanlı Su ve Beton Duvar Modellemesi
+*   **Dosya**: [layout.ts](file:///c:/yazilim_projeler/zPompaj_DHES/app/src/utils/layout.ts) ve [useMapLibre.ts](file:///c:/yazilim_projeler/zPompaj_DHES/app/src/hooks/useMapLibre.ts)
+*   **İşlem**:
+    1. Rezervuar çokgenlerinin (`upper_reservoir`, `lower_reservoir`) GeoJSON verisine ek bir özellik (`type: "water"` ve `type: "dam_wall"`) eklenerek iki katman olarak üretilmesi sağlanır.
+    2. `dam_wall` katmanı için koordinat çizgilerinden buffer/offset kullanılarak kalın beton çeperler oluşturulur.
+    3. `useMapLibre.ts` içinde `fill-extrusion-color` ve `fill-extrusion-opacity` özellikleri bu tiplere göre ayrıştırılarak suya `%50` şeffaflık verilir.
+
+#### Adım 3: MapLibre ile Three.js Entegrasyonu (Gelişmiş Aşama)
+*   **Dosya**: [useMapLibre.ts](file:///c:/yazilim_projeler/zPompaj_DHES/app/src/hooks/useMapLibre.ts)
+*   **İşlem**: MapLibre'nin `custom` layer türünü kullanarak, `ThreeDModel.tsx` içindeki bazı düşük poligonlu gLTF/Three.js modellerini haritanın üzerine enjekte eden bir WebGL bağlayıcısı yazılır:
+```typescript
+const customLayer = {
+  id: '3d-models-layer',
+  type: 'custom',
+  renderingMode: '3d',
+  onAdd: function (map, gl) {
+    // Three.js sahne kurulumu ve model yükleme işlemleri
+  },
+  render: function (gl, matrix) {
+    // Kameraya göre Three.js model projeksiyonu işlemleri
+  }
+};
+map.addLayer(customLayer);
+```

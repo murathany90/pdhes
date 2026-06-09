@@ -5319,8 +5319,8 @@
     "name": "Presenzano (Domenico Cimarosa) PSPP",
     "concept": "classic",
     "conceptLabel": "Kapalı Çevrim Pompaj Depolamalı HES (İtalya)",
-    "lat": 41.381,
-    "lon": 14.084,
+    "lat": 41.3878,
+    "lon": 14.0730,
     "region": "Caserta, Campania, İtalya",
     "score": 95,
     "head": 498.0,
@@ -5349,47 +5349,47 @@
     },
     "view": {
       "center": [
-        14.084,
-        41.381
+        14.0730,
+        41.3878
       ],
-      "zoom": 12.0,
-      "pitch": 65,
-      "bearing": 12
+      "zoom": 12.8,
+      "pitch": 55,
+      "bearing": 115
     },
     "color": "#10b981",
     "layout": {
-      "bearing": 12,
+      "bearing": 115,
       "upper": [
-        14.084,
-        41.381
+        14.0506,
+        41.3961
       ],
       "lower": [
-        14.09,
-        41.378
+        14.0954,
+        41.3795
       ],
       "power": [
-        14.088,
-        41.379
+        14.0902,
+        41.3808
       ],
       "surge": [
-        14.086,
-        41.38
+        14.0845,
+        41.3870
       ],
       "switchyard": [
-        14.092,
-        41.377
+        14.0894,
+        41.3815
       ],
       "gridA": [
-        14.092,
-        41.377
+        14.0894,
+        41.3815
       ],
       "gridB": [
-        14.095,
-        41.376
+        14.0924,
+        41.3805
       ],
       "risk": [
-        14.088,
-        41.379
+        14.0730,
+        41.3878
       ]
     },
     "timeline": [
@@ -5405,35 +5405,35 @@
       "name": "Presenzano Substation",
       "voltage_kv": 380,
       "coord": [
-        14.092,
-        41.377
+        14.0894,
+        41.3815
       ],
-      "distance_km": 0.5
+      "distance_km": 0.1
     },
     "gridConnection": {
       "preferredVoltageKv": 380,
       "preferredLineName": "380kV Presenzano - Garigliano EİH",
-      "preferredLineDistanceKm": 0.5,
+      "preferredLineDistanceKm": 0.1,
       "tapCoord": [
-        14.092,
-        41.377
+        14.0894,
+        41.3815
       ],
       "lineSegment": [
         [
-          14.092,
-          41.377
+          14.0894,
+          41.3815
         ],
         [
-          14.095,
-          41.376
+          14.0924,
+          41.3805
         ]
       ],
       "nearest380": {
         "lineName": "380kV Presenzano - Garigliano EİH",
-        "distanceKm": 0.5,
+        "distanceKm": 0.1,
         "tapCoord": [
-          14.092,
-          41.377
+          14.0894,
+          41.3815
         ]
       },
       "nearest154": {

@@ -144,6 +144,7 @@ export function useMapLibre({
         'block-labels',
         'candidate-circles',
         'candidate-labels',
+        'hillshade-layer',
       ];
       const oldSources = ['grid400', 'grid154', 'substations', 'risk', 'projectGrid', 'water', 'blocks', 'blockLabels', 'candidates'];
       if (map.getLayer('candidate-circles')) {
@@ -153,6 +154,18 @@ export function useMapLibre({
 
       if (layers.terrain3d) {
         map.setTerrain({ source: 'terrainSource', exaggeration: heightScale * 1.3 });
+        if (map.getSource('terrainSource') && !map.getLayer('hillshade-layer')) {
+          map.addLayer({
+            id: 'hillshade-layer',
+            type: 'hillshade',
+            source: 'terrainSource',
+            paint: {
+              'hillshade-shadow-color': '#0f172a',
+              'hillshade-illumination-direction': 315,
+              'hillshade-exaggeration': 0.85
+            }
+          }, 'base');
+        }
       } else {
         map.setTerrain(null);
       }
@@ -231,7 +244,12 @@ export function useMapLibre({
             'fill-extrusion-color': ['get', 'color'],
             'fill-extrusion-height': ['get', 'height'],
             'fill-extrusion-base': ['get', 'base'],
-            'fill-extrusion-opacity': 0.85,
+            'fill-extrusion-opacity': [
+              'match',
+              ['get', 'key'],
+              ['upper_reservoir', 'lower_reservoir'], 0.50,
+              0.85
+            ],
           },
         });
         map.addSource('blockLabels', { type: 'geojson', data: layout.labels });
