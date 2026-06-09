@@ -13,8 +13,8 @@ interface SettingsStore {
 }
 
 export const useSettingsStore = create<SettingsStore>((set, get) => ({
-  theme: (localStorage.getItem('pspp-theme') as 'dark' | 'light') || 'dark',
-  mapStyle: 'dark',
+  theme: (localStorage.getItem('pspp-theme') as 'dark' | 'light') || 'light',
+  mapStyle: 'satellite',
   heightScale: 1.3,
   weights: { topo: 30, grid: 20, env: 15, geo: 10 },
   setTheme: (t) => {

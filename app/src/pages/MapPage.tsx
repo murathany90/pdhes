@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import { MapPin, Mountain, AlertTriangle, Droplets, Zap, Activity, Waypoints, Box, Layers } from 'lucide-react';
 import { useMapLibre, type MapLayerVisibility } from '../hooks/useMapLibre';
 import { useSiteStore } from '../stores/useSiteStore';
 import { useSettingsStore } from '../stores/useSettingsStore';
@@ -14,23 +15,25 @@ const DEFAULT_LAYERS: MapLayerVisibility = {
   grid400: true,
   grid154: false,
   substations: true,
+  terrain3d: true,
 };
 
-const LAYER_LABELS: Array<{ key: keyof MapLayerVisibility; label: string }> = [
-  { key: 'candidates', label: 'Aday sahalar' },
-  { key: 'projectLayout', label: 'Kavramsal yerleşim' },
-  { key: 'risk', label: 'Risk alanı' },
-  { key: 'waterPath', label: 'Su yolu' },
-  { key: 'gridConnection', label: 'Yakın şebeke bağlantısı' },
-  { key: 'grid400', label: '400 kV hatlar' },
-  { key: 'grid154', label: '154 kV hatlar' },
-  { key: 'substations', label: 'Trafo merkezleri' },
+const LAYER_LABELS: Array<{ key: keyof MapLayerVisibility; label: string; Icon: any }> = [
+  { key: 'candidates', label: 'Sahalar', Icon: MapPin },
+  { key: 'projectLayout', label: 'Yerleşim', Icon: Mountain },
+  { key: 'terrain3d', label: '3D Arazi', Icon: Layers },
+  { key: 'risk', label: 'Risk Alanı', Icon: AlertTriangle },
+  { key: 'waterPath', label: 'Su Yolu', Icon: Droplets },
+  { key: 'gridConnection', label: 'Bağlantı', Icon: Waypoints },
+  { key: 'grid400', label: '400 kV', Icon: Zap },
+  { key: 'grid154', label: '154 kV', Icon: Activity },
+  { key: 'substations', label: 'Trafolar', Icon: Box },
 ];
 
 export default function MapPage() {
   const mapContainer = useRef<HTMLDivElement>(null);
   const { sites, selectedId, selectSite, gridAssets } = useSiteStore();
-  const { mapStyle, heightScale } = useSettingsStore();
+  const { mapStyle, heightScale, setHeightScale } = useSettingsStore();
   const [leftCollapsed, setLeftCollapsed] = useState(false);
   const [rightCollapsed, setRightCollapsed] = useState(false);
   const [layers, setLayers] = useState<MapLayerVisibility>(DEFAULT_LAYERS);
@@ -53,7 +56,7 @@ export default function MapPage() {
   const layoutCls = `map-layout ${leftCollapsed ? 'collapsed-left' : ''} ${rightCollapsed ? 'collapsed-right' : ''}`;
 
   return (
-    <section className="panel active">
+    <section className="panel active no-pad">
       <div className={layoutCls}>
         <aside className="map-left">
           <button className="btn ghost panel-toggle" onClick={() => setLeftCollapsed(true)}>‹</button>
@@ -88,6 +91,53 @@ export default function MapPage() {
 
         <div className="map-stage">
           <div ref={mapContainer} style={{ position: 'absolute', inset: 0 }} />
+          
+          {/* 3D / 2D Geçiş ve Kalite Kontrol Kartı */}
+          <div className="map-floating-card">
+            <div className="card-title">Harita Görünümü</div>
+            
+            <div className="card-row">
+              <span className="card-label">Mod</span>
+              <div className="segmented-control">
+                <button 
+                  className={`segment-btn ${!layers.terrain3d ? 'active' : ''}`}
+                  onClick={() => setLayers(current => ({ ...current, terrain3d: false }))}
+                >
+                  2D Düz
+                </button>
+                <button 
+                  className={`segment-btn ${layers.terrain3d ? 'active' : ''}`}
+                  onClick={() => setLayers(current => ({ ...current, terrain3d: true }))}
+                >
+                  3D Arazi
+                </button>
+              </div>
+            </div>
+
+            {layers.terrain3d && (
+              <div className="card-row" style={{ marginTop: 4 }}>
+                <span className="card-label">3D Kalitesi (Engebe)</span>
+                <div className="quality-options">
+                  {[
+                    { label: 'Düşük', val: 1.0 },
+                    { label: 'Orta', val: 1.3 },
+                    { label: 'Yüksek', val: 2.2 },
+                    { label: 'Ekstrem', val: 3.0 }
+                  ].map((opt) => (
+                    <button
+                      key={opt.val}
+                      className={`quality-btn ${Math.abs(heightScale - opt.val) < 0.1 ? 'active' : ''}`}
+                      onClick={() => setHeightScale(opt.val)}
+                      title={`${opt.label} (${opt.val}x)`}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
           {leftCollapsed && <button className="btn ghost floating-toggle left" onClick={() => setLeftCollapsed(false)}>›</button>}
           {rightCollapsed && <button className="btn ghost floating-toggle right" onClick={() => setRightCollapsed(false)}>‹</button>}
         </div>
@@ -103,18 +153,18 @@ export default function MapPage() {
           </div>
 
           <h3 style={{ marginTop: 16 }}>Harita katmanları</h3>
-          <div className="layer-controls">
-            {LAYER_LABELS.map(({ key, label }) => (
-              <label className="check" key={key}>
+          <div className="layer-grid">
+            {LAYER_LABELS.map(({ key, label, Icon }) => (
+              <button
+                key={key}
+                className={`layer-btn ${layers[key] ? 'active' : ''}`}
+                onClick={() => setLayers((current) => ({ ...current, [key]: !current[key] }))}
+                aria-label={label}
+                aria-pressed={layers[key]}
+              >
+                <Icon size={14} aria-hidden="true" />
                 <span>{label}</span>
-                <input
-                  type="checkbox"
-                  name={`map-layer-${key}`}
-                  aria-label={label}
-                  checked={layers[key]}
-                  onChange={(event) => setLayers((current) => ({ ...current, [key]: event.target.checked }))}
-                />
-              </label>
+              </button>
             ))}
           </div>
 

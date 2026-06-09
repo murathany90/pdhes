@@ -1,6 +1,7 @@
 import type { Site } from '../types/site';
 import { useCalcEngine } from '../hooks/useCalcEngine';
 import { moneyBn, moneyM } from '../utils/format';
+import ScorePill from '../components/ui/ScorePill';
 
 const SCORE_LABELS: Record<string, string> = {
   topo: 'Topografya / düşü (head)',
@@ -16,6 +17,9 @@ export default function CalcPage({ site }: { site?: Site }) {
 
   if (!site || !values) return <section className="panel active"><p className="muted">Veri yükleniyor...</p></section>;
 
+  // Karlılık skoru: 4 yılda geri ödemeye 100 puan, 24 yıla 0 puan
+  const profitScore = Math.max(0, Math.min(100, 100 - (values.payback - 4) * 5));
+
   return (
     <section className="panel active">
       <div className="calc-layout">
@@ -27,7 +31,10 @@ export default function CalcPage({ site }: { site?: Site }) {
             <div className="metric good"><span>Fiziksel enerji</span><b>{values.physicsGWh.toFixed(2)} GWh</b></div>
             <div className="metric info"><span>Senaryo yatırım gideri</span><b>{moneyBn(values.adjCapex)}</b></div>
             <div className="metric warn"><span>Brüt yıllık gelir</span><b>{moneyM(values.adjRevenue)}</b></div>
-            <div className="metric"><span>Basit geri ödeme</span><b>{values.payback.toFixed(1)} yıl</b></div>
+            <div className="metric">
+              <span>Karlılık Skoru ({values.payback.toFixed(1)} yıl)</span>
+              <div style={{ marginTop: 6 }}><ScorePill score={Math.round(profitScore)} label="Skor" /></div>
+            </div>
           </div>
 
           <div className="grid cols-2">

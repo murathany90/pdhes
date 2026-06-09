@@ -43,7 +43,7 @@
       "pitch": 58,
       "bearing": -28
     },
-    "color": "#3d7dff",
+    "color": "#3b82f6",
     "layout": {
       "bearing": -32,
       "upper": [
@@ -196,7 +196,7 @@
       },
       "intake_outfall": null
     },
-    "pdhesType": "YARI_PDHES",
+    "pdhesType": "OPEN_LOOP",
     "province": "Eskisehir / Bilecik",
     "locationConfidence": "medium",
     "isApproximate": true,
@@ -337,7 +337,7 @@
       "pitch": 58,
       "bearing": 26
     },
-    "color": "#15cfe8",
+    "color": "#06b6d4",
     "layout": {
       "bearing": 32,
       "upper": [
@@ -494,7 +494,7 @@
         "note": "Deniz suyu hidroligi ve ekolojik karisim modeli gerekir."
       }
     },
-    "pdhesType": "MAKRO_DENIZ_PDHES",
+    "pdhesType": "SEA_WATER",
     "province": "Mersin",
     "locationConfidence": "medium",
     "isApproximate": true,
@@ -637,7 +637,7 @@
       "pitch": 58,
       "bearing": -18
     },
-    "color": "#3d7dff",
+    "color": "#3b82f6",
     "layout": {
       "bearing": -12,
       "upper": [
@@ -785,7 +785,7 @@
       },
       "intake_outfall": null
     },
-    "pdhesType": "YARI_PDHES",
+    "pdhesType": "OPEN_LOOP",
     "province": "Samsun",
     "locationConfidence": "medium",
     "isApproximate": true,
@@ -925,7 +925,7 @@
       "pitch": 58,
       "bearing": 12
     },
-    "color": "#3d7dff",
+    "color": "#3b82f6",
     "layout": {
       "bearing": 18,
       "upper": [
@@ -1068,7 +1068,7 @@
       },
       "intake_outfall": null
     },
-    "pdhesType": "YARI_PDHES",
+    "pdhesType": "OPEN_LOOP",
     "province": "Antalya",
     "locationConfidence": "medium",
     "isApproximate": true,
@@ -1209,7 +1209,7 @@
       "pitch": 58,
       "bearing": 38
     },
-    "color": "#15cfe8",
+    "color": "#06b6d4",
     "layout": {
       "bearing": 42,
       "upper": [
@@ -1356,7 +1356,7 @@
         "note": "Deniz suyu hidroligi ve ekolojik karisim modeli gerekir."
       }
     },
-    "pdhesType": "MAKRO_DENIZ_PDHES",
+    "pdhesType": "SEA_WATER",
     "province": "Izmir",
     "locationConfidence": "low",
     "isApproximate": true,
@@ -1500,7 +1500,7 @@
       "pitch": 58,
       "bearing": 30
     },
-    "color": "#15cfe8",
+    "color": "#06b6d4",
     "layout": {
       "bearing": 35,
       "upper": [
@@ -1652,7 +1652,7 @@
         "note": "Deniz suyu hidroligi ve ekolojik karisim modeli gerekir."
       }
     },
-    "pdhesType": "MAKRO_DENIZ_PDHES",
+    "pdhesType": "SEA_WATER",
     "province": "Mersin",
     "locationConfidence": "medium",
     "isApproximate": true,
@@ -1796,7 +1796,7 @@
       "pitch": 58,
       "bearing": -24
     },
-    "color": "#15cfe8",
+    "color": "#06b6d4",
     "layout": {
       "bearing": -28,
       "upper": [
@@ -1948,7 +1948,7 @@
         "note": "Deniz suyu hidroligi ve ekolojik karisim modeli gerekir."
       }
     },
-    "pdhesType": "MAKRO_DENIZ_PDHES",
+    "pdhesType": "SEA_WATER",
     "province": "Ordu",
     "locationConfidence": "low",
     "isApproximate": true,
@@ -2102,7 +2102,7 @@
       "pitch": 58,
       "bearing": -12
     },
-    "color": "#3d7dff",
+    "color": "#3b82f6",
     "layout": {
       "bearing": -8,
       "upper": [
@@ -2250,7 +2250,7 @@
       },
       "intake_outfall": null
     },
-    "pdhesType": "YARI_PDHES",
+    "pdhesType": "OPEN_LOOP",
     "province": "Kahramanmaras",
     "locationConfidence": "medium",
     "isApproximate": true,
@@ -2401,7 +2401,7 @@
       "pitch": 58,
       "bearing": -20
     },
-    "color": "#3d7dff",
+    "color": "#3b82f6",
     "layout": {
       "bearing": -18,
       "upper": [
@@ -2549,7 +2549,7 @@
       },
       "intake_outfall": null
     },
-    "pdhesType": "YARI_PDHES",
+    "pdhesType": "OPEN_LOOP",
     "province": "Samsun",
     "locationConfidence": "medium",
     "isApproximate": true,
@@ -2690,7 +2690,7 @@
       "pitch": 58,
       "bearing": -26
     },
-    "color": "#3d7dff",
+    "color": "#3b82f6",
     "layout": {
       "bearing": -24,
       "upper": [
@@ -2838,7 +2838,7 @@
       },
       "intake_outfall": null
     },
-    "pdhesType": "YARI_PDHES",
+    "pdhesType": "OPEN_LOOP",
     "province": "Ankara / Eskisehir",
     "locationConfidence": "low",
     "isApproximate": true,
@@ -2938,7 +2938,7 @@
   {
     "id": "gazipasa_toros",
     "name": "Gazipaşa Kıyı-Toros Deniz Suyu PDHES",
-    "pdhesType": "MAKRO_DENIZ_PDHES",
+    "pdhesType": "SEA_WATER",
     "concept": "sea",
     "conceptLabel": "Makro Deniz PDHES / Akdeniz kıyı-sirt",
     "capacityClass": "macro",
@@ -2946,7 +2946,7 @@
     "confidence": "gis_inferred",
     "province": "Antalya",
     "region": "Gazipaşa kıyı - Toros arka sırtı",
-    "color": "#15cfe8",
+    "color": "#06b6d4",
     "powerMW": 420,
     "energyGWh": 3.2,
     "head": 640,
@@ -3192,7 +3192,7 @@
   {
     "id": "finike_kumluca",
     "name": "Finike-Kumluca Deniz Suyu PDHES",
-    "pdhesType": "MAKRO_DENIZ_PDHES",
+    "pdhesType": "SEA_WATER",
     "concept": "sea",
     "conceptLabel": "Makro Deniz PDHES / bati Antalya",
     "capacityClass": "macro",
@@ -3200,7 +3200,7 @@
     "confidence": "gis_inferred",
     "province": "Antalya",
     "region": "Finike-Kumluca kıyı ve Beydağları eteği",
-    "color": "#15cfe8",
+    "color": "#06b6d4",
     "powerMW": 520,
     "energyGWh": 4,
     "head": 720,
@@ -3464,7 +3464,7 @@
   {
     "id": "samandag_musa",
     "name": "Samandağ-Musa Dağı Deniz Suyu PDHES",
-    "pdhesType": "MAKRO_DENIZ_PDHES",
+    "pdhesType": "SEA_WATER",
     "concept": "sea",
     "conceptLabel": "Makro Deniz PDHES / Dogu Akdeniz",
     "capacityClass": "macro",
@@ -3472,7 +3472,7 @@
     "confidence": "gis_inferred",
     "province": "Hatay",
     "region": "Samandağ kıyısi - Musa Dağı",
-    "color": "#15cfe8",
+    "color": "#06b6d4",
     "powerMW": 300,
     "energyGWh": 2.1,
     "head": 560,
@@ -3736,7 +3736,7 @@
   {
     "id": "edremit_kazdagi",
     "name": "Edremit-Kazdağı Güney Eteği Deniz Suyu PDHES",
-    "pdhesType": "MAKRO_DENIZ_PDHES",
+    "pdhesType": "SEA_WATER",
     "concept": "sea",
     "conceptLabel": "Makro Deniz PDHES / Körfez-Kazdağı",
     "capacityClass": "macro",
@@ -3744,7 +3744,7 @@
     "confidence": "gis_inferred",
     "province": "Balikesir",
     "region": "Edremit Körfezi - Kazdağı güney eteği",
-    "color": "#15cfe8",
+    "color": "#06b6d4",
     "powerMW": 260,
     "energyGWh": 1.9,
     "head": 520,
@@ -4009,7 +4009,7 @@
   {
     "id": "datca_guney",
     "name": "Datça Güney Sırtı Deniz Suyu PDHES",
-    "pdhesType": "MAKRO_DENIZ_PDHES",
+    "pdhesType": "SEA_WATER",
     "concept": "sea",
     "conceptLabel": "Makro Deniz PDHES / Ege yarimada",
     "capacityClass": "macro",
@@ -4017,7 +4017,7 @@
     "confidence": "gis_inferred",
     "province": "Mugla",
     "region": "Datça yarımadası güney sırtı",
-    "color": "#15cfe8",
+    "color": "#06b6d4",
     "powerMW": 180,
     "energyGWh": 1.2,
     "head": 430,
@@ -4264,7 +4264,7 @@
   {
     "id": "gokceada_mikro_deniz",
     "name": "Gökçeada Mikro Deniz PDHES Pilot",
-    "pdhesType": "MIKRO_DENIZ_PDHES",
+    "pdhesType": "PROTOTYPE",
     "concept": "sea",
     "conceptLabel": "Mikro Deniz PDHES / ada pilotu",
     "capacityClass": "micro",
@@ -4272,7 +4272,7 @@
     "confidence": "conceptual",
     "province": "Canakkale",
     "region": "Gökçeada mikro şebekesi",
-    "color": "#b277ff",
+    "color": "#8b5cf6",
     "powerMW": 20,
     "energyGWh": 0.1,
     "head": 230,
@@ -4518,7 +4518,7 @@
   {
     "id": "bozcaada_mikro_deniz",
     "name": "Bozcaada Mikro Deniz PDHES Pilot",
-    "pdhesType": "MIKRO_DENIZ_PDHES",
+    "pdhesType": "PROTOTYPE",
     "concept": "sea",
     "conceptLabel": "Mikro Deniz PDHES / ada pilotu",
     "capacityClass": "micro",
@@ -4526,7 +4526,7 @@
     "confidence": "conceptual",
     "province": "Canakkale",
     "region": "Bozcaada mikro şebekesi",
-    "color": "#b277ff",
+    "color": "#8b5cf6",
     "powerMW": 12,
     "energyGWh": 0.06,
     "head": 150,
@@ -4772,7 +4772,7 @@
   {
     "id": "afyon_sultandagi_mustakil",
     "name": "Afyon-Sultandağı Kapalı Çevrim Müstakil PDHES",
-    "pdhesType": "MUSTAKIL_PDHES",
+    "pdhesType": "CLOSED_LOOP",
     "concept": "classic",
     "conceptLabel": "Müstakil PDHES / kapalı Çevrim",
     "capacityClass": "macro",
@@ -4780,7 +4780,7 @@
     "confidence": "conceptual",
     "province": "Afyonkarahisar / Konya",
     "region": "Sultandağı etekleri kapalı Çevrim konsepti",
-    "color": "#4ade80",
+    "color": "#059669",
     "powerMW": 320,
     "energyGWh": 2.4,
     "head": 520,
@@ -5044,7 +5044,7 @@
   {
     "id": "kayseri_yahyali_mustakil",
     "name": "Kayseri-Yahyalı Kapalı Çevrim Müstakil PDHES",
-    "pdhesType": "MUSTAKIL_PDHES",
+    "pdhesType": "CLOSED_LOOP",
     "concept": "classic",
     "conceptLabel": "Müstakil PDHES / kapalı Çevrim",
     "capacityClass": "macro",
@@ -5052,7 +5052,7 @@
     "confidence": "conceptual",
     "province": "Kayseri",
     "region": "Yahyalı-Aladağlar etekleri kapalı Çevrim konsepti",
-    "color": "#4ade80",
+    "color": "#059669",
     "powerMW": 450,
     "energyGWh": 3.2,
     "head": 650,
@@ -5312,6 +5312,204 @@
         "excavation_type": "TBM veya drill-and-blast karma kazi"
       },
       "intake_outfall": null
+    }
+  },
+  {
+    "id": "presenzano",
+    "name": "Presenzano (Domenico Cimarosa) PSPP",
+    "concept": "classic",
+    "conceptLabel": "Kapalı Çevrim Pompaj Depolamalı HES (İtalya)",
+    "lat": 41.381,
+    "lon": 14.084,
+    "region": "Caserta, Campania, İtalya",
+    "score": 95,
+    "head": 498.0,
+    "tunnelKm": 0.26,
+    "activeMcm": 6.0,
+    "powerMW": 1000,
+    "energyGWh": 7.0,
+    "capexBn": 1.2,
+    "revenueM": 110,
+    "payback": 10.9,
+    "gridDistKm": 0.5,
+    "lower": "Presenzano Alt Rezervuarı (6 milyon m³)",
+    "upper": "Cesima Üst Rezervuarı (6 milyon m³)",
+    "thesis": "İtalya'da bulunan 1.000 MW kapasiteli, kuyu tipi santral yapısına sahip modern kapalı çevrim HES.",
+    "risks": [
+      "Yeraltı şaft kazıları",
+      "Peyzaj ve çevre koruma"
+    ],
+    "scores": {
+      "topo": 98,
+      "grid": 95,
+      "env": 90,
+      "geology": 88,
+      "access": 92,
+      "market": 94
+    },
+    "view": {
+      "center": [
+        14.084,
+        41.381
+      ],
+      "zoom": 12.0,
+      "pitch": 65,
+      "bearing": 12
+    },
+    "color": "#10b981",
+    "layout": {
+      "bearing": 12,
+      "upper": [
+        14.084,
+        41.381
+      ],
+      "lower": [
+        14.09,
+        41.378
+      ],
+      "power": [
+        14.088,
+        41.379
+      ],
+      "surge": [
+        14.086,
+        41.38
+      ],
+      "switchyard": [
+        14.092,
+        41.377
+      ],
+      "gridA": [
+        14.092,
+        41.377
+      ],
+      "gridB": [
+        14.095,
+        41.376
+      ],
+      "risk": [
+        14.088,
+        41.379
+      ]
+    },
+    "timeline": [
+      {
+        "date": "1992",
+        "title": "İşletmeye Alınma",
+        "text": "1.000 MW kapasiteli Domenico Cimarosa santrali tamamlanarak şebekeye bağlandı."
+      }
+    ],
+    "nearest380Km": 0.5,
+    "nearest154Km": 1.2,
+    "nearestSubstation": {
+      "name": "Presenzano Substation",
+      "voltage_kv": 380,
+      "coord": [
+        14.092,
+        41.377
+      ],
+      "distance_km": 0.5
+    },
+    "gridConnection": {
+      "preferredVoltageKv": 380,
+      "preferredLineName": "380kV Presenzano - Garigliano EİH",
+      "preferredLineDistanceKm": 0.5,
+      "tapCoord": [
+        14.092,
+        41.377
+      ],
+      "lineSegment": [
+        [
+          14.092,
+          41.377
+        ],
+        [
+          14.095,
+          41.376
+        ]
+      ],
+      "nearest380": {
+        "lineName": "380kV Presenzano - Garigliano EİH",
+        "distanceKm": 0.5,
+        "tapCoord": [
+          14.092,
+          41.377
+        ]
+      },
+      "nearest154": {
+        "lineName": "154kV Lokasyon Hattı",
+        "distanceKm": 1.2,
+        "tapCoord": [
+          14.093,
+          41.375
+        ]
+      }
+    },
+    "components_detail": {
+      "upper_reservoir": {
+        "elevation_m": 643,
+        "active_volume_mcm": 6.0,
+        "dam_height_m": 45,
+        "lining": "Asfalt beton sızdırmazlık kaplaması",
+        "geology_note": "Kaya dolgu set ve geçirimsiz çekirdek yapısı"
+      },
+      "lower_reservoir": {
+        "elevation_m": 145,
+        "min_level_m": 139,
+        "note": "Presenzano alt havzası; beton su alma yapısı ve kapak vinç ünitesi."
+      },
+      "penstock": {
+        "diameter_m": 6.2,
+        "length_m": 260,
+        "material": "Çelik kaplı basınçlı kuyu tünelleri",
+        "pressure_class": "~50 bar statik yük",
+        "count": 4
+      },
+      "powerhouse": {
+        "cavern_width_m": 28,
+        "cavern_length_m": 160,
+        "cavern_height_m": 50,
+        "units": 4,
+        "turbine_type": "Tersinir Francis Tipi Pompa-Türbin (4x250 MW)"
+      },
+      "surge_tank": {
+        "type": "Yeraltı şaft tipi denge bacası",
+        "height_m": 85,
+        "diameter_m": 12
+      },
+      "switchyard": {
+        "voltage_kv": 380,
+        "transformer_count": 4,
+        "connection_line_km": 0.5
+      },
+      "tunnel": {
+        "length_m": 260,
+        "diameter_m": 6.2,
+        "excavation_type": "Dikey tünel kazıları (discenderie)"
+      },
+      "intake_outfall": null
+    },
+    "pdhesType": "CLOSED_LOOP",
+    "province": "Caserta (Campania)",
+    "locationConfidence": "high",
+    "isApproximate": false,
+    "confidence": "reference_based",
+    "technologyReadiness": "feasibility",
+    "evidence": [
+      "presenzanoOfficial",
+      "enelReport"
+    ],
+    "note": "İtalya Domenico Cimarosa (Presenzano) santralinin 3D Dijital İkizi",
+    "capacityClass": "macro",
+    "lowerReservoirType": "natural_embankment",
+    "upperReservoirType": "embankment",
+    "verifiedAt": "2026-06",
+    "verificationNotes": "Enel verileri ve coğrafi topografya doğrulanmıştır.",
+    "locationEvidence": [],
+    "layout3D": {
+      "scale": "1:1",
+      "preferredBearing": 12,
+      "componentFootprints": []
     }
   }
 ]

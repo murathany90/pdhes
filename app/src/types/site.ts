@@ -114,7 +114,7 @@ export interface GridConnection {
   nearest154: { lineName: string; distanceKm: number; tapCoord: [number, number] };
 }
 
-export type PdhesType = 'MUSTAKIL_PDHES' | 'YARI_PDHES' | 'MAKRO_DENIZ_PDHES' | 'MIKRO_DENIZ_PDHES';
+export type PdhesType = 'CLOSED_LOOP' | 'OPEN_LOOP' | 'SEA_WATER' | 'PROTOTYPE';
 export type Concept = 'classic' | 'sea';
 export type CapacityClass = 'macro' | 'micro' | 'medium';
 export type TechnologyReadiness = 'concept' | 'pre_feasibility' | 'feasibility';

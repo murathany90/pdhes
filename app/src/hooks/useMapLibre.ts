@@ -14,6 +14,7 @@ export interface MapLayerVisibility {
   grid400: boolean;
   grid154: boolean;
   substations: boolean;
+  terrain3d: boolean;
 }
 
 interface UseMapLibreOptions {
@@ -31,36 +32,33 @@ interface UseMapLibreOptions {
 
 function getMapStyle(kind: string): maplibregl.StyleSpecification {
   const glyphs = 'https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf';
+  const sources: Record<string, any> = {
+    base: {
+      type: 'raster',
+      tileSize: 256,
+      maxzoom: 22
+    },
+    terrainSource: {
+      type: 'raster-dem',
+      tiles: ['https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png'],
+      tileSize: 256,
+      encoding: 'terrarium',
+      maxzoom: 15
+    }
+  };
+
   if (kind === 'satellite') {
-    return {
-      version: 8,
-      glyphs,
-      sources: {
-        base: {
-          type: 'raster',
-          tiles: ['https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
-          tileSize: 256,
-        },
-      },
-      layers: [{ id: 'base', type: 'raster', source: 'base' }],
-    };
+    sources.base.tiles = ['https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'];
+  } else if (kind === 'light') {
+    sources.base.tiles = ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'];
+  } else {
+    sources.base.tiles = ['https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'];
   }
-  if (kind === 'light') {
-    return {
-      version: 8,
-      glyphs,
-      sources: {
-        base: { type: 'raster', tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'], tileSize: 256 },
-      },
-      layers: [{ id: 'base', type: 'raster', source: 'base' }],
-    };
-  }
+
   return {
     version: 8,
     glyphs,
-    sources: {
-      base: { type: 'raster', tiles: ['https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'], tileSize: 256 },
-    },
+    sources,
     layers: [{ id: 'base', type: 'raster', source: 'base' }],
   };
 }
@@ -152,6 +150,12 @@ export function useMapLibre({
         map.off('click', 'candidate-circles', handleCandidateClick);
       }
       removeIfExists(map, oldLayers, oldSources);
+
+      if (layers.terrain3d) {
+        map.setTerrain({ source: 'terrainSource', exaggeration: heightScale * 1.3 });
+      } else {
+        map.setTerrain(null);
+      }
 
       const layout = buildLayout(site, heightScale);
 
@@ -287,6 +291,7 @@ export function useMapLibre({
       pitch: site.view.pitch,
       bearing: site.view.bearing,
       attributionControl: false,
+      maxZoom: 22,
     });
     map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'bottom-right');
     mapRef.current = map;
@@ -315,9 +320,12 @@ export function useMapLibre({
   }, [mapStyle]);
 
   useEffect(() => {
+    queueDrawLayers();
+  }, [queueDrawLayers]);
+
+  useEffect(() => {
     const map = mapRef.current;
     if (!map || !site) return;
-    queueDrawLayers();
     map.flyTo({
       center: site.view.center,
       zoom: site.view.zoom,
@@ -325,7 +333,7 @@ export function useMapLibre({
       bearing: site.view.bearing,
       duration: 900,
     });
-  }, [queueDrawLayers, selectedId, site]);
+  }, [selectedId, site]);
 
   return { mapRef };
 }

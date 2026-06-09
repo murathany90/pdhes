@@ -1,123 +1,162 @@
 import { useState } from 'react';
-import type { Site } from '../types/site';
+import { useSiteStore } from '../stores/useSiteStore';
 import { COMPONENTS } from '../utils/constants';
+import LayerToggle from '../components/ui/LayerToggle';
+import ScenarioSlider from '../components/ui/ScenarioSlider';
+import ThreeDModel from '../components/ui/ThreeDModel';
 
-const COMPONENT_HELP: Record<string, string> = {
-  upper_reservoir: 'Pompalama sırasında suyun depolandığı yüksek kotlu rezervuar.',
-  lower_reservoir: 'Üretim sonrası suyun toplandığı alt rezervuar veya deniz alım yapısı.',
-  powerhouse: 'Pompa-türbin ve motor-jeneratör gruplarının yer aldığı yeraltı güç evi.',
-  surge_tank: 'Su darbesini sönümleyen denge bacası.',
-  switchyard: 'Enerjinin iletim şebekesine bağlandığı şalt ve trafo alanı.',
-  portal: 'Tünel erişimi, servis ve inşaat lojistiği için kullanılan giriş alanı.',
-};
+export default function ThreeDPage({ site: propSite }: { site?: any }) {
+  const { sites, selectedId } = useSiteStore();
+  const site = propSite || sites.find((item) => item.id === selectedId);
 
-const DETAIL_LABELS: Record<string, string> = {
-  elevation_m: 'Kot (m)',
-  active_volume_mcm: 'Aktif hacim (Mm³)',
-  dam_height_m: 'Gövde yüksekliği (m)',
-  lining: 'Sızdırmazlık kaplaması',
-  geology_note: 'Jeoloji notu',
-  min_level_m: 'Minimum su seviyesi (m)',
-  note: 'Not',
-  diameter_m: 'Çap (m)',
-  length_m: 'Uzunluk (m)',
-  material: 'Malzeme',
-  pressure_class: 'Basınç sınıfı',
-  count: 'Adet',
-  cavern_width_m: 'Kavern genişliği (m)',
-  cavern_length_m: 'Kavern uzunluğu (m)',
-  cavern_height_m: 'Kavern yüksekliği (m)',
-  units: 'Ünite sayısı',
-  turbine_type: 'Türbin tipi',
-  type: 'Tip',
-  height_m: 'Yükseklik (m)',
-  voltage_kv: 'Gerilim (kV)',
-  transformer_count: 'Trafo sayısı',
-  connection_line_km: 'Bağlantı hattı (km)',
-  excavation_type: 'Kazı yöntemi',
-  corrosion_control: 'Korozyon önlemi',
-};
+  const [layers, setLayers] = useState<Record<string, boolean>>({
+    upper_reservoir: true,
+    lower_reservoir: true,
+    powerhouse: true,
+    tunnel: true,
+    surge_tank: true,
+    switchyard: true,
+  });
 
-const CONFIDENCE_LABELS: Record<string, string> = {
-  reference_based: 'Referans veriye dayalı',
-  gis_inferred: 'Coğrafi ön kestirim',
-  dem_inferred: 'Yükselti modelinden türetilmiş',
-  high: 'Yüksek',
-  medium: 'Orta',
-  low: 'Düşük',
-};
+  const [activeComponent, setActiveComponent] = useState('upper_reservoir');
+  const [mode, setMode] = useState<'generate' | 'pump'>('generate');
+  
+  const [isPlaying, setIsPlaying] = useState(false);
+  const maxUnits = site?.components_detail?.powerhouse?.units || 4;
+  const [activeUnits, setActiveUnits] = useState(maxUnits);
 
-function detailLabel(key: string) {
-  return DETAIL_LABELS[key] || key.replaceAll('_', ' ');
-}
-
-export default function ThreeDPage({ site }: { site?: Site }) {
-  const [activeComp, setActiveComp] = useState<string | null>(null);
+  const [showTerrain, setShowTerrain] = useState(true);
+  const [showLabels, setShowLabels] = useState(true);
+  const [terrainOpacity, setTerrainOpacity] = useState(100);
 
   if (!site) return <section className="panel active"><p className="muted">Veri yükleniyor...</p></section>;
 
-  const detailRecord = site.components_detail as unknown as Record<string, Record<string, unknown> | undefined>;
-  const activeDetail = activeComp ? detailRecord[activeComp] : undefined;
-
   return (
-    <section className="panel active">
-      <div className="grid cols-2">
-        <div className="card">
-          <h2>3D kavramsal yerleşim</h2>
-          <h3>{site.name}</h3>
-          <p className="muted">
-            Aşağıdaki bileşenler saha verilerinden türetilmiş kavramsal yerleşimi anlatır; gerçek mühendislik çizimi yerine ön inceleme ekranıdır.
-          </p>
-          <div style={{ display: 'grid', gap: 10, marginTop: 16 }}>
-            {COMPONENTS.map((component) => {
-              const isActive = activeComp === component.key;
-              return (
-                <div
-                  key={component.key}
-                  className={`site-item ${isActive ? 'active' : ''}`}
-                  onClick={() => setActiveComp(isActive ? null : component.key)}
-                  style={{ borderLeft: `4px solid ${component.color}` }}
-                >
-                  <div className="row">
-                    <b style={{ color: component.color }}>{component.label}</b>
-                    <span className="muted small">incele</span>
-                  </div>
-                  {isActive && (
-                    <p className="muted small" style={{ marginTop: 8 }}>{COMPONENT_HELP[component.key]}</p>
-                  )}
-                </div>
-              );
-            })}
-          </div>
+    <section className="panel active no-pad" style={{ height: '100%', overflow: 'hidden' }}>
+      <div className="threed-layout">
+        
+        <div className="threed-left" style={{ padding: 0 }}>
+          <ThreeDModel
+            siteId={site.id}
+            activeComponent={activeComponent}
+            onSelectComponent={setActiveComponent}
+            layers={layers}
+            mode={mode}
+            componentsDetail={site.components_detail}
+            isPlaying={isPlaying}
+            activeUnits={activeUnits}
+            maxUnits={maxUnits}
+            showTerrain={showTerrain}
+            showLabels={showLabels}
+            terrainOpacity={terrainOpacity / 100}
+          />
         </div>
-        <div className="card">
-          <h2>Bileşen detayları</h2>
-          <p className="muted">Seçili bileşenin ön mühendislik varsayımları ve saha güven notları.</p>
-          {activeComp && activeDetail ? (
-            <div className="component-detail-list">
-              {Object.entries(activeDetail).map(([key, value]) => (
-                <div className="metric" key={key}>
-                  <span>{detailLabel(key)}</span>
-                  <b>{String(value)}</b>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="notice">Detay görmek için soldaki bileşenlerden birini seçin.</div>
-          )}
-          <h3 style={{ marginTop: 16 }}>Güven etiketi</h3>
+
+        {/* Sağ Panel: Kontroller */}
+        <div className="threed-right">
+          <h2 style={{ marginBottom: 4 }}>Kavramsal Tesis Yerleşimi</h2>
+          <p className="muted" style={{ marginBottom: 24 }}>Seçili saha: <b>{site.name}</b></p>
+
+          {/* Mode Toggle */}
+          <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+            <button
+              className={`btn ${mode === 'generate' ? 'primary' : 'ghost'}`}
+              style={{ flex: 1, minHeight: 36, fontSize: 13 }}
+              onClick={() => setMode('generate')}
+            >
+              ⚡ Üretim Modu
+            </button>
+            <button
+              className={`btn ${mode === 'pump' ? 'primary' : 'ghost'}`}
+              style={{ flex: 1, minHeight: 36, fontSize: 13 }}
+              onClick={() => setMode('pump')}
+            >
+              💧 Pompalama Modu
+            </button>
+          </div>
+          
+          <div style={{ display: 'flex', gap: 8, marginBottom: 24 }}>
+             <button
+              className={`btn ${isPlaying ? 'primary' : 'ghost'}`}
+              style={{ flex: 1, minHeight: 36, fontSize: 13, background: isPlaying ? '#ef4444' : undefined, borderColor: isPlaying ? '#ef4444' : undefined }}
+              onClick={() => setIsPlaying(!isPlaying)}
+            >
+              {isPlaying ? '⏹ Simülasyonu Durdur' : '▶️ Simülasyonu Başlat'}
+            </button>
+          </div>
+          
+          <h3 style={{ marginBottom: 12 }}>Aktif Üniteler ({activeUnits}/{maxUnits})</h3>
+          <div style={{ display: 'flex', gap: 4, marginBottom: 24, flexWrap: 'wrap' }}>
+            {Array.from({ length: maxUnits }).map((_, i) => (
+               <button
+                key={i}
+                className={`btn ${i < activeUnits ? 'primary' : 'ghost'}`}
+                style={{ padding: '4px 12px', minHeight: 32, fontSize: 13, flex: 1 }}
+                onClick={() => setActiveUnits(i + 1)}
+              >
+                Ünite {i + 1}
+              </button>
+            ))}
+          </div>
+
+          <h3 style={{ marginBottom: 12 }}>Katman Görünürlüğü</h3>
+          <div style={{ marginBottom: 24 }}>
+            <LayerToggle 
+              label="⛰️ 3D Arazi (Terrain)" 
+              color="#4c6b45"
+              active={showTerrain} 
+              onChange={setShowTerrain} 
+            />
+            <LayerToggle 
+              label="🏷️ İsim Etiketleri" 
+              color="#aaaaaa"
+              active={showLabels} 
+              onChange={setShowLabels} 
+            />
+            <div style={{ height: 8 }} />
+            {COMPONENTS.map(c => (
+              <LayerToggle 
+                key={c.key} 
+                label={c.label} 
+                color={c.color}
+                active={!!layers[c.key]} 
+                onChange={(v) => setLayers(prev => ({...prev, [c.key]: v}))} 
+              />
+            ))}
+          </div>
+
+          <h3 style={{ marginBottom: 12 }}>Arazi Görünümü</h3>
+          <div className="card" style={{ padding: 16, marginBottom: 24 }}>
+            <ScenarioSlider 
+              label="Arazi Şeffaflığı" 
+              value={terrainOpacity} 
+              min={0} max={100} step={5} unit="%" 
+              onChange={setTerrainOpacity} 
+            />
+          </div>
+
+          <h3 style={{ marginBottom: 12 }}>
+            Bileşen Detayları: {COMPONENTS.find(c => c.key === activeComponent)?.label || activeComponent}
+          </h3>
+          <div className="card" style={{ padding: 16, marginBottom: 24 }}>
+            {Object.entries((site.components_detail as any)[activeComponent] || {}).map(([k, v]) => (
+              <p key={k} style={{ marginBottom: 8, fontSize: 14 }}>
+                <b style={{ color: 'var(--text)' }}>{k.replace(/_/g, ' ').toUpperCase()}:</b>{' '}
+                <span className="muted">{String(v)}</span>
+              </p>
+            ))}
+            {Object.keys((site.components_detail as any)[activeComponent] || {}).length === 0 && (
+              <p className="muted" style={{ fontSize: 13 }}>Bu bileşen için detay verisi bulunmuyor.</p>
+            )}
+          </div>
+
+          <h3 style={{ marginTop: 16, marginBottom: 12 }}>Güven Etiketi</h3>
           <div className="notice">
-            Konsept güveni: <b>{CONFIDENCE_LABELS[site.confidence] || site.confidence}</b><br />
-            Konum doğruluğu: <b>{CONFIDENCE_LABELS[site.locationConfidence] || site.locationConfidence}</b><br />
+            Konsept güveni: <b>{site.confidence}</b><br />
+            Konum doğruluğu: <b>{site.locationConfidence}</b><br />
             Son doğrulama: <b>{site.verifiedAt}</b>
           </div>
-          <h3 style={{ marginTop: 16 }}>Saha yerleşim özeti</h3>
-          <div className="grid cols-2">
-            <div className="metric"><span>Üst rezervuar</span><b>{site.upper}</b></div>
-            <div className="metric"><span>Alt rezervuar</span><b>{site.lower}</b></div>
-            <div className="metric"><span>Düşü (head)</span><b>{site.head} m</b></div>
-            <div className="metric"><span>Su yolu</span><b>{site.tunnelKm} km</b></div>
-          </div>
+
         </div>
       </div>
     </section>

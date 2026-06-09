@@ -32,6 +32,7 @@ const EDITOR_LAYERS: MapLayerVisibility = {
   grid400: false,
   grid154: false,
   substations: false,
+  terrain3d: true,
 };
 
 function cloneLayout(layout: SiteLayout): SiteLayout {

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import type { Site } from '../types/site';
 import { useSiteStore } from '../stores/useSiteStore';
 import { useAdminStore } from '../stores/useAdminStore';
@@ -7,7 +8,18 @@ import { num, moneyBn, moneyM } from '../utils/format';
 export default function DataPage({ site }: { site?: Site }) {
   const { sites, selectedId, selectSite } = useSiteStore();
   const getContent = useAdminStore((state) => state.getContent);
+  const [typeFilter, setTypeFilter] = useState<string>('ALL');
+
   if (!site) return <div className="panel active"><p className="muted">Veri yükleniyor...</p></div>;
+
+  const filteredSites = sites.filter(s => {
+    const sType = s.pdhesType as string;
+    if (typeFilter === 'ALL') return true;
+    if (typeFilter === 'KAPALI_DEVRE') return sType === 'MUSTAKIL_PDHES';
+    if (typeFilter === 'ACIK_DEVRE') return sType === 'YARI_PDHES';
+    if (typeFilter === 'DENIZ_SUYU') return sType === 'MAKRO_DENIZ_PDHES' || sType === 'MIKRO_DENIZ_PDHES';
+    return false;
+  });
 
   return (
     <section className="panel active">
@@ -19,7 +31,7 @@ export default function DataPage({ site }: { site?: Site }) {
           <div className="metric-row" style={{ marginTop: 16 }}>
             <div className="metric good"><span>En hızlı klasik rota</span><b>Gökçekaya</b></div>
             <div className="metric info"><span>Deniz suyu önceliği</span><b>Taşucu</b></div>
-            <div className="metric warn"><span>Toplam aday</span><b>{sites.length}</b></div>
+            <div className="metric warn"><span>Toplam aday</span><b>{filteredSites.length}</b></div>
             <div className="metric"><span>Yerleşim modeli</span><b>Kavramsal 3D</b></div>
           </div>
         </div>
@@ -47,6 +59,25 @@ export default function DataPage({ site }: { site?: Site }) {
         <div className="card">
           <h2>Aday saha tablosu</h2>
           <p className="muted small">Satıra tıklayarak uygulamanın tüm panellerindeki seçili sahayı değiştirin.</p>
+          
+          <div style={{ display: 'flex', gap: 8, margin: '16px 0', flexWrap: 'wrap' }}>
+            {[
+              { id: 'ALL', label: 'Tümü' },
+              { id: 'KAPALI_DEVRE', label: 'Kapalı Devre' },
+              { id: 'ACIK_DEVRE', label: 'Açık Devre' },
+              { id: 'DENIZ_SUYU', label: 'Deniz Suyu' },
+            ].map(filter => (
+              <button
+                key={filter.id}
+                className={`btn ${typeFilter === filter.id ? 'primary' : 'ghost'}`}
+                style={{ minHeight: 32, padding: '6px 12px', fontSize: 13, borderRadius: 999 }}
+                onClick={() => setTypeFilter(filter.id)}
+              >
+                {filter.label}
+              </button>
+            ))}
+          </div>
+
           <div style={{ overflow: 'auto' }}>
             <table>
               <thead>
@@ -62,7 +93,7 @@ export default function DataPage({ site }: { site?: Site }) {
                 </tr>
               </thead>
               <tbody>
-                {sites.map((candidate) => (
+                {filteredSites.map((candidate) => (
                   <tr key={candidate.id} className={candidate.id === selectedId ? 'selected' : ''} onClick={() => selectSite(candidate.id)}>
                     <td><b>{candidate.name}</b><br /><span className="muted small">{candidate.region}</span></td>
                     <td><span className={`tag ${candidate.concept === 'sea' ? 'sea' : 'classic'}`}>{candidate.concept === 'sea' ? 'Deniz suyu' : 'Klasik'}</span></td>

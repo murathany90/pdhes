@@ -22,6 +22,10 @@ import AdminPage from './pages/AdminPage';
 import SettingsPage from './pages/SettingsPage';
 import SiteEditorPage from './pages/SiteEditorPage';
 import ThreeDEditorPage from './pages/ThreeDEditorPage';
+import AppShell from './components/layout/AppShell';
+import TopNav from './components/layout/TopNav';
+import SiteSelector from './components/interaction/SiteSelector';
+import WarningBanner from './components/ui/WarningBanner';
 import './index.css';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
@@ -43,6 +47,13 @@ export default function App() {
   const { sites, selectedId, selectSite, setSites, setBaseSites, setGridAssets, setLoading, exportSites } = useSiteStore();
   const { theme, toggleTheme } = useSettingsStore();
 
+  const isAdmin = new URLSearchParams(window.location.search).get('admin') === '1';
+  const visibleTabs = TABS.filter((tab) => {
+    if (tab.id === 'admin' && !isAdmin) return false;
+    if (tab.id === 'settings') return false;
+    return true;
+  });
+
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
   }, [theme]);
@@ -51,8 +62,8 @@ export default function App() {
     (async () => {
       try {
         const [dataRes, gridRes] = await Promise.all([
-          fetch('/data.json'),
-          fetch('/grid_assets.json'),
+          fetch(`/data.json?t=${Date.now()}`),
+          fetch(`/grid_assets.json?t=${Date.now()}`),
         ]);
         const sitesData: Site[] = await dataRes.json();
         const gridData = await gridRes.json();
@@ -65,13 +76,22 @@ export default function App() {
         const baseSites = normalizeSites(sitesData);
         const persistedSites = getPersistedSites();
         const legacySites = getLegacyCustomSites();
-        const mergedLegacySites = [
-          ...baseSites,
-          ...legacySites.filter((custom) => !baseSites.some((site) => site.id === custom.id)),
-        ];
+        
+        let finalSites: Site[] = [];
+        if (persistedSites && persistedSites.length > 0) {
+          const missingBase = baseSites.filter((bs) => !persistedSites.some((ps) => ps.id === bs.id));
+          finalSites = [...persistedSites, ...missingBase];
+          // Persist the merged list to local storage
+          localStorage.setItem('pspp-sites-v1', JSON.stringify(finalSites));
+        } else {
+          finalSites = [
+            ...baseSites,
+            ...legacySites.filter((custom) => !baseSites.some((site) => site.id === custom.id)),
+          ];
+        }
 
         setBaseSites(baseSites);
-        setSites(normalizeSites(persistedSites || mergedLegacySites));
+        setSites(normalizeSites(finalSites));
         setGridAssets(gridData);
       } catch (e) {
         console.error('Failed to load data', e);
@@ -93,92 +113,91 @@ export default function App() {
     URL.revokeObjectURL(url);
   };
 
+  const controls = (
+    <>
+      <SiteSelector sites={sites} selectedId={selectedId} onChange={selectSite} />
+      <button className="btn primary" onClick={() => { setActiveTab('map'); }}>
+        <MapPinned size={16} aria-hidden="true" />
+        Haritada incele
+      </button>
+      <button className="btn ghost" onClick={exportJson}>
+        <Download size={16} aria-hidden="true" />
+        Veriyi indir
+      </button>
+      <button className="btn ghost" onClick={toggleTheme} aria-label="Tema Değiştir">
+        {theme === 'dark' ? <Sun size={16} aria-hidden="true" /> : <Moon size={16} aria-hidden="true" />}
+        {theme === 'dark' ? 'Açık' : 'Koyu'}
+      </button>
+      <button className="btn ghost" onClick={() => setActiveTab('settings')} aria-label="Ayarlar" title="Ayarlar">
+        <Settings size={16} aria-hidden="true" />
+      </button>
+    </>
+  );
+
+  const tabsNode = (
+    <nav className="tabs" aria-label="Ana sekmeler">
+      {visibleTabs.map(({ id, label, Icon }) => (
+        <button
+          key={id}
+          className={`tab-btn ${activeTab === id ? 'active' : ''}`}
+          onClick={() => setActiveTab(id)}
+        >
+          <Icon size={16} aria-hidden="true" />
+          {label}
+        </button>
+      ))}
+    </nav>
+  );
+
+  const showLocalWarning = ['admin', 'settings', 'calc', 'siteEditor', 'threeDEditor'].includes(activeTab);
+
   return (
-    <div className="app">
-      <header className="topbar">
-        <div className="brand">
-          <div className="logo">PDHES</div>
-          <div>
-            <h1>Türkiye Pompaj Depolamalı HES (PDHES) Potansiyeli</h1>
-            <p>
-              Türkiye’de pompaj depolamalı hidroelektrik santral adaylarını; harita, kavramsal 3D yerleşim,
-              şebeke bağlantı katmanları, risk notları ve eğitim içerikleriyle inceleyen açık demo uygulama
-            </p>
-          </div>
+    <AppShell
+      topNav={
+        <TopNav 
+          title="Türkiye Pompaj Depolamalı HES (PDHES) Potansiyeli" 
+          subtitle="Türkiye’de pompaj depolamalı hidroelektrik santral adaylarını; harita, kavramsal 3D yerleşim, şebeke bağlantı katmanları, risk notları ve eğitim içerikleriyle inceleyen açık demo uygulama" 
+          controls={controls} 
+        />
+      }
+      tabs={tabsNode}
+    >
+      {showLocalWarning && (
+        <div style={{ padding: '18px 18px 0 18px', flexShrink: 0 }}>
+          <WarningBanner message="Bu sayfadaki değişiklikler (yönetim veya hesaplama ayarları) yalnızca sizin tarayıcınızda (localStorage) saklanır." type="info" />
         </div>
-        <div className="global-controls">
-          <select
-            className="select"
-            value={selectedId}
-            onChange={(event) => selectSite(event.target.value)}
-            aria-label="Aday saha seçimi"
-            name="selected-site"
-          >
-            {sites.map((site) => (
-              <option key={site.id} value={site.id}>{site.name}</option>
-            ))}
-          </select>
-          <button className="btn primary" onClick={() => { setActiveTab('map'); }}>
-            <MapPinned size={16} aria-hidden="true" />
-            Haritada incele
-          </button>
-          <button className="btn ghost" onClick={exportJson}>
-            <Download size={16} aria-hidden="true" />
-            Veriyi indir
-          </button>
-          <button className="btn ghost" onClick={toggleTheme}>
-            {theme === 'dark' ? <Sun size={16} aria-hidden="true" /> : <Moon size={16} aria-hidden="true" />}
-            {theme === 'dark' ? 'Açık' : 'Koyu'}
-          </button>
-        </div>
-      </header>
-
-      <nav className="tabs" aria-label="Ana sekmeler">
-        {TABS.map(({ id, label, Icon }) => (
-          <button
-            key={id}
-            className={`tab-btn ${activeTab === id ? 'active' : ''}`}
-            onClick={() => setActiveTab(id)}
-          >
-            <Icon size={16} aria-hidden="true" />
-            {label}
-          </button>
-        ))}
-      </nav>
-
-      <main>
-        <Suspense fallback={<section className="panel active"><p className="muted">Harita yükleniyor...</p></section>}>
-          {activeTab === 'pdhes' && <PdhesPage />}
-          {activeTab === 'data' && <DataPage site={selectedSite} />}
-          {activeTab === 'map' && <MapPage />}
-          {activeTab === 'threeD' && <ThreeDPage site={selectedSite} />}
-          {activeTab === 'calc' && <CalcPage site={selectedSite} />}
-          {activeTab === 'admin' && (
-            <AdminPage
-              onCreateSite={() => {
-                setSiteEditorMode('new');
-                setActiveTab('siteEditor');
-              }}
-              onEditSite={(id) => {
-                selectSite(id);
-                setSiteEditorMode('edit');
-                setActiveTab('siteEditor');
-              }}
-              onEditLayout={(id) => {
-                selectSite(id);
-                setActiveTab('threeDEditor');
-              }}
-            />
-          )}
-          {activeTab === 'settings' && <SettingsPage />}
-          {activeTab === 'siteEditor' && (
-            <SiteEditorPage mode={siteEditorMode} templateSite={selectedSite} onDone={() => setActiveTab('admin')} />
-          )}
-          {activeTab === 'threeDEditor' && (
-            <ThreeDEditorPage site={selectedSite} onDone={() => setActiveTab('admin')} />
-          )}
-        </Suspense>
-      </main>
-    </div>
+      )}
+      <Suspense fallback={<section className="panel active"><p className="muted">Harita yükleniyor...</p></section>}>
+        {activeTab === 'pdhes' && <PdhesPage onNavigate={setActiveTab} />}
+        {activeTab === 'data' && <DataPage site={selectedSite} />}
+        {activeTab === 'map' && <MapPage />}
+        {activeTab === 'threeD' && <ThreeDPage site={selectedSite} />}
+        {activeTab === 'calc' && <CalcPage site={selectedSite} />}
+        {activeTab === 'admin' && (
+          <AdminPage
+            onCreateSite={() => {
+              setSiteEditorMode('new');
+              setActiveTab('siteEditor');
+            }}
+            onEditSite={(id) => {
+              selectSite(id);
+              setSiteEditorMode('edit');
+              setActiveTab('siteEditor');
+            }}
+            onEditLayout={(id) => {
+              selectSite(id);
+              setActiveTab('threeDEditor');
+            }}
+          />
+        )}
+        {activeTab === 'settings' && <SettingsPage />}
+        {activeTab === 'siteEditor' && (
+          <SiteEditorPage mode={siteEditorMode} templateSite={selectedSite} onDone={() => setActiveTab('admin')} />
+        )}
+        {activeTab === 'threeDEditor' && (
+          <ThreeDEditorPage site={selectedSite} onDone={() => setActiveTab('admin')} />
+        )}
+      </Suspense>
+    </AppShell>
   );
 }
