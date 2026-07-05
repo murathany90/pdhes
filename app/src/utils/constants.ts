@@ -46,11 +46,11 @@ export const WORLD_EXAMPLES: WorldExample[] = [
 
 export const CONTENT_DEFAULTS: Record<string, unknown> = {
   home: {
-    heroTitle: 'PDHES adaylarını <span class="accent">harita, şebeke ve risk</span> katmanlarıyla inceleyin.',
+    heroTitle: 'PDHES adaylarını harita, şebeke ve risk katmanlarıyla inceleyin.',
     heroSub: 'Bu açık demo, Türkiye’deki pompaj depolamalı hidroelektrik santral adaylarını karşılaştırmalı veri, kavramsal yerleşim ve eğitim içerikleriyle sunar.',
   },
   pdhesWhatIs: {
-    title: 'Pompaj Depolamalı <span class="accent">HES (PDHES) Nedir?</span>',
+    title: 'Pompaj Depolamalı HES (PDHES) Nedir?',
     definitionTitle: 'Tanım ve Çalışma Prensibi',
     definitionBody: 'PDHES, elektrik talebinin düşük olduğu saatlerde suyu alt rezervuardan üst rezervuara pompalayan; talep ve fiyat yükseldiğinde aynı suyu türbinleyerek elektrik üreten büyük ölçekli enerji depolama teknolojisidir.',
     historyTitle: 'Kısa Tarihçe',
@@ -62,17 +62,17 @@ export const CONTENT_DEFAULTS: Record<string, unknown> = {
 };
 
 export const PDHES_TYPE_LABELS: Record<string, string> = {
-  MUSTAKIL_PDHES: 'Müstakil PDHES (kapalı çevrim)',
-  YARI_PDHES: 'Yarı PDHES (mevcut rezervuar)',
-  MAKRO_DENIZ_PDHES: 'Makro deniz PDHES',
-  MIKRO_DENIZ_PDHES: 'Mikro deniz PDHES',
+  CLOSED_LOOP: 'Kapalı devre PDHES',
+  OPEN_LOOP: 'Açık devre PDHES',
+  SEA_WATER: 'Deniz suyu PDHES',
+  PROTOTYPE: 'Prototip / pilot PDHES',
 };
 
 export const PDHES_TYPE_COLORS: Record<string, string> = {
-  MUSTAKIL_PDHES: '#48f49a',
-  YARI_PDHES: '#3d7dff',
-  MAKRO_DENIZ_PDHES: '#36d6ff',
-  MIKRO_DENIZ_PDHES: '#b277ff',
+  CLOSED_LOOP: '#48f49a',
+  OPEN_LOOP: '#3d7dff',
+  SEA_WATER: '#36d6ff',
+  PROTOTYPE: '#b277ff',
 };
 
 export const GLOSSARY: { term: string; definition: string }[] = [

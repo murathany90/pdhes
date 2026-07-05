@@ -9,6 +9,8 @@ interface SiteSelectorProps {
 export default function SiteSelector({ sites, selectedId, onChange }: SiteSelectorProps) {
   return (
     <select
+      id="global-site-selector"
+      name="selectedSite"
       className="select"
       value={selectedId}
       onChange={(e) => onChange(e.target.value)}

@@ -1,14 +1,14 @@
 import { useMemo, useState } from 'react';
 import { CONTENT_DEFAULTS, GLOSSARY, PDHES_TYPE_LABELS, WORLD_EXAMPLES } from '../utils/constants';
-import { useAdminStore } from '../stores/useAdminStore';
+import { useWorkspaceStore } from '../stores/useWorkspaceStore';
 import SectionNav from '../components/ui/SectionNav';
 import InfoAccordion from '../components/ui/InfoAccordion';
 
 const TYPE_DESCRIPTIONS: Record<string, string> = {
-  MUSTAKIL_PDHES: 'Üst ve alt rezervuarın proje için ayrı kurgulandığı, su döngüsünün büyük ölçüde kendi içinde çalıştığı model.',
-  YARI_PDHES: 'Mevcut baraj, göl veya hidroelektrik altyapısından yararlanarak ek üst/alt rezervuar ve pompa-türbin sistemi kuran model.',
-  MAKRO_DENIZ_PDHES: 'Denizi alt rezervuar olarak kullanan, yüksek düşü ve büyük kurulu güç hedefleyen kıyı modeli.',
-  MIKRO_DENIZ_PDHES: 'Daha küçük ölçekli, eğitim, ada sistemi, yerel şebeke veya özel endüstriyel kullanım için düşünülebilen kıyı modeli.',
+  CLOSED_LOOP: 'Üst ve alt rezervuarın doğal su sistemlerinden büyük ölçüde ayrıldığı ve suyun kapalı bir çevrimde dolaştığı model.',
+  OPEN_LOOP: 'Mevcut baraj, göl veya hidroelektrik altyapısıyla doğrudan bağlantılı pompa-türbin modeli.',
+  SEA_WATER: 'Denizi alt rezervuar olarak kullanan, kıyı izinleri ve korozyon kontrolü gerektiren model.',
+  PROTOTYPE: 'Eğitim, pilot, ada sistemi veya özel endüstriyel kullanım için daha küçük ölçekte değerlendirilen model.',
 };
 
 const HISTORY = [
@@ -26,6 +26,8 @@ const FAQ = [
 ];
 
 import MetricCard from '../components/ui/MetricCard';
+import { useSiteStore } from '../stores/useSiteStore';
+import { num } from '../utils/format';
 
 interface PdhesPageProps {
   onNavigate?: (tabId: string) => void;
@@ -33,7 +35,11 @@ interface PdhesPageProps {
 
 export default function PdhesPage({ onNavigate }: PdhesPageProps) {
   const [query, setQuery] = useState('');
-  const getContent = useAdminStore((state) => state.getContent);
+  const sites = useSiteStore((state) => state.sites);
+  const siteCount = sites.length;
+  const maxPower = sites.reduce((maximum, site) => Math.max(maximum, site.powerMW), 0);
+  const maxEnergy = sites.reduce((maximum, site) => Math.max(maximum, site.energyGWh), 0);
+  const getContent = useWorkspaceStore((state) => state.getContent);
   const filteredGlossary = useMemo(() => {
     const needle = query.trim().toLocaleLowerCase('tr-TR');
     if (!needle) return GLOSSARY;
@@ -41,7 +47,7 @@ export default function PdhesPage({ onNavigate }: PdhesPageProps) {
       `${item.term} ${item.definition}`.toLocaleLowerCase('tr-TR').includes(needle),
     );
   }, [query]);
-  const html = (key: string) => ({ __html: getContent(key, CONTENT_DEFAULTS) });
+  const content = (key: string) => getContent(key, CONTENT_DEFAULTS);
 
   return (
     <section className="panel active">
@@ -62,9 +68,9 @@ export default function PdhesPage({ onNavigate }: PdhesPageProps) {
         <div className="card">
           <h3 style={{ marginBottom: 16 }}>Sistem Özeti</h3>
           <div className="grid cols-2" style={{ gap: 12 }}>
-            <MetricCard label="Aday Saha" value="19" variant="default" />
-            <MetricCard label="En Büyük Aday" value="1.400 MW" variant="capacity" />
-            <MetricCard label="Örnek Enerji Kapasitesi" value="9.8 GWh" variant="default" />
+            <MetricCard label="Aday Saha" value={siteCount ? String(siteCount) : '—'} variant="default" />
+            <MetricCard label="En Büyük Aday" value={maxPower ? `${num(maxPower)} MW` : '—'} variant="capacity" />
+            <MetricCard label="En Yüksek Enerji Kapasitesi" value={maxEnergy ? `${num(maxEnergy, 1)} GWh` : '—'} variant="default" />
             <MetricCard label="Şebeke Katmanları" value="154/380 kV" variant="grid" />
           </div>
           <div style={{ marginTop: 12 }}>
@@ -91,11 +97,11 @@ export default function PdhesPage({ onNavigate }: PdhesPageProps) {
         </div>
         
         <div>
-          <h2 id="sec-tanim" className="big-title" dangerouslySetInnerHTML={html('pdhesWhatIs.title')} />
+          <h2 id="sec-tanim" className="big-title">{content('pdhesWhatIs.title')}</h2>
 
           <div className="card">
-            <h2 dangerouslySetInnerHTML={html('pdhesWhatIs.definitionTitle')} />
-            <p dangerouslySetInnerHTML={html('pdhesWhatIs.definitionBody')} />
+            <h2>{content('pdhesWhatIs.definitionTitle')}</h2>
+            <p>{content('pdhesWhatIs.definitionBody')}</p>
             <div className="formula">
 {`E = ρ × g × H × V × η
 ρ: su yoğunluğu, g: yerçekimi ivmesi, H: net düşü (head), V: aktif hacim, η: çevrim verimi
@@ -104,7 +110,7 @@ Modern PDHES tesislerinde çevrim verimi (round-trip efficiency) çoğunlukla %7
             </div>
           </div>
 
-          <h2 id="sec-tarihce" dangerouslySetInnerHTML={html('pdhesWhatIs.historyTitle')} style={{ marginTop: 32 }} />
+          <h2 id="sec-tarihce" style={{ marginTop: 32 }}>{content('pdhesWhatIs.historyTitle')}</h2>
           <div className="grid cols-2" style={{ gap: 16 }}>
             {HISTORY.map(([title, body]) => (
               <div className="step" key={title}>
@@ -115,7 +121,7 @@ Modern PDHES tesislerinde çevrim verimi (round-trip efficiency) çoğunlukla %7
             ))}
           </div>
 
-          <h2 id="sec-turkiye" dangerouslySetInnerHTML={html('pdhesWhatIs.turkeyTitle')} style={{ marginTop: 32 }} />
+          <h2 id="sec-turkiye" style={{ marginTop: 32 }}>{content('pdhesWhatIs.turkeyTitle')}</h2>
           <p>
             Türkiye için PDHES tartışması JICA aday çalışmaları, DSİ rezervuarları, TEİAŞ bağlantı kabiliyeti,
             yenilenebilir üretim artışı ve yan hizmet ihtiyacı etrafında şekillenir. Bu prototipteki adaylar
@@ -136,7 +142,7 @@ Modern PDHES tesislerinde çevrim verimi (round-trip efficiency) çoğunlukla %7
           <div className="grid cols-2">
             {WORLD_EXAMPLES.map((example) => (
               <div className="world-example-card" key={`${example.country}-${example.name}`}>
-                <h4>{example.name}</h4>
+                <h3>{example.name}</h3>
                 <div className="specs">
                   <span><b>{example.country}</b></span>
                   <span><b>{example.mw.toLocaleString('tr-TR')} MW</b></span>
@@ -148,14 +154,14 @@ Modern PDHES tesislerinde çevrim verimi (round-trip efficiency) çoğunlukla %7
             ))}
           </div>
 
-          <h2 id="sec-faydalar" dangerouslySetInnerHTML={html('pdhesWhatIs.benefitsTitle')} style={{ marginTop: 32 }} />
+          <h2 id="sec-faydalar" style={{ marginTop: 32 }}>{content('pdhesWhatIs.benefitsTitle')}</h2>
           <ul>
             <li>Enerji arbitrajı (energy arbitrage): düşük fiyatlı saatlerde pompalama, yüksek fiyatlı saatlerde üretim.</li>
             <li>Primer frekans kontrolü (primary frequency control), sekonder frekans kontrolü (secondary frequency control), reaktif güç desteği (reactive power support), kara başlatma (black-start) ve senkron atalet (synchronous inertia).</li>
             <li>Yenilenebilir kısıntıyı azaltma, pik talep yönetimi ve şebeke kararlılığı.</li>
           </ul>
 
-          <h2 id="sec-maliyet" dangerouslySetInnerHTML={html('pdhesWhatIs.costsTitle')} style={{ marginTop: 32 }} />
+          <h2 id="sec-maliyet" style={{ marginTop: 32 }}>{content('pdhesWhatIs.costsTitle')}</h2>
           <p>
             Yatırım harcaması (CAPEX); rezervuar, tünel, cebri boru (penstock), yeraltı güç evi (powerhouse),
             elektromekanik ekipman, şalt sahası (switchyard), yol, izin ve mühendislik kalemlerinden oluşur.
@@ -163,7 +169,7 @@ Modern PDHES tesislerinde çevrim verimi (round-trip efficiency) çoğunlukla %7
             birlikte değerlendirilmelidir.
           </p>
 
-          <h2 id="sec-riskler" dangerouslySetInnerHTML={html('pdhesWhatIs.risksTitle')} style={{ marginTop: 32 }} />
+          <h2 id="sec-riskler" style={{ marginTop: 32 }}>{content('pdhesWhatIs.risksTitle')}</h2>
           <ul>
             <li>Jeoloji, fay, heyelan, karst ve yeraltı suyu belirsizlikleri.</li>
             <li>Çevresel Etki Değerlendirmesi (EIA), korunan alan, ekolojik akış, kamulaştırma ve görsel etki.</li>
@@ -172,6 +178,8 @@ Modern PDHES tesislerinde çevrim verimi (round-trip efficiency) çoğunlukla %7
 
           <h2 id="sec-sozluk" style={{ marginTop: 32 }}>Teknik Terimler Sözlüğü</h2>
           <input
+            id="pdhes-glossary-search"
+            name="glossarySearch"
             className="input glossary-search"
             value={query}
             onChange={(event) => setQuery(event.target.value)}

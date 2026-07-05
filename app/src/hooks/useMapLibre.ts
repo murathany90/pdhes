@@ -4,6 +4,7 @@ import type { FeatureCollection, Geometry } from 'geojson';
 import type { Site } from '../types/site';
 import { escapeHtml } from '../utils/format';
 import { buildLayout } from '../utils/layout';
+import { getMapStyleSpecification, type MapStyleKind } from '../utils/mapProviders';
 
 export interface MapLayerVisibility {
   candidates: boolean;
@@ -22,45 +23,12 @@ interface UseMapLibreOptions {
   site?: Site;
   sites: Site[];
   selectedId: string;
-  mapStyle: 'dark' | 'light' | 'satellite';
+  mapStyle: MapStyleKind;
   heightScale: number;
   gridAssets: FeatureCollection | null;
   layers: MapLayerVisibility;
   onSelectSite?: (id: string) => void;
   interactiveCandidates?: boolean;
-}
-
-function getMapStyle(kind: string): maplibregl.StyleSpecification {
-  const glyphs = 'https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf';
-  const sources: Record<string, any> = {
-    base: {
-      type: 'raster',
-      tileSize: 256,
-      maxzoom: 22
-    },
-    terrainSource: {
-      type: 'raster-dem',
-      tiles: ['https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png'],
-      tileSize: 256,
-      encoding: 'terrarium',
-      maxzoom: 15
-    }
-  };
-
-  if (kind === 'satellite') {
-    sources.base.tiles = ['https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'];
-  } else if (kind === 'light') {
-    sources.base.tiles = ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'];
-  } else {
-    sources.base.tiles = ['https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'];
-  }
-
-  return {
-    version: 8,
-    glyphs,
-    sources,
-    layers: [{ id: 'base', type: 'raster', source: 'base' }],
-  };
 }
 
 function featureCollection(features: GeoJSON.Feature<Geometry>[]): FeatureCollection {
@@ -244,12 +212,7 @@ export function useMapLibre({
             'fill-extrusion-color': ['get', 'color'],
             'fill-extrusion-height': ['get', 'height'],
             'fill-extrusion-base': ['get', 'base'],
-            'fill-extrusion-opacity': [
-              'match',
-              ['get', 'key'],
-              ['upper_reservoir', 'lower_reservoir'], 0.50,
-              0.85
-            ],
+            'fill-extrusion-opacity': 0.85,
           },
         });
         map.addSource('blockLabels', { type: 'geojson', data: layout.labels });
@@ -303,12 +266,12 @@ export function useMapLibre({
     if (!containerRef.current || mapRef.current || !site) return;
     const map = new maplibregl.Map({
       container: containerRef.current,
-      style: getMapStyle(mapStyle),
+      style: getMapStyleSpecification(mapStyle),
       center: site.view.center,
       zoom: site.view.zoom,
       pitch: site.view.pitch,
       bearing: site.view.bearing,
-      attributionControl: false,
+      attributionControl: { compact: true },
       maxZoom: 22,
     });
     map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'bottom-right');
@@ -332,7 +295,7 @@ export function useMapLibre({
     if (!map || !site) return;
     if (mapStyleRef.current === mapStyle) return;
     mapStyleRef.current = mapStyle;
-    map.setStyle(getMapStyle(mapStyle));
+    map.setStyle(getMapStyleSpecification(mapStyle));
     queueDrawLayers();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mapStyle]);

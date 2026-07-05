@@ -31,7 +31,7 @@ function makeDraft(template: Site, mode: 'new' | 'edit'): Site {
     draft.score = 50;
     draft.thesis = 'Yeni aday için ön eleme notu giriniz.';
     draft.risks = ['saha teyidi gerekli'];
-    draft.timeline = [{ date: new Date().getFullYear().toString(), title: 'Ön kayıt', text: 'Yönetim panelinden oluşturuldu.' }];
+    draft.timeline = [{ date: new Date().getFullYear().toString(), title: 'Ön kayıt', text: 'Yerel çalışma alanında oluşturuldu.' }];
   }
   return draft;
 }
@@ -89,7 +89,7 @@ export default function SiteEditorPage({ mode, templateSite, onDone }: SiteEdito
             <h2>{mode === 'new' ? 'Yeni PDHES adayı ekle' : 'PDHES sahasını düzenle'}</h2>
             <p className="muted small">Form alanları kaydedildiğinde tam çalışma listesi bu tarayıcıda güncellenir.</p>
           </div>
-          <button className="btn ghost" onClick={onDone}>Yönetim paneline dön</button>
+          <button className="btn ghost" onClick={onDone}>Yerel çalışma alanına dön</button>
         </div>
 
         <div className="form-tabs">
@@ -122,10 +122,10 @@ export default function SiteEditorPage({ mode, templateSite, onDone }: SiteEdito
             <div className="form-group">
               <label>PDHES tipi</label>
               <select className="select" value={draft.pdhesType} onChange={(event) => updateDraft('pdhesType', event.target.value as PdhesType)}>
-                <option value="YARI_PDHES">Yarı-PDHES</option>
-                <option value="MUSTAKIL_PDHES">Müstakil PDHES</option>
-                <option value="MAKRO_DENIZ_PDHES">Makro Deniz PDHES</option>
-                <option value="MIKRO_DENIZ_PDHES">Mikro Deniz PDHES</option>
+                <option value="OPEN_LOOP">Açık Devre</option>
+                <option value="CLOSED_LOOP">Kapalı Devre</option>
+                <option value="SEA_WATER">Deniz Suyu</option>
+                <option value="PROTOTYPE">Prototip / Pilot</option>
               </select>
             </div>
           </div>

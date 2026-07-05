@@ -1,33 +1,33 @@
 import { useState } from 'react';
 import type { Site } from '../types/site';
 import { useSiteStore } from '../stores/useSiteStore';
-import { useAdminStore } from '../stores/useAdminStore';
+import { useWorkspaceStore } from '../stores/useWorkspaceStore';
 import { CONTENT_DEFAULTS } from '../utils/constants';
 import { num, moneyBn, moneyM } from '../utils/format';
+import {
+  matchesPdhesType,
+  PDHES_TYPE_FILTERS,
+  type PdhesTypeFilter,
+} from '../utils/pdhesFilters';
 
 export default function DataPage({ site }: { site?: Site }) {
   const { sites, selectedId, selectSite } = useSiteStore();
-  const getContent = useAdminStore((state) => state.getContent);
-  const [typeFilter, setTypeFilter] = useState<string>('ALL');
+  const getContent = useWorkspaceStore((state) => state.getContent);
+  const [typeFilter, setTypeFilter] = useState<PdhesTypeFilter>('ALL');
 
   if (!site) return <div className="panel active"><p className="muted">Veri yükleniyor...</p></div>;
 
-  const filteredSites = sites.filter(s => {
-    const sType = s.pdhesType as string;
-    if (typeFilter === 'ALL') return true;
-    if (typeFilter === 'KAPALI_DEVRE') return sType === 'MUSTAKIL_PDHES';
-    if (typeFilter === 'ACIK_DEVRE') return sType === 'YARI_PDHES';
-    if (typeFilter === 'DENIZ_SUYU') return sType === 'MAKRO_DENIZ_PDHES' || sType === 'MIKRO_DENIZ_PDHES';
-    return false;
-  });
+  const filteredSites = sites.filter((candidate) =>
+    matchesPdhesType(candidate.pdhesType, typeFilter),
+  );
 
   return (
     <section className="panel active">
       <div className="hero">
         <div className="card">
           <div className="tag classic">Ön eleme veri seti</div>
-          <h2 className="big-title" dangerouslySetInnerHTML={{ __html: getContent('home.heroTitle', CONTENT_DEFAULTS) }} />
-          <p className="muted" dangerouslySetInnerHTML={{ __html: getContent('home.heroSub', CONTENT_DEFAULTS) }} />
+          <h2 className="big-title">{getContent('home.heroTitle', CONTENT_DEFAULTS)}</h2>
+          <p className="muted">{getContent('home.heroSub', CONTENT_DEFAULTS)}</p>
           <div className="metric-row" style={{ marginTop: 16 }}>
             <div className="metric good"><span>En hızlı klasik rota</span><b>Gökçekaya</b></div>
             <div className="metric info"><span>Deniz suyu önceliği</span><b>Taşucu</b></div>
@@ -61,12 +61,7 @@ export default function DataPage({ site }: { site?: Site }) {
           <p className="muted small">Satıra tıklayarak uygulamanın tüm panellerindeki seçili sahayı değiştirin.</p>
           
           <div style={{ display: 'flex', gap: 8, margin: '16px 0', flexWrap: 'wrap' }}>
-            {[
-              { id: 'ALL', label: 'Tümü' },
-              { id: 'KAPALI_DEVRE', label: 'Kapalı Devre' },
-              { id: 'ACIK_DEVRE', label: 'Açık Devre' },
-              { id: 'DENIZ_SUYU', label: 'Deniz Suyu' },
-            ].map(filter => (
+            {PDHES_TYPE_FILTERS.map((filter) => (
               <button
                 key={filter.id}
                 className={`btn ${typeFilter === filter.id ? 'primary' : 'ghost'}`}
@@ -132,7 +127,7 @@ export default function DataPage({ site }: { site?: Site }) {
           <p className="small"><b>Üst rezervuar:</b> <span className="muted">{site.upper}</span></p>
           <div>{site.risks.map((risk) => <span key={risk} className="tag risk">{risk}</span>)}</div>
           <div className="notice" style={{ marginTop: 12 }}>
-            Bu veriler fizibilite değildir; ön eleme, yatırım değerlendirmesi ve kavramsal gösterim için masaüstü seviyesinde hazırlanmıştır.
+            Bu veriler fizibilite değildir; eğitim, ön eleme ve kavramsal karşılaştırma için masaüstü seviyesinde hazırlanmıştır.
           </div>
         </div>
       </div>

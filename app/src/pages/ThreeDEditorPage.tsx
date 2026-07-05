@@ -160,7 +160,7 @@ export default function ThreeDEditorPage({ site, onDone }: ThreeDEditorPageProps
             >
               Varsayılana dön
             </button>
-            <button className="btn ghost" onClick={onDone}>Yönetim paneline dön</button>
+            <button className="btn ghost" onClick={onDone}>Yerel çalışma alanına dön</button>
             {message && <p className="notice">{message}</p>}
           </div>
           <h3 style={{ marginTop: 16 }}>Yerleşim kayıt özeti</h3>

@@ -11,25 +11,26 @@ import {
   ShieldCheck,
   Sun,
 } from 'lucide-react';
-import { getLegacyCustomSites, getPersistedSites, useSiteStore } from './stores/useSiteStore';
+import { useSiteStore } from './stores/useSiteStore';
 import { useSettingsStore } from './stores/useSettingsStore';
-import type { Site } from './types/site';
+import { useAppData } from './hooks/useAppData';
 import DataPage from './pages/DataPage';
 import CalcPage from './pages/CalcPage';
-import ThreeDPage from './pages/ThreeDPage';
 import PdhesPage from './pages/PdhesPage';
-import AdminPage from './pages/AdminPage';
-import SettingsPage from './pages/SettingsPage';
-import SiteEditorPage from './pages/SiteEditorPage';
-import ThreeDEditorPage from './pages/ThreeDEditorPage';
 import AppShell from './components/layout/AppShell';
 import TopNav from './components/layout/TopNav';
 import SiteSelector from './components/interaction/SiteSelector';
 import WarningBanner from './components/ui/WarningBanner';
+import { isLocalWorkspaceEnabled } from './utils/workspaceMode';
 import './index.css';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
 const MapPage = lazy(() => import('./pages/MapPage'));
+const ThreeDPage = lazy(() => import('./pages/ThreeDPage'));
+const WorkspacePage = lazy(() => import('./pages/WorkspacePage'));
+const SettingsPage = lazy(() => import('./pages/SettingsPage'));
+const SiteEditorPage = lazy(() => import('./pages/SiteEditorPage'));
+const ThreeDEditorPage = lazy(() => import('./pages/ThreeDEditorPage'));
 
 const TABS = [
   { id: 'pdhes', label: 'PDHES Nedir', Icon: BookOpen },
@@ -37,19 +38,20 @@ const TABS = [
   { id: 'map', label: 'Harita', Icon: MapPinned },
   { id: 'threeD', label: '3D Yerleşim', Icon: Mountain },
   { id: 'calc', label: 'Hesaplamalar', Icon: Calculator },
-  { id: 'admin', label: 'Yönetim', Icon: ShieldCheck },
+  { id: 'workspace', label: 'Yerel Çalışma Alanı', Icon: ShieldCheck },
   { id: 'settings', label: 'Ayarlar', Icon: Settings },
 ];
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('pdhes');
   const [siteEditorMode, setSiteEditorMode] = useState<'new' | 'edit'>('edit');
-  const { sites, selectedId, selectSite, setSites, setBaseSites, setGridAssets, setLoading, exportSites } = useSiteStore();
+  const { sites, selectedId, selectSite, exportSites } = useSiteStore();
   const { theme, toggleTheme } = useSettingsStore();
+  const { error: dataError } = useAppData();
 
-  const isAdmin = new URLSearchParams(window.location.search).get('admin') === '1';
+  const workspaceEnabled = isLocalWorkspaceEnabled(window.location.search);
   const visibleTabs = TABS.filter((tab) => {
-    if (tab.id === 'admin' && !isAdmin) return false;
+    if (tab.id === 'workspace' && !workspaceEnabled) return false;
     if (tab.id === 'settings') return false;
     return true;
   });
@@ -57,49 +59,6 @@ export default function App() {
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
   }, [theme]);
-
-  useEffect(() => {
-    (async () => {
-      try {
-        const [dataRes, gridRes] = await Promise.all([
-          fetch(`/data.json?t=${Date.now()}`),
-          fetch(`/grid_assets.json?t=${Date.now()}`),
-        ]);
-        const sitesData: Site[] = await dataRes.json();
-        const gridData = await gridRes.json();
-        const normalizeSites = (items: Site[]) => items.map((site) => ({
-          ...site,
-          lon: site.coordinates?.mapAnchor?.[0] ?? site.lon,
-          lat: site.coordinates?.mapAnchor?.[1] ?? site.lat,
-        }));
-
-        const baseSites = normalizeSites(sitesData);
-        const persistedSites = getPersistedSites();
-        const legacySites = getLegacyCustomSites();
-        
-        let finalSites: Site[] = [];
-        if (persistedSites && persistedSites.length > 0) {
-          const missingBase = baseSites.filter((bs) => !persistedSites.some((ps) => ps.id === bs.id));
-          finalSites = [...persistedSites, ...missingBase];
-          // Persist the merged list to local storage
-          localStorage.setItem('pspp-sites-v1', JSON.stringify(finalSites));
-        } else {
-          finalSites = [
-            ...baseSites,
-            ...legacySites.filter((custom) => !baseSites.some((site) => site.id === custom.id)),
-          ];
-        }
-
-        setBaseSites(baseSites);
-        setSites(normalizeSites(finalSites));
-        setGridAssets(gridData);
-      } catch (e) {
-        console.error('Failed to load data', e);
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, [setSites, setBaseSites, setGridAssets, setLoading]);
 
   const selectedSite = sites.find((s) => s.id === selectedId) || sites[0];
 
@@ -124,7 +83,7 @@ export default function App() {
         <Download size={16} aria-hidden="true" />
         Veriyi indir
       </button>
-      <button className="btn ghost" onClick={toggleTheme} aria-label="Tema Değiştir">
+      <button className="btn ghost" onClick={toggleTheme} title="Tema değiştir">
         {theme === 'dark' ? <Sun size={16} aria-hidden="true" /> : <Moon size={16} aria-hidden="true" />}
         {theme === 'dark' ? 'Açık' : 'Koyu'}
       </button>
@@ -149,32 +108,43 @@ export default function App() {
     </nav>
   );
 
-  const showLocalWarning = ['admin', 'settings', 'calc', 'siteEditor', 'threeDEditor'].includes(activeTab);
+  const showLocalWarning = ['workspace', 'settings', 'calc', 'siteEditor', 'threeDEditor'].includes(activeTab);
 
   return (
     <AppShell
       topNav={
-        <TopNav 
-          title="Türkiye Pompaj Depolamalı HES (PDHES) Potansiyeli" 
-          subtitle="Türkiye’de pompaj depolamalı hidroelektrik santral adaylarını; harita, kavramsal 3D yerleşim, şebeke bağlantı katmanları, risk notları ve eğitim içerikleriyle inceleyen açık demo uygulama" 
-          controls={controls} 
+        <TopNav
+          title="Türkiye PDHES Potansiyeli — Eğitim ve Ön İnceleme"
+          subtitle="Adayları harita, kavramsal 3D yerleşim, risk notları ve senaryo hesaplarıyla inceleyen açık eğitim demosu"
+          controls={controls}
         />
       }
       tabs={tabsNode}
     >
-      {showLocalWarning && (
+      <div style={{ padding: '18px 18px 0 18px', flexShrink: 0 }}>
+        <WarningBanner
+          message="Eğitim ve masaüstü ön inceleme demosudur; yatırım tavsiyesi, fizibilite, mühendislik tasarımı veya resmi kurum görüşü değildir."
+          type="warning"
+        />
+      </div>
+      {dataError && (
         <div style={{ padding: '18px 18px 0 18px', flexShrink: 0 }}>
-          <WarningBanner message="Bu sayfadaki değişiklikler (yönetim veya hesaplama ayarları) yalnızca sizin tarayıcınızda (localStorage) saklanır." type="info" />
+          <WarningBanner message={dataError} type="danger" />
         </div>
       )}
-      <Suspense fallback={<section className="panel active"><p className="muted">Harita yükleniyor...</p></section>}>
+      {showLocalWarning && (
+        <div style={{ padding: '18px 18px 0 18px', flexShrink: 0 }}>
+          <WarningBanner message="Bu sayfadaki yerel çalışma ve hesaplama ayarları yalnızca sizin tarayıcınızda (LocalStorage) saklanır." type="info" />
+        </div>
+      )}
+      <Suspense fallback={<section className="panel active"><p className="muted">İlgili bölüm yükleniyor...</p></section>}>
         {activeTab === 'pdhes' && <PdhesPage onNavigate={setActiveTab} />}
         {activeTab === 'data' && <DataPage site={selectedSite} />}
         {activeTab === 'map' && <MapPage />}
         {activeTab === 'threeD' && <ThreeDPage site={selectedSite} />}
         {activeTab === 'calc' && <CalcPage site={selectedSite} />}
-        {activeTab === 'admin' && (
-          <AdminPage
+        {activeTab === 'workspace' && (
+          <WorkspacePage
             onCreateSite={() => {
               setSiteEditorMode('new');
               setActiveTab('siteEditor');
@@ -192,10 +162,10 @@ export default function App() {
         )}
         {activeTab === 'settings' && <SettingsPage />}
         {activeTab === 'siteEditor' && (
-          <SiteEditorPage mode={siteEditorMode} templateSite={selectedSite} onDone={() => setActiveTab('admin')} />
+          <SiteEditorPage mode={siteEditorMode} templateSite={selectedSite} onDone={() => setActiveTab('workspace')} />
         )}
         {activeTab === 'threeDEditor' && (
-          <ThreeDEditorPage site={selectedSite} onDone={() => setActiveTab('admin')} />
+          <ThreeDEditorPage site={selectedSite} onDone={() => setActiveTab('workspace')} />
         )}
       </Suspense>
     </AppShell>

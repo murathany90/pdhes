@@ -18,7 +18,10 @@ export default function CalcPage({ site }: { site?: Site }) {
   if (!site || !values) return <section className="panel active"><p className="muted">Veri yükleniyor...</p></section>;
 
   // Karlılık skoru: 4 yılda geri ödemeye 100 puan, 24 yıla 0 puan
-  const profitScore = Math.max(0, Math.min(100, 100 - (values.payback - 4) * 5));
+  const profitScore = values.payback === null
+    ? 0
+    : Math.max(0, Math.min(100, 100 - (values.payback - 4) * 5));
+  const paybackLabel = values.payback === null ? 'hesaplanamaz' : `${values.payback.toFixed(1)} yıl`;
 
   return (
     <section className="panel active">
@@ -32,7 +35,7 @@ export default function CalcPage({ site }: { site?: Site }) {
             <div className="metric info"><span>Senaryo yatırım gideri</span><b>{moneyBn(values.adjCapex)}</b></div>
             <div className="metric warn"><span>Brüt yıllık gelir</span><b>{moneyM(values.adjRevenue)}</b></div>
             <div className="metric">
-              <span>Karlılık Skoru ({values.payback.toFixed(1)} yıl)</span>
+              <span>Senaryo göstergesi ({paybackLabel})</span>
               <div style={{ marginTop: 6 }}><ScorePill score={Math.round(profitScore)} label="Skor" /></div>
             </div>
           </div>
@@ -77,7 +80,7 @@ Hesaplanan fiziksel enerji: ${values.physicsGWh.toFixed(2)} GWh
 
 Yatırım gideri:
 ${site.capexBn} milyar € x ${scenario.capexFactor.toFixed(2)} = ${values.adjCapex.toFixed(2)} milyar €
-${Math.round(values.eurPerKw).toLocaleString('tr-TR')} €/kW
+${values.eurPerKw === null ? 'Hesaplanamaz' : `${Math.round(values.eurPerKw).toLocaleString('tr-TR')} €/kW`}
 
 Gelir:
 ${site.revenueM} milyon €/yıl x çevrim(${scenario.cycles}/300) x gelir(${scenario.revenueFactor.toFixed(2)}) x yardımcı hizmet(${(1 + scenario.reservePremium / 100).toFixed(2)}) = ${values.adjRevenue.toFixed(1)} milyon €/yıl`}

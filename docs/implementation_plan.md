@@ -1,65 +1,115 @@
-# PDHES React Demo Tamamlama Durumu
+# PDHES Açık Repo Uygulama Durumu
 
-Bu belge, React demo tamamlama planının uygulanmasından sonraki güncel durumu özetler. Eski tek HTML prototip referans olarak korunmuştur; aktif uygulama `app/` klasöründeki React uygulamasıdır.
+Bu belge, `public_repo.md` kapsamındaki açık kaynak ve GitHub Pages hazırlığının
+uygulama durumunu özetler. Dağıtılan tek uygulama `app/` klasöründeki Vite +
+React uygulamasıdır. Kökteki eski tek HTML prototip yalnızca tarihsel referans
+olarak korunur ve Pages paketine girmez.
 
-## Tamamlananlar
+## Uygulanan Mimari
 
-- [x] Uygulama başlığı `Türkiye Pompaj Depolamalı HES (PDHES) Potansiyeli` olarak güncellendi.
-- [x] Alt metin şu ifadeyle değiştirildi: `Türkiye’de pompaj depolamalı hidroelektrik santral adaylarını; harita, kavramsal 3D yerleşim, şebeke bağlantı katmanları, risk notları ve eğitim içerikleriyle inceleyen açık demo uygulama`.
-- [x] Varsayılan açılış sekmesi `PDHES Nedir` yapıldı.
-- [x] Sekme sırası eğitimden keşfe doğru düzenlendi: `PDHES Nedir`, `Datalar`, `Harita`, `3D Yerleşim`, `Hesaplamalar`, `Yönetim`, `Ayarlar`.
-- [x] Ana sekmeler ve üst çubuktaki önemli butonlar `lucide-react` ikonlarıyla gösteriliyor.
-- [x] `Mod`, eski konsept etiketi ve eski demo sınıflandırma kartı kaldırıldı.
-- [x] Kullanıcı arayüzündeki yazılım odaklı açıklamalar temizlendi; harita kütüphanesi, veri biçimi ve token dili görünür metinlerden çıkarıldı.
-- [x] README aktif React uygulamasını anlatacak şekilde sadeleştirildi ve eski yazılım-jargonlu demo metinleri kaldırıldı.
-- [x] `lucide-react` bağımlılığı eklendi.
-- [x] `Datalar`, `Harita`, `3D Yerleşim`, `Hesaplamalar`, `PDHES Nedir`, `Yönetim`, `Ayarlar`, `Saha Editörü` ve `3D Yerleşim Editörü` yüzeyleri çalışır hale getirildi.
-- [x] Harita sayfası aday sahalar, kavramsal yerleşim, risk alanı, su yolu, yakın şebeke bağlantısı, 400 kV hatlar, 154 kV hatlar ve trafo merkezleri katmanlarını aç/kapat kontrolleriyle yönetiyor.
-- [x] Harita çizim mantığı küçük bir hook içine alındı; `MapPage` sayfasındaki tekrar eden çizim sorumluluğu azaltıldı.
-- [x] Hesaplama formülü ve senaryo üretimi ayrı bir hesap hook’una taşındı.
-- [x] Harita, 3D görünüm ve 3D yerleşim editörü aynı kavramsal yerleşim üretim mantığını kullanıyor.
-- [x] `3D Layout Editörü` görünen adı `3D Yerleşim Editörü` olarak değiştirildi.
-- [x] 3D yerleşim editörüne canlı harita önizlemesi eklendi.
-- [x] 3D editörde koordinat, boyut, yükseklik ve yön açısı düzenleme korunarak kaydetme akışı çalışır durumda bırakıldı.
-- [x] PDHES ansiklopedisi genişletildi; dünya örnekleri 30+ kayda, teknik terimler sözlüğü 40+ terime çıkarıldı.
-- [x] Teknik terimlerde Türkçe ad önce, teknik karşılık parantez içinde veriliyor: örn. `Düşü (head)`, `Cebri boru (penstock)`, `Denge bacası (surge tank)`, `Yeraltı güç evi (powerhouse)`, `Şalt sahası (switchyard)`.
-- [x] Admin girişi `admin123` olarak korundu.
-- [x] İçerik düzenleme, saha ekleme/düzenleme/silme, tam çalışma listesi yedekleme/geri yükleme ve 3D yerleşim kaydı akışları korunuyor.
-- [x] LocalStorage anahtarları değişmedi: `pspp-theme`, `pspp-content-overrides-v1`, `pspp-sites-v1`; eski `pspp-custom-sites-v1` yalnızca ilk yüklemede okunuyor.
-- [x] `app/public/data.json` ve kök `data.json` içindeki eski demo sınıflandırma cümlesi temizlendi.
+- [x] Uygulama herkesin erişebildiği, salt okunur bir görüntüleyici olarak açılır.
+- [x] İçerik, saha ve 3D yerleşim düzenleme araçları yalnızca `?editor=1` ile
+  açılan **Yerel Çalışma Alanı** içinde sunulur.
+- [x] Yerel çalışma alanı bir kimlik doğrulama veya gerçek yönetim paneli olarak
+  tanıtılmaz; veriler yalnızca kullanıcının tarayıcısında tutulur.
+- [x] Eski sahte parola ve admin oturumu aktif uygulamadan çıkarılmıştır.
+- [x] Mevcut keşif, veri tablosu, harita, 3D yerleşim, hesaplama, içe/dışa
+  aktarma ve yerel düzenleme yetenekleri korunmuştur.
+- [x] Harita, 3D görünüm ve editörler ortak saha/yerleşim veri sözleşmesini
+  kullanır.
 
-## Sadeleştirilerek Yapılanlar
+## Veri Sözleşmesi ve Yerel Kayıt
 
-- [x] Büyük bir `components/` klasörü refactor’u yapılmadı; mevcut sayfa temelli yapı korundu.
-- [x] URL tabanlı yönlendirme eklenmedi; mevcut state tabanlı sekme yaklaşımı sürdürüldü.
-- [x] Harita ve hesaplama tarafında yalnızca tekrar eden/karmaşık mantığı azaltan küçük hook ayrıştırmaları yapıldı.
-- [x] Yönetim panelindeki yedek alma ve geri yükleme akışı teknik veri formatını desteklemeye devam ediyor; ana kullanıcı metinleri ise “yedek”, “geri yükleme” ve “ham kayıt” gibi daha anlaşılır ifadelerle sadeleştirildi.
-- [x] Eski tek HTML prototip silinmedi ve referans olarak bırakıldı.
+- [x] Güncel veri seti 20 adayı içerir.
+- [x] Kanonik PDHES tipleri `CLOSED_LOOP`, `OPEN_LOOP`, `SEA_WATER` ve
+  `PROTOTYPE` olarak tekilleştirilmiştir.
+- [x] Saha kimlikleri, tipleri, sayısal alanları, koordinatları ve yerleşimleri
+  çalışma zamanında doğrulanır.
+- [x] Eski tip adları kontrollü biçimde güncel tipe taşınabilir.
+- [x] Yerel çalışma alanı dışa aktarımı `schemaVersion: 2` taşır; eski düz dizi
+  kayıtları içe aktarılabilir.
+- [x] Hatalı, aşırı büyük veya bozuk içe aktarımlar mevcut kayıtların üzerine
+  yazılmaz.
+- [x] Kök veri dosyalarıyla `app/public` kopyalarının bayt düzeyinde eşitliğini
+  denetleyen komut eklenmiştir.
 
-## Bilinçli Ertelenenler
+## Güvenlik, İçerik ve Şeffaflık
 
-- [ ] Gerçek saha etüdü, güncel topoğrafya doğrulaması, lisans/izin entegrasyonu ve resmi bağlantı başvurusu verisi eklenmedi.
-- [ ] Kalıcı backend, kullanıcı yönetimi ve güvenli oturum sistemi eklenmedi; bu demo yerel ve tek kullanıcılı kalmaya devam ediyor.
-- [ ] Gelişmiş sürükle-bırak 3D editör, gerçek zamanlı çok kullanıcılı düzenleme ve üretim düzeyi dosya yönetimi kapsam dışı bırakıldı.
-- [ ] Kapsamlı otomatik uçtan uca test paketi kurulmadı; bu turda derleme ve tarayıcı smoke kontrolleri yapıldı.
+- [x] Yerel kullanıcı içeriği HTML olarak çalıştırılmaz; React metni olarak
+  gösterilir.
+- [x] Üretim HTML'inde kullanılan alan adlarıyla sınırlandırılmış bir CSP,
+  açıklama, Open Graph ve referrer metadatası bulunur.
+- [x] Uygulama genelinde eğitim/masaüstü ön inceleme kapsamı görünür biçimde
+  belirtilir.
+- [x] Harita sağlayıcı atıfları görünürdür ve sağlayıcı bilgileri tek yerde
+  yönetilir.
+- [x] `NOTICE.md`, `DATA_SOURCES.md`, `METHODOLOGY.md`, `SECURITY.md` ve
+  `CONTRIBUTING.md` eklenmiştir.
+- [x] `robots.txt` ve `llms.txt` yayın paketine dahildir.
 
-## Doğrulama Durumu
+## Dağıtım ve Bakım
 
-- [x] `cd app && npm run build` başarılı tamamlandı. Büyük çıktı paketi uyarısı beklenen bir performans uyarısıdır, derlemeyi kırmadı.
-- [x] Uygulama temiz yüklemede `PDHES Nedir` sekmesiyle açılıyor.
-- [x] Başlık, alt metin ve yeni sekme sırası doğru görünüyor.
-- [x] Eski `Mod` kartı ve eski demo sınıflandırma dili görünmüyor.
-- [x] `Datalar` sayfası 19 varsayılan adayı gösteriyor.
-- [x] Harita canvas’ı açılıyor; katman kontrolleri ve saha seçimi çalışıyor.
-- [x] 3D Yerleşim sayfası ve 3D Yerleşim Editörü Türkçe etiketlerle çalışıyor.
-- [x] Hesaplama slider’ları görünür değerleri güncelliyor.
-- [x] Admin girişi, içerik kaydı, saha çalışma listesi kaydı ve 3D yerleşim kaydı smoke düzeyinde doğrulandı.
-- [x] Tema değişimi reload sonrası kalıcı olarak doğrulandı.
-- [x] 390px mobil görünümde ve masaüstü görünümde yatay taşma gözlenmedi.
-- [x] Tarayıcı konsolunda uygulamayı kıran hata görülmedi; geliştirme ortamına özgü bilgilendirme mesajları dışında akış temiz çalıştı.
+- [x] Genel geliştirme için kök `base` değeri korunur.
+- [x] GitHub Pages derlemesi `/TR_PDHES_Potansiyel/` alt yolunu kullanır.
+- [x] Pull request ve ana dal kontrolleri için Node 22 tabanlı CI eklenmiştir.
+- [x] Pages iş akışı yalnızca `app/dist` çıktısını yayımlar.
+- [x] npm ve GitHub Actions güncellemeleri için Dependabot yapılandırılmıştır.
+- [x] Harita, 3D, ayarlar ve yerel editör sayfaları ihtiyaç anında yüklenir.
+- [x] İlk JavaScript paketi, ağır harita ve Three.js kodu ayrı parçalara
+  alınarak önemli ölçüde küçültülmüştür.
 
-## Sonraki Mantıklı Adımlar
+## Otomatik Kontrol Sözleşmesi
 
-- [ ] Üretim paketi boyutunu azaltmak için harita ve 3D parçalarını daha agresif parçalara ayırmak.
-- [ ] Admin import/export akışları için küçük otomatik testler eklemek.
-- [ ] Saha verilerini gerçek kaynaklarla güncellemek ve her aday için kanıt seviyesini ayrıca belgelemek.
+`app/` içinde:
+
+```powershell
+npm ci
+npm run check
+npm audit --omit=dev --audit-level=moderate
+```
+
+Repo kökünde:
+
+```powershell
+node smoke_test.js
+```
+
+`npm run check`; TypeScript kontrolünü, Vitest testlerini, veri kopyası ve şema
+kontrollerini, ardından üretim derlemesini çalıştırır.
+
+## 2026-07-05 Doğrulama Kaydı
+
+- [x] Temiz `npm ci`: 204 paket denetlendi, açık bulunmadı.
+- [x] `npm run check`: 10 test dosyasında 35 test geçti; TypeScript, veri
+  eşitliği/şeması ve üretim derlemesi başarılı oldu.
+- [x] `npm audit --omit=dev --audit-level=moderate`: 0 açık.
+- [x] `node smoke_test.js`: 20 adayın kanonik tip dağılımı ve 3.933 şebeke
+  feature'ı doğrulandı.
+- [x] Pages alt-yol önizlemesinde HTML, JavaScript, CSS, favicon, `data.json`
+  ve `grid_assets.json` istekleri 404 vermedi; konsol hatasız kaldı.
+- [x] 390, 768, 1024 ve 1440 px kontrollerinde yatay sayfa taşması görülmedi.
+- [x] Public görünüm, `?editor=1` yerel çalışma alanı, kanonik veri filtreleri,
+  harita katman/atıfları, 3D simülasyon ve hesaplama akışları tarayıcıda
+  denetlendi.
+- [x] Lighthouse: Accessibility 100, Best Practices 100 ve SEO 100.
+- [x] Pages paketinde sahte credential/secret deseni ve kök-bağımlı
+  `/data.json` veya `/grid_assets.json` yolu bulunmadı.
+
+## Bilinçli Sınırlar ve Yayın Öncesi Sahip Kararları
+
+- [ ] Kökte açık kaynak `LICENSE` dosyası yoktur. Proje sahibi uygun lisansı
+  seçmeden kod için lisans varsayılmamalıdır.
+- [ ] KML'den türetilen `grid_assets.json` verisinin yeniden dağıtım hakkı
+  proje sahibi tarafından kaynak kayıtlarıyla doğrulanmalıdır.
+- [ ] GitHub depo ayarlarında **Settings → Pages → Source: GitHub Actions**
+  seçimi yapılmalıdır.
+- [ ] Gerçek saha etüdü, güncel topoğrafya doğrulaması, bağlantı başvurusu,
+  lisans/izin ve yatırım kararı verileri bu eğitim demosunun kapsamında değildir.
+- [ ] Harita ve 3D modülleri ilk paketten ayrılmış olsa da kendi tembel yüklenen
+  parçaları büyüktür; sonraki performans turunda daha ince bölünebilir.
+- [ ] Kalıcı backend, gerçek kullanıcı hesabı ve çok kullanıcılı eşzamanlı
+  düzenleme yoktur.
+
+Bu sınırlar mevcut özelliklerin kullanımını engellemez; ancak veri lisansı ve
+kod lisansı kararı tamamlanmadan repo “hukuken tamamen yayın hazır” olarak
+etiketlenmemelidir.

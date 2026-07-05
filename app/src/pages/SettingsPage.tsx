@@ -50,12 +50,15 @@ export default function SettingsPage() {
               <span className="kbd">{value}</span>
             </div>
           ))}
+          <p className="notice small" style={{ marginTop: 12 }}>
+            Bu ağırlıklar arayüz taslağıdır; mevcut aday skorlarını henüz yeniden hesaplamaz.
+          </p>
           <h3 style={{ marginTop: 16 }}>Veri yönetimi</h3>
           <button className="btn danger" onClick={() => { if (confirm('Kaydedilmiş saha düzenlemeleri sıfırlansın mı?')) resetSites(); }}>
             Saha düzenlemelerini sıfırla
           </button>
           <p className="muted small" style={{ marginTop: 12 }}>
-            Mevcut çalışma listesinde {sites.length} aday saha var. Yedek alma ve geri yükleme işlemleri Yönetim sekmesinden yapılır.
+            Mevcut çalışma listesinde {sites.length} aday saha var. Yedek alma ve geri yükleme işlemleri Yerel Çalışma Alanı sekmesinden yapılır.
           </p>
         </div>
       </div>

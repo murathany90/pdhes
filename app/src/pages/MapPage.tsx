@@ -144,7 +144,7 @@ export default function MapPage() {
 
         <aside className="map-right">
           <button className="btn ghost panel-toggle" onClick={() => setRightCollapsed(true)}>›</button>
-          <h2 style={{ marginTop: 0 }}>Yatırım / kapasite özeti</h2>
+          <h2 style={{ marginTop: 0 }}>Kavramsal kapasite özeti</h2>
           <div className="grid" style={{ gap: 10 }}>
             <div className="metric good"><span>Kapasite</span><b>{num(site.powerMW)} MW / {site.energyGWh} GWh</b></div>
             <div className="metric info"><span>Düşü / su yolu</span><b>{num(site.head, 1)} m / {site.tunnelKm} km</b></div>

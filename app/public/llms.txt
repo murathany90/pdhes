@@ -1,0 +1,14 @@
+# Türkiye PDHES Potansiyeli
+
+Türkiye'deki pompaj depolamalı hidroelektrik santral adaylarını eğitim ve kavramsal ön inceleme amacıyla sunan açık demo.
+
+## Önemli sınır
+
+Bu site yatırım tavsiyesi, fizibilite raporu, mühendislik tasarımı veya resmi kurum görüşü değildir.
+
+## Belgeler
+
+- Proje ve kurulum: README.md
+- Metodoloji: METHODOLOGY.md
+- Veri kaynakları: DATA_SOURCES.md
+- Atıflar: NOTICE.md

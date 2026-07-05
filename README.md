@@ -1,64 +1,94 @@
-# Türkiye Pompaj Depolamalı HES (PDHES) Potansiyeli
+# Türkiye PDHES Potansiyeli — Eğitim ve Ön İnceleme
 
-Türkiye’de pompaj depolamalı hidroelektrik santral adaylarını; harita, kavramsal 3D yerleşim, şebeke bağlantı katmanları, risk notları ve eğitim içerikleriyle inceleyen açık demo uygulama.
+Türkiye'deki pompaj depolamalı hidroelektrik santral adaylarını veri, harita, kavramsal 3D yerleşim, risk notları ve senaryo hesaplarıyla inceleyen açık web demosu.
 
-Bu çalışma kesin mühendislik veya fizibilite sonucu değildir. Koordinatlar ve teknik kabuller masaüstü ön eleme seviyesindedir; parsel, jeoteknik, TEİAŞ, DSİ ve ÇED teyidi gerekir.
+> Bu uygulama yatırım tavsiyesi, fizibilite raporu, mühendislik tasarımı veya resmi TEİAŞ/DSİ/EPDK/ÇED görüşü değildir. Koordinatlar, teknik değerler, şebeke ilişkileri ve ekonomik varsayımlar kaynak bazlı, yaklaşık veya kavramsal olabilir.
 
-## React Uygulaması
+## Aktif uygulama
 
-Uygulama `app/` klasöründeki Vite + React + TypeScript projesidir. Eski `pspp_yatirim_istihbarat_app.html` dosyası referans olarak korunur.
+Yayımlanan uygulama yalnızca `app/` altındaki Vite + React + TypeScript projesidir. Kök dizindeki tek HTML prototipi ve üretici betikleri tarihsel referanstır; GitHub Pages artifactine dahil edilmez.
+
+Başlıca özellikler:
+
+- PDHES eğitim içeriği, dünya örnekleri, sözlük ve SSS.
+- Canonical kapalı devre, açık devre, deniz suyu ve prototip/pilot sınıfları.
+- Aday saha filtreleme, karşılaştırma ve ortak saha seçimi.
+- MapLibre tabanlı harita, 2D/3D arazi, hillshade ve kavramsal katmanlar.
+- Three.js tabanlı kavramsal tesis yerleşimi ve üretim/pompalama animasyonu.
+- Fiziksel enerji ve ekonomik senaryo hesapları.
+- Tema ve görünüm ayarları.
+- Sürüm kontrollü yerel saha/içerik import-export araçları.
+
+## Public görüntüleyici ve yerel çalışma alanı
+
+Normal URL public görüntüleyiciyi açar. İçerik, saha ve yerleşim düzenleme araçları:
+
+```text
+?editor=1
+```
+
+parametresiyle açılan **Yerel Çalışma Alanı** içindedir. Bu gerçek bir admin sistemi değildir; değişiklikler yalnızca ilgili tarayıcının LocalStorage alanında tutulur ve GitHub reposunu ya da ortak siteyi değiştirmez.
+
+## Gereksinimler
+
+- Node.js 22 LTS önerilir.
+- Vite 8 için en az Node `20.19.0` veya `22.12.0`.
+- npm ve kilitli `app/package-lock.json`.
+
+## Geliştirme
 
 ```bash
 cd app
-npm install
+npm ci
 npm run dev -- --host 127.0.0.1
-npm run build
 ```
 
-Admin demo parolası: `admin123`
+Kalite kapısı:
 
-Yerel kayıt anahtarları:
+```bash
+npm run check
+npm audit --omit=dev --audit-level=moderate
+```
 
-- `pspp-theme`: tema tercihi
-- `pspp-content-overrides-v1`: düzenlenen eğitim/içerik metinleri
-- `pspp-sites-v1`: düzenlenen veya eklenen saha listesi
-- `pspp-custom-sites-v1`: eski sürümden tek seferlik okunan aday saha kayıtları
+Production önizleme:
 
-## Ana Sekmeler
+```bash
+npm run build
+npm run preview -- --host 127.0.0.1
+```
 
-1. PDHES Nedir
-2. Datalar
-3. Harita
-4. 3D Yerleşim
-5. Hesaplamalar
-6. Yönetim
-7. Ayarlar
+## Veri
 
-## İçerik
+- `app/public/data.json`: aday saha kayıtları.
+- `app/public/grid_assets.json`: KML'den türetilmiş şebeke GeoJSON'u.
+- `app/src/types/site.ts`: TypeScript veri sözleşmesi.
+- `app/src/utils/siteSchema.ts`: runtime doğrulama ve legacy tip migrasyonu.
 
-- `PDHES Nedir`: çalışma prensibi, Türkiye bağlamı, PDHES tipleri, 30+ dünya örneği, 40+ teknik terim sözlüğü ve sık sorular.
-- `Datalar`: 19 varsayılan aday saha, skorlar, yatırım büyüklüğü, düşü (head), aktif hacim ve risk notları.
-- `Harita`: aday sahalar, 154/380 kV hatlar, trafo merkezleri, risk alanı, su yolu ve kavramsal yerleşim katmanları.
-- `3D Yerleşim`: üst rezervuar, alt rezervuar, cebri boru (penstock), denge bacası (surge tank), yeraltı güç evi (powerhouse) ve şalt sahası (switchyard) bileşen özeti.
-- `Hesaplamalar`: yatırım gideri, yıllık gelir, çevrim sayısı ve yan hizmet primiyle görünür değerleri güncellenen senaryo hesabı.
-- `Yönetim`: içerik düzenleme, yeni aday ekleme, saha düzenleme, saha silme, veri yedeği alma/yükleme ve 3D yerleşim düzenleme.
-- `Ayarlar`: tema, harita görünümü, 3D yükseklik ölçeği ve skor ağırlıkları.
+Yeni kayıtlar benzersiz ID, canonical `pdhesType`, kaynak/güven bilgisi ve geçerli koordinat/layout alanlarıyla eklenmelidir. Ayrıntılar [DATA_SOURCES.md](DATA_SOURCES.md) ve [METHODOLOGY.md](METHODOLOGY.md) içindedir.
 
-## Veri Dosyaları
+## GitHub Pages
 
-- `app/public/data.json`: varsayılan PDHES adayları
-- `app/public/grid_assets.json`: iletim hatları ve trafo merkezleri
-- `content-overrides.sample.json`: içerik düzenleme yedeği örneği
+`.github/workflows/deploy-pages.yml`, `main` branch'ini `/TR_PDHES_Potansiyel/` taban yoluyla build eder ve yalnızca `app/dist` klasörünü yayımlar.
 
-## PDHES Tipleri
+GitHub üzerinde:
 
-- Müstakil PDHES (kapalı çevrim)
-- Yarı PDHES (mevcut rezervuar)
-- Makro deniz PDHES
-- Mikro deniz PDHES
+1. Settings → Pages.
+2. Source → **GitHub Actions**.
+3. `main` push veya manuel `workflow_dispatch`.
+4. Actions sonucundaki Pages URL'sini açıp kontrol edin.
 
-## Sınırlamalar
+Repo adı veya custom domain değişirse `VITE_BASE_PATH` ve Vite `base` davranışı güncellenmelidir.
 
-- Harita ve 3D yerleşimler kavramsal ön inceleme içindir.
-- Deniz suyu adayları kıyı izinleri, sızdırmazlık kaplaması, korozyon, biyolojik birikim (biofouling), turizm/görsel etki ve korunan alan riskleri taşır.
-- Adaylar yatırım kararı için tek başına yeterli değildir; saha etüdü, bağlantı görüşü ve çevresel izin süreçleri gerekir.
+## Lisans ve atıf
+
+Üçüncü taraf yazılım ve harita atıfları [NOTICE.md](NOTICE.md) içindedir. Veri kaynakları ve yeniden dağıtım notları [DATA_SOURCES.md](DATA_SOURCES.md) içindedir.
+
+Bu repo için proje lisansı henüz ayrıca seçilmemiştir. Public erişim, otomatik olarak yeniden kullanım lisansı vermez.
+
+## Güvenlik ve katkı
+
+- Güvenlik bildirimi: [SECURITY.md](SECURITY.md)
+- Katkı kuralları: [CONTRIBUTING.md](CONTRIBUTING.md)
+- Değişiklik geçmişi: [CHANGELOG.md](CHANGELOG.md)
+
+Frontend içine secret, gerçek parola veya özel anahtar koymayın. `VITE_*` değerlerinin kullanıcıya gönderilen bundle içinde görünür olduğunu unutmayın.

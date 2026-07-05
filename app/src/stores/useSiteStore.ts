@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import type { FeatureCollection } from 'geojson';
 import type { Site } from '../types/site';
+import { parseWorkspaceImport, serializeWorkspaceSites } from '../utils/workspaceData';
 
 export const SITES_STORAGE_KEY = 'pspp-sites-v1';
 const LEGACY_CUSTOM_SITES_KEY = 'pspp-custom-sites-v1';
@@ -29,15 +30,15 @@ function readSites(key: string): Site[] | null {
   try {
     const raw = localStorage.getItem(key);
     if (!raw) return null;
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed as Site[] : null;
+    const parsed = parseWorkspaceImport(raw);
+    return parsed.ok ? parsed.sites : null;
   } catch {
     return null;
   }
 }
 
 function persistSites(sites: Site[]) {
-  localStorage.setItem(SITES_STORAGE_KEY, JSON.stringify(sites));
+  localStorage.setItem(SITES_STORAGE_KEY, serializeWorkspaceSites(sites));
 }
 
 function ensureSelected(sites: Site[], selectedId: string) {
@@ -85,24 +86,18 @@ export const useSiteStore = create<SiteStore>((set, get) => ({
     });
   },
   importSites: (json) => {
-    try {
-      const parsed = JSON.parse(json);
-      if (!Array.isArray(parsed)) return false;
-      const sites = parsed as Site[];
-      if (sites.some((site) => !site?.id || !site?.name)) return false;
-      persistSites(sites);
-      set((state) => ({ sites, selectedId: ensureSelected(sites, state.selectedId) }));
-      return true;
-    } catch {
-      return false;
-    }
+    const parsed = parseWorkspaceImport(json);
+    if (!parsed.ok) return false;
+    persistSites(parsed.sites);
+    set((state) => ({ sites: parsed.sites, selectedId: ensureSelected(parsed.sites, state.selectedId) }));
+    return true;
   },
   resetSites: () => {
     const baseSites = get().baseSites;
     localStorage.removeItem(SITES_STORAGE_KEY);
     set((state) => ({ sites: baseSites, selectedId: ensureSelected(baseSites, state.selectedId) }));
   },
-  exportSites: () => JSON.stringify(get().sites, null, 2),
+  exportSites: () => serializeWorkspaceSites(get().sites),
   selectedSite: () => {
     const state = get();
     return state.sites.find((s) => s.id === state.selectedId) || state.sites[0];
