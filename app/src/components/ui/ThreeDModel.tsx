@@ -164,10 +164,10 @@ function ForestRock({ position, scale = 1 }: { position: [number, number, number
 /* ─────────────────────────────────────────────
    Realistic Upper Reservoir (Arch/Embankment Dam)
    ───────────────────────────────────────────── */
-function RealisticUpperReservoir({ active, onClick, detail, waterLevelRef, showLabels, isPresenzano }: any) {
+function RealisticUpperReservoir({ position, active, onClick, detail, waterLevelRef, showLabels, isPresenzano }: any) {
   const damH = logScale(detail.dam_height_m, 20, 3, 8) * 1.5;
   const vol = logScale(detail.active_volume_mcm, 5, 4, 10);
-  const pos: [number, number, number] = [-30, 32, -5];
+  const pos: [number, number, number] = [position.x, position.y + damH * 0.15, position.z];
   
   const waterMesh = useRef<THREE.Mesh>(null);
   
@@ -286,10 +286,10 @@ function RealisticUpperReservoir({ active, onClick, detail, waterLevelRef, showL
 /* ─────────────────────────────────────────────
    Realistic Lower Reservoir (Organic Basin & Water)
    ───────────────────────────────────────────── */
-function RealisticLowerReservoir({ active, onClick, waterLevelRef, showLabels, isPresenzano }: any) {
-  const pos: [number, number, number] = [35, 6, 10];
-  const radius = 16.5;
+function RealisticLowerReservoir({ position, active, onClick, waterLevelRef, showLabels, isPresenzano }: any) {
   const depth = 9.5;
+  const pos: [number, number, number] = [position.x, position.y + depth * 0.4, position.z];
+  const radius = 16.5;
   
   const waterMesh = useRef<THREE.Mesh>(null);
   
@@ -924,7 +924,7 @@ function TailraceChannel({ from, to, active, onClick, showLabels }: any) {
           roughness={0.1}
         />
       </mesh>
-      <Html position={[(from.x+to.x)/2, (from.y+to.y)/2 + 2, (from.z+to.z)/2]} center style={{ display: showLabels ? 'block' : 'none' }}>
+      <Html position={[(from.x+to.x)/2 + 4, (from.y+to.y)/2 + 2, (from.z+to.z)/2 - 5]} center style={{ display: showLabels ? 'block' : 'none' }}>
         <div style={labelStyle(active, '#0891b2')}>Kuyruk Suyu</div>
       </Html>
     </group>
@@ -976,7 +976,6 @@ function labelStyle(active: boolean, color: string): React.CSSProperties {
 function Scene({ siteId, activeComponent, onSelectComponent, layers, mode, componentsDetail, isPlaying, activeUnits, maxUnits, showTerrain, showLabels, terrainOpacity }: ThreeDModelProps) {
   const isPresenzano = siteId === 'presenzano';
   const d = componentsDetail;
-  const damH = logScale(d.upper_reservoir.dam_height_m, 20, 3, 8);
   
   // Shared Simulation Water Levels
   const waterLevelRef = useRef(0.85);
@@ -993,10 +992,14 @@ function Scene({ siteId, activeComponent, onSelectComponent, layers, mode, compo
   });
 
   // Calculate dynamic heights/positions aligned to terrain height field
-  const upperPos = useMemo(() => new THREE.Vector3(-30, 26 - damH / 2, -5), [damH]);
+  const upperTerrainY = getTerrainHeight(-30, 5, isPresenzano);
+  const upperPos = useMemo(() => new THREE.Vector3(-30, upperTerrainY, -5), [upperTerrainY]);
+  
   const surgeTankPos = useMemo(() => new THREE.Vector3(-10, getTerrainHeight(-10, 0, isPresenzano), 0), [isPresenzano]);
   const powerhousePos = useMemo(() => new THREE.Vector3(15, 6, 5), []);
-  const lowerPos = useMemo(() => new THREE.Vector3(35, 2, 10), []);
+  
+  const lowerTerrainY = getTerrainHeight(35, -10, isPresenzano);
+  const lowerPos = useMemo(() => new THREE.Vector3(35, lowerTerrainY, 10), [lowerTerrainY]);
 
   // environment assets list
   const environmentAssets = useMemo(() => {
@@ -1050,7 +1053,7 @@ function Scene({ siteId, activeComponent, onSelectComponent, layers, mode, compo
       {showTerrain && <RealisticTerrain opacity={terrainOpacity} isPresenzano={isPresenzano} />}
 
       {/* Scattered Vegetation and Rocks */}
-      {showTerrain && terrainOpacity > 0.3 && environmentAssets.map((asset) => {
+      {showTerrain && terrainOpacity >= 95 && environmentAssets.map((asset) => {
         if (asset.type === 'tree') {
           return <LowPolyTree key={asset.id} position={asset.pos} scale={asset.scale} />;
         } else {
@@ -1061,6 +1064,7 @@ function Scene({ siteId, activeComponent, onSelectComponent, layers, mode, compo
       {/* Upper Reservoir & Dam */}
       {layers.upper_reservoir && (
         <RealisticUpperReservoir 
+          position={upperPos}
           active={activeComponent === 'upper_reservoir'} 
           onClick={() => onSelectComponent('upper_reservoir')} 
           detail={d.upper_reservoir} 
@@ -1073,6 +1077,7 @@ function Scene({ siteId, activeComponent, onSelectComponent, layers, mode, compo
       {/* Lower Reservoir Basin */}
       {layers.lower_reservoir && (
         <RealisticLowerReservoir 
+          position={lowerPos}
           active={activeComponent === 'lower_reservoir'} 
           onClick={() => onSelectComponent('lower_reservoir')} 
           waterLevelRef={waterLevelRef} 
@@ -1122,7 +1127,7 @@ function Scene({ siteId, activeComponent, onSelectComponent, layers, mode, compo
           active={activeComponent === 'penstock'} 
           onClick={() => onSelectComponent('penstock')} 
           from={surgeTankPos} 
-          to={powerhousePos} 
+          to={new THREE.Vector3(powerhousePos.x, powerhousePos.y - 1.5, powerhousePos.z)} 
           isPlaying={isPlaying} 
           mode={mode} 
           activeUnits={activeUnits} 

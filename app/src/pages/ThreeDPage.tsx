@@ -27,7 +27,7 @@ export default function ThreeDPage({ site: propSite }: { site?: any }) {
 
   const [showTerrain, setShowTerrain] = useState(true);
   const [showLabels, setShowLabels] = useState(true);
-  const [terrainOpacity, setTerrainOpacity] = useState(100);
+  const [terrainOpacity, setTerrainOpacity] = useState(70);
 
   if (!site) return <section className="panel active"><p className="muted">Veri yükleniyor...</p></section>;
 
