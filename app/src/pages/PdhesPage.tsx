@@ -25,20 +25,14 @@ const FAQ = [
   ['En kritik ilk etüt nedir?', 'Düşü (head), aktif hacim, jeoloji, bağlantı mesafesi ve çevresel kısıtlar birlikte doğrulanmalıdır.'],
 ];
 
-import MetricCard from '../components/ui/MetricCard';
-import { useSiteStore } from '../stores/useSiteStore';
-import { num } from '../utils/format';
+
 
 interface PdhesPageProps {
   onNavigate?: (tabId: string) => void;
 }
 
-export default function PdhesPage({ onNavigate }: PdhesPageProps) {
+export default function PdhesPage({ }: PdhesPageProps) {
   const [query, setQuery] = useState('');
-  const sites = useSiteStore((state) => state.sites);
-  const siteCount = sites.length;
-  const maxPower = sites.reduce((maximum, site) => Math.max(maximum, site.powerMW), 0);
-  const maxEnergy = sites.reduce((maximum, site) => Math.max(maximum, site.energyGWh), 0);
   const getContent = useWorkspaceStore((state) => state.getContent);
   const filteredGlossary = useMemo(() => {
     const needle = query.trim().toLocaleLowerCase('tr-TR');
@@ -51,35 +45,7 @@ export default function PdhesPage({ onNavigate }: PdhesPageProps) {
 
   return (
     <section className="panel active">
-      <div className="hero" style={{ marginBottom: 32 }}>
-        <div className="card">
-          <h2 className="big-title">Türkiye PDHES Potansiyeli</h2>
-          <p style={{ fontSize: 16, color: 'var(--text-muted)', marginBottom: 24, lineHeight: 1.5 }}>
-            Uzun süreli enerji depolama, şebeke esnekliği ve yenilenebilir entegrasyonu için etkileşimli ön-inceleme aracı.
-          </p>
-          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-            <button className="btn primary" onClick={() => onNavigate?.('map')}>Haritada İncele</button>
-            <button className="btn ghost" onClick={() => onNavigate?.('data')}>Adayları Karşılaştır</button>
-            <button className="btn ghost" onClick={() => {
-              document.getElementById('pdhes-nedir')?.scrollIntoView({ behavior: 'smooth' });
-            }}>PDHES Nedir?</button>
-          </div>
-        </div>
-        <div className="card">
-          <h3 style={{ marginBottom: 16 }}>Sistem Özeti</h3>
-          <div className="grid cols-2" style={{ gap: 12 }}>
-            <MetricCard label="Aday Saha" value={siteCount ? String(siteCount) : '—'} variant="default" />
-            <MetricCard label="En Büyük Aday" value={maxPower ? `${num(maxPower)} MW` : '—'} variant="capacity" />
-            <MetricCard label="En Yüksek Enerji Kapasitesi" value={maxEnergy ? `${num(maxEnergy, 1)} GWh` : '—'} variant="default" />
-            <MetricCard label="Şebeke Katmanları" value="154/380 kV" variant="grid" />
-          </div>
-          <div style={{ marginTop: 12 }}>
-            <MetricCard label="Kavramsal 3D Yerleşim" value="Mevcut" variant="default" />
-          </div>
-        </div>
-      </div>
-
-      <article className="encyclopedia encyclopedia-layout" id="pdhes-nedir">
+      <article className="encyclopedia encyclopedia-layout" id="pdhes-nedir" style={{ marginTop: 12 }}>
         <div className="encyclopedia-sidebar">
           <h3 style={{ marginBottom: 16 }}>İçindekiler</h3>
           <SectionNav sections={[
@@ -97,16 +63,24 @@ export default function PdhesPage({ onNavigate }: PdhesPageProps) {
         </div>
         
         <div>
-          <h2 id="sec-tanim" className="big-title">{content('pdhesWhatIs.title')}</h2>
+          <h2 id="sec-tanim" className="big-title" style={{ marginTop: 0 }}>{content('pdhesWhatIs.title')}</h2>
 
-          <div className="card">
-            <h2>{content('pdhesWhatIs.definitionTitle')}</h2>
-            <p>{content('pdhesWhatIs.definitionBody')}</p>
-            <div className="formula">
+          <div className="grid" style={{ gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+            <div className="card">
+              <h2>{content('pdhesWhatIs.definitionTitle')}</h2>
+              <p>{content('pdhesWhatIs.definitionBody')}</p>
+            </div>
+            <div className="card">
+              <h2>Enerji Formülü</h2>
+              <div className="formula" style={{ margin: 0, height: '100%' }}>
 {`E = ρ × g × H × V × η
-ρ: su yoğunluğu, g: yerçekimi ivmesi, H: net düşü (head), V: aktif hacim, η: çevrim verimi
 
-Modern PDHES tesislerinde çevrim verimi (round-trip efficiency) çoğunlukla %70-85 aralığındadır.`}
+ρ: su yoğunluğu
+g: yerçekimi ivmesi
+H: net düşü (head)
+V: aktif hacim
+η: çevrim verimi (%70-85)`}
+              </div>
             </div>
           </div>
 
@@ -122,12 +96,21 @@ Modern PDHES tesislerinde çevrim verimi (round-trip efficiency) çoğunlukla %7
           </div>
 
           <h2 id="sec-turkiye" style={{ marginTop: 32 }}>{content('pdhesWhatIs.turkeyTitle')}</h2>
-          <p>
-            Türkiye için PDHES tartışması JICA aday çalışmaları, DSİ rezervuarları, TEİAŞ bağlantı kabiliyeti,
-            yenilenebilir üretim artışı ve yan hizmet ihtiyacı etrafında şekillenir. Bu prototipteki adaylar
-            fizibilite sonucu değildir; ön eleme, yatırım anlatımı ve ayrıntılı yatırım incelemesine hazırlık için
-            masaüstü seviyesinde sınıflandırılmıştır.
-          </p>
+          <div className="card">
+            <p>
+              Türkiye için PDHES tartışması; JICA aday çalışmaları, DSİ rezervuarları, TEİAŞ bağlantı kabiliyeti,
+              yenilenebilir üretim artışı ve yan hizmet ihtiyacı etrafında şekillenir.
+            </p>
+            <p>
+              Bu prototipteki adaylar fizibilite sonucu <b>değildir</b>; ön eleme, yatırım anlatımı ve ayrıntılı yatırım incelemesine hazırlık için
+              masaüstü seviyesinde sınıflandırılmıştır. Koordinatlar, teknik değerler, şebeke ilişkileri ve ekonomik varsayımlar kaynak bazlı, 
+              yaklaşık veya kavramsal olabilir.
+            </p>
+            <div className="notice" style={{ marginTop: 16 }}>
+              Yeni kayıtlar benzersiz ID, canonical pdhesType, kaynak/güven bilgisi ve geçerli koordinat/layout alanlarıyla eklenmelidir. 
+              Detaylar metodoloji ve veri kaynakları belgelerinde yer almaktadır.
+            </div>
+          </div>
 
           <h2 id="sec-tipler" style={{ marginTop: 32 }}>PDHES Tipleri</h2>
           <div>
@@ -139,42 +122,49 @@ Modern PDHES tesislerinde çevrim verimi (round-trip efficiency) çoğunlukla %7
           </div>
 
           <h2 id="sec-ornekler" style={{ marginTop: 32 }}>Dünya Örnekleri</h2>
-          <div className="grid cols-2">
+          <div className="grid auto-fit">
             {WORLD_EXAMPLES.map((example) => (
               <div className="world-example-card" key={`${example.country}-${example.name}`}>
-                <h3>{example.name}</h3>
+                <h4>{example.name}</h4>
                 <div className="specs">
                   <span><b>{example.country}</b></span>
                   <span><b>{example.mw.toLocaleString('tr-TR')} MW</b></span>
                   <span><b>{example.head} m</b> düşü</span>
                   {example.year && <span>{example.year}</span>}
                 </div>
-                <p>{example.description}</p>
+                <p style={{ margin: '8px 0 0 0', fontSize: 13 }}>{example.description}</p>
               </div>
             ))}
           </div>
 
-          <h2 id="sec-faydalar" style={{ marginTop: 32 }}>{content('pdhesWhatIs.benefitsTitle')}</h2>
-          <ul>
-            <li>Enerji arbitrajı (energy arbitrage): düşük fiyatlı saatlerde pompalama, yüksek fiyatlı saatlerde üretim.</li>
-            <li>Primer frekans kontrolü (primary frequency control), sekonder frekans kontrolü (secondary frequency control), reaktif güç desteği (reactive power support), kara başlatma (black-start) ve senkron atalet (synchronous inertia).</li>
-            <li>Yenilenebilir kısıntıyı azaltma, pik talep yönetimi ve şebeke kararlılığı.</li>
-          </ul>
+          <div className="grid" style={{ gridTemplateColumns: '1fr 1fr', gap: 16, marginTop: 32 }}>
+            <div>
+              <h2 id="sec-faydalar">{content('pdhesWhatIs.benefitsTitle')}</h2>
+              <ul style={{ paddingLeft: 18 }}>
+                <li><b>Enerji arbitrajı:</b> düşük fiyatlı saatlerde pompalama, yüksek fiyatlı saatlerde üretim.</li>
+                <li><b>Şebeke hizmetleri:</b> primer/sekonder frekans kontrolü, reaktif güç desteği, kara başlatma (black-start) ve senkron atalet.</li>
+                <li>Yenilenebilir kısıntıyı azaltma, pik talep yönetimi ve şebeke kararlılığı.</li>
+              </ul>
+            </div>
+            <div>
+              <h2 id="sec-riskler">{content('pdhesWhatIs.risksTitle')}</h2>
+              <ul style={{ paddingLeft: 18 }}>
+                <li>Jeoloji, fay, heyelan, karst ve yeraltı suyu belirsizlikleri.</li>
+                <li>Çevresel Etki Değerlendirmesi (ÇED), korunan alan, ekolojik akış, kamulaştırma ve görsel etki.</li>
+                <li>Deniz suyu projelerinde korozyon, biyolojik birikim (biofouling), sızdırmazlık kaplaması ve tuz aerosolu.</li>
+              </ul>
+            </div>
+          </div>
 
           <h2 id="sec-maliyet" style={{ marginTop: 32 }}>{content('pdhesWhatIs.costsTitle')}</h2>
-          <p>
-            Yatırım harcaması (CAPEX); rezervuar, tünel, cebri boru (penstock), yeraltı güç evi (powerhouse),
-            elektromekanik ekipman, şalt sahası (switchyard), yol, izin ve mühendislik kalemlerinden oluşur.
-            Gelir modeli enerji arbitrajı, Dengeleme Güç Piyasası, yan hizmetler ve olası kapasite ödemeleriyle
-            birlikte değerlendirilmelidir.
-          </p>
-
-          <h2 id="sec-riskler" style={{ marginTop: 32 }}>{content('pdhesWhatIs.risksTitle')}</h2>
-          <ul>
-            <li>Jeoloji, fay, heyelan, karst ve yeraltı suyu belirsizlikleri.</li>
-            <li>Çevresel Etki Değerlendirmesi (EIA), korunan alan, ekolojik akış, kamulaştırma ve görsel etki.</li>
-            <li>Deniz suyu projelerinde korozyon, biyolojik birikim (biofouling), sızdırmazlık kaplaması ve tuz aerosolu.</li>
-          </ul>
+          <div className="card">
+            <p style={{ margin: 0 }}>
+              <b>Yatırım harcaması (CAPEX);</b> rezervuar, tünel, cebri boru (penstock), yeraltı güç evi (powerhouse),
+              elektromekanik ekipman, şalt sahası (switchyard), yol, izin ve mühendislik kalemlerinden oluşur.
+              Gelir modeli enerji arbitrajı, Dengeleme Güç Piyasası, yan hizmetler ve olası kapasite ödemeleriyle
+              birlikte değerlendirilmelidir.
+            </p>
+          </div>
 
           <h2 id="sec-sozluk" style={{ marginTop: 32 }}>Teknik Terimler Sözlüğü</h2>
           <input

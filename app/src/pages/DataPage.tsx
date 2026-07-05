@@ -80,14 +80,16 @@ export default function DataPage({ site }: { site?: Site }) {
           <h3>{site.name}</h3>
           <p className="muted">{site.thesis}</p>
           <div className="metric-row" style={{ gridTemplateColumns: '1fr 1fr', marginTop: 12 }}>
-            <div className="metric good"><span>Skor</span><b>{site.score}/100</b></div>
-            <div className="metric info"><span>Yakın şebeke</span><b>{site.gridDistKm} km</b></div>
-            <div className="metric warn"><span>Aktif hacim</span><b>{site.activeMcm} milyon m³</b></div>
+            <div className="metric good"><span>Skor / Konsept</span><b>{site.score} - {site.concept === 'sea' ? 'Deniz' : 'Klasik'}</b></div>
+            <div className="metric info"><span>Kapasite / Enerji</span><b>{num(site.powerMW)} MW / {site.energyGWh} GWh</b></div>
+            <div className="metric warn"><span>Yatırım / Gelir</span><b>{moneyBn(site.capexBn)} / {moneyM(site.revenueM)}</b></div>
             <div className="metric"><span>Geri ödeme</span><b>{site.payback} yıl</b></div>
+            <div className="metric"><span>Düşü (Head)</span><b>{num(site.head, 1)} m</b></div>
+            <div className="metric"><span>Su yolu (Tünel)</span><b>{site.tunnelKm} km</b></div>
+            <div className="metric"><span>Aktif hacim</span><b>{site.activeMcm} milyon m³</b></div>
+            <div className="metric"><span>Şebeke mesafesi</span><b>{site.gridDistKm} km</b></div>
           </div>
-          <p style={{ marginTop: 12 }}>
-            <span className={`tag ${site.concept === 'sea' ? 'sea' : 'classic'}`}>{site.conceptLabel}</span>
-          </p>
+
           <p className="small"><b>Alt rezervuar:</b> <span className="muted">{site.lower}</span></p>
           <p className="small"><b>Üst rezervuar:</b> <span className="muted">{site.upper}</span></p>
           <div>{site.risks.map((risk) => <span key={risk} className="tag risk">{risk}</span>)}</div>

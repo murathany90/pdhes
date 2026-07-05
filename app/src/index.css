@@ -371,10 +371,10 @@ html[data-theme="light"] .layer-btn.active {
 html[data-theme="light"] .kbd { color: #0f1c18; }
 
 /* ── PDHES Encyclopedia ── */
-.encyclopedia-layout { display: grid; grid-template-columns: 220px 1fr; gap: 40px; align-items: start; }
+.encyclopedia-layout { display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: 40px; align-items: start; max-width: 1200px; margin: 0 auto; }
 .encyclopedia-sidebar { position: sticky; top: 100px; }
 
-.encyclopedia { max-width: 900px; margin: 0 auto; }
+.encyclopedia { width: 100%; }
 .encyclopedia h2 { font-size: 28px; margin: 32px 0 16px; letter-spacing: -.5px; }
 .encyclopedia h3 { font-size: 18px; margin: 24px 0 12px; color: var(--green); }
 .encyclopedia p { margin: 0 0 14px; line-height: 1.7; color: var(--soft); }
@@ -386,12 +386,15 @@ html[data-theme="light"] .kbd { color: #0f1c18; }
 .world-example-card {
   border: 1px solid var(--line); border-radius: 14px; padding: 16px;
   background: var(--panel3); transition: all .15s ease;
+  display: flex; flex-direction: column;
 }
 .world-example-card:hover { border-color: rgba(72,244,154,.55); transform: translateY(-2px); }
-.world-example-card h4 { margin: 0 0 6px; color: var(--green); }
+.world-example-card h4 { margin: 0 0 6px; color: var(--green); font-size: 16px; }
 .world-example-card .specs { display: flex; gap: 12px; flex-wrap: wrap; margin: 8px 0; }
-.world-example-card .specs span { font-size: 12px; color: var(--muted); }
+.world-example-card .specs span { font-size: 12px; color: var(--muted); background: var(--panel2); padding: 4px 8px; border-radius: 6px; }
 .world-example-card .specs b { color: var(--text); }
+
+.grid.auto-fit { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
 
 /* ── Editor Form ── */
 .editor-form { display: grid; gap: 14px; }
@@ -478,16 +481,16 @@ html[data-theme="light"] .kbd { color: #0f1c18; }
 
 /* ── MapLibre overrides ── */
 .maplibregl-popup-content {
-  background: #07110e; color: #eafff2; border: 1px solid #265445;
-  border-radius: 14px; box-shadow: 0 20px 40px rgba(0,0,0,.45);
+  background: #07110e !important; color: #eafff2 !important; border: 1px solid #265445 !important;
+  border-radius: 14px !important; box-shadow: 0 20px 40px rgba(0,0,0,.45) !important;
 }
 .maplibregl-popup-tip { border-top-color: #07110e !important; border-bottom-color: #07110e !important; }
-.maplibregl-ctrl-group { background: #07110e; border: 1px solid #25483d; }
-.maplibregl-ctrl-group button { filter: invert(1); }
-html[data-theme="light"] .maplibregl-popup-content { background: #ffffff; color: #0f1c18; border-color: #cddad4; }
+.maplibregl-ctrl-group { background: #07110e !important; border: 1px solid #25483d !important; }
+.maplibregl-ctrl-group button { filter: invert(1) !important; }
+html[data-theme="light"] .maplibregl-popup-content { background: #ffffff !important; color: #0f1c18 !important; border-color: #cddad4 !important; }
 html[data-theme="light"] .maplibregl-popup-tip { border-top-color: #ffffff !important; border-bottom-color: #ffffff !important; }
-html[data-theme="light"] .maplibregl-ctrl-group { background: #ffffff; border-color: #cddad4; }
-html[data-theme="light"] .maplibregl-ctrl-group button { filter: none; }
+html[data-theme="light"] .maplibregl-ctrl-group { background: #ffffff !important; border-color: #cddad4 !important; }
+html[data-theme="light"] .maplibregl-ctrl-group button { filter: none !important; }
 
 /* ── Floating Map Control Card ── */
 .map-floating-card {
