@@ -106,10 +106,6 @@ V: aktif hacim
               masaüstü seviyesinde sınıflandırılmıştır. Koordinatlar, teknik değerler, şebeke ilişkileri ve ekonomik varsayımlar kaynak bazlı, 
               yaklaşık veya kavramsal olabilir.
             </p>
-            <div className="notice" style={{ marginTop: 16 }}>
-              Yeni kayıtlar benzersiz ID, canonical pdhesType, kaynak/güven bilgisi ve geçerli koordinat/layout alanlarıyla eklenmelidir. 
-              Detaylar metodoloji ve veri kaynakları belgelerinde yer almaktadır.
-            </div>
           </div>
 
           <h2 id="sec-tipler" style={{ marginTop: 32 }}>PDHES Tipleri</h2>

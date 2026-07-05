@@ -165,9 +165,9 @@ function ForestRock({ position, scale = 1 }: { position: [number, number, number
    Realistic Upper Reservoir (Arch/Embankment Dam)
    ───────────────────────────────────────────── */
 function RealisticUpperReservoir({ active, onClick, detail, waterLevelRef, showLabels, isPresenzano }: any) {
-  const damH = logScale(detail.dam_height_m, 20, 3, 8);
+  const damH = logScale(detail.dam_height_m, 20, 3, 8) * 1.5;
   const vol = logScale(detail.active_volume_mcm, 5, 4, 10);
-  const pos: [number, number, number] = [-30, 26, -5];
+  const pos: [number, number, number] = [-30, 32, -5];
   
   const waterMesh = useRef<THREE.Mesh>(null);
   
@@ -180,7 +180,7 @@ function RealisticUpperReservoir({ active, onClick, detail, waterLevelRef, showL
     waterMesh.current.scale.set(1 + wave, 1, 1 + wave);
   });
 
-  const damRadius = vol + 3;
+  const damRadius = vol * 1.5 + 5;
 
   return (
     <group position={pos}>
@@ -287,9 +287,9 @@ function RealisticUpperReservoir({ active, onClick, detail, waterLevelRef, showL
    Realistic Lower Reservoir (Organic Basin & Water)
    ───────────────────────────────────────────── */
 function RealisticLowerReservoir({ active, onClick, waterLevelRef, showLabels, isPresenzano }: any) {
-  const pos: [number, number, number] = [35, 2, 10];
-  const radius = 9.5;
-  const depth = 4.5;
+  const pos: [number, number, number] = [35, 6, 10];
+  const radius = 16.5;
+  const depth = 9.5;
   
   const waterMesh = useRef<THREE.Mesh>(null);
   
