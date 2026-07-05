@@ -27,29 +27,31 @@ const logScale = (v: number, base: number, min: number, max: number) =>
    Terrain Height Lookup Helper (Cesima Mountain for Presenzano)
    ───────────────────────────────────────────── */
 const getTerrainHeight = (x: number, z: number, isPresenzano?: boolean) => {
-  const py = -z;
+  const xOrig = x / 3;
+  const zOrig = z / 3;
+  const py = -zOrig;
   if (isPresenzano) {
     // Cesima Mountain is on the left (negative x), sloping down steeply to the Volturno Valley on the right (positive x)
-    const slope = (-x + 75) * 0.38;
-    const valleyScale = x > 10 ? Math.max(0, 1 - (x - 10) * 0.035) : 1;
+    const slope = (-xOrig + 75) * 0.38;
+    const valleyScale = xOrig > 10 ? Math.max(0, 1 - (xOrig - 10) * 0.035) : 1;
     
-    const noise1 = Math.sin(x * 0.04 + Math.cos(py * 0.03)) * 7 * valleyScale;
-    const noise2 = Math.cos(py * 0.08) * Math.sin(x * 0.06) * 4 * valleyScale;
-    const noise3 = Math.sin(x * 0.25 + py * 0.15) * 0.6;
+    const noise1 = Math.sin(xOrig * 0.04 + Math.cos(py * 0.03)) * 7 * valleyScale;
+    const noise2 = Math.cos(py * 0.08) * Math.sin(xOrig * 0.06) * 4 * valleyScale;
+    const noise3 = Math.sin(xOrig * 0.25 + py * 0.15) * 0.6;
     
     const h = slope + noise1 + noise2 + noise3;
     // Flatten the Volturno valley for the lower reservoir (x > 25)
-    if (x > 25) {
-      return Math.max(2, h * Math.exp(-(x - 25) * 0.08));
+    if (xOrig > 25) {
+      return Math.max(2, h * Math.exp(-(xOrig - 25) * 0.08)) * 3;
     }
-    return h - 3;
+    return (h - 3) * 3;
   } else {
     // Generic site terrain
-    const slope = (-x + 75) * 0.3;
-    const noise1 = Math.sin(x * 0.05 + Math.cos(py * 0.04)) * 6;
-    const noise2 = Math.cos(py * 0.1) * Math.sin(x * 0.08) * 3;
-    const noise3 = Math.sin(x * 0.3 + py * 0.2) * 0.5;
-    return slope + noise1 + noise2 + noise3 - 5;
+    const slope = (-xOrig + 75) * 0.3;
+    const noise1 = Math.sin(xOrig * 0.05 + Math.cos(py * 0.04)) * 6;
+    const noise2 = Math.cos(py * 0.1) * Math.sin(xOrig * 0.08) * 3;
+    const noise3 = Math.sin(xOrig * 0.3 + py * 0.2) * 0.5;
+    return (slope + noise1 + noise2 + noise3 - 5) * 3;
   }
 };
 
@@ -60,7 +62,7 @@ function RealisticTerrain({ opacity, isPresenzano }: { opacity: number; isPresen
   const mesh = useRef<THREE.Mesh>(null);
 
   const geometry = useMemo(() => {
-    const g = new THREE.PlaneGeometry(150, 150, 120, 120);
+    const g = new THREE.PlaneGeometry(450, 450, 200, 200);
     const pos = g.attributes.position;
     
     for (let i = 0; i < pos.count; i++) {
@@ -101,9 +103,9 @@ function RealisticTerrain({ opacity, isPresenzano }: { opacity: number; isPresen
       if (normalZ < 0.76) {
         c = colorRock.clone();
       } else {
-        if (h < 4) c = colorValley.clone().lerp(colorGrass, h / 4);
-        else if (h < 22) c = colorGrass.clone().lerp(colorRock, (h - 4) / 18);
-        else if (h < 32) c = colorRock.clone().lerp(colorSnow, (h - 22) / 10);
+        if (h < 12) c = colorValley.clone().lerp(colorGrass, h / 12);
+        else if (h < 66) c = colorGrass.clone().lerp(colorRock, (h - 12) / 54);
+        else if (h < 96) c = colorRock.clone().lerp(colorSnow, (h - 66) / 30);
         else c = colorSnow.clone();
       }
 
@@ -551,7 +553,8 @@ function RealisticPowerhouse({ active, onClick, detail, activeUnits, isPlaying, 
 /* ─────────────────────────────────────────────
    Realistic Switchyard (Substation detailed components)
    ───────────────────────────────────────────── */
-function RealisticSwitchyard({ active, detail, showLabels, onClick, isPresenzano }: any) {
+function RealisticSwitchyard({ active, onClick, detail, showLabels, isPresenzano, isPlaying, mode, activeUnits, maxUnits, powerhouseDetail }: any) {
+  const currentMW = powerhouseDetail?.total_capacity_mw ? (powerhouseDetail.total_capacity_mw / maxUnits) * activeUnits : 0;
   const pos: [number, number, number] = [28, 5, -12];
   const transformerCount = isPresenzano ? 4 : 3;
   
@@ -634,6 +637,28 @@ function RealisticSwitchyard({ active, detail, showLabels, onClick, isPresenzano
       <Html position={[0, 5, 0]} center style={{ display: showLabels ? 'block' : 'none' }}>
         <div style={labelStyle(active, '#10b981')}>{isPresenzano ? 'Presenzano Şalt Sahası (380 kV)' : `Şalt Sahası (${detail.voltage_kv} kV)`}</div>
       </Html>
+
+      {isPlaying && activeUnits > 0 && (
+        <Html position={[0, 15, -4.6]} center transform sprite>
+          <div style={{
+            background: '#0e1117',
+            border: mode === 'generate' ? '3px solid #10b981' : '3px solid #ef4444',
+            padding: '12px 24px',
+            borderRadius: '12px',
+            color: '#fff',
+            fontSize: '32px',
+            fontWeight: 'bold',
+            whiteSpace: 'nowrap',
+            boxShadow: '0 8px 16px rgba(0,0,0,0.8)',
+            textAlign: 'center'
+          }}>
+            <div style={{ color: mode === 'generate' ? '#10b981' : '#ef4444', marginBottom: 8, fontSize: '20px' }}>
+              {mode === 'generate' ? '⚡ ÜRETİM (ŞEBEKEYE)' : '🔋 POMPA (ŞEBEKEDEN)'}
+            </div>
+            {currentMW.toFixed(1)} MW
+          </div>
+        </Html>
+      )}
     </group>
   );
 }
@@ -697,31 +722,76 @@ function LatticeTower({ position, scale = 1 }: { position: [number, number, numb
   );
 }
 
-function TransmissionLine({ isPresenzano }: { isPresenzano?: boolean }) {
+function TransmissionLine({ isPresenzano, isPlaying, mode, activeUnits }: any) {
   const poles = useMemo<[number, number, number][]>(() => [
-    [32, getTerrainHeight(32, -18, isPresenzano), -18],
-    [42, getTerrainHeight(42, -25, isPresenzano), -25],
-    [52, getTerrainHeight(52, -32, isPresenzano), -32]
+    [96, getTerrainHeight(96, -54, isPresenzano), -54],
+    [126, getTerrainHeight(126, -75, isPresenzano), -75],
+    [156, getTerrainHeight(156, -96, isPresenzano), -96]
   ], [isPresenzano]);
+
+  const wires = useMemo(() => {
+    const curves = [];
+    for (let i = 0; i < poles.length - 1; i++) {
+      const p1 = new THREE.Vector3(poles[i][0], poles[i][1] + 5.8*0.75, poles[i][2]);
+      const p2 = new THREE.Vector3(poles[i+1][0], poles[i+1][1] + 5.8*0.75, poles[i+1][2]);
+      const mid = new THREE.Vector3().lerpVectors(p1, p2, 0.5);
+      mid.y -= 1.3;
+      curves.push(new THREE.QuadraticBezierCurve3(p1, mid, p2));
+    }
+    return curves;
+  }, [poles]);
+
+  // Particle animation logic
+  const particleCount = 60;
+  const instancedMeshesRef = useRef<THREE.InstancedMesh[]>([]);
+  const dummy = useMemo(() => new THREE.Object3D(), []);
+  const offsets = useMemo(() => Array.from({ length: particleCount }, () => Math.random()), [particleCount]);
+
+  useFrame(({ clock }) => {
+    const isFlowing = isPlaying && activeUnits > 0;
+    instancedMeshesRef.current.forEach(mesh => {
+      if (mesh) mesh.visible = isFlowing;
+    });
+
+    if (!isFlowing) return;
+
+    const speed = (clock.getElapsedTime() * 0.15 * activeUnits);
+
+    wires.forEach((curve, idx) => {
+      const mesh = instancedMeshesRef.current[idx];
+      if (!mesh) return;
+
+      for (let i = 0; i < particleCount; i++) {
+        let param = (offsets[i] + speed) % 1;
+        if (mode === 'pump') param = 1 - param;
+
+        const pt = curve.getPoint(param);
+        
+        // Offset for the 3 conductor lines
+        const lineIdx = i % 3;
+        const xOff = lineIdx === 0 ? -1.25 : lineIdx === 1 ? 1.25 : 0;
+        const yOff = lineIdx === 2 ? 0.8 : 0;
+
+        dummy.position.copy(pt);
+        dummy.position.x += xOff + (Math.random() - 0.5) * 0.1;
+        dummy.position.y += yOff + (Math.random() - 0.5) * 0.1;
+        dummy.position.z += (Math.random() - 0.5) * 0.1;
+
+        dummy.scale.setScalar(0.3);
+        dummy.updateMatrix();
+        mesh.setMatrixAt(i, dummy.matrix);
+      }
+      mesh.instanceMatrix.needsUpdate = true;
+    });
+  });
 
   return (
     <group>
       {poles.map((p, i) => <LatticeTower key={i} position={p} scale={0.75} />)}
       
       {/* Sagging High Voltage Conductors */}
-      {poles.map((p, i) => {
-        if (i === poles.length - 1) return null;
-        const p1 = new THREE.Vector3(p[0], p[1] + 5.8*0.75, p[2]);
-        const p2 = new THREE.Vector3(poles[i+1][0], poles[i+1][1] + 5.8*0.75, poles[i+1][2]);
-        
-        // Sag calculation
-        const mid = new THREE.Vector3().lerpVectors(p1, p2, 0.5);
-        mid.y -= 1.3;
-        
-        const curve = new THREE.QuadraticBezierCurve3(p1, mid, p2);
+      {wires.map((curve, i) => {
         const pts = curve.getPoints(20);
-        
-        // 3 Conductors for 380 kV backbone system
         return (
           <group key={`cables-${i}`}>
             <Line points={pts.map(v => [v.x - 1.25, v.y, v.z]) as any} color="#111" lineWidth={1} />
@@ -730,6 +800,18 @@ function TransmissionLine({ isPresenzano }: { isPresenzano?: boolean }) {
           </group>
         );
       })}
+
+      {/* Power Flow Particles */}
+      {wires.map((_, idx) => (
+        <instancedMesh
+          key={`flow-${idx}`}
+          ref={(el) => (instancedMeshesRef.current[idx] = el as THREE.InstancedMesh)}
+          args={[undefined, undefined, particleCount]}
+        >
+          <sphereGeometry args={[1, 8, 8]} />
+          <meshBasicMaterial color={mode === 'generate' ? '#10b981' : '#ef4444'} transparent opacity={0.8} />
+        </instancedMesh>
+      ))}
     </group>
   );
 }
@@ -737,7 +819,7 @@ function TransmissionLine({ isPresenzano }: { isPresenzano?: boolean }) {
 /* ─────────────────────────────────────────────
    Steel Penstocks with Concrete Anchor Blocks (4 Lines for Presenzano)
    ───────────────────────────────────────────── */
-function RealisticPenstock({ active, onClick, from, to, isPlaying, mode, activeUnits, showLabels, isPresenzano }: any) {
+function RealisticPenstock({ active, onClick, from, to, isPlaying, mode, activeUnits, maxUnits = 2, showLabels, isPresenzano }: any) {
   const linesData = useMemo(() => {
     const pTop = from.clone();
     
@@ -748,8 +830,9 @@ function RealisticPenstock({ active, onClick, from, to, isPlaying, mode, activeU
       : new THREE.Vector3().lerpVectors(from, to, 0.55).setY(from.y - (from.y - to.y) * 0.45 - 2.5);
     const pBot = to.clone();
 
-    // Spacing offsets along Z-axis: 4 parallel pipes for Presenzano, 2 for generic candidates
-    const zOffsets = isPresenzano ? [-2.1, -0.7, 0.7, 2.1] : [-1.1, 1.1];
+    // Spacing offsets along Z-axis dynamically calculated based on maxUnits
+    const spacing = isPresenzano ? 1.4 : 2.2;
+    const zOffsets = Array.from({ length: maxUnits }, (_, i) => (i - (maxUnits - 1) / 2) * spacing);
     
     return zOffsets.map((offsetVal, index) => {
       const offsetVec = new THREE.Vector3(0, 0, offsetVal);
@@ -765,7 +848,7 @@ function RealisticPenstock({ active, onClick, from, to, isPlaying, mode, activeU
         id: index
       };
     });
-  }, [from, to, isPresenzano]);
+  }, [from, to, isPresenzano, maxUnits]);
 
   const anchorPoints = useMemo(() => {
     const pTop = from.clone();
@@ -796,9 +879,8 @@ function RealisticPenstock({ active, onClick, from, to, isPlaying, mode, activeU
       const mesh = instancedMeshesRef.current[pipeIndex];
       if (!mesh) return;
 
-      // In Presenzano, each pipe corresponds to one turbine.
-      // E.g., if activeUnits is 2, only the first 2 pipes will show water flowing!
-      if (isPresenzano && pipeIndex >= activeUnits) {
+      // Each pipe corresponds to one turbine.
+      if (pipeIndex >= activeUnits) {
         mesh.visible = false;
         return;
       }
@@ -837,12 +919,15 @@ function RealisticPenstock({ active, onClick, from, to, isPlaying, mode, activeU
       ))}
 
       {/* Concrete Anchor Blocks */}
-      {anchorPoints.map((pt, i) => (
-        <mesh key={`anchor-${i}`} position={pt} castShadow receiveShadow>
-          <boxGeometry args={[isPresenzano ? 5.4 : 4.2, 1.8, isPresenzano ? 5.4 : 4.2]} />
-          <meshStandardMaterial color="#80848a" roughness={0.85} />
-        </mesh>
-      ))}
+      {anchorPoints.map((pt, i) => {
+        const anchorW = maxUnits * (isPresenzano ? 1.4 : 2.2) + 1.2;
+        return (
+          <mesh key={`anchor-${i}`} position={pt} castShadow receiveShadow>
+            <boxGeometry args={[4.2, 1.8, anchorW]} />
+            <meshStandardMaterial color="#80848a" roughness={0.85} />
+          </mesh>
+        );
+      })}
 
       {/* Fluid Flow Instances */}
       {linesData.map((line) => (
@@ -992,14 +1077,14 @@ function Scene({ siteId, activeComponent, onSelectComponent, layers, mode, compo
   });
 
   // Calculate dynamic heights/positions aligned to terrain height field
-  const upperTerrainY = getTerrainHeight(-30, 5, isPresenzano);
-  const upperPos = useMemo(() => new THREE.Vector3(-30, upperTerrainY, -5), [upperTerrainY]);
+  const upperTerrainY = getTerrainHeight(-90, 15, isPresenzano);
+  const upperPos = useMemo(() => new THREE.Vector3(-90, upperTerrainY, -15), [upperTerrainY]);
   
-  const surgeTankPos = useMemo(() => new THREE.Vector3(-10, getTerrainHeight(-10, 0, isPresenzano), 0), [isPresenzano]);
-  const powerhousePos = useMemo(() => new THREE.Vector3(15, 6, 5), []);
+  const surgeTankPos = useMemo(() => new THREE.Vector3(-30, getTerrainHeight(-30, 0, isPresenzano), 0), [isPresenzano]);
+  const powerhousePos = useMemo(() => new THREE.Vector3(45, 18, 15), []);
   
-  const lowerTerrainY = getTerrainHeight(35, -10, isPresenzano);
-  const lowerPos = useMemo(() => new THREE.Vector3(35, lowerTerrainY, 10), [lowerTerrainY]);
+  const lowerTerrainY = getTerrainHeight(105, -30, isPresenzano);
+  const lowerPos = useMemo(() => new THREE.Vector3(105, lowerTerrainY, 30), [lowerTerrainY]);
 
   // environment assets list
   const environmentAssets = useMemo(() => {
@@ -1011,25 +1096,25 @@ function Scene({ siteId, activeComponent, onSelectComponent, layers, mode, compo
       return x - Math.floor(x);
     };
 
-    for (let i = 0; i < 220; i++) {
-      const rx = -70 + pseudoRandom(count++) * 140;
-      const rz = -70 + pseudoRandom(count++) * 140;
+    for (let i = 0; i < 600; i++) {
+      const rx = -210 + pseudoRandom(count++) * 420;
+      const rz = -210 + pseudoRandom(count++) * 420;
 
       // Distance checks to clear the structures
-      const distToUpper = Math.hypot(rx - (-30), rz - (-5));
-      const distToLower = Math.hypot(rx - 35, rz - 10);
-      const distToPH = Math.hypot(rx - 15, rz - 5);
-      const distToSY = Math.hypot(rx - 28, rz - (-12));
-      const distToST = Math.hypot(rx - (-10), rz - 0);
+      const distToUpper = Math.hypot(rx - (-90), rz - (-15));
+      const distToLower = Math.hypot(rx - 105, rz - 30);
+      const distToPH = Math.hypot(rx - 45, rz - 15);
+      const distToSY = Math.hypot(rx - 84, rz - (-36));
+      const distToST = Math.hypot(rx - (-30), rz - 0);
 
-      if (distToUpper < 18 || distToLower < 13 || distToPH < 10 || distToSY < 10 || distToST < 8) {
+      if (distToUpper < 45 || distToLower < 35 || distToPH < 25 || distToSY < 25 || distToST < 20) {
         continue;
       }
 
       const ry = getTerrainHeight(rx, rz, isPresenzano);
 
       // Grass/rock zone placement
-      if (ry > -1 && ry < 33) {
+      if (ry > -3 && ry < 99) {
         const type = pseudoRandom(count++) > 0.45 ? 'tree' : 'rock';
         const scale = 0.4 + pseudoRandom(count++) * 0.7;
         assets.push({ type, pos: [rx, ry, rz], scale, id: i });
@@ -1108,6 +1193,11 @@ function Scene({ siteId, activeComponent, onSelectComponent, layers, mode, compo
           detail={d.switchyard} 
           showLabels={showLabels} 
           isPresenzano={isPresenzano}
+          isPlaying={isPlaying}
+          mode={mode}
+          activeUnits={activeUnits}
+          maxUnits={maxUnits}
+          powerhouseDetail={d.powerhouse}
         />
       )}
 
@@ -1131,6 +1221,7 @@ function Scene({ siteId, activeComponent, onSelectComponent, layers, mode, compo
           isPlaying={isPlaying} 
           mode={mode} 
           activeUnits={activeUnits} 
+          maxUnits={maxUnits}
           showLabels={showLabels} 
           isPresenzano={isPresenzano}
         />
@@ -1159,9 +1250,9 @@ function Scene({ siteId, activeComponent, onSelectComponent, layers, mode, compo
       )}
 
       {/* Transmission pylons and lines */}
-      {layers.switchyard && <TransmissionLine isPresenzano={isPresenzano} />}
+      {layers.switchyard && <TransmissionLine isPresenzano={isPresenzano} isPlaying={isPlaying} mode={mode} activeUnits={activeUnits} />}
 
-      <OrbitControls makeDefault enableDamping dampingFactor={0.05} maxPolarAngle={Math.PI/2.1} minDistance={15} maxDistance={140} />
+      <OrbitControls makeDefault enableDamping dampingFactor={0.05} maxPolarAngle={Math.PI/2.1} minDistance={30} maxDistance={400} />
     </>
   );
 }
@@ -1169,7 +1260,7 @@ function Scene({ siteId, activeComponent, onSelectComponent, layers, mode, compo
 export default function ThreeDModel(props: ThreeDModelProps) {
   return (
     <div style={{ width: '100%', height: '100%', minHeight: 600, borderRadius: 16, overflow: 'hidden', background: '#0e1117' }}>
-      <Canvas shadows camera={{ position: [50, 40, 60], fov: 45 }}>
+      <Canvas shadows camera={{ position: [150, 120, 180], fov: 45 }}>
         <Scene {...props} />
       </Canvas>
     </div>
