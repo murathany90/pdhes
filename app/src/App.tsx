@@ -3,7 +3,6 @@ import {
   BookOpen,
   Calculator,
   Database,
-  Download,
   MapPinned,
   Moon,
   Mountain,
@@ -45,7 +44,7 @@ const TABS = [
 export default function App() {
   const [activeTab, setActiveTab] = useState('pdhes');
   const [siteEditorMode, setSiteEditorMode] = useState<'new' | 'edit'>('edit');
-  const { sites, selectedId, selectSite, exportSites } = useSiteStore();
+  const { sites, selectedId, selectSite } = useSiteStore();
   const { theme, toggleTheme } = useSettingsStore();
   const { error: dataError } = useAppData();
 
@@ -62,15 +61,7 @@ export default function App() {
 
   const selectedSite = sites.find((s) => s.id === selectedId) || sites[0];
 
-  const exportJson = () => {
-    const blob = new Blob([exportSites()], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'pdhes-potansiyeli-veri.json';
-    a.click();
-    URL.revokeObjectURL(url);
-  };
+
 
   const controls = (
     <>
@@ -79,10 +70,7 @@ export default function App() {
         <MapPinned size={16} aria-hidden="true" />
         Haritada incele
       </button>
-      <button className="btn ghost" onClick={exportJson}>
-        <Download size={16} aria-hidden="true" />
-        Veriyi indir
-      </button>
+
       <button className="btn ghost" onClick={toggleTheme} title="Tema değiştir">
         {theme === 'dark' ? <Sun size={16} aria-hidden="true" /> : <Moon size={16} aria-hidden="true" />}
         {theme === 'dark' ? 'Açık' : 'Koyu'}

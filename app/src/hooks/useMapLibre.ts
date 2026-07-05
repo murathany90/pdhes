@@ -69,24 +69,15 @@ export function useMapLibre({
   const mapStyleRef = useRef(mapStyle);
   const drawRequestRef = useRef(0);
   const onSelectSiteRef = useRef(onSelectSite);
+  const markersRef = useRef<maplibregl.Marker[]>([]);
   const canCreateMap = Boolean(site);
 
   useEffect(() => {
     onSelectSiteRef.current = onSelectSite;
   }, [onSelectSite]);
 
-  const handleCandidateClick = useCallback((event: maplibregl.MapLayerMouseEvent) => {
-    const feature = event.features?.[0];
-    const id = feature?.properties?.id;
-    if (!feature || !id) return;
-    onSelectSiteRef.current?.(id);
-    const map = mapRef.current;
-    if (map) {
-      new maplibregl.Popup()
-        .setLngLat(event.lngLat)
-        .setHTML(`<b>${escapeHtml(feature.properties?.name)}</b><br><span>${escapeHtml(feature.properties?.concept)}</span>`)
-        .addTo(map);
-    }
+  const handleCandidateClick = useCallback(() => {
+    // Legacy click handler (can be kept if needed for fallback, but Markers use native events)
   }, []);
 
   const queueDrawLayers = useCallback(() => {
@@ -118,6 +109,8 @@ export function useMapLibre({
       if (map.getLayer('candidate-circles')) {
         map.off('click', 'candidate-circles', handleCandidateClick);
       }
+      markersRef.current.forEach(m => m.remove());
+      markersRef.current = [];
       removeIfExists(map, oldLayers, oldSources);
 
       if (layers.terrain3d) {
@@ -236,27 +229,34 @@ export function useMapLibre({
         };
         map.addSource('candidates', { type: 'geojson', data: candidates });
         map.addLayer({
-          id: 'candidate-circles',
-          type: 'circle',
-          source: 'candidates',
-          paint: {
-            'circle-radius': ['case', ['==', ['get', 'id'], selectedId], 9, 6],
-            'circle-color': ['get', 'color'],
-            'circle-stroke-width': 2,
-            'circle-stroke-color': '#07110e',
-            'circle-opacity': 0.95,
-          },
-        });
-        map.addLayer({
           id: 'candidate-labels',
           type: 'symbol',
           source: 'candidates',
           layout: { 'text-field': ['get', 'name'], 'text-size': 11, 'text-offset': [0, 1.4], 'text-font': ['Noto Sans Regular'] },
           paint: { 'text-color': '#eafff2', 'text-halo-color': '#04100c', 'text-halo-width': 1.2 },
         });
-        if (interactiveCandidates) {
-          map.on('click', 'candidate-circles', handleCandidateClick);
-        }
+        
+        sites.forEach((candidate) => {
+          const marker = new maplibregl.Marker({ 
+            color: candidate.id === selectedId ? '#ff2a55' : candidate.color,
+            scale: candidate.id === selectedId ? 1.1 : 0.85
+          })
+            .setLngLat([candidate.lon, candidate.lat])
+            .addTo(map);
+
+          if (interactiveCandidates) {
+            marker.getElement().style.cursor = 'pointer';
+            marker.getElement().addEventListener('click', (e) => {
+              e.stopPropagation();
+              onSelectSiteRef.current?.(candidate.id);
+              new maplibregl.Popup({ closeButton: false, offset: 25 })
+                .setLngLat([candidate.lon, candidate.lat])
+                .setHTML(`<b>${escapeHtml(candidate.name)}</b><br><span style="font-size: 12px">${escapeHtml(candidate.conceptLabel)}</span>`)
+                .addTo(map);
+            });
+          }
+          markersRef.current.push(marker);
+        });
       }
     };
     run();
@@ -279,6 +279,8 @@ export function useMapLibre({
     mapStyleRef.current = mapStyle;
     queueDrawLayers();
     return () => {
+      markersRef.current.forEach(m => m.remove());
+      markersRef.current = [];
       if (map.getLayer('candidate-circles')) {
         map.off('click', 'candidate-circles', handleCandidateClick);
       }

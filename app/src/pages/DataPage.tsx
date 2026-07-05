@@ -1,8 +1,6 @@
 import { useState } from 'react';
 import type { Site } from '../types/site';
 import { useSiteStore } from '../stores/useSiteStore';
-import { useWorkspaceStore } from '../stores/useWorkspaceStore';
-import { CONTENT_DEFAULTS } from '../utils/constants';
 import { num, moneyBn, moneyM } from '../utils/format';
 import {
   matchesPdhesType,
@@ -12,7 +10,6 @@ import {
 
 export default function DataPage({ site }: { site?: Site }) {
   const { sites, selectedId, selectSite } = useSiteStore();
-  const getContent = useWorkspaceStore((state) => state.getContent);
   const [typeFilter, setTypeFilter] = useState<PdhesTypeFilter>('ALL');
 
   if (!site) return <div className="panel active"><p className="muted">Veri yükleniyor...</p></div>;
@@ -23,39 +20,7 @@ export default function DataPage({ site }: { site?: Site }) {
 
   return (
     <section className="panel active">
-      <div className="hero">
-        <div className="card">
-          <div className="tag classic">Ön eleme veri seti</div>
-          <h2 className="big-title">{getContent('home.heroTitle', CONTENT_DEFAULTS)}</h2>
-          <p className="muted">{getContent('home.heroSub', CONTENT_DEFAULTS)}</p>
-          <div className="metric-row" style={{ marginTop: 16 }}>
-            <div className="metric good"><span>En hızlı klasik rota</span><b>Gökçekaya</b></div>
-            <div className="metric info"><span>Deniz suyu önceliği</span><b>Taşucu</b></div>
-            <div className="metric warn"><span>Toplam aday</span><b>{filteredSites.length}</b></div>
-            <div className="metric"><span>Yerleşim modeli</span><b>Kavramsal 3D</b></div>
-          </div>
-        </div>
-        <div className="card">
-          <h2>Veri eşleştirme mantığı</h2>
-          <div className="pipeline">
-            {[
-              { n: '1', t: 'Kaynakları oku', d: 'JICA, TEİAŞ, DSİ, yükseklik modeli ve piyasa varsayımları birlikte değerlendirilir.' },
-              { n: '2', t: 'Adayı puanla', d: 'Düşü (head), su yolu, aktif hacim, güç, maliyet, gelir ve risk notları çıkarılır.' },
-              { n: '3', t: 'Haritayla eşleştir', d: 'Üst rezervuar, alt rezervuar/deniz, şebeke bağlantısı, erişim ve risk alanları işaretlenir.' },
-              { n: '4', t: 'Yerleşimi üret', d: 'Rezervuar, cebri boru, yeraltı güç evi, denge bacası ve şalt sahası kavramsal olarak yerleştirilir.' },
-              { n: '5', t: 'İnceleme paneli', d: 'Zaman çizelgesi, yatırım özeti, gelir duyarlılığı ve ön kontrol soruları tek ekranda toplanır.' },
-            ].map((step) => (
-              <div className="step" key={step.n}>
-                <div className="num">{step.n}</div>
-                <b>{step.t}</b>
-                <p>{step.d}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      <div className="grid cols-2" style={{ marginTop: 14 }}>
+      <div className="grid" style={{ gridTemplateColumns: '1fr 1fr', marginTop: 14 }}>
         <div className="card">
           <h2>Aday saha tablosu</h2>
           <p className="muted small">Satıra tıklayarak uygulamanın tüm panellerindeki seçili sahayı değiştirin.</p>
