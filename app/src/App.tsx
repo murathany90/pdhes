@@ -121,12 +121,14 @@ export default function App() {
       }
       tabs={tabsNode}
     >
-      <div style={{ padding: '18px 18px 0 18px', flexShrink: 0 }}>
-        <WarningBanner
-          message="Eğitim ve masaüstü ön inceleme demosudur; yatırım tavsiyesi, fizibilite, mühendislik tasarımı veya resmi kurum görüşü değildir. Harita altlıkları ve arazi verileri 3. taraf servislerden yüklenmektedir."
-          type="warning"
-        />
-      </div>
+      {activeTab === 'calc' && (
+        <div style={{ padding: '18px 18px 0 18px', flexShrink: 0 }}>
+          <WarningBanner
+            message="Eğitim ve masaüstü ön inceleme demosudur; yatırım tavsiyesi, fizibilite, mühendislik tasarımı veya resmi kurum görüşü değildir. Harita altlıkları ve arazi verileri 3. taraf servislerden yüklenmektedir."
+            type="warning"
+          />
+        </div>
+      )}
       {dataError && (
         <div style={{ padding: '18px 18px 0 18px', flexShrink: 0 }}>
           <WarningBanner message={dataError} type="danger" />

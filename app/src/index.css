@@ -134,6 +134,9 @@ html[data-theme="light"] .btn.ghost { background: rgba(240,244,242,.6); }
   border-radius: 999px; padding: 4px 8px; font-size: 11px; color: #bdebd1;
   background: var(--panel3); margin: 2px;
 }
+html[data-theme="light"] .tag {
+  color: #12201c;
+}
 .tag.sea { border-color: rgba(54,214,255,.45); color: #9eeaff; }
 .tag.classic { border-color: rgba(72,244,154,.45); color: #a6ffc9; }
 .tag.risk { border-color: rgba(255,215,90,.35); color: #ffe59b; }
