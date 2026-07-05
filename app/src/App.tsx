@@ -117,6 +117,7 @@ export default function App() {
           title="Türkiye PDHES Potansiyeli — Eğitim ve Ön İnceleme"
           subtitle=""
           controls={controls}
+          onHomeClick={() => setActiveTab('pdhes')}
         />
       }
       tabs={tabsNode}

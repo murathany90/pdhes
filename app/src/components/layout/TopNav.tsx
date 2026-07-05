@@ -4,13 +4,24 @@ interface TopNavProps {
   title: string;
   subtitle?: string;
   controls?: ReactNode;
+  onHomeClick?: () => void;
 }
 
-export default function TopNav({ title, subtitle, controls }: TopNavProps) {
+import { publicAssetUrl } from '../../utils/publicUrl';
+
+export default function TopNav({ title, subtitle, controls, onHomeClick }: TopNavProps) {
   return (
     <header className="topbar">
-      <div className="brand">
-        <div className="logo">PDHES</div>
+      <div 
+        className="brand" 
+        onClick={onHomeClick} 
+        style={{ cursor: onHomeClick ? 'pointer' : 'default' }}
+      >
+        <img 
+          src={publicAssetUrl('apple-touch-icon.png')} 
+          alt="PDHES Logo" 
+          className="logo" 
+        />
         <div>
           <h1>{title}</h1>
           {subtitle && <p>{subtitle}</p>}
