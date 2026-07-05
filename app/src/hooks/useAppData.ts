@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import type { FeatureCollection } from 'geojson';
 import { getLegacyCustomSites, getPersistedSites, useSiteStore } from '../stores/useSiteStore';
 import { publicAssetUrl } from '../utils/publicUrl';
 import { validateSites } from '../utils/siteSchema';
@@ -8,13 +7,6 @@ type FetchLike = (input: RequestInfo | URL, init?: RequestInit) => Promise<Respo
 
 interface LoadedAppData {
   sites: ReturnType<typeof validateSites>['sites'];
-}
-
-function isFeatureCollection(value: unknown): value is FeatureCollection {
-  return typeof value === 'object'
-    && value !== null
-    && (value as FeatureCollection).type === 'FeatureCollection'
-    && Array.isArray((value as FeatureCollection).features);
 }
 
 export async function loadAppData(
@@ -42,7 +34,6 @@ export function useAppData() {
   const [error, setError] = useState<string | null>(null);
   const setSites = useSiteStore((state) => state.setSites);
   const setBaseSites = useSiteStore((state) => state.setBaseSites);
-  const setGridAssets = useSiteStore((state) => state.setGridAssets);
   const setLoading = useSiteStore((state) => state.setLoading);
 
   useEffect(() => {
