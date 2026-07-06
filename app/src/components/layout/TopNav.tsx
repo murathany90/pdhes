@@ -1,32 +1,29 @@
 import type { ReactNode } from 'react';
+import { Link } from 'react-router-dom';
 
 interface TopNavProps {
   title: string;
   subtitle?: string;
   controls?: ReactNode;
-  onHomeClick?: () => void;
+  homeHref?: string;
 }
 
 import { publicAssetUrl } from '../../utils/publicUrl';
 
-export default function TopNav({ title, subtitle, controls, onHomeClick }: TopNavProps) {
+export default function TopNav({ title, subtitle, controls, homeHref = '/pdhes' }: TopNavProps) {
   return (
     <header className="topbar">
-      <div 
-        className="brand" 
-        onClick={onHomeClick} 
-        style={{ cursor: onHomeClick ? 'pointer' : 'default' }}
-      >
+      <Link className="brand" to={homeHref} aria-label="PDHES ana sayfası">
         <img 
           src={publicAssetUrl('apple-touch-icon.png')} 
-          alt="PDHES Logo" 
+          alt=""
           className="logo" 
         />
         <div>
           <h1>{title}</h1>
           {subtitle && <p>{subtitle}</p>}
         </div>
-      </div>
+      </Link>
       <div className="global-controls">
         {controls}
       </div>

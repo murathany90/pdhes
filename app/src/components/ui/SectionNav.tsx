@@ -40,7 +40,7 @@ export default function SectionNav({ sections }: { sections: Section[] }) {
         {sections.map((sec) => (
           <li key={sec.id}>
             <a 
-              href={`#${sec.id}`} 
+              href={`#/pdhes/${sec.id}`}
               className={activeId === sec.id ? 'active' : ''}
               style={{
                 textDecoration: 'none',

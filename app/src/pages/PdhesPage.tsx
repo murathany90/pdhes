@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { CONTENT_DEFAULTS, GLOSSARY, PDHES_TYPE_LABELS, WORLD_EXAMPLES } from '../utils/constants';
 import { useWorkspaceStore } from '../stores/useWorkspaceStore';
 import SectionNav from '../components/ui/SectionNav';
@@ -29,10 +29,10 @@ const FAQ = [
 
 
 interface PdhesPageProps {
-  onNavigate?: (tabId: string) => void;
+  sectionId?: string;
 }
 
-export default function PdhesPage({ }: PdhesPageProps) {
+export default function PdhesPage({ sectionId }: PdhesPageProps) {
   const [query, setQuery] = useState('');
   const getContent = useWorkspaceStore((state) => state.getContent);
   const filteredGlossary = useMemo(() => {
@@ -43,6 +43,14 @@ export default function PdhesPage({ }: PdhesPageProps) {
     );
   }, [query]);
   const content = (key: string) => getContent(key, CONTENT_DEFAULTS);
+
+  useEffect(() => {
+    if (!sectionId) return;
+    const target = document.getElementById(sectionId);
+    if (typeof target?.scrollIntoView === 'function') {
+      target.scrollIntoView({ block: 'start', behavior: 'auto' });
+    }
+  }, [sectionId]);
 
   return (
     <section className="panel active">

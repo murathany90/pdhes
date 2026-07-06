@@ -10,6 +10,7 @@ import {
   ShieldCheck,
   Sun,
 } from 'lucide-react';
+import { Navigate, NavLink, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useSiteStore } from './stores/useSiteStore';
 import { useSettingsStore } from './stores/useSettingsStore';
 import { useAppData } from './hooks/useAppData';
@@ -32,18 +33,33 @@ const SiteEditorPage = lazy(() => import('./pages/SiteEditorPage'));
 const ThreeDEditorPage = lazy(() => import('./pages/ThreeDEditorPage'));
 
 const TABS = [
-  { id: 'pdhes', label: 'PDHES Nedir', Icon: BookOpen },
-  { id: 'data', label: 'Datalar', Icon: Database },
-  { id: 'map', label: 'Harita', Icon: MapPinned },
-  { id: 'threeD', label: '3D Yerleşim', Icon: Mountain },
-  { id: 'calc', label: 'Hesaplamalar', Icon: Calculator },
-  { id: 'workspace', label: 'Yerel Çalışma Alanı', Icon: ShieldCheck },
-  { id: 'settings', label: 'Ayarlar', Icon: Settings },
+  { id: 'pdhes', path: '/pdhes', label: 'PDHES Nedir', Icon: BookOpen },
+  { id: 'data', path: '/data', label: 'Datalar', Icon: Database },
+  { id: 'map', path: '/map', label: 'Harita', Icon: MapPinned },
+  { id: 'threeD', path: '/3d', label: '3D Yerleşim', Icon: Mountain },
+  { id: 'calc', path: '/calc', label: 'Hesaplamalar', Icon: Calculator },
+  { id: 'workspace', path: '/workspace', label: 'Yerel Çalışma Alanı', Icon: ShieldCheck },
 ];
 
+function LegacyRouteRedirect() {
+  const location = useLocation();
+  const legacySection = location.pathname.replace(/^\/+/, '');
+  const target = legacySection.startsWith('sec-')
+    ? `/pdhes/${legacySection}`
+    : '/pdhes';
+
+  return <Navigate to={target} replace />;
+}
+
+function PdhesRoute() {
+  const { sectionId } = useParams();
+  return <PdhesPage sectionId={sectionId} />;
+}
+
 export default function App() {
-  const [activeTab, setActiveTab] = useState('pdhes');
   const [siteEditorMode, setSiteEditorMode] = useState<'new' | 'edit'>('edit');
+  const navigate = useNavigate();
+  const location = useLocation();
   const { sites, selectedId, selectSite } = useSiteStore();
   const { theme, toggleTheme } = useSettingsStore();
   const { error: dataError } = useAppData();
@@ -51,7 +67,6 @@ export default function App() {
   const workspaceEnabled = isLocalWorkspaceEnabled(window.location.search);
   const visibleTabs = TABS.filter((tab) => {
     if (tab.id === 'workspace' && !workspaceEnabled) return false;
-    if (tab.id === 'settings') return false;
     return true;
   });
 
@@ -66,37 +81,39 @@ export default function App() {
   const controls = (
     <>
       <SiteSelector sites={sites} selectedId={selectedId} onChange={selectSite} />
-      <button className="btn primary" onClick={() => { setActiveTab('map'); }}>
+      <NavLink className="btn primary" to="/map">
         <MapPinned size={16} aria-hidden="true" />
         Haritada incele
-      </button>
+      </NavLink>
 
-      <button className="btn ghost" onClick={toggleTheme} title="Tema değiştir">
+      <button className="btn ghost" onClick={toggleTheme} title="Tema değiştir" aria-label="Tema değiştir">
         {theme === 'dark' ? <Sun size={16} aria-hidden="true" /> : <Moon size={16} aria-hidden="true" />}
         {theme === 'dark' ? 'Açık' : 'Koyu'}
       </button>
-      <button className="btn ghost" onClick={() => setActiveTab('settings')} aria-label="Ayarlar" title="Ayarlar">
+      <NavLink className="btn ghost utility-link" to="/settings" aria-label="Ayarlar" title="Ayarlar">
         <Settings size={16} aria-hidden="true" />
-      </button>
+        <span className="utility-label">Ayarlar</span>
+      </NavLink>
     </>
   );
 
   const tabsNode = (
-    <nav className="tabs" aria-label="Ana sekmeler">
-      {visibleTabs.map(({ id, label, Icon }) => (
-        <button
+    <nav className="tabs" aria-label="Ana bölümler">
+      {visibleTabs.map(({ id, path, label, Icon }) => (
+        <NavLink
           key={id}
-          className={`tab-btn ${activeTab === id ? 'active' : ''}`}
-          onClick={() => setActiveTab(id)}
+          to={path}
+          className={({ isActive }) => `tab-btn ${isActive ? 'active' : ''}`}
         >
           <Icon size={16} aria-hidden="true" />
           {label}
-        </button>
+        </NavLink>
       ))}
     </nav>
   );
 
-  const showLocalWarning = ['workspace', 'settings', 'calc', 'siteEditor', 'threeDEditor'].includes(activeTab);
+  const showLocalWarning = ['/workspace', '/settings', '/calc', '/site-editor', '/three-d-editor']
+    .some((path) => location.pathname.startsWith(path));
 
   return (
     <AppShell
@@ -105,12 +122,12 @@ export default function App() {
           title="Türkiye PDHES Potansiyeli — Eğitim ve Ön İnceleme"
           subtitle=""
           controls={controls}
-          onHomeClick={() => setActiveTab('pdhes')}
+          homeHref="/pdhes"
         />
       }
       tabs={tabsNode}
     >
-      {activeTab === 'calc' && (
+      {location.pathname === '/calc' && (
         <div style={{ padding: '18px 18px 0 18px', flexShrink: 0 }}>
           <WarningBanner
             message="Eğitim ve masaüstü ön inceleme demosudur; yatırım tavsiyesi, fizibilite, mühendislik tasarımı veya resmi kurum görüşü değildir. Harita altlıkları ve arazi verileri 3. taraf servislerden yüklenmektedir."
@@ -129,35 +146,59 @@ export default function App() {
         </div>
       )}
       <Suspense fallback={<section className="panel active"><p className="muted">İlgili bölüm yükleniyor...</p></section>}>
-        {activeTab === 'pdhes' && <PdhesPage onNavigate={setActiveTab} />}
-        {activeTab === 'data' && <DataPage site={selectedSite} />}
-        {activeTab === 'map' && <MapPage />}
-        {activeTab === 'threeD' && <ThreeDPage site={selectedSite} />}
-        {activeTab === 'calc' && <CalcPage site={selectedSite} />}
-        {activeTab === 'workspace' && (
-          <WorkspacePage
-            onCreateSite={() => {
-              setSiteEditorMode('new');
-              setActiveTab('siteEditor');
-            }}
-            onEditSite={(id) => {
-              selectSite(id);
-              setSiteEditorMode('edit');
-              setActiveTab('siteEditor');
-            }}
-            onEditLayout={(id) => {
-              selectSite(id);
-              setActiveTab('threeDEditor');
-            }}
+        <Routes>
+          <Route path="/" element={<Navigate to="/pdhes" replace />} />
+          <Route path="/pdhes" element={<PdhesRoute />} />
+          <Route path="/pdhes/:sectionId" element={<PdhesRoute />} />
+          <Route path="/data" element={<DataPage site={selectedSite} />} />
+          <Route path="/map" element={<MapPage />} />
+          <Route path="/3d" element={<ThreeDPage site={selectedSite} />} />
+          <Route path="/calc" element={<CalcPage site={selectedSite} />} />
+          <Route
+            path="/workspace"
+            element={workspaceEnabled ? (
+              <WorkspacePage
+                onCreateSite={() => {
+                  setSiteEditorMode('new');
+                  navigate('/site-editor');
+                }}
+                onEditSite={(id) => {
+                  selectSite(id);
+                  setSiteEditorMode('edit');
+                  navigate('/site-editor');
+                }}
+                onEditLayout={(id) => {
+                  selectSite(id);
+                  navigate('/three-d-editor');
+                }}
+              />
+            ) : (
+              <Navigate to="/settings" replace />
+            )}
           />
-        )}
-        {activeTab === 'settings' && <SettingsPage />}
-        {activeTab === 'siteEditor' && (
-          <SiteEditorPage mode={siteEditorMode} templateSite={selectedSite} onDone={() => setActiveTab('workspace')} />
-        )}
-        {activeTab === 'threeDEditor' && (
-          <ThreeDEditorPage site={selectedSite} onDone={() => setActiveTab('workspace')} />
-        )}
+          <Route path="/settings" element={<SettingsPage />} />
+          <Route
+            path="/site-editor"
+            element={workspaceEnabled ? (
+              <SiteEditorPage
+                mode={siteEditorMode}
+                templateSite={selectedSite}
+                onDone={() => navigate('/workspace')}
+              />
+            ) : (
+              <Navigate to="/settings" replace />
+            )}
+          />
+          <Route
+            path="/three-d-editor"
+            element={workspaceEnabled ? (
+              <ThreeDEditorPage site={selectedSite} onDone={() => navigate('/workspace')} />
+            ) : (
+              <Navigate to="/settings" replace />
+            )}
+          />
+          <Route path="*" element={<LegacyRouteRedirect />} />
+        </Routes>
       </Suspense>
     </AppShell>
   );
