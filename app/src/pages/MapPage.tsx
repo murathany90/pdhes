@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect } from 'react';
-import { MapPin, Mountain, AlertTriangle, Droplets, Zap, Activity, Waypoints, Box, Layers } from 'lucide-react';
+import { MapPin, Mountain, AlertTriangle, Droplets, Zap, Activity, Waypoints, Box, Layers, X } from 'lucide-react';
 import { useMapLibre, type MapLayerVisibility } from '../hooks/useMapLibre';
 import { useSiteStore } from '../stores/useSiteStore';
 import { useSettingsStore } from '../stores/useSettingsStore';
@@ -37,6 +37,7 @@ export default function MapPage() {
   const [leftCollapsed, setLeftCollapsed] = useState(false);
   const [rightCollapsed, setRightCollapsed] = useState(false);
   const [layers, setLayers] = useState<MapLayerVisibility>(DEFAULT_LAYERS);
+  const [isCardOpen, setIsCardOpen] = useState(false);
   const site = sites.find((item) => item.id === selectedId) || sites[0];
 
   useEffect(() => {
@@ -107,8 +108,12 @@ export default function MapPage() {
           <div ref={mapContainer} style={{ position: 'absolute', inset: 0 }} />
           
           {/* 3D / 2D Geçiş ve Kalite Kontrol Kartı */}
+          {isCardOpen ? (
           <div className="map-floating-card">
-            <div className="card-title">Harita Görünümü</div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+              <div className="card-title" style={{ margin: 0 }}>HARİTA GÖRÜNÜMÜ</div>
+              <button type="button" className="btn ghost" onClick={() => setIsCardOpen(false)} style={{ padding: 4, minHeight: 24, height: 24 }} title="Kapat" aria-label="Kapat"><X size={16}/></button>
+            </div>
             
             <div className="card-row">
               <span className="card-label">Mod</span>
@@ -157,6 +162,12 @@ export default function MapPage() {
               </div>
             )}
           </div>
+          ) : (
+            <button type="button" className="btn" onClick={() => setIsCardOpen(true)} title="Harita Görünümü" style={{ position: 'absolute', top: 10, right: 10, zIndex: 10, background: 'var(--panel)', color: 'var(--text)', border: '1px solid var(--line)', borderRadius: '8px', padding: '8px 12px', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.5)' }}>
+              <Layers size={16} />
+              <b style={{ fontSize: 13 }}>Görünüm</b>
+            </button>
+          )}
 
           {leftCollapsed && (
             <button

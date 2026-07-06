@@ -67,7 +67,7 @@ html[data-theme="light"] .logo {
 .brand h1 { font-size: clamp(13px, 4vw, 17px); margin: 0; letter-spacing: .2px; }
 .brand p { margin: 2px 0 0; color: var(--muted); font-size: 12px; }
 .global-controls { display: flex; align-items: center; gap: 6px; flex-wrap: nowrap; justify-content: flex-end; }
-.global-controls .select { max-width: 160px; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; }
+.global-controls .select { max-width: 250px; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; }
 
 /* ── Tabs ── */
 .tabs {
@@ -836,6 +836,10 @@ html[data-theme="light"] .pdhes-rich-shell .source-footer { background: var(--pa
 @media (max-width: 700px) { .pdhes-rich-shell { padding: 14px; } .pdhes-rich-shell .hero-card, .pdhes-rich-shell .info-card { padding:18px; border-radius:22px; } .pdhes-rich-shell .hero-stats, .pdhes-rich-shell .note-grid, .pdhes-rich-shell .note-grid.four, .pdhes-rich-shell .split-box, .pdhes-rich-shell .comparison-mini, .pdhes-rich-shell .check-flow { grid-template-columns:1fr; } .pdhes-rich-shell .fullscreen-btn { position:static; display:block; width:calc(100% - 24px); margin:12px; } }
 
 .section-nav-list a.sub { padding-left: 1.5rem; font-size: 0.85rem; opacity: 0.85; font-weight: 400; }
+
+@media (max-width: 700px) {
+  table td, table th { white-space: nowrap; padding: 10px; }
+}
 
 @media (max-width: 480px) {
   .utility-label { display: none; }
