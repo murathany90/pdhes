@@ -126,7 +126,7 @@ function RealisticTerrain({ opacity, isPresenzano }: { opacity: number; isPresen
 
   return (
     <mesh ref={mesh} geometry={geometry} material={material}
-      rotation={[-Math.PI / 2, 0, 0]} position={[0, -5, 0]}
+      rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]}
       receiveShadow
     />
   );
@@ -135,7 +135,7 @@ function RealisticTerrain({ opacity, isPresenzano }: { opacity: number; isPresen
 /* ─────────────────────────────────────────────
    Realistic Upper Reservoir (Open Basin with Crescent Dam Wall)
    ───────────────────────────────────────────── */
-function RealisticUpperReservoir({ position, active, onClick, detail, waterLevelRef, showLabels, isPresenzano }: any) {
+function RealisticUpperReservoir({ position, active, onClick, detail, waterLevelRef, showLabels, isPresenzano, isPlaying, mode, activeUnits }: any) {
   const damH = logScale(detail.dam_height_m, 20, 3, 8) * 1.2;
   const radius = 22;
   const pos: [number, number, number] = [position.x, position.y - 2, position.z];
@@ -146,8 +146,16 @@ function RealisticUpperReservoir({ position, active, onClick, detail, waterLevel
     if (!waterMesh.current) return;
     const t = clock.getElapsedTime();
     waterMesh.current.position.y = -damH/3 + (damH * 0.6) * waterLevelRef.current + 0.3;
-    const wave = Math.sin(t * 1.3) * 0.015;
+    
+    const isFlowing = isPlaying && activeUnits > 0;
+    const waveSpeed = isFlowing ? 4.0 : 1.3;
+    const waveAmp = isFlowing ? 0.03 : 0.015;
+    const wave = Math.sin(t * waveSpeed) * waveAmp;
     waterMesh.current.scale.set(1 + wave, 1, 1 + wave);
+    
+    if (isFlowing) {
+      waterMesh.current.rotation.z = t * 0.5 * (mode === 'generate' ? -1 : 1);
+    }
   });
 
   return (
@@ -225,7 +233,7 @@ function RealisticUpperReservoir({ position, active, onClick, detail, waterLevel
 /* ─────────────────────────────────────────────
    Realistic Lower Reservoir (Organic Basin & Water)
    ───────────────────────────────────────────── */
-function RealisticLowerReservoir({ position, active, onClick, waterLevelRef, showLabels, isPresenzano }: any) {
+function RealisticLowerReservoir({ position, active, onClick, waterLevelRef, showLabels, isPresenzano, isPlaying, mode, activeUnits }: any) {
   const depth = 6;
   const pos: [number, number, number] = [position.x, position.y - depth * 0.25, position.z];
   const radius = 28;
@@ -238,6 +246,10 @@ function RealisticLowerReservoir({ position, active, onClick, waterLevelRef, sho
     waterMesh.current.position.y = -depth/2 + (depth * 0.8) * (1 - waterLevelRef.current) + 0.15;
     const wave = Math.cos(t * 1.1) * 0.015;
     waterMesh.current.scale.set(1 + wave, 1, 1 + wave);
+    
+    if (isPlaying && activeUnits > 0) {
+      waterMesh.current.rotation.z = t * 0.5 * (mode === 'generate' ? -1 : 1);
+    }
   });
 
   return (
@@ -298,7 +310,7 @@ function RealisticLowerReservoir({ position, active, onClick, waterLevelRef, sho
 /* ─────────────────────────────────────────────
    Sea Water Lower Reservoir (Open Ocean/Sea Plane)
    ───────────────────────────────────────────── */
-function SeaWaterReservoir({ position, active, onClick, waterLevelRef, showLabels }: any) {
+function SeaWaterReservoir({ position, active, onClick, waterLevelRef, showLabels, isPlaying, activeUnits, mode }: any) {
   const pos: [number, number, number] = [position.x, position.y - 4, position.z];
   const waterMesh = useRef<THREE.Mesh>(null);
   
@@ -307,8 +319,15 @@ function SeaWaterReservoir({ position, active, onClick, waterLevelRef, showLabel
     const t = clock.getElapsedTime();
     // Subtle tide and waves
     waterMesh.current.position.y = (waterLevelRef.current - 0.5) * 1.5; 
-    const wave = Math.cos(t * 0.8) * 0.01;
+    const isFlowing = isPlaying && activeUnits > 0;
+    const waveSpeed = isFlowing ? 3.0 : 0.8;
+    const waveAmp = isFlowing ? 0.03 : 0.01;
+    const wave = Math.cos(t * waveSpeed) * waveAmp;
     waterMesh.current.scale.set(1 + wave, 1, 1 + wave);
+    
+    if (isFlowing) {
+      waterMesh.current.rotation.z = t * 0.2 * (mode === 'generate' ? -1 : 1);
+    }
   });
 
   return (
@@ -547,8 +566,8 @@ function RealisticPowerhouse({ active, onClick, detail, activeUnits, isPlaying, 
 /* ─────────────────────────────────────────────
    Realistic Switchyard (Substation detailed components)
    ───────────────────────────────────────────── */
-function RealisticSwitchyard({ active, onClick, detail, showLabels, isPresenzano, isPlaying, mode, activeUnits, maxUnits, powerhouseDetail }: any) {
-  const currentMW = powerhouseDetail?.total_capacity_mw ? (powerhouseDetail.total_capacity_mw / maxUnits) * activeUnits : 0;
+function RealisticSwitchyard({ active, onClick, detail, showLabels, isPresenzano, isPlaying, mode, activeUnits, maxUnits, powerMW }: any) {
+  const currentMW = powerMW ? (powerMW / maxUnits) * activeUnits : 0;
   const pos: [number, number, number] = [75, getTerrainHeight(75, -25, isPresenzano) - 1, -25];
   const transformerCount = isPresenzano ? 4 : 3;
   
@@ -902,7 +921,9 @@ function RealisticPenstock({ active, onClick, from, to, isPlaying, mode, activeU
     metalness: 0.88,
     roughness: 0.28,
     emissive: active ? '#553c00' : '#000',
-    emissiveIntensity: active ? 0.35 : 0
+    emissiveIntensity: active ? 0.35 : 0,
+    transparent: isPlaying,
+    opacity: isPlaying ? 0.4 : 1
   });
 
   return (
@@ -977,13 +998,41 @@ function UndergroundTunnel({ from, to, active, onClick, showLabels }: any) {
 /* ─────────────────────────────────────────────
    Tailrace Channel (Powerhouse outlet to Lower Basin)
    ───────────────────────────────────────────── */
-function TailraceChannel({ from, to, active, onClick, showLabels }: any) {
-  const { channelGeo, waterGeo } = useMemo(() => {
+function TailraceChannel({ from, to, active, onClick, showLabels, isPlaying, mode, activeUnits = 1 }: any) {
+  const { channelGeo, waterGeo, curve } = useMemo(() => {
     const c = new THREE.LineCurve3(from, to);
     const channel = new THREE.TubeGeometry(c, 16, 0.8, 8, false);
     const water = new THREE.TubeGeometry(c, 16, 0.65, 8, false);
-    return { channelGeo: channel, waterGeo: water };
+    return { channelGeo: channel, waterGeo: water, curve: c };
   }, [from, to]);
+
+  const particleCount = 30;
+  const meshRef = useRef<THREE.InstancedMesh>(null);
+  const dummy = useMemo(() => new THREE.Object3D(), []);
+  const offsets = useMemo(() => Array.from({ length: particleCount }, () => Math.random()), [particleCount]);
+
+  useFrame(({ clock }) => {
+    if (!meshRef.current) return;
+    const isFlowing = isPlaying && activeUnits > 0;
+    meshRef.current.visible = isFlowing;
+    if (!isFlowing) return;
+
+    const speed = (clock.getElapsedTime() * 0.12 * activeUnits);
+    for (let i = 0; i < particleCount; i++) {
+      let param = (offsets[i] + speed) % 1;
+      if (mode === 'pump') param = 1 - param;
+
+      const pt = curve.getPoint(param);
+      dummy.position.copy(pt);
+      dummy.position.x += (Math.random() - 0.5) * 0.5;
+      dummy.position.y += (Math.random() - 0.5) * 0.5;
+      dummy.position.z += (Math.random() - 0.5) * 0.5;
+      dummy.scale.setScalar(0.25);
+      dummy.updateMatrix();
+      meshRef.current.setMatrixAt(i, dummy.matrix);
+    }
+    meshRef.current.instanceMatrix.needsUpdate = true;
+  });
 
   return (
     <group onClick={(e) => { e.stopPropagation(); onClick(); }}>
@@ -992,17 +1041,23 @@ function TailraceChannel({ from, to, active, onClick, showLabels }: any) {
           color={active ? '#22d3ee' : '#64748b'} 
           roughness={0.88}
           emissive={active ? '#083344' : '#000'}
+          transparent={isPlaying}
+          opacity={isPlaying ? 0.3 : 1}
         />
       </mesh>
       <mesh geometry={waterGeo}>
         <meshPhysicalMaterial 
           color="#0891b2" 
           transparent 
-          opacity={0.8} 
-          transmission={0.85}
+          opacity={0.6}
           roughness={0.1}
+          transmission={0.8}
         />
       </mesh>
+      <instancedMesh ref={meshRef} args={[undefined, undefined, particleCount]}>
+        <sphereGeometry args={[1, 6, 6]} />
+        <meshBasicMaterial color={mode === 'generate' ? '#06b6d4' : '#10b981'} />
+      </instancedMesh>
       <Html position={[(from.x+to.x)/2 + 4, (from.y+to.y)/2 + 2, (from.z+to.z)/2 - 5]} center style={{ display: showLabels ? 'block' : 'none' }}>
         <div style={labelStyle(active, '#0891b2')}>Kuyruk Suyu</div>
       </Html>
@@ -1305,7 +1360,7 @@ function Scene({ siteId, activeComponent, onSelectComponent, layers, mode, compo
           mode={mode}
           activeUnits={activeUnits}
           maxUnits={maxUnits}
-          powerhouseDetail={d.powerhouse}
+          powerMW={site?.powerMW}
         />
       )}
 

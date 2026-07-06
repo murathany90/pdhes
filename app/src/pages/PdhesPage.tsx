@@ -12,10 +12,11 @@ const TYPE_DESCRIPTIONS: Record<string, string> = {
 };
 
 const HISTORY = [
-  ['1900ler', 'Avrupa dağlık bölgelerinde pompaj fikri ve ilk küçük uygulamalar.'],
-  ['1930lar', 'Büyük rezervuarlar ve gece-gündüz yük farkı için ilk endüstriyel tesisler.'],
-  ['1970-80ler', 'Baz yük santralleri, pik talep yönetimi ve büyük iletim şebekeleriyle hızlı yaygınlaşma.'],
-  ['2020ler', 'Güneş ve rüzgar üretiminin artmasıyla uzun süreli enerji depolama ve şebeke esnekliği odağı.'],
+  ['1900ler', 'Avrupa dağlık bölgelerinde pompaj fikri ve ilk küçük uygulamalar.', 'İlk Adımlar'],
+  ['1930lar', 'Büyük rezervuarlar ve gece-gündüz yük farkı için ilk endüstriyel tesisler.', 'Endüstriyel Ölçek'],
+  ['1970-80ler', 'Baz yük santralleri, pik talep yönetimi ve büyük iletim şebekeleriyle hızlı yaygınlaşma.', 'Nükleer ve Kömür Destekleyici'],
+  ['2011', 'Japonya Uluslararası İşbirliği Ajansı (JICA) tarafından Türkiye Pompaj Depolamalı HES Master Plan Çalışması yayınlandı. 7 potansiyel saha belirlendi.', 'JICA Türkiye Çalışması'],
+  ['2020ler', 'Güneş ve rüzgar üretiminin artmasıyla uzun süreli enerji depolama ve şebeke esnekliği odağı.', 'Yenilenebilir Entegrasyonu'],
 ];
 
 const FAQ = [
@@ -85,11 +86,11 @@ V: aktif hacim
           </div>
 
           <h2 id="sec-tarihce" style={{ marginTop: 32 }}>{content('pdhesWhatIs.historyTitle')}</h2>
-          <div className="grid cols-2" style={{ gap: 16 }}>
-            {HISTORY.map(([title, body]) => (
-              <div className="step" key={title}>
-                <div className="num">{title.slice(0, 2)}</div>
-                <b>{title}</b>
+          <div className="timeline">
+            {HISTORY.map(([title, body, header]) => (
+              <div className="tl" key={title}>
+                <time>{title}</time>
+                {header && <b style={{ display: 'block', marginTop: 3 }}>{header}</b>}
                 <p>{body}</p>
               </div>
             ))}

@@ -53,10 +53,10 @@ Sistemin ilk karşılama modülüdür.
 
 ### 3.4. 3D Kavramsal Yerleşim (ThreeDPage)
 Projenin en teknik ve görsel bölümlerinden biridir:
-- **Prosedürel Arazi (Terrain):** Seçilen sahanın özelliklerine göre orman, kayalık, vadi ve tepe topolojisini React Three Fiber ile eş zamanlı çizer. Arazinin şeffaflığı değiştirilerek yeraltı yapılarının (güç evi, tüneller) görülmesi sağlanır.
-- **Rezervuar Dinamikleri:** Üst ve alt rezervuarlar 3D ortamda gerçekçi su efektleri (MeshPhysicalMaterial) ile dalgalanma efekti verir. Arazinin tepesinde veya vadisinde topoğrafyayı delerek kendini gösteren (clipping fix) güçlü görünümlü baraj gövdeleri (embankment / concrete arch dam) tasarlanmıştır.
-- **Güç Evi ve Tüneller (Powerhouse & Penstock):** Dağın içine kazılmış devasa bir kavern (cavern) ve içinde dönen francis pompa-türbin jeneratör üniteleri detaylandırılmıştır.
-- **Üretim / Pompalama Simülasyonu:** Kullanıcı mod değiştirdiğinde, türbinlerin dönüş yönü değişir ve cebri borulardaki su akış parçacıkları (particle animation) üretimi (aşağı doğru) veya pompalamayı (yukarı doğru) simüle eder.
+- **Prosedürel Arazi (Terrain):** Seçilen sahanın özelliklerine göre orman, kayalık, vadi ve tepe topolojisini React Three Fiber ile eş zamanlı çizer. Arazinin şeffaflığı değiştirilerek yeraltı yapılarının (güç evi, tüneller) görülmesi sağlanır. Arazideki yapılar (şalt, güç evi vs.) düşü ve boru uzunluğuna göre gerçek arazi kotlarına (getTerrainHeight) otomatik hizalanır.
+- **Rezervuar Dinamikleri:** Üst ve alt rezervuarlar 3D ortamda gerçekçi su efektleri (MeshPhysicalMaterial) ile dalgalanma efekti verir. Santral çalışırken (üretim/pompa modlarında) su yüzeylerinde dönme (vortex) ve debi dalgalanmaları canlandırılır. Deniz suyu projeleri için açık deniz kıyı yapıları oluşturulur.
+- **Güç Evi ve Tüneller (Powerhouse & Penstock):** Dağın içine kazılmış devasa bir kavern (cavern) ve içinde dönen francis pompa-türbin jeneratör üniteleri detaylandırılmıştır. Cebri borularda ve yeraltı kuyruk suyu tünelinde su akış hızını gösteren dinamik akış animasyonları (particle flow) mevcuttur.
+- **Üretim / Pompalama Simülasyonu:** Kullanıcı mod değiştirdiğinde, türbinlerin dönüş yönü değişir ve borulardaki su akış parçacıkları üretimi (aşağı doğru) veya pompalamayı (yukarı doğru) simüle eder. Şalt sahasındaki anlık MW gücü, aktif ünite sayısına göre otomatik hesaplanarak 3D ekran üzerinde dinamik olarak gösterilir.
 - Aktif ünite sayısı canlı olarak artırılıp azaltılabilir.
 
 ### 3.5. Ekonomi ve Enerji Hesaplamaları (Calculations)
