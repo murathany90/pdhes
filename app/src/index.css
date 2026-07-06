@@ -443,15 +443,35 @@ html[data-theme="light"] .kbd { color: #0f1c18; }
   width: 100%; margin-bottom: 16px;
 }
 .world-example-card {
-  border: 1px solid var(--line); border-radius: 14px; padding: 16px;
-  background: var(--panel3); transition: all .15s ease;
+  border: 1px solid var(--line); border-radius: 14px; padding: 18px;
+  background: var(--panel3); transition: all .2s ease;
   display: flex; flex-direction: column;
 }
-.world-example-card:hover { border-color: rgba(57,213,255,.55); transform: translateY(-2px); }
-.world-example-card h3 { margin: 0 0 6px; color: var(--green); font-size: 16px; }
-.world-example-card .specs { display: flex; gap: 12px; flex-wrap: wrap; margin: 8px 0; }
-.world-example-card .specs span { font-size: 12px; color: var(--muted); background: var(--panel2); padding: 4px 8px; border-radius: 6px; }
+.world-example-card:hover { border-color: rgba(57,213,255,.6); transform: translateY(-3px); box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
+.world-example-card .we-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+.world-example-card h3 { margin: 0; color: var(--blue); font-size: 16px; display: flex; align-items: center; gap: 8px; }
+.world-example-card .we-flag { font-size: 18px; }
+.world-example-card .we-status { font-size: 11px; padding: 2px 6px; border-radius: 4px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.world-example-card .we-status-operational { background: rgba(54, 214, 255, 0.15); color: #36d6ff; }
+.world-example-card .we-status-construction { background: rgba(255, 215, 90, 0.15); color: #ffd75a; }
+.world-example-card .we-status-planned { background: rgba(170, 170, 170, 0.15); color: #aaaaaa; }
+.world-example-card .specs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+.world-example-card .specs span { font-size: 12px; color: var(--muted); background: var(--panel2); padding: 4px 8px; border-radius: 6px; display: inline-flex; align-items: baseline; gap: 4px; }
 .world-example-card .specs b { color: var(--text); }
+.world-example-card .we-desc { font-size: 14px; color: var(--text); margin: 0 0 12px 0; line-height: 1.5; }
+.world-example-card .we-details { background: var(--panel1); padding: 12px; border-radius: 8px; margin-bottom: 12px; border: 1px solid var(--line); }
+.world-example-card .we-details p { margin: 0 0 8px 0; font-size: 13px; color: var(--soft); line-height: 1.5; }
+.world-example-card .we-details p:last-child { margin-bottom: 0; }
+.world-example-card .we-details b { color: var(--text); }
+.world-example-card .we-correction { display: flex; gap: 8px; align-items: flex-start; padding: 10px; background: rgba(255, 119, 51, 0.1); border: 1px solid rgba(255, 119, 51, 0.3); border-radius: 8px; margin-bottom: 16px; color: #ff944d; font-size: 12px; line-height: 1.4; }
+.world-example-card .we-correction svg { flex-shrink: 0; margin-top: 1px; }
+.world-example-card .we-actions { display: flex; gap: 8px; margin-top: auto; }
+.world-example-card .we-actions .btn { justify-content: center; padding: 8px 12px; height: auto; }
+
+/* ── World Examples Map Markers & Popups ── */
+.we-marker { transition: transform 0.2s; }
+.we-marker:hover { transform: scale(1.2); }
+.maplibregl-popup-content .we-popup-content { font-family: var(--font-sans); }
 
 .grid.auto-fit { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
 

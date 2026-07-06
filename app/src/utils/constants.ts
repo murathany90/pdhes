@@ -1,4 +1,8 @@
-import type { ComponentDef, WorldExample } from '../types/site';
+import type { ComponentDef } from '../types/site';
+
+// WorldExample data is now in data/worldExamples.ts
+export { WORLD_EXAMPLES } from '../data/worldExamples';
+export type { WorldExample } from '../data/worldExamples';
 
 export const COMPONENTS: ComponentDef[] = [
   { key: 'upper_reservoir', label: 'Üst Rezervuar', color: '#4aa3ff', description: 'Pompalama ile doldurulan ve üretim sırasında suyu aşağı veren yüksek kotlu rezervuar.' },
@@ -11,41 +15,6 @@ export const COMPONENTS: ComponentDef[] = [
   { key: 'switchyard', label: 'Şalt Sahası (Switchyard)', color: '#48f49a', description: 'Üretilen enerjinin iletim şebekesine bağlanması için trafo ve koruma ekipmanlarının bulunduğu alan.' },
   { key: 'transmission', label: 'İletim Hattı (Grid Connection)', color: '#aaaaaa', description: 'Elektriği şalt sahasından ulusal şebekeye yüksek gerilimle taşıyan hat.' },
   { key: 'portal', label: 'Tünel Portalı', color: '#ff944d', description: 'Tünel giriş/çıkışını koruyan ve servis ulaşımı sağlayan yapı.' },
-];
-
-export const WORLD_EXAMPLES: WorldExample[] = [
-  { name: 'Okinawa Yanbaru', country: 'Japonya', mw: 30, head: 136, type: 'sea', year: 1999, description: 'Deniz suyunu alt rezervuar olarak kullanan öncü pilot tesis. Korozyon, kaplama ve ekolojik izleme açısından önemli dersler içerir.' },
-  { name: 'Bath County', country: 'ABD', mw: 3003, head: 380, type: 'classic', year: 1985, description: 'Çok büyük ölçekli pompaj depolamanın klasik örneği; pik yük ve şebeke güvenilirliği için çalışır.' },
-  { name: 'Fengning', country: 'Çin', mw: 3600, head: 425, type: 'classic', year: 2023, description: 'Dünyanın en büyük PDHES tesislerinden biri; büyük rüzgar ve güneş entegrasyonu için kullanılır.' },
-  { name: 'Kannagawa', country: 'Japonya', mw: 2820, head: 653, type: 'classic', year: 2005, description: 'Yüksek düşülü (head) tasarımı ve değişken hızlı pompa-türbin teknolojisiyle öne çıkar.' },
-  { name: 'Huizhou', country: 'Çin', mw: 2448, head: 531, type: 'classic', year: 2011, description: 'Güney Çin şebekesinde günlük talep değişimlerini dengelemek için işletilir.' },
-  { name: 'Guangzhou', country: 'Çin', mw: 2400, head: 535, type: 'classic', year: 2000, description: 'Büyük kent yük merkezine yakın konumuyla hızlı dengeleme ve pik talep yönetimi sağlar.' },
-  { name: 'Okutataragi', country: 'Japonya', mw: 1932, head: 387, type: 'classic', year: 1974, description: 'Japonya’nın büyük ölçekli pompaj depolama filosunun erken örneklerindendir.' },
-  { name: 'Grand Maison', country: 'Fransa', mw: 1800, head: 920, type: 'classic', year: 1987, description: 'Alp coğrafyasında çok yüksek düşüyle çalışan güçlü bir Avrupa örneğidir.' },
-  { name: 'Dinorwig', country: 'Birleşik Krallık', mw: 1728, head: 542, type: 'classic', year: 1984, description: 'Yeraltı güç eviyle kısa sürede devreye girebilen hızlı yanıtlı bir tesistir.' },
-  { name: 'Vianden', country: 'Lüksemburg', mw: 1296, head: 280, type: 'classic', year: 1964, description: 'Sınır ötesi enterkonneksiyonla çalışan, Avrupa’nın uzun ömürlü PDHES tesislerinden biridir.' },
-  { name: 'Coo-Trois-Ponts', country: 'Belçika', mw: 1164, head: 230, type: 'classic', year: 1972, description: 'Belçika şebekesinde pik yük ve sistem kararlılığı için kullanılan ana tesistir.' },
-  { name: 'Goldisthal', country: 'Almanya', mw: 1060, head: 302, type: 'classic', year: 2003, description: 'Almanya’nın yenilenebilir enerji artışına eşlik eden önemli depolama tesisidir.' },
-  { name: 'Linthal 2015', country: 'İsviçre', mw: 1000, head: 630, type: 'classic', year: 2016, description: 'Mevcut hidro sistemin pompaj depolamayla genişletilmesine iyi bir örnektir.' },
-  { name: 'Drakensberg', country: 'Güney Afrika', mw: 1000, head: 470, type: 'classic', year: 1981, description: 'Su aktarımı ve enerji depolama işlevlerini birlikte taşıyan çok amaçlı bir projedir.' },
-  { name: 'Nant de Drance', country: 'İsviçre', mw: 900, head: 250, type: 'classic', year: 2022, description: 'Yeni nesil yeraltı güç evi ve esnek işletme yaklaşımıyla Avrupa’da dikkat çeker.' },
-  { name: 'Snowy 2.0', country: 'Avustralya', mw: 2000, head: 680, type: 'classic', year: 2028, description: 'Uzun süreli depolama ve yenilenebilir üretim entegrasyonu için geliştirilen büyük projedir.' },
-  { name: 'Raccoon Mountain', country: 'ABD', mw: 1652, head: 300, type: 'classic', year: 1978, description: 'Tennessee Valley Authority sisteminde pik talep ve acil durum desteği sağlar.' },
-  { name: 'Ludington', country: 'ABD', mw: 1872, head: 110, type: 'classic', year: 1973, description: 'Geniş alt rezervuar kullanımı ve modernizasyonuyla dikkat çeken kıyı gölü örneğidir.' },
-  { name: 'Helms', country: 'ABD', mw: 1212, head: 500, type: 'classic', year: 1984, description: 'Kaliforniya şebekesinde yüksek esneklik ve pik yük desteği sunar.' },
-  { name: 'Blenheim-Gilboa', country: 'ABD', mw: 1160, head: 335, type: 'classic', year: 1973, description: 'New York eyaletinde uzun süredir işletilen kapalı çevrim ağırlıklı bir tesistir.' },
-  { name: 'Turlough Hill', country: 'İrlanda', mw: 292, head: 286, type: 'classic', year: 1974, description: 'İrlanda’nın klasik pompaj depolama tesisi; ada şebekesi esnekliği için değerlidir.' },
-  { name: 'Ffestiniog', country: 'Birleşik Krallık', mw: 360, head: 320, type: 'classic', year: 1963, description: 'Avrupa’da modern pompaj depolama döneminin erken örneklerinden biridir.' },
-  { name: 'Cruachan', country: 'Birleşik Krallık', mw: 440, head: 365, type: 'classic', year: 1965, description: 'Dağ içine yerleştirilen güç eviyle hızlı devreye girme kabiliyeti sunar.' },
-  { name: 'Siah Bishe', country: 'İran', mw: 1040, head: 520, type: 'classic', year: 2015, description: 'Bölgesel şebeke dengelemesi için Orta Doğu’daki önemli örneklerden biridir.' },
-  { name: 'Tianhuangping', country: 'Çin', mw: 1836, head: 600, type: 'classic', year: 2001, description: 'Doğu Çin yük merkezlerine yakın yüksek düşülü büyük tesistir.' },
-  { name: 'Hohhot', country: 'Çin', mw: 1200, head: 521, type: 'classic', year: 2014, description: 'Rüzgar üretiminin yoğun olduğu bölgelerde sistem esnekliğini artırır.' },
-  { name: 'Shintoyone', country: 'Japonya', mw: 1125, head: 203, type: 'classic', year: 1972, description: 'Mevcut hidro sistemlerle bütünleşik işletme yaklaşımı açısından öğreticidir.' },
-  { name: 'Kazunogawa', country: 'Japonya', mw: 1600, head: 714, type: 'classic', year: 1999, description: 'Çok yüksek düşülü tasarımıyla yeraltı yapı ve basınç yönetimi açısından önemlidir.' },
-  { name: 'Kopswerk II', country: 'Avusturya', mw: 450, head: 818, type: 'classic', year: 2008, description: 'Alp coğrafyasında yüksek düşü ve esnek işletme sağlayan modern bir tesistir.' },
-  { name: 'Limberg II', country: 'Avusturya', mw: 480, head: 365, type: 'classic', year: 2011, description: 'Mevcut hidro havzada yeraltı güç eviyle kapasite artırımı örneğidir.' },
-  { name: 'La Muela II', country: 'İspanya', mw: 852, head: 500, type: 'classic', year: 2013, description: 'Rüzgar ve güneş entegrasyonu yüksek bir sistemde büyük depolama desteği sağlar.' },
-  { name: 'Sima', country: 'Norveç', mw: 1120, head: 905, type: 'classic', year: 1980, description: 'Norveç hidro sistemindeki yüksek düşülü yeraltı güç evi örneklerindendir.' },
 ];
 
 export const CONTENT_DEFAULTS: Record<string, unknown> = {

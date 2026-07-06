@@ -5,6 +5,7 @@ import type { Site } from '../types/site';
 import { escapeHtml } from '../utils/format';
 import { buildLayout } from '../utils/layout';
 import { getMapStyleSpecification, type MapStyleKind } from '../utils/mapProviders';
+import { WORLD_EXAMPLES } from '../data/worldExamples';
 
 export interface MapLayerVisibility {
   candidates: boolean;
@@ -111,6 +112,10 @@ export function useMapLibre({
       }
       markersRef.current.forEach(m => m.remove());
       markersRef.current = [];
+      
+      // Also cleanup world example markers if we are storing them in the same array or another ref
+      // Actually we'll just store them all in markersRef
+      
       removeIfExists(map, oldLayers, oldSources);
 
       if (layers.terrain3d) {
@@ -258,6 +263,52 @@ export function useMapLibre({
           markersRef.current.push(marker);
         });
       }
+
+      // Add World Examples
+      WORLD_EXAMPLES.forEach((example) => {
+        // Create a custom DOM element for the marker to give it a blue theme
+        const el = document.createElement('div');
+        el.className = 'we-marker';
+        el.style.backgroundColor = '#00a8ff';
+        el.style.width = '14px';
+        el.style.height = '14px';
+        el.style.borderRadius = '50%';
+        el.style.border = '2px solid #fff';
+        el.style.boxShadow = '0 0 4px rgba(0,0,0,0.5)';
+        el.style.cursor = 'pointer';
+
+        const marker = new maplibregl.Marker({ element: el })
+          .setLngLat([example.lon, example.lat])
+          .addTo(map);
+
+        const popupHtml = `
+          <div class="we-popup-content">
+            <div style="font-weight:bold;font-size:14px;margin-bottom:4px;color:var(--text);">${example.flag} ${escapeHtml(example.name)}</div>
+            <div style="font-size:12px;color:var(--muted);margin-bottom:8px;">${escapeHtml(example.country)} &middot; ${example.status === 'operational' ? 'İşletmede' : 'İşletmede değil'}</div>
+            <div style="font-size:13px;border-top:1px solid var(--line);padding-top:6px;margin-bottom:6px;">
+              <div><b>Kurulu güç:</b> ${example.capacityMw.toLocaleString('tr-TR')} MW</div>
+              ${example.headM ? `<div><b>Düşü:</b> ${example.headM} m</div>` : ''}
+              ${example.storageMwh ? `<div><b>Depolama:</b> ${example.storageMwh.toLocaleString('tr-TR')} MWh</div>` : ''}
+              ${example.commissioningYear ? `<div><b>Yıl:</b> ${example.commissioningYear}</div>` : ''}
+            </div>
+            ${example.wikiNote ? `<div style="font-size:12px;color:var(--soft);margin-bottom:6px;"><b>Not:</b> ${escapeHtml(example.wikiNote)}</div>` : ''}
+            <a href="${example.wikiUrl}" target="_blank" rel="noopener noreferrer" style="display:inline-block;font-size:12px;color:var(--blue);text-decoration:none;margin-top:4px;">Wikipedia &nearr;</a>
+          </div>
+        `;
+
+        const popup = new maplibregl.Popup({ offset: 15, maxWidth: '260px' })
+          .setLngLat([example.lon, example.lat])
+          .setHTML(popupHtml);
+        
+        marker.setPopup(popup);
+        
+        // Storing popup in the element so we can access it programmatically later if needed
+        (el as any)._popup = popup;
+        el.id = `we-marker-${example.id}`;
+
+        markersRef.current.push(marker);
+      });
+
     };
     run();
   }, [gridAssets, handleCandidateClick, heightScale, interactiveCandidates, layers, selectedId, site, sites]);

@@ -11,6 +11,7 @@ interface SiteStore {
   baseSites: Site[];
   gridAssets: FeatureCollection | null;
   selectedId: string;
+  worldExampleFocusId: string | null;
   loading: boolean;
   selectSite: (id: string) => void;
   setSites: (sites: Site[]) => void;
@@ -24,6 +25,8 @@ interface SiteStore {
   resetSites: () => void;
   exportSites: () => string;
   selectedSite: () => Site | undefined;
+  setWorldExampleFocus: (id: string) => void;
+  clearWorldExampleFocus: () => void;
   fetchGridAssets: () => Promise<void>;
 }
 
@@ -59,6 +62,7 @@ export const useSiteStore = create<SiteStore>((set, get) => ({
   baseSites: [],
   gridAssets: null,
   selectedId: 'gokcekaya',
+  worldExampleFocusId: null,
   loading: true,
   selectSite: (id) => set({ selectedId: id }),
   setSites: (sites) => set((state) => ({ sites, selectedId: ensureSelected(sites, state.selectedId) })),
@@ -103,6 +107,8 @@ export const useSiteStore = create<SiteStore>((set, get) => ({
     const state = get();
     return state.sites.find((s) => s.id === state.selectedId) || state.sites[0];
   },
+  setWorldExampleFocus: (id) => set({ worldExampleFocusId: id }),
+  clearWorldExampleFocus: () => set({ worldExampleFocusId: null }),
   fetchGridAssets: async () => {
     if (get().gridAssets) return;
     try {

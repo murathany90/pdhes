@@ -180,12 +180,5 @@ export interface ComponentDef {
   description?: string;
 }
 
-export interface WorldExample {
-  name: string;
-  country: string;
-  mw: number;
-  head: number;
-  type: string;
-  year?: number;
-  description?: string;
-}
+// WorldExample type is now defined in data/worldExamples.ts
+export type { WorldExample } from '../data/worldExamples';

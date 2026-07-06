@@ -1,6 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { MapPin, ExternalLink, AlertTriangle } from 'lucide-react';
 import { CONTENT_DEFAULTS, GLOSSARY, PDHES_TYPE_LABELS, WORLD_EXAMPLES } from '../utils/constants';
+import { STATUS_LABELS } from '../data/worldExamples';
 import { useWorkspaceStore } from '../stores/useWorkspaceStore';
+import { useSiteStore } from '../stores/useSiteStore';
 import SectionNav from '../components/ui/SectionNav';
 import InfoAccordion from '../components/ui/InfoAccordion';
 import FullscreenImageModal from '../components/ui/FullscreenImageModal';
@@ -25,8 +29,11 @@ interface PdhesPageProps {
 }
 
 export default function PdhesPage({ sectionId }: PdhesPageProps) {
-  const [query, setQuery] = useState('');
   const getContent = useWorkspaceStore((state) => state.getContent);
+  const setWorldExampleFocus = useSiteStore((state) => state.setWorldExampleFocus);
+  const navigate = useNavigate();
+
+  const [query, setQuery] = useState('');
   const [modalImage, setModalImage] = useState<{ src: string; title: string } | null>(null);
 
   const openModal = (src: string, title: string) => {
@@ -152,15 +159,61 @@ V: aktif hacim
           <h2 id="sec-ornekler" style={{ marginTop: 32 }}>Dünya Örnekleri</h2>
           <div className="grid auto-fit">
             {WORLD_EXAMPLES.map((example) => (
-              <div className="world-example-card" key={`${example.country}-${example.name}`}>
-                <h3>{example.name}</h3>
+              <div className="world-example-card" key={example.id}>
+                <div className="we-header">
+                  <h3>
+                    <span className="we-flag" aria-hidden="true">{example.flag}</span>
+                    {example.name}
+                  </h3>
+                  <span className={`we-status we-status-${example.status}`}>
+                    {STATUS_LABELS[example.status]}
+                  </span>
+                </div>
                 <div className="specs">
                   <span><b>{example.country}</b></span>
-                  <span><b>{example.mw.toLocaleString('tr-TR')} MW</b></span>
-                  <span><b>{example.head} m</b> düşü</span>
-                  {example.year && <span>{example.year}</span>}
+                  <span><b style={{ fontSize: '14px' }}>{example.capacityMw.toLocaleString('tr-TR')} MW</b></span>
+                  {example.headM && <span><b>{example.headM} m</b> düşü</span>}
+                  {example.storageMwh && <span><b>{example.storageMwh.toLocaleString('tr-TR')} MWh</b> depolama</span>}
+                  {example.commissioningYear && <span>{example.commissioningYear}</span>}
                 </div>
-                <p style={{ margin: '8px 0 0 0', fontSize: 13 }}>{example.description}</p>
+                
+                <p className="we-desc">{example.shortDescription}</p>
+                
+                <div className="we-details">
+                  {example.wikiNote && <p className="we-note"><b>Not:</b> {example.wikiNote}</p>}
+                  <p className="we-analysis"><b>Analiz:</b> {example.analysis}</p>
+                  {example.turkeyLesson && <p className="we-lesson"><b>Türkiye Çıkarımı:</b> {example.turkeyLesson}</p>}
+                </div>
+                
+                {example.correctionNote && (
+                  <div className="we-correction">
+                    <AlertTriangle size={14} />
+                    <span>{example.correctionNote}</span>
+                  </div>
+                )}
+                
+                <div className="we-actions">
+                  <button 
+                    type="button" 
+                    className="btn primary flex-1"
+                    onClick={() => {
+                      setWorldExampleFocus(example.id);
+                      navigate('/map');
+                    }}
+                  >
+                    <MapPin size={14} />
+                    Konum
+                  </button>
+                  <a 
+                    href={example.wikiUrl} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="btn ghost flex-1"
+                  >
+                    <ExternalLink size={14} />
+                    Wiki
+                  </a>
+                </div>
               </div>
             ))}
           </div>

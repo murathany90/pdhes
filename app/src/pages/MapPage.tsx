@@ -4,6 +4,7 @@ import { useMapLibre, type MapLayerVisibility } from '../hooks/useMapLibre';
 import { useSiteStore } from '../stores/useSiteStore';
 import { useSettingsStore } from '../stores/useSettingsStore';
 import { COMPONENTS } from '../utils/constants';
+import { WORLD_EXAMPLES } from '../data/worldExamples';
 import { num, moneyBn, moneyM } from '../utils/format';
 
 const DEFAULT_LAYERS: MapLayerVisibility = {
@@ -32,7 +33,7 @@ const LAYER_LABELS: Array<{ key: keyof MapLayerVisibility; label: string; Icon: 
 
 export default function MapPage() {
   const mapContainer = useRef<HTMLDivElement>(null);
-  const { sites, selectedId, selectSite, gridAssets, fetchGridAssets } = useSiteStore();
+  const { sites, selectedId, selectSite, gridAssets, fetchGridAssets, worldExampleFocusId, clearWorldExampleFocus } = useSiteStore();
   const { mapStyle, heightScale, setHeightScale } = useSettingsStore();
   const [leftCollapsed, setLeftCollapsed] = useState(false);
   const [rightCollapsed, setRightCollapsed] = useState(false);
@@ -44,7 +45,7 @@ export default function MapPage() {
     fetchGridAssets();
   }, [fetchGridAssets]);
 
-  useMapLibre({
+  const { mapRef } = useMapLibre({
     containerRef: mapContainer,
     site,
     sites,
@@ -55,6 +56,33 @@ export default function MapPage() {
     layers,
     onSelectSite: selectSite,
   });
+
+  useEffect(() => {
+    if (worldExampleFocusId && mapRef.current) {
+      const example = WORLD_EXAMPLES.find((e) => e.id === worldExampleFocusId);
+      if (example) {
+        mapRef.current.flyTo({
+          center: [example.lon, example.lat],
+          zoom: 8,
+          pitch: 0,
+          bearing: 0,
+          duration: 1500,
+        });
+        
+        // Wait for flyTo to start and then trigger the click event on the marker to open the popup
+        setTimeout(() => {
+          const markerEl = document.getElementById(`we-marker-${example.id}`);
+          if (markerEl && (markerEl as any)._popup) {
+            const popup = (markerEl as any)._popup;
+            if (!popup.isOpen()) {
+              popup.addTo(mapRef.current);
+            }
+          }
+        }, 300);
+      }
+      clearWorldExampleFocus();
+    }
+  }, [worldExampleFocusId, mapRef, clearWorldExampleFocus]);
 
   if (!site) return <section className="panel active"><p className="muted">Veri yükleniyor...</p></section>;
 
