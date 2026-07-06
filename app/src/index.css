@@ -525,7 +525,7 @@ html[data-theme="light"] .kbd { color: #0f1c18; }
   .topbar {
     padding: 12px;
   }
-  .brand, .global-controls, .card, .grid, .hero, .settings-layout, .calc-layout, .map-layout {
+  .brand, .global-controls, .card, .grid, .hero, .settings-layout, .calc-layout, .map-layout, .encyclopedia-layout > * {
     min-width: 0;
   }
   .brand {
@@ -561,7 +561,7 @@ html[data-theme="light"] .kbd { color: #0f1c18; }
     overflow-x: auto;
   }
   table {
-    min-width: 680px;
+    min-width: 100%;
   }
   .map-layout { grid-template-columns: 1fr; height: auto; }
   .map-stage { height: 560px; }
