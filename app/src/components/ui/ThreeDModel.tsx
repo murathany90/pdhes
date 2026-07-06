@@ -167,9 +167,9 @@ function ForestRock({ position, scale = 1 }: { position: [number, number, number
    Realistic Upper Reservoir (Arch/Embankment Dam)
    ───────────────────────────────────────────── */
 function RealisticUpperReservoir({ position, active, onClick, detail, waterLevelRef, showLabels, isPresenzano }: any) {
-  const damH = logScale(detail.dam_height_m, 20, 3, 8) * 1.5;
-  const vol = logScale(detail.active_volume_mcm, 5, 4, 10);
-  const pos: [number, number, number] = [position.x, position.y + damH * 0.15, position.z];
+  const damH = logScale(detail.dam_height_m, 20, 3, 8) * 2.5;
+  const vol = logScale(detail.active_volume_mcm, 5, 4, 10) * 2.5;
+  const pos: [number, number, number] = [position.x, position.y - damH * 0.3, position.z];
   
   const waterMesh = useRef<THREE.Mesh>(null);
   
@@ -289,9 +289,9 @@ function RealisticUpperReservoir({ position, active, onClick, detail, waterLevel
    Realistic Lower Reservoir (Organic Basin & Water)
    ───────────────────────────────────────────── */
 function RealisticLowerReservoir({ position, active, onClick, waterLevelRef, showLabels, isPresenzano }: any) {
-  const depth = 9.5;
-  const pos: [number, number, number] = [position.x, position.y + depth * 0.4, position.z];
-  const radius = 16.5;
+  const depth = 6;
+  const pos: [number, number, number] = [position.x, position.y - depth * 0.25, position.z];
+  const radius = 28;
   
   const waterMesh = useRef<THREE.Mesh>(null);
   
@@ -365,7 +365,7 @@ function RealisticPowerhouse({ active, onClick, detail, activeUnits, isPlaying, 
   const w = logScale(detail.cavern_width_m, 20, 3, 6);
   const l = logScale(detail.cavern_length_m, 100, 6, 12);
   const h = logScale(detail.cavern_height_m, 20, 3, 6);
-  const pos: [number, number, number] = [15, 6, 5];
+  const pos: [number, number, number] = [45, getTerrainHeight(45, 15, false) - 2, 15];
   
   const turbineRefs = useRef<THREE.Group[]>([]);
 
@@ -555,7 +555,7 @@ function RealisticPowerhouse({ active, onClick, detail, activeUnits, isPlaying, 
    ───────────────────────────────────────────── */
 function RealisticSwitchyard({ active, onClick, detail, showLabels, isPresenzano, isPlaying, mode, activeUnits, maxUnits, powerhouseDetail }: any) {
   const currentMW = powerhouseDetail?.total_capacity_mw ? (powerhouseDetail.total_capacity_mw / maxUnits) * activeUnits : 0;
-  const pos: [number, number, number] = [28, 5, -12];
+  const pos: [number, number, number] = [60, getTerrainHeight(60, 5, isPresenzano) - 1, 5];
   const transformerCount = isPresenzano ? 4 : 3;
   
   return (
@@ -639,23 +639,24 @@ function RealisticSwitchyard({ active, onClick, detail, showLabels, isPresenzano
       </Html>
 
       {isPlaying && activeUnits > 0 && (
-        <Html position={[0, 15, -4.6]} center transform sprite>
+        <Html position={[0, 22, 0]} center>
           <div style={{
-            background: '#0e1117',
+            background: 'rgba(14,17,23,0.92)',
             border: mode === 'generate' ? '3px solid #10b981' : '3px solid #ef4444',
-            padding: '12px 24px',
-            borderRadius: '12px',
+            padding: '16px 32px',
+            borderRadius: '14px',
             color: '#fff',
-            fontSize: '32px',
+            fontSize: '18px',
             fontWeight: 'bold',
             whiteSpace: 'nowrap',
-            boxShadow: '0 8px 16px rgba(0,0,0,0.8)',
-            textAlign: 'center'
+            boxShadow: mode === 'generate' ? '0 0 30px rgba(16,185,129,0.5)' : '0 0 30px rgba(239,68,68,0.5)',
+            textAlign: 'center',
+            minWidth: '180px'
           }}>
-            <div style={{ color: mode === 'generate' ? '#10b981' : '#ef4444', marginBottom: 8, fontSize: '20px' }}>
+            <div style={{ color: mode === 'generate' ? '#10b981' : '#ef4444', marginBottom: 6, fontSize: '13px', letterSpacing: '1px' }}>
               {mode === 'generate' ? '⚡ ÜRETİM (ŞEBEKEYE)' : '🔋 POMPA (ŞEBEKEDEN)'}
             </div>
-            {currentMW.toFixed(1)} MW
+            <div style={{ fontSize: '28px' }}>{currentMW.toFixed(1)} MW</div>
           </div>
         </Html>
       )}
@@ -724,9 +725,9 @@ function LatticeTower({ position, scale = 1 }: { position: [number, number, numb
 
 function TransmissionLine({ isPresenzano, isPlaying, mode, activeUnits }: any) {
   const poles = useMemo<[number, number, number][]>(() => [
-    [96, getTerrainHeight(96, -54, isPresenzano), -54],
-    [126, getTerrainHeight(126, -75, isPresenzano), -75],
-    [156, getTerrainHeight(156, -96, isPresenzano), -96]
+    [80, getTerrainHeight(80, -15, isPresenzano), -15],
+    [110, getTerrainHeight(110, -35, isPresenzano), -35],
+    [140, getTerrainHeight(140, -55, isPresenzano), -55]
   ], [isPresenzano]);
 
   const wires = useMemo(() => {
@@ -1081,10 +1082,12 @@ function Scene({ siteId, activeComponent, onSelectComponent, layers, mode, compo
   const upperPos = useMemo(() => new THREE.Vector3(-90, upperTerrainY, -15), [upperTerrainY]);
   
   const surgeTankPos = useMemo(() => new THREE.Vector3(-30, getTerrainHeight(-30, 0, isPresenzano), 0), [isPresenzano]);
-  const powerhousePos = useMemo(() => new THREE.Vector3(45, 18, 15), []);
   
-  const lowerTerrainY = getTerrainHeight(105, -30, isPresenzano);
-  const lowerPos = useMemo(() => new THREE.Vector3(105, lowerTerrainY, 30), [lowerTerrainY]);
+  const phTerrainY = getTerrainHeight(45, 15, isPresenzano);
+  const powerhousePos = useMemo(() => new THREE.Vector3(45, phTerrainY - 2, 15), [phTerrainY]);
+  
+  const lowerTerrainY = getTerrainHeight(80, 30, isPresenzano);
+  const lowerPos = useMemo(() => new THREE.Vector3(80, lowerTerrainY, 30), [lowerTerrainY]);
 
   // environment assets list
   const environmentAssets = useMemo(() => {
@@ -1102,9 +1105,9 @@ function Scene({ siteId, activeComponent, onSelectComponent, layers, mode, compo
 
       // Distance checks to clear the structures
       const distToUpper = Math.hypot(rx - (-90), rz - (-15));
-      const distToLower = Math.hypot(rx - 105, rz - 30);
+      const distToLower = Math.hypot(rx - 80, rz - 30);
       const distToPH = Math.hypot(rx - 45, rz - 15);
-      const distToSY = Math.hypot(rx - 84, rz - (-36));
+      const distToSY = Math.hypot(rx - 60, rz - 5);
       const distToST = Math.hypot(rx - (-30), rz - 0);
 
       if (distToUpper < 45 || distToLower < 35 || distToPH < 25 || distToSY < 25 || distToST < 20) {
@@ -1128,12 +1131,12 @@ function Scene({ siteId, activeComponent, onSelectComponent, layers, mode, compo
       <Sky sunPosition={[120, 30, 90]} turbidity={0.2} rayleigh={1.0} />
       <ambientLight intensity={0.45} />
       <directionalLight 
-        position={[60, 90, 50]} intensity={1.8} castShadow 
+        position={[120, 150, 100]} intensity={1.8} castShadow 
         shadow-mapSize={[2048, 2048]}
-        shadow-camera-left={-80} shadow-camera-right={80}
-        shadow-camera-top={80} shadow-camera-bottom={-80}
+        shadow-camera-left={-200} shadow-camera-right={200}
+        shadow-camera-top={200} shadow-camera-bottom={-200}
       />
-      <fog attach="fog" args={['#a2adb9', 60, 190]} />
+      <fog attach="fog" args={['#a2adb9', 150, 550]} />
 
       {showTerrain && <RealisticTerrain opacity={terrainOpacity} isPresenzano={isPresenzano} />}
 
