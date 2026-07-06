@@ -1,6 +1,7 @@
 import { useRef, useMemo, useEffect } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Html, Line, Sky } from '@react-three/drei';
+import { BatteryCharging, Zap } from 'lucide-react';
 import * as THREE from 'three';
 import type { ComponentsDetail } from '../../types/site';
 import { useSiteStore } from '../../stores/useSiteStore';
@@ -656,25 +657,36 @@ function RealisticSwitchyard({ active, onClick, detail, showLabels, isPresenzano
       <mesh position={[3.6, 3.4, -4.6]}><cylinderGeometry args={[0.04, 0.04, 0.8]} /><meshStandardMaterial color="#c0c4c8" /></mesh>
 
       <Html position={[0, 5, 0]} center style={{ display: showLabels ? 'block' : 'none' }}>
-        <div style={labelStyle(active, '#10b981')}>{isPresenzano ? 'Presenzano Şalt Sahası (380 kV)' : `Şalt Sahası (${detail.voltage_kv} kV)`}</div>
+        <div style={labelStyle(active, 'var(--green)')}>{isPresenzano ? 'Presenzano Şalt Sahası (380 kV)' : `Şalt Sahası (${detail.voltage_kv} kV)`}</div>
       </Html>
 
       {isPlaying && activeUnits > 0 && (
         <Html position={[0, 12, 0]} center>
           <div style={{
             background: 'rgba(14,17,23,0.88)',
-            border: mode === 'generate' ? '2px solid #10b981' : '2px solid #ef4444',
+            border: `2px solid ${mode === 'generate' ? 'var(--green)' : 'var(--red)'}`,
             padding: '6px 14px',
             borderRadius: '8px',
             color: '#fff',
-            fontSize: '11px',
+            fontSize: '12px',
             fontWeight: 'bold',
             whiteSpace: 'nowrap',
             boxShadow: mode === 'generate' ? '0 0 12px rgba(16,185,129,0.4)' : '0 0 12px rgba(239,68,68,0.4)',
             textAlign: 'center'
           }}>
-            <div style={{ color: mode === 'generate' ? '#10b981' : '#ef4444', marginBottom: 2, fontSize: '9px', letterSpacing: '0.5px' }}>
-              {mode === 'generate' ? '⚡ ÜRETİM' : '🔋 POMPA'}
+            <div style={{
+              color: mode === 'generate' ? 'var(--green)' : 'var(--red)',
+              marginBottom: 2,
+              fontSize: '12px',
+              letterSpacing: '0.5px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 4,
+            }}>
+              {mode === 'generate'
+                ? <><Zap size={13} aria-hidden="true" /> ÜRETİM</>
+                : <><BatteryCharging size={13} aria-hidden="true" /> POMPA</>}
             </div>
             <div style={{ fontSize: '14px' }}>{currentMW.toFixed(0)} MW</div>
           </div>
