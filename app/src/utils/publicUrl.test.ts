@@ -3,13 +3,13 @@ import { publicAssetUrl } from './publicUrl';
 
 describe('publicAssetUrl', () => {
   it('resolves assets below a GitHub Pages project base', () => {
-    expect(publicAssetUrl('data.json', '/TR_PDHES_Potansiyel/'))
-      .toBe('/TR_PDHES_Potansiyel/data.json');
+    expect(publicAssetUrl('data.json', '/pdhes/'))
+      .toBe('/pdhes/data.json');
   });
 
   it('normalizes leading and trailing slashes', () => {
-    expect(publicAssetUrl('/grid_assets.json', '/TR_PDHES_Potansiyel'))
-      .toBe('/TR_PDHES_Potansiyel/grid_assets.json');
+    expect(publicAssetUrl('/grid_assets.json', '/pdhes'))
+      .toBe('/pdhes/grid_assets.json');
   });
 
   it('uses the site root in local development', () => {

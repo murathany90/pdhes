@@ -1,6 +1,6 @@
-# TR_PDHES_Potansiyel Icon Pack
+# pdhes Icon Pack
 
-Bu paket, GitHub Pages üzerinde çalışan Vite/React tabanlı TR_PDHES_Potansiyel sitesi için hazırlanmış ikon setidir.
+Bu paket, GitHub Pages üzerinde çalışan Vite/React tabanlı pdhes sitesi için hazırlanmış ikon setidir.
 
 ## Klasör yapısı
 
@@ -19,7 +19,7 @@ Bu paket, GitHub Pages üzerinde çalışan Vite/React tabanlı TR_PDHES_Potansi
 
 1. Zip içindeki `public/` klasörünün içeriğini projenizdeki `app/public/` klasörüne kopyalayın.
 2. `index-head-snippet.html` içindeki satırları `app/index.html` dosyasında `<head>` içine ekleyin.
-3. Vite kullanıldığı için `%BASE_URL%` ifadesi GitHub Pages alt yolu `/TR_PDHES_Potansiyel/` için doğru şekilde çözülecektir.
+3. Vite kullanıldığı için `%BASE_URL%` ifadesi GitHub Pages alt yolu `/pdhes/` için doğru şekilde çözülecektir.
 
 ## Önerilen dosyalar
 

@@ -656,7 +656,7 @@ jobs:
       - name: Build
         run: npm run build
         env:
-          VITE_BASE_PATH: /TR_PDHES_Potansiyel/
+          VITE_BASE_PATH: /pdhes/
 
       - name: Configure Pages
         uses: actions/configure-pages@v6
@@ -671,7 +671,7 @@ jobs:
         uses: actions/deploy-pages@v5
 ```
 
-Bu örnekte mevcut GitHub repository adı `TR_PDHES_Potansiyel` kullanılmıştır. Bu örneği körlemesine kopyalama:
+Bu örnekte mevcut GitHub repository adı `pdhes` kullanılmıştır. Bu örneği körlemesine kopyalama:
 
 - Remote/repository adı değişirse `VITE_BASE_PATH` değerini gerçek Pages yolu ile birlikte güncelle veya güvenilir biçimde CI metadata'sından üret.
 - `npm run check` scriptini gerçekten oluştur veya mevcut scriptlerle değiştir.

@@ -1,6 +1,6 @@
-# Mobil Uyum Test Raporu — TR_PDHES_Potansiyeli
+# Mobil Uyum Test Raporu — pdhesi
 
-**Test edilen uygulama:** `https://murathany90.github.io/TR_PDHES_Potansiyel/#/pdhes`
+**Test edilen uygulama:** `https://murathany90.github.io/pdhes/#/pdhes`
 **Hedef çözünürlük:** 390 × 844 (iPhone 12/13 emülasyonu)
 **Test tarihi:** 07.07.2026
 **Test yöntemi:** Kaynak kod analizi (`index.css`, `App.tsx`, `PdhesPage.tsx`, `TopNav.tsx`, `SectionNav.tsx` ve diğer bileşenler) + dist CSS doğrulaması

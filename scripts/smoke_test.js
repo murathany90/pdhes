@@ -53,7 +53,7 @@ assert(appSource.includes('isLocalWorkspaceEnabled'), 'Local workspace feature g
 assert(workspaceSource.includes('Yerel Çalışma Alanı'), 'Local workspace disclosure is missing');
 assert(!appSource.includes('admin123') && !workspaceSource.includes('admin123'), 'Fake admin credential remains in active app');
 assert(mapProviderSource.includes('OpenStreetMap contributors'), 'Map attribution is missing');
-assert(deployWorkflow.includes('VITE_BASE_PATH: /TR_PDHES_Potansiyel/'), 'GitHub Pages base path is missing');
+assert(deployWorkflow.includes('VITE_BASE_PATH: /pdhes/'), 'GitHub Pages base path is missing');
 assert(deployWorkflow.includes('path: app/dist'), 'Pages workflow must publish only app/dist');
 
 console.log(`✓ ${sites.length} candidates validated: ${JSON.stringify(typeCounts)}`);

@@ -1,6 +1,6 @@
 # PDHES Nedir - Orijinal site tasarımına uyumlu 10 kartlı içerik
 
-Bu paket, TR_PDHES_Potansiyel sitesindeki `PDHES Nedir?` sekmesini zenginleştirmek için hazırlanmıştır.
+Bu paket, pdhes sitesindeki `PDHES Nedir?` sekmesini zenginleştirmek için hazırlanmıştır.
 
 ## İçerik
 - Solda sabit `İçindekiler` navigasyonu
@@ -12,7 +12,7 @@ Bu paket, TR_PDHES_Potansiyel sitesindeki `PDHES Nedir?` sekmesini zenginleştir
 
 ## Entegrasyon
 1. `assets/` klasörünü Vite projesinde `app/public/pdhes-nedir/` altına kopyalayın.
-2. HTML içindeki `src="assets/..."` yollarını `/TR_PDHES_Potansiyel/pdhes-nedir/...` veya uygulamadaki base path mantığına göre güncelleyin.
+2. HTML içindeki `src="assets/..."` yollarını `/pdhes/pdhes-nedir/...` veya uygulamadaki base path mantığına göre güncelleyin.
 3. React'e taşırken:
    - `class` -> `className`
    - modal JavaScript -> `useState` tabanlı modal bileşeni

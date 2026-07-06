@@ -8,7 +8,7 @@ describe('loadAppData', () => {
       return new Response(JSON.stringify(sites), { status: 200 });
     });
 
-    const result = await loadAppData(fetcher, '/TR_PDHES_Potansiyel/');
+    const result = await loadAppData(fetcher, '/pdhes/');
 
     expect(fetcher).toHaveBeenCalledTimes(1);
     expect(result.sites).toHaveLength(20);

@@ -54,7 +54,7 @@ export function serializeWorkspaceSites(sites: Site[]): string {
   return JSON.stringify({
     schemaVersion: WORKSPACE_SCHEMA_VERSION,
     exportedAt: new Date().toISOString(),
-    app: 'TR_PDHES_Potansiyel',
+    app: 'pdhes',
     sites,
   }, null, 2);
 }

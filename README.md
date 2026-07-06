@@ -76,10 +76,10 @@ Geliştiriciler için ortam hazırlığı oldukça basittir. Node.js (v18+) gere
 ### 4.1. Kurulum ve Çalıştırma
 ```bash
 # Repoyu klonlayın
-git clone https://github.com/murathany90/TR_PDHES_Potansiyel.git
+git clone https://github.com/murathany90/pdhes.git
 
 # app dizinine geçin
-cd TR_PDHES_Potansiyel/app
+cd pdhes/app
 
 # Bağımlılıkları yükleyin
 npm install
