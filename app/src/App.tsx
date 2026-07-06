@@ -114,13 +114,13 @@ export default function App() {
       </NavLink>
 
       <button
-        className="btn ghost"
+        className="btn ghost utility-link"
         onClick={toggleTheme}
         title="Tema değiştir"
         aria-label={theme === 'dark' ? 'Açık tema' : 'Koyu tema'}
       >
         {theme === 'dark' ? <Sun size={16} aria-hidden="true" /> : <Moon size={16} aria-hidden="true" />}
-        {theme === 'dark' ? 'Açık tema' : 'Koyu tema'}
+        <span className="utility-label">{theme === 'dark' ? 'Açık tema' : 'Koyu tema'}</span>
       </button>
       <NavLink
         className="btn ghost utility-link"
