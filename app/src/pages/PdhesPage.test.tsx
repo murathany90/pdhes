@@ -27,7 +27,7 @@ describe('PdhesPage editable content safety', () => {
     render(<PdhesPage />);
 
     expect(document.body.textContent).not.toContain('<span');
-    expect(screen.getByRole('heading', { name: 'Türkiye’nin enerji dönüşümü için şebeke ölçeğinde su bataryası' }))
+    expect(screen.getByRole('heading', { name: 'Pompaj Depolamalı HES (PDHES) Nedir?' }))
       .toBeTruthy();
   });
 
@@ -35,6 +35,6 @@ describe('PdhesPage editable content safety', () => {
     render(<PdhesPage />);
 
     expect(screen.getByRole('textbox', { name: /teknik terim ara/i })).toBeTruthy();
-    expect(screen.queryAllByRole('heading', { level: 4 })).toHaveLength(7);
+    expect(screen.queryAllByRole('heading', { level: 4 })).toHaveLength(0);
   });
 });
