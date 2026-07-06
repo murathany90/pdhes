@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState, useRef } from 'react';
-import { GLOSSARY } from '../utils/constants';
+import { CONTENT_DEFAULTS, GLOSSARY } from '../utils/constants';
+import { useWorkspaceStore } from '../stores/useWorkspaceStore';
 import FullscreenImageModal from '../components/ui/FullscreenImageModal';
 
 interface PdhesPageProps {
@@ -8,6 +9,7 @@ interface PdhesPageProps {
 
 export default function PdhesPage({ sectionId }: PdhesPageProps) {
   const [query, setQuery] = useState('');
+  const getContent = useWorkspaceStore((state) => state.getContent);
   const filteredGlossary = useMemo(() => {
     const needle = query.trim().toLocaleLowerCase('tr-TR');
     if (!needle) return GLOSSARY;
@@ -36,19 +38,21 @@ export default function PdhesPage({ sectionId }: PdhesPageProps) {
     
     const sections = Array.from(contentRef.current.querySelectorAll('.info-card'));
     
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setActiveSection(entry.target.id);
-          }
-        });
-      },
-      { rootMargin: '-20% 0px -70% 0px', threshold: 0.01 }
-    );
+    if (typeof IntersectionObserver !== 'undefined') {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              setActiveSection(entry.target.id);
+            }
+          });
+        },
+        { rootMargin: '-20% 0px -70% 0px', threshold: 0.01 }
+      );
 
-    sections.forEach((sec) => observer.observe(sec));
-    return () => observer.disconnect();
+      sections.forEach((sec) => observer.observe(sec));
+      return () => observer.disconnect();
+    }
   }, []);
 
   // Handle external sectionId jumps (e.g. from routing)
@@ -80,7 +84,7 @@ export default function PdhesPage({ sectionId }: PdhesPageProps) {
       <div className="hero">
         <div className="hero-card">
           <span className="badge">PDHES Nedir? · Geliştirilmiş içerik sekmesi</span>
-          <h1>Türkiye’nin enerji dönüşümü için şebeke ölçeğinde su bataryası</h1>
+          <h1>{getContent('pdhesWhatIs.title', CONTENT_DEFAULTS)}</h1>
           <p>
             Bu zenginleştirilmiş sekme, mevcut sitedeki “PDHES Nedir?” içeriğini genişletir: çalışma prensibi, sistem bileşenleri, çevrim verimi, şebeke kararlılığı, topoloji seçenekleri, Türkiye potansiyeli, gelir modeli ve fizibilite riskleri 10 ayrıntılı kart halinde anlatılır.
           </p>

@@ -54,7 +54,7 @@ export const CONTENT_DEFAULTS: Record<string, unknown> = {
     heroSub: 'Bu açık demo, Türkiye’deki pompaj depolamalı hidroelektrik santral adaylarını karşılaştırmalı veri, kavramsal yerleşim ve eğitim içerikleriyle sunar.',
   },
   pdhesWhatIs: {
-    title: 'Pompaj Depolamalı HES (PDHES) Nedir?',
+    title: 'Türkiye’nin enerji dönüşümü için şebeke ölçeğinde su bataryası',
     definitionTitle: 'Tanım ve Çalışma Prensibi',
     definitionBody: 'PDHES, elektrik talebinin düşük olduğu saatlerde suyu alt rezervuardan üst rezervuara pompalayan; talep ve fiyat yükseldiğinde aynı suyu türbinleyerek elektrik üreten büyük ölçekli enerji depolama teknolojisidir.',
     historyTitle: 'Kısa Tarihçe',

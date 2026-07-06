@@ -56,7 +56,7 @@ describe('application navigation', () => {
     window.scrollTo = windowScrollTo;
     vi.spyOn(HTMLElement.prototype, 'scrollHeight', 'get').mockReturnValue(1000);
     vi.spyOn(HTMLElement.prototype, 'clientHeight', 'get').mockReturnValue(500);
-    window.location.hash = '#/pdhes/sec-tarihce';
+    window.location.hash = '#/pdhes/su-bataryasi';
 
     render(
       <HashRouter>
@@ -65,7 +65,7 @@ describe('application navigation', () => {
     );
 
     await waitFor(() => {
-      expect(scrollTo).toHaveBeenCalledWith({ top: 0, behavior: 'auto' });
+      expect(scrollTo).toHaveBeenCalledWith({ top: 0, behavior: 'smooth' });
       expect(windowScrollTo).toHaveBeenCalledWith({ top: 0, behavior: 'auto' });
     });
   });
