@@ -1,0 +1,412 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PDHES Nedir? - Zenginleştirilmiş Sekme</title>
+  <meta name="description" content="PDHES Nedir sekmesi için solda sabit içindekiler, sağda 10 ayrıntılı kart ve tam ekran görsel okuyucu içeren zengin HTML içerik." />
+  <style>
+    :root {
+      --bg: #071427; --panel: rgba(15, 31, 55, .78); --panel-2: rgba(255,255,255,.055); --card: rgba(11, 27, 48, .84);
+      --text: #edf7ff; --muted: #9fb6c9; --line: rgba(117, 211, 255, .2); --cyan: #39d5ff; --teal: #38f2b8;
+      --green: #66f0a5; --orange: #ffae42; --danger: #ff7b7b; --shadow: 0 20px 60px rgba(0,0,0,.35); --radius: 22px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin:0; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; background:
+      radial-gradient(circle at 10% 0%, rgba(57,213,255,.22), transparent 32%),
+      radial-gradient(circle at 95% 12%, rgba(56,242,184,.14), transparent 30%),
+      linear-gradient(180deg, #061325 0%, #071427 42%, #04101f 100%); color: var(--text); }
+    body:before { content:""; position:fixed; inset:0; z-index:-1; pointer-events:none; opacity:.35; background-image:
+      linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px);
+      background-size: 42px 42px; mask-image: radial-gradient(circle at 40% 10%, black, transparent 72%); }
+    .pdhes-rich-shell { max-width: 1480px; margin: 0 auto; padding: 24px; }
+    .hero { display:grid; grid-template-columns: 1.1fr .9fr; gap: 22px; align-items:stretch; margin: 14px 0 22px; }
+    .hero-card { border:1px solid var(--line); border-radius: 30px; padding: 32px; background: linear-gradient(135deg, rgba(12,35,64,.94), rgba(9,25,45,.74)); box-shadow: var(--shadow); overflow:hidden; position:relative; }
+    .hero-card:after { content:""; position:absolute; width:420px; height:420px; right:-120px; top:-180px; border-radius:50%; background: radial-gradient(circle, rgba(57,213,255,.28), transparent 65%); }
+    .badge { display:inline-flex; align-items:center; gap:8px; color:#061325; background: linear-gradient(90deg, var(--cyan), var(--teal)); padding:8px 12px; border-radius: 999px; font-size: 13px; font-weight: 800; letter-spacing:.02em; }
+    h1 { font-size: clamp(34px, 4vw, 64px); line-height: .98; margin: 18px 0 14px; letter-spacing:-.04em; }
+    .hero p { color: var(--muted); font-size: 17px; line-height:1.75; max-width: 900px; }
+    .hero-stats { display:grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 22px; }
+    .hero-stats div { background: rgba(255,255,255,.06); border:1px solid var(--line); border-radius: 18px; padding: 14px; }
+    .hero-stats b { display:block; color: var(--cyan); font-size: 24px; } .hero-stats span { display:block; color: var(--muted); font-size: 12px; line-height:1.35; }
+    .hero-visual { border:1px solid var(--line); border-radius:30px; background: rgba(255,255,255,.04); overflow:hidden; box-shadow: var(--shadow); position:relative; min-height: 320px; }
+    .hero-visual img { width:100%; height:100%; object-fit:cover; display:block; filter:saturate(1.1) contrast(1.05); }
+    .hero-visual .overlay { position:absolute; left:18px; right:18px; bottom:18px; border:1px solid rgba(57,213,255,.35); border-radius:18px; background: rgba(4,14,28,.78); backdrop-filter: blur(12px); padding:14px; color:var(--muted); }
+    .layout { display:grid; grid-template-columns: 310px minmax(0, 1fr); gap: 22px; align-items:start; }
+    .toc { position: sticky; top: 18px; border:1px solid var(--line); border-radius: 24px; background: rgba(7, 20, 39, .88); backdrop-filter: blur(14px); box-shadow: var(--shadow); padding: 18px; max-height: calc(100vh - 36px); overflow:auto; }
+    .toc h3 { margin:0 0 8px; font-size: 16px; } .toc p { margin:0 0 16px; color:var(--muted); font-size: 13px; line-height:1.5; }
+    .toc a { display:flex; gap: 10px; align-items:flex-start; text-decoration:none; color: var(--muted); border:1px solid transparent; border-radius:14px; padding: 10px 8px; line-height:1.35; font-size:13px; }
+    .toc a span { flex:0 0 auto; display:inline-grid; place-items:center; width:28px; height:28px; border-radius:10px; background: rgba(57,213,255,.1); color: var(--cyan); font-weight:800; font-size:12px; }
+    .toc a:hover, .toc a.active { color: var(--text); background: rgba(57,213,255,.08); border-color: rgba(57,213,255,.24); }
+    .toc-tools { display:grid; gap:10px; margin-top:14px; }
+    .toc-tools button, .toc-tools a.download { width:100%; border:1px solid rgba(57,213,255,.28); background: rgba(57,213,255,.08); color:var(--text); border-radius:14px; padding:10px 12px; cursor:pointer; font-weight:700; text-align:center; text-decoration:none; }
+    .content { display:grid; gap: 22px; }
+    .info-card { border:1px solid var(--line); border-radius: var(--radius); background: linear-gradient(180deg, rgba(13, 31, 55, .92), rgba(8, 22, 42, .88)); box-shadow: var(--shadow); padding: 22px; scroll-margin-top: 24px; }
+    .card-head { display:flex; gap: 14px; align-items:flex-start; margin-bottom: 18px; }
+    .number-pill { width: 54px; height:54px; border-radius:18px; display:grid; place-items:center; background: linear-gradient(135deg, var(--cyan), var(--teal)); color:#04101f; font-size: 22px; font-weight: 900; box-shadow: 0 12px 30px rgba(57,213,255,.25); }
+    .eyebrow { color: var(--teal); font-weight:800; font-size: 12px; letter-spacing:.12em; text-transform: uppercase; }
+    h2 { margin: 5px 0 0; font-size: clamp(24px, 2.2vw, 38px); line-height:1.12; letter-spacing:-.02em; }
+    .figure-frame { margin:0 0 18px; border:1px solid rgba(57,213,255,.22); border-radius: 22px; overflow:hidden; background: rgba(255,255,255,.045); position:relative; }
+    .figure-frame img { width:100%; display:block; aspect-ratio: 16/8.94; object-fit:cover; background:#102235; }
+    .figure-frame figcaption { color: var(--muted); font-size: 13px; line-height:1.55; padding:12px 14px; border-top:1px solid rgba(255,255,255,.08); }
+    .figure-frame figcaption span { color:#c7d8e7; }
+    .fullscreen-btn { position:absolute; right:12px; top:12px; z-index:3; border:1px solid rgba(255,255,255,.26); background: rgba(5, 14, 27, .74); backdrop-filter: blur(10px); color:#fff; border-radius:999px; padding:9px 12px; font-weight:800; cursor:pointer; }
+    .fullscreen-btn:hover { background: rgba(57,213,255,.22); }
+    .card-body p { color: #d5e5f2; line-height:1.85; font-size: 16px; margin: 0 0 14px; }
+    .rich-list { margin: 12px 0 16px; padding:0; display:grid; gap:10px; list-style:none; }
+    .rich-list li { border:1px solid rgba(255,255,255,.09); background: rgba(255,255,255,.045); border-radius:16px; padding:12px 14px; color:#d7e8f5; line-height:1.65; }
+    .rich-list.compact { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .note-grid { display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap:12px; margin:16px 0; }
+    .note-grid.four { grid-template-columns: repeat(4, minmax(0,1fr)); }
+    .note-grid div, .comparison-mini div, .type-grid article { border:1px solid rgba(57,213,255,.18); border-radius: 18px; padding:14px; background: rgba(57,213,255,.065); }
+    .note-grid b { display:block; color:var(--cyan); margin-bottom:4px; } .note-grid span { color:var(--muted); line-height:1.5; font-size:14px; }
+    .split-box, .comparison-mini, .type-grid { display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:14px; margin:16px 0; }
+    .type-grid { grid-template-columns: repeat(3, minmax(0,1fr)); }
+    .mode { border:1px solid rgba(255,255,255,.1); border-radius:18px; padding:16px; } .mode h4, .comparison-mini h4, .type-grid h4 { margin:0 0 8px; color:var(--text); }
+    .mode ul { margin:0; padding-left:18px; color:#d6e7f4; line-height:1.7; } .charge { background:rgba(255,174,66,.08); border-color:rgba(255,174,66,.25); } .discharge { background:rgba(56,242,184,.08); border-color:rgba(56,242,184,.25); }
+    .formula-card { margin: 18px 0; border: 1px solid rgba(56,242,184,.28); background: linear-gradient(135deg, rgba(56,242,184,.1), rgba(57,213,255,.07)); border-radius: 20px; padding: 18px; text-align:center; }
+    .formula-card span { display:block; font-size: clamp(24px, 3vw, 42px); font-weight:900; color:#ffffff; letter-spacing:.02em; } .formula-card small { color:var(--muted); }
+    .callout { border-radius:18px; padding:14px 16px; line-height:1.7; margin:14px 0; } .callout.warning { border:1px solid rgba(255,174,66,.35); background:rgba(255,174,66,.08); } .callout.danger { border:1px solid rgba(255,123,123,.35); background:rgba(255,123,123,.08); }
+    .check-flow { display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap:12px; margin:16px 0; }
+    .check-flow div { border:1px solid rgba(255,255,255,.1); border-radius:18px; padding:14px; background:rgba(255,255,255,.045); } .check-flow span { display:inline-grid; place-items:center; width:30px; height:30px; border-radius:10px; color:#061325; background:linear-gradient(90deg,var(--cyan),var(--teal)); font-weight:900; margin-bottom:8px; } .check-flow b { display:block; } .check-flow small { color:var(--muted); line-height:1.55; display:block; margin-top:5px; }
+    .source-footer { margin: 22px 0 40px; border:1px solid var(--line); background: rgba(255,255,255,.04); border-radius:22px; padding:18px; color:var(--muted); line-height:1.7; }
+    .modal { position:fixed; inset:0; z-index:1000; display:none; background:rgba(0,0,0,.92); color:white; } .modal.open { display:grid; grid-template-rows:auto 1fr; }
+    .modal-bar { display:flex; gap:10px; align-items:center; justify-content:space-between; padding:12px 16px; border-bottom:1px solid rgba(255,255,255,.14); background:rgba(6,15,30,.9); }
+    .modal-title { font-weight:800; } .modal-actions { display:flex; gap:8px; } .modal-actions button { border:1px solid rgba(255,255,255,.24); background:rgba(255,255,255,.08); color:white; border-radius:12px; padding:9px 12px; cursor:pointer; font-weight:800; }
+    .modal-body { overflow:auto; display:grid; place-items:center; padding:24px; } .modal-body img { max-width: min(1600px, 96vw); width:100%; height:auto; transform-origin:center center; transition: transform .15s ease; box-shadow:0 24px 90px rgba(0,0,0,.65); }
+    @media (max-width: 1050px) { .hero, .layout { grid-template-columns: 1fr; } .toc { position:relative; top:auto; max-height:none; } .hero-stats, .note-grid.four, .check-flow { grid-template-columns: repeat(2,1fr); } .rich-list.compact, .type-grid { grid-template-columns:1fr; } }
+    @media (max-width: 680px) { .pdhes-rich-shell { padding: 14px; } .hero-card, .info-card { padding:18px; border-radius:22px; } .hero-stats, .note-grid, .note-grid.four, .split-box, .comparison-mini, .check-flow { grid-template-columns:1fr; } .fullscreen-btn { position:static; display:block; width:calc(100% - 24px); margin:12px; } }
+  </style>
+</head>
+<body>
+<section id="sec-tarihce" class="pdhes-rich-shell">
+  <div class="hero">
+    <div class="hero-card">
+      <span class="badge">PDHES Nedir? · Geliştirilmiş içerik sekmesi</span>
+      <h1>Türkiye’nin enerji dönüşümü için şebeke ölçeğinde su bataryası</h1>
+      <p>Bu zenginleştirilmiş sekme, mevcut sitedeki “PDHES Nedir?” içeriğini genişletir: çalışma prensibi, sistem bileşenleri, çevrim verimi, şebeke kararlılığı, topoloji seçenekleri, Türkiye potansiyeli, gelir modeli ve fizibilite riskleri 10 ayrıntılı kart halinde anlatılır.</p>
+      <div class="hero-stats">
+        <div><b>%70-85</b><span>Tipik çevrim verimi aralığı</span></div>
+        <div><b>2 mod</b><span>Pompalama ve üretim işletmesi</span></div>
+        <div><b>MW + MWh</b><span>Güç ve enerji ayrı değerlendirilir</span></div>
+        <div><b>10 kart</b><span>Detaylı görsel anlatım</span></div>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <img src="assets/01_pdhess_nedir_cift_mod.webp" alt="PDHES çalışma prensibi" />
+      <div class="overlay"><b>Okunabilir görseller:</b> Her karttaki görseli “Tam ekran oku” düğmesiyle büyütebilir, modal içinde yakınlaştırabilirsiniz.</div>
+    </div>
+  </div>
+  <div class="layout">
+    <aside class="toc" aria-label="İçindekiler">
+      <h3>İçindekiler</h3>
+      <p>Solda sabit kalan bu menü, orijinal site yapısındaki içindekiler mantığını korur. Sağ tarafta 10 ayrıntılı bilgi kartı yer alır.</p>
+      <nav><a href="#su-bataryasi"><span>01</span>PDHES nedir? Şebeke ölçeğinde “su bataryası” mantığı</a>
+<a href="#sarj-desarj"><span>02</span>İki yönlü çevrim: Pompalama modu ve üretim modu</a>
+<a href="#anatomi"><span>03</span>Sistem anatomisi: rezervuar, cebri boru, güç evi ve şalt sahası</a>
+<a href="#enerji-formulu"><span>04</span>Enerji hesabının özü: düşü, hacim ve çevrim verimi</a>
+<a href="#sebeke-degeri"><span>05</span>Şebeke kararlılığı: yenilenebilir üretim artarken neden kritik?</a>
+<a href="#teknoloji-olgunluk"><span>06</span>Neden stratejik? Olgun teknoloji, uzun ömür ve düşük kapasite kaybı</a>
+<a href="#topolojiler"><span>07</span>Topoloji seçimi: kapalı çevrim, mevcut HES entegrasyonu ve deniz suyu modeli</a>
+<a href="#turkiye-potansiyeli"><span>08</span>Türkiye açısından fırsat: topografya, hidro miras ve yenilenebilir dönüşüm</a>
+<a href="#piyasa-gelir"><span>09</span>Gelir modeli: arbitraj tek başına yeterli mi?</a>
+<a href="#riskler-yol-haritasi"><span>10</span>Riskler, çevresel uyum ve ön etüt yol haritası</a></nav>
+      <div class="toc-tools">
+        <button type="button" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑ Başa dön</button>
+        <button type="button" onclick="document.querySelectorAll('.info-card').forEach(c=>c.classList.toggle('highlight'))">Kartları vurgula</button>
+      </div>
+    </aside>
+    <main class="content">
+      
+        <article class="info-card" id="su-bataryasi">
+          <header class="card-head">
+            <div class="number-pill">01</div>
+            <div>
+              <span class="eyebrow">Tanım ve temel fikir</span>
+              <h2>PDHES nedir? Şebeke ölçeğinde “su bataryası” mantığı</h2>
+            </div>
+          </header>
+          <figure class="figure-frame">
+            <img src="assets/01_pdhess_nedir_cift_mod.webp" alt="PDHES nedir? Şebeke ölçeğinde “su bataryası” mantığı görseli" loading="lazy" />
+            <button class="fullscreen-btn" type="button" data-fullscreen="assets/01_pdhess_nedir_cift_mod.webp" data-title="PDHES nedir? Şebeke ölçeğinde “su bataryası” mantığı">⛶ Tam ekran oku</button>
+            <figcaption><b>Görsel:</b> PDHES’in gece/gündüz, pompalama/üretim ve üst-alt rezervuar ilişkisini özetleyen kavramsal kesit. <span>The Water Battery, s.1</span></figcaption>
+          </figure>
+          <div class="card-body">
+        <p><strong>Pompaj Depolamalı Hidroelektrik Sistemler (PDHES)</strong>, farklı kotlarda bulunan iki su haznesi arasında enerji depolayan büyük ölçekli bir elektrik sistemi teknolojisidir. Sistem, elektriğin bol ve görece ucuz olduğu saatlerde alt rezervuardaki suyu pompalarla üst rezervuara taşır; talebin arttığı veya sistemin hızlı güce ihtiyaç duyduğu saatlerde ise aynı suyu aşağı bırakarak türbinler üzerinden elektrik üretir.</p>
+        <p>Bu nedenle PDHES, kimyasal bir batarya değil; <strong>yerçekimi + su + elektromekanik makine</strong> birleşimiyle çalışan, şebeke ölçeğinde bir “su bataryasıdır”. Depolanan şey doğrudan elektrik değil, yüksek kotta bekletilen suyun <strong>potansiyel enerjisidir</strong>. Enerji gerektiğinde bu potansiyel enerji kinetik enerjiye, sonra mekanik enerjiye ve en sonunda elektrik enerjisine dönüşür.</p>
+        <div class="note-grid">
+          <div><b>Depolama biçimi</b><span>Yüksek kotta su hacmi</span></div>
+          <div><b>Güç üretimi</b><span>Pompa-türbin + motor-jeneratör</span></div>
+          <div><b>Temel değer</b><span>Uzun süreli depolama ve hızlı şebeke tepkisi</span></div>
+        </div>
+        <p>PDHES’in ayırt edici yönü, çok büyük enerji miktarlarını saatler hatta bazı tasarımlarda daha uzun süreler için depolayabilmesi; aynı zamanda senkron makinelerle şebekeye atalet, frekans desteği, gerilim desteği ve hızlı devreye girme kabiliyeti sağlayabilmesidir.</p>
+        </div>
+        </article>
+
+        <article class="info-card" id="sarj-desarj">
+          <header class="card-head">
+            <div class="number-pill">02</div>
+            <div>
+              <span class="eyebrow">Çalışma prensibi</span>
+              <h2>İki yönlü çevrim: Pompalama modu ve üretim modu</h2>
+            </div>
+          </header>
+          <figure class="figure-frame">
+            <img src="assets/03_su_bataryasi_dongusu.webp" alt="İki yönlü çevrim: Pompalama modu ve üretim modu görseli" loading="lazy" />
+            <button class="fullscreen-btn" type="button" data-fullscreen="assets/03_su_bataryasi_dongusu.webp" data-title="İki yönlü çevrim: Pompalama modu ve üretim modu">⛶ Tam ekran oku</button>
+            <figcaption><b>Görsel:</b> Şarj/pompalama ve deşarj/üretim yönlerinin aynı hidrolik makine üzerinden tersinir çalışması. <span>Turkey Water Battery Blueprint, s.3</span></figcaption>
+          </figure>
+          <div class="card-body">
+        <p>PDHES iki ana işletme moduyla çalışır. <strong>Pompalama modunda</strong> sistem elektrik tüketir; alt rezervuardaki suyu üst rezervuara taşır. Bu mod genellikle gece düşük talep saatlerinde, güneş ve rüzgâr üretim fazlası oluştuğunda veya sistemin fazla baz yük üretimini değerlendirmesi gerektiğinde kullanılır.</p>
+        <p><strong>Üretim modunda</strong> ise üst rezervuardaki su cebri boru veya tünel üzerinden aşağı bırakılır. Su, türbin çarkını döndürür; motor-jeneratör bu kez jeneratör gibi çalışarak şebekeye elektrik verir. Bu mod puant saatlerinde, ani talep artışlarında, frekans düşüşlerinde veya yenilenebilir üretimin azaldığı zamanlarda değerlidir.</p>
+        <div class="split-box">
+          <div class="mode charge"><h4>Şarj / Pompalama</h4><ul><li>Elektrik tüketir.</li><li>Su alt rezervuardan üst rezervuara çıkar.</li><li>Fazla yenilenebilir üretimi değerlendirir.</li><li>Enerji potansiyel enerji olarak saklanır.</li></ul></div>
+          <div class="mode discharge"><h4>Deşarj / Üretim</h4><ul><li>Elektrik üretir.</li><li>Su üst rezervuardan alt rezervuara iner.</li><li>Puant talebi ve sistem açığını karşılar.</li><li>Frekans ve gerilim desteğine katkı verir.</li></ul></div>
+        </div>
+        <p>Bu döngüde kayıplar vardır; pompalama, hidrolik sürtünme, türbin, jeneratör, trafo ve yardımcı sistem kayıpları nedeniyle sisteme verilen elektriğin tamamı geri alınamaz. Modern PDHES tasarımlarında <strong>çevrim verimi genellikle yaklaşık %70-85</strong> aralığında ele alınır. Bu kayıp, elektrik fiyat farkı, yan hizmet geliri ve sistem güvenilirliği değeriyle telafi edilir.</p>
+        </div>
+        </article>
+
+        <article class="info-card" id="anatomi">
+          <header class="card-head">
+            <div class="number-pill">03</div>
+            <div>
+              <span class="eyebrow">Mühendislik bileşenleri</span>
+              <h2>Sistem anatomisi: rezervuar, cebri boru, güç evi ve şalt sahası</h2>
+            </div>
+          </header>
+          <figure class="figure-frame">
+            <img src="assets/02_sistem_anatomisi.webp" alt="Sistem anatomisi: rezervuar, cebri boru, güç evi ve şalt sahası görseli" loading="lazy" />
+            <button class="fullscreen-btn" type="button" data-fullscreen="assets/02_sistem_anatomisi.webp" data-title="Sistem anatomisi: rezervuar, cebri boru, güç evi ve şalt sahası">⛶ Tam ekran oku</button>
+            <figcaption><b>Görsel:</b> Üst rezervuar, cebri boru, motor-jeneratör ve tersinir Francis pompa-türbin yapısının kesit anlatımı. <span>The Water Battery, s.2</span></figcaption>
+          </figure>
+          <div class="card-body">
+        <p>Bir PDHES projesi yalnızca iki göletten ibaret değildir. Gerçekte tesis; hidrolik, elektromekanik, jeoteknik, inşaat, şalt ve şebeke bağlantı sistemlerinden oluşan karmaşık bir altyapıdır. Ön inceleme aşamasında en önemli soru, bu bileşenlerin araziye ve şebekeye birlikte uyup uymadığıdır.</p>
+        <ul class="rich-list">
+          <li><strong>Üst rezervuar:</strong> Suyun potansiyel enerji olarak depolandığı yüksek kotlu haznedir. Aktif hacim, su seviyesi aralığı, sızdırmazlık, heyelan riski ve çevresel etkiler kritik parametrelerdir.</li>
+          <li><strong>Alt rezervuar:</strong> Üretim sonrası suyun toplandığı ve pompalama sırasında su kaynağı olan haznedir. Mevcut baraj, göl, deniz veya yapay havuz olabilir.</li>
+          <li><strong>Cebri boru / basınç tüneli:</strong> Yüksek basınçlı suyu türbine taşıyan ana hidrolik yoldur. Uzunluk, çap, eğim, sürtünme kayıpları ve su darbesi hesabı tasarımın merkezindedir.</li>
+          <li><strong>Denge bacası:</strong> Ani yük değişimlerinde su darbesi basınçlarını azaltır, hidrolik geçici rejimi güvenli hale getirir.</li>
+          <li><strong>Yeraltı güç evi:</strong> Pompa-türbin, motor-jeneratör, vanalar, trafolar ve yardımcı sistemlerin bulunduğu ana üretim merkezidir.</li>
+          <li><strong>Şalt sahası ve iletim bağlantısı:</strong> Gücün TEİAŞ iletim sistemine aktarılmasını sağlar; bağlantı kapasitesi, kısa devre gücü, N-1 kriteri ve gerilim seviyesi burada belirleyicidir.</li>
+        </ul>
+        <p>Bu sekmenin geliştirilmiş sürümünde 3D Yerleşim sayfasıyla tutarlı olacak şekilde her bileşenin adı, görevi ve ön etütte kontrol edilmesi gereken teknik kriterler birlikte verilmektedir.</p>
+        </div>
+        </article>
+
+        <article class="info-card" id="enerji-formulu">
+          <header class="card-head">
+            <div class="number-pill">04</div>
+            <div>
+              <span class="eyebrow">Temel mühendislik bağıntısı</span>
+              <h2>Enerji hesabının özü: düşü, hacim ve çevrim verimi</h2>
+            </div>
+          </header>
+          <figure class="figure-frame">
+            <img src="assets/04_hiz_esneklik.webp" alt="Enerji hesabının özü: düşü, hacim ve çevrim verimi görseli" loading="lazy" />
+            <button class="fullscreen-btn" type="button" data-fullscreen="assets/04_hiz_esneklik.webp" data-title="Enerji hesabının özü: düşü, hacim ve çevrim verimi">⛶ Tam ekran oku</button>
+            <figcaption><b>Görsel:</b> PDHES’in hızlı rezerv yükleme ve frekans kontrolü sağlayan esnek şebeke kaynağı olarak konumlandırılması. <span>Turkey Strategic Hydro Battery, s.3</span></figcaption>
+          </figure>
+          <div class="card-body">
+        <p>PDHES potansiyelini anlamak için en temel bağıntı, suyun yükseklik farkından doğan potansiyel enerji hesabıdır. Ön değerlendirme düzeyinde enerji şu mantıkla okunur:</p>
+        <div class="formula-card"><span>E = ρ × g × H × V × η</span><small>ρ: su yoğunluğu · g: yerçekimi · H: net düşü · V: aktif hacim · η: verim</small></div>
+        <p>Bu formül, aday sahanın neden yalnızca haritada “iki yakın su kütlesi” aramakla değerlendirilemeyeceğini gösterir. Aynı hacimde su, daha yüksek düşüde çok daha fazla enerji saklar. Ancak düşü arttıkça basınç tüneli, cebri boru, vana, denge bacası ve kaya mekaniği gereksinimleri de ağırlaşır.</p>
+        <div class="note-grid four">
+          <div><b>Net düşü</b><span>Brüt kot farkından hidrolik kayıplar düşülür.</span></div>
+          <div><b>Aktif hacim</b><span>Kullanılabilir su hacmidir; toplam göl hacmiyle aynı değildir.</span></div>
+          <div><b>Güç</b><span>Debi ve düşüyle ilişkilidir; MW kapasiteyi belirler.</span></div>
+          <div><b>Enerji</b><span>Hacim ve düşüyle ilişkilidir; MWh/GWh depolamayı belirler.</span></div>
+        </div>
+        <p>Dolayısıyla bir adayın iyi olması için yüksek düşü tek başına yeterli değildir. Üst rezervuar inşası, alt rezervuar uygunluğu, hidrolik yol uzunluğu, şebeke bağlantısı, çevresel kısıtlar ve ekonomik gelir modeli birlikte elenmelidir.</p>
+        </div>
+        </article>
+
+        <article class="info-card" id="sebeke-degeri">
+          <header class="card-head">
+            <div class="number-pill">05</div>
+            <div>
+              <span class="eyebrow">Sistem işletmesi ve esneklik</span>
+              <h2>Şebeke kararlılığı: yenilenebilir üretim artarken neden kritik?</h2>
+            </div>
+          </header>
+          <figure class="figure-frame">
+            <img src="assets/05_sebeke_kararlilik_boslugu.webp" alt="Şebeke kararlılığı: yenilenebilir üretim artarken neden kritik? görseli" loading="lazy" />
+            <button class="fullscreen-btn" type="button" data-fullscreen="assets/05_sebeke_kararlilik_boslugu.webp" data-title="Şebeke kararlılığı: yenilenebilir üretim artarken neden kritik?">⛶ Tam ekran oku</button>
+            <figcaption><b>Görsel:</b> Yenilenebilir üretim ile tüketim eğrileri arasındaki saatlik uyumsuzluk ve “şebeke kararlılık boşluğu”. <span>Turkey Energy Balance Blueprint, s.2</span></figcaption>
+          </figure>
+          <div class="card-body">
+        <p>Güneş ve rüzgâr üretimi arttıkça elektrik sisteminde yeni bir sorun büyür: üretimin olduğu saat ile tüketimin en yüksek olduğu saat her zaman aynı değildir. Gündüz güneş üretimi fazlayken akşam puantında üretim düşebilir; rüzgâr ise saatlik ve günlük dalgalanma gösterebilir. Bu durum sistemde <strong>esneklik ihtiyacı</strong> yaratır.</p>
+        <p>PDHES bu boşluğu iki yönden kapatır: Fazla üretim olduğunda suyu yukarı basarak enerjiyi depolar; talep yükseldiğinde veya yenilenebilir üretim düştüğünde suyu aşağı bırakarak hızlı üretim yapar. Böylece yalnızca enerji arbitrajı değil, <strong>sistem güvenliği</strong> de sağlar.</p>
+        <ul class="rich-list compact">
+          <li><strong>Frekans kontrolü:</strong> Ani üretim/tüketim dengesizliklerinde hızlı aktif güç tepkisi verebilir.</li>
+          <li><strong>Senkron atalet:</strong> Büyük dönen makineler frekans değişimini doğal olarak yavaşlatabilir.</li>
+          <li><strong>Gerilim desteği:</strong> Reaktif güç ve gerilim kontrolüyle iletim sistemi kararlılığına katkı sağlar.</li>
+          <li><strong>Kara başlatma:</strong> Uygun tasarımlarda sistem toparlama senaryolarında değerli olabilir.</li>
+          <li><strong>Kısıntı azaltımı:</strong> RES/GES üretim fazlasının boşa gitmesini azaltabilir.</li>
+        </ul>
+        <p>Bu nedenle PDHES, yalnızca fiyat farkından para kazanan bir yatırım değil; yenilenebilir ağırlıklı elektrik sisteminde güvenilirliği, rezerv kapasitesini ve operasyonel esnekliği artıran bir altyapı unsuru olarak değerlendirilmelidir.</p>
+        </div>
+        </article>
+
+        <article class="info-card" id="teknoloji-olgunluk">
+          <header class="card-head">
+            <div class="number-pill">06</div>
+            <div>
+              <span class="eyebrow">Teknolojik değer önerisi</span>
+              <h2>Neden stratejik? Olgun teknoloji, uzun ömür ve düşük kapasite kaybı</h2>
+            </div>
+          </header>
+          <figure class="figure-frame">
+            <img src="assets/06_stratejik_faydalar.webp" alt="Neden stratejik? Olgun teknoloji, uzun ömür ve düşük kapasite kaybı görseli" loading="lazy" />
+            <button class="fullscreen-btn" type="button" data-fullscreen="assets/06_stratejik_faydalar.webp" data-title="Neden stratejik? Olgun teknoloji, uzun ömür ve düşük kapasite kaybı">⛶ Tam ekran oku</button>
+            <figcaption><b>Görsel:</b> PDHES’in kanıtlanmış olgunluk, şebeke atalet katkısı, RES entegrasyonu ve düşük döngüsel bozulma avantajları. <span>Türkiye Energy Battery Roadmap, s.2</span></figcaption>
+          </figure>
+          <div class="card-body">
+        <p>PDHES’in stratejik değeri, teknolojik olgunluğundan gelir. Dünyada onlarca yıldır işletilen büyük pompaj depolama tesisleri vardır. Bu tesisler yalnızca günlük enerji kaydırma için değil; ani yük değişimleri, frekans sapmaları, iletim kısıtları ve puant yük yönetimi için de kullanılmaktadır.</p>
+        <p>Kimyasal bataryalar hızlı tepki ve modüler kurulum avantajı sunarken, PDHES çok büyük enerji miktarı, uzun ekonomik ömür, düşük çevrimsel performans kaybı ve senkron makine katkısı ile farklı bir sınıfta yer alır. Bu iki teknoloji birbirinin birebir ikamesi değil, çoğu sistemde tamamlayıcısıdır.</p>
+        <div class="comparison-mini">
+          <div><h4>PDHES güçlüdür</h4><p>Uzun süreli depolama, büyük MW/MWh ölçeği, şebeke hizmetleri, senkron atalet, uzun ömür.</p></div>
+          <div><h4>Batarya güçlüdür</h4><p>Hızlı kurulum, modülerlik, dağıtık kullanım, milisaniye seviyesinde güç elektroniği tepkisi.</p></div>
+        </div>
+        <p>Türkiye gibi topografyası güçlü, hidroelektrik mirası bulunan ve yenilenebilir kapasitesi hızla artan bir sistemde PDHES; yalnızca enerji üretimi değil, <strong>enerji dönüşümünün sigortası</strong> olarak düşünülmelidir.</p>
+        </div>
+        </article>
+
+        <article class="info-card" id="topolojiler">
+          <header class="card-head">
+            <div class="number-pill">07</div>
+            <div>
+              <span class="eyebrow">Saha tipi ve yerleşim kararı</span>
+              <h2>Topoloji seçimi: kapalı çevrim, mevcut HES entegrasyonu ve deniz suyu modeli</h2>
+            </div>
+          </header>
+          <figure class="figure-frame">
+            <img src="assets/07_topoloji_karsilastirma.webp" alt="Topoloji seçimi: kapalı çevrim, mevcut HES entegrasyonu ve deniz suyu modeli görseli" loading="lazy" />
+            <button class="fullscreen-btn" type="button" data-fullscreen="assets/07_topoloji_karsilastirma.webp" data-title="Topoloji seçimi: kapalı çevrim, mevcut HES entegrasyonu ve deniz suyu modeli">⛶ Tam ekran oku</button>
+            <figcaption><b>Görsel:</b> Mevcut HES ile bütünleşik model ve yeni yatırım/greenfield modelinin mühendislik yaklaşımı açısından karşılaştırılması. <span>Turkey Strategic Hydro Battery, s.6</span></figcaption>
+          </figure>
+          <div class="card-body">
+        <p>PDHES için tek bir proje tipi yoktur. Sahanın jeolojisi, su kaynağı, çevresel kısıtları, iletim bağlantısı ve mevcut hidro altyapıya yakınlığı farklı topolojileri gündeme getirir. Bu sekmede adaylar değerlendirilirken PDHES tipi mutlaka açıkça belirtilmelidir.</p>
+        <div class="type-grid">
+          <article><h4>Kapalı çevrim</h4><p>Doğal nehir akışından büyük ölçüde ayrılan iki yapay/ayrık rezervuar arasında çalışır. Ekolojik akış etkisi daha yönetilebilir olabilir; ancak yeni rezervuar ve inşaat ihtiyacı yüksektir.</p></article>
+          <article><h4>Açık / bütünleşik çevrim</h4><p>Mevcut baraj, göl veya HES altyapısından yararlanır. İnşaat ve izin avantajı doğabilir; fakat mevcut su rejimi, DSİ işletmesi ve mansap etkileri daha karmaşık hale gelir.</p></article>
+          <article><h4>Deniz suyu PDHES</h4><p>Denizi alt rezervuar gibi kullanır. Uygun kıyı topografyasında güçlü bir seçenek olabilir; korozyon, biyolojik birikim ve deniz ekolojisi özel tasarım ister.</p></article>
+        </div>
+        <p>Ön elemede “iki su kütlesi arasındaki mesafe” yeterli değildir. Minimum düşü, maksimum hidrolik yol uzunluğu, tünel güzergâhı, arazi eğimi, rezervuar inşa edilebilirliği, taşkın güvenliği, şalt alanı ve bağlantı hattı birlikte düşünülmelidir.</p>
+        </div>
+        </article>
+
+        <article class="info-card" id="turkiye-potansiyeli">
+          <header class="card-head">
+            <div class="number-pill">08</div>
+            <div>
+              <span class="eyebrow">Ulusal stratejik bağlam</span>
+              <h2>Türkiye açısından fırsat: topografya, hidro miras ve yenilenebilir dönüşüm</h2>
+            </div>
+          </header>
+          <figure class="figure-frame">
+            <img src="assets/08_turkiye_potansiyel_196twh.webp" alt="Türkiye açısından fırsat: topografya, hidro miras ve yenilenebilir dönüşüm görseli" loading="lazy" />
+            <button class="fullscreen-btn" type="button" data-fullscreen="assets/08_turkiye_potansiyel_196twh.webp" data-title="Türkiye açısından fırsat: topografya, hidro miras ve yenilenebilir dönüşüm">⛶ Tam ekran oku</button>
+            <figcaption><b>Görsel:</b> NotebookLM görselinde Türkiye için vurgulanan 19,6 TWh gerçekleştirilebilir potansiyel iddiası ve Avrupa karşılaştırması. <span>Turkey Strategic Hydro Battery, s.7</span></figcaption>
+          </figure>
+          <div class="card-body">
+        <p>Türkiye’nin PDHES açısından güçlü tarafı yalnızca dağlık topografya değildir. Ülkenin mevcut hidroelektrik altyapısı, çok sayıda rezervuarı, büyüyen rüzgâr/güneş portföyü, büyük tüketim merkezleri ve güçlü iletim sistemi yatırımları birlikte değerlendirildiğinde PDHES için stratejik bir pencere oluşur.</p>
+        <p>Yüklenen NotebookLM görsellerinde Türkiye için çok yüksek bir gerçekleştirilebilir potansiyel anlatısı öne çıkarılmaktadır. Bu tür rakamlar kesin yatırım kararı değil, <strong>masaüstü potansiyel taraması</strong> olarak okunmalıdır. Gerçek proje portföyüne dönüşebilmesi için her adayın jeoloji, ÇED, DSİ işletmesi, TEİAŞ bağlantısı, piyasa geliri ve finansman açısından doğrulanması gerekir.</p>
+        <div class="callout warning"><b>Önemli not:</b> Potansiyel haritaları “yapılabilir proje” listesi değildir. Her aday saha; kot, hacim, mesafe, mülkiyet, korunan alan, fay/heyelan, bağlantı kapasitesi ve gelir modeli açısından ayrı ayrı fizibilite sürecinden geçmelidir.</div>
+        <p>Bu web sitesindeki aday veri seti de aynı mantıkla okunmalıdır: amaç kesin proje ilan etmek değil, Türkiye’de PDHES tartışmasını görselleştirmek, ön eleme kriterlerini anlatmak ve yatırım/planlama konuşmalarını veri tabanlı hale getirmektir.</p>
+        </div>
+        </article>
+
+        <article class="info-card" id="piyasa-gelir">
+          <header class="card-head">
+            <div class="number-pill">09</div>
+            <div>
+              <span class="eyebrow">Ekonomi ve piyasa tasarımı</span>
+              <h2>Gelir modeli: arbitraj tek başına yeterli mi?</h2>
+            </div>
+          </header>
+          <figure class="figure-frame">
+            <img src="assets/09_arbitraj_finansal_akis.webp" alt="Gelir modeli: arbitraj tek başına yeterli mi? görseli" loading="lazy" />
+            <button class="fullscreen-btn" type="button" data-fullscreen="assets/09_arbitraj_finansal_akis.webp" data-title="Gelir modeli: arbitraj tek başına yeterli mi?">⛶ Tam ekran oku</button>
+            <figcaption><b>Görsel:</b> Gece depolama, puant üretim, fiyat farkı ve yıllık net kâr yaklaşımını özetleyen finansal akış şeması. <span>Turkey Strategic Hydro Battery, s.13</span></figcaption>
+          </figure>
+          <div class="card-body">
+        <p>PDHES yatırımının ekonomik mantığı çoğu zaman “ucuz saatte pompala, pahalı saatte üret” şeklinde anlatılır. Bu doğrudur; ancak büyük ölçekli projeler için çoğu durumda tek başına yeterli değildir. Çünkü PDHES’in yatırım maliyeti yüksek, izin ve inşaat süresi uzundur. Bu nedenle gelir modeli çoklu fayda üzerinden kurulmalıdır.</p>
+        <ul class="rich-list compact">
+          <li><strong>Enerji arbitrajı:</strong> Düşük fiyatlı saatlerde tüketim, yüksek fiyatlı saatlerde üretim.</li>
+          <li><strong>Dengeleme piyasası:</strong> Gerçek zamanlı sistem dengesizliklerinde hızlı yük alma/yük atma kabiliyeti.</li>
+          <li><strong>Yan hizmetler:</strong> Frekans kontrolü, reaktif güç, gerilim desteği, yedek kapasite ve kara başlatma değeri.</li>
+          <li><strong>Kapasite değeri:</strong> Emre amade ve güvenilir esnek kapasitenin sistem planlamasındaki katkısı.</li>
+          <li><strong>Kısıntı azaltımı:</strong> Yenilenebilir üretimin sistem kısıtı nedeniyle azaltılmasını önleyerek dolaylı ekonomik değer yaratması.</li>
+        </ul>
+        <p>Bu nedenle Türkiye için PDHES tartışması yalnızca santral bazlı fizibilite değil, aynı zamanda <strong>piyasa tasarımı</strong> sorusudur. Yatırım sinyali, yan hizmet gelirleri, kapasite mekanizması, DGP/yan hizmet ürün süreleri ve uzun vadeli sistem esnekliği planlaması birlikte ele alınmalıdır.</p>
+        </div>
+        </article>
+
+        <article class="info-card" id="riskler-yol-haritasi">
+          <header class="card-head">
+            <div class="number-pill">10</div>
+            <div>
+              <span class="eyebrow">Fizibiliteye geçmeden önce</span>
+              <h2>Riskler, çevresel uyum ve ön etüt yol haritası</h2>
+            </div>
+          </header>
+          <figure class="figure-frame">
+            <img src="assets/10_cevresel_uyum.webp" alt="Riskler, çevresel uyum ve ön etüt yol haritası görseli" loading="lazy" />
+            <button class="fullscreen-btn" type="button" data-fullscreen="assets/10_cevresel_uyum.webp" data-title="Riskler, çevresel uyum ve ön etüt yol haritası">⛶ Tam ekran oku</button>
+            <figcaption><b>Görsel:</b> Çevresel etki değerlendirmesi, sosyal kabul, su/ekosistem ve proje geliştirme boyutlarını birlikte gösteren uyum şeması. <span>Turkey Strategic Hydro Battery, s.14</span></figcaption>
+          </figure>
+          <div class="card-body">
+        <p>PDHES temiz ve uzun ömürlü bir depolama altyapısı olabilir; ancak her saha otomatik olarak uygun değildir. Büyük su yapıları, tüneller, yeraltı güç evi, iletim bağlantısı ve rezervuar inşası ciddi çevresel, sosyal ve jeoteknik değerlendirme gerektirir.</p>
+        <div class="check-flow">
+          <div><span>1</span><b>Topoğrafya</b><small>Yeterli net düşü ve makul hidrolik yol var mı?</small></div>
+          <div><span>2</span><b>Hacim</b><small>Aktif depolama hacmi hedef MWh için yeterli mi?</small></div>
+          <div><span>3</span><b>Jeoloji</b><small>Fay, karst, heyelan, kaya kalitesi ve sızdırmazlık uygun mu?</small></div>
+          <div><span>4</span><b>Çevre</b><small>ÇED, korunan alan, su rejimi, ekolojik akış ve sosyal kabul yönetilebilir mi?</small></div>
+          <div><span>5</span><b>Şebeke</b><small>Bağlantı noktası, gerilim seviyesi, kısa devre gücü ve N-1 uygun mu?</small></div>
+          <div><span>6</span><b>Ekonomi</b><small>CAPEX, OPEX, arbitraj, yan hizmet ve kapasite değeri dengeli mi?</small></div>
+        </div>
+        <p>Bu sayfadaki anlatımın en önemli amacı, PDHES’i abartılı bir “her derde çare” teknolojisi gibi değil; güçlü ama titiz planlama isteyen bir <strong>stratejik şebeke altyapısı</strong> olarak konumlandırmaktır.</p>
+        <div class="callout danger"><b>Fizibilite uyarısı:</b> Bu site ve bu sekme eğitim/ön inceleme amaçlıdır. Gerçek rezervuar sınırları, kotlar, tünel güzergâhı, kurulu güç, enerji hacmi, bağlantı uygunluğu ve yatırım kararı için mühendislik etüdü, DSİ/TEİAŞ görüşleri, ÇED ve saha ölçümleri gerekir.</div>
+        </div>
+        </article>
+      <section class="source-footer">
+        <h2>Kaynak ve entegrasyon notu</h2>
+        <p>Bu HTML, yüklenen NotebookLM PDF görsellerinden ve mevcut TR_PDHES_Potansiyel sitesindeki “PDHES Nedir?” içeriğinin ana başlıklarından yararlanılarak hazırlanmıştır. Görseller eğitim ve ön inceleme anlatımı içindir. Kesin mühendislik, yatırım veya resmi görüş niteliği taşımaz.</p>
+        <p><b>React/Vite entegrasyonu:</b> Bu bloğu `PdhesPage.tsx` içeriğine taşırken `class` alanlarını `className` yapın, tam ekran modal JS’ini küçük bir `useState` modal bileşenine dönüştürün ve görselleri `app/public/pdhes-nedir/` altına koyun.</p>
+      </section>
+    </main>
+  </div>
+</section>
+<div class="modal" id="imageModal" aria-hidden="true">
+  <div class="modal-bar">
+    <div class="modal-title" id="modalTitle">Görsel</div>
+    <div class="modal-actions">
+      <button type="button" id="zoomOut">−</button>
+      <button type="button" id="zoomIn">+</button>
+      <button type="button" id="nativeFullscreen">Tarayıcı tam ekran</button>
+      <button type="button" id="closeModal">Kapat</button>
+    </div>
+  </div>
+  <div class="modal-body"><img id="modalImage" alt="Tam ekran görsel" /></div>
+</div>
+<script>
+  const modal = document.getElementById('imageModal');
+  const modalImage = document.getElementById('modalImage');
+  const modalTitle = document.getElementById('modalTitle');
+  let zoom = 1;
+  document.querySelectorAll('[data-fullscreen]').forEach(btn => btn.addEventListener('click', () => {
+    zoom = 1; modalImage.style.transform = 'scale(1)'; modalImage.src = btn.dataset.fullscreen; modalTitle.textContent = btn.dataset.title || 'Görsel'; modal.classList.add('open'); modal.setAttribute('aria-hidden','false');
+  }));
+  document.getElementById('closeModal').onclick = () => { modal.classList.remove('open'); modal.setAttribute('aria-hidden','true'); modalImage.src = ''; };
+  document.getElementById('zoomIn').onclick = () => { zoom = Math.min(3, zoom + .2); modalImage.style.transform = `scale(${zoom})`; };
+  document.getElementById('zoomOut').onclick = () => { zoom = Math.max(.5, zoom - .2); modalImage.style.transform = `scale(${zoom})`; };
+  document.getElementById('nativeFullscreen').onclick = () => { if (modal.requestFullscreen) modal.requestFullscreen(); };
+  window.addEventListener('keydown', e => { if (e.key === 'Escape') document.getElementById('closeModal').click(); });
+  const links = [...document.querySelectorAll('.toc a')]; const sections = links.map(a => document.querySelector(a.getAttribute('href'))).filter(Boolean);
+  const io = new IntersectionObserver(entries => { entries.forEach(entry => { if(entry.isIntersecting) { links.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + entry.target.id)); } }); }, { rootMargin: '-20% 0px -70% 0px', threshold: .01 });
+  sections.forEach(sec => io.observe(sec));
+</script>
+</body>
+</html>
