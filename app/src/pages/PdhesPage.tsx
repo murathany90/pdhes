@@ -17,17 +17,8 @@ const HISTORY = [
   ['1930lar', 'Büyük rezervuarlar ve gece-gündüz yük farkı için ilk endüstriyel tesisler.', 'Endüstriyel Ölçek'],
   ['1970-80ler', 'Baz yük santralleri, pik talep yönetimi ve büyük iletim şebekeleriyle hızlı yaygınlaşma.', 'Nükleer ve Kömür Destekleyici'],
   ['2011', 'Japonya Uluslararası İşbirliği Ajansı (JICA) tarafından Türkiye Pompaj Depolamalı HES Master Plan Çalışması yayınlandı. 7 potansiyel saha belirlendi.', 'JICA Türkiye Çalışması'],
-  ['2020ler', 'Güneş ve rüzgar üretiminin artmasıyla uzun süreli enerji depolama ve şebeke esnekliği odağı.', 'Yenilenebilir Entegrasyonu'],
+  ['2020ler', 'Güneş ve rüzgar üretiminin artmasıyla n kritik ilk etüt nedir?', 'Düşü (head), aktif hacim, jeoloji, bağlantı mesafesi ve çevresel kısıtlar birlikte doğrulanmalıdır.'],
 ];
-
-const FAQ = [
-  ['PDHES ne kadar sürede inşa edilir?', 'Büyük projelerde izin, tasarım ve inşaat dahil çoğu zaman 6-10 yıl bandı gerçekçidir.'],
-  ['Pil depolamaya göre avantajı nedir?', 'Çok uzun ömür, yüksek enerji kapasitesi, senkron makine katkısı ve uzun süreli depolama sağlar.'],
-  ['Türkiye’de neden henüz yaygın değil?', 'Uygun topografya kadar izin, su rejimi, TEİAŞ bağlantısı, gelir modeli ve finansman netliği gerekir.'],
-  ['En kritik ilk etüt nedir?', 'Düşü (head), aktif hacim, jeoloji, bağlantı mesafesi ve çevresel kısıtlar birlikte doğrulanmalıdır.'],
-];
-
-
 
 interface PdhesPageProps {
   sectionId?: string;
@@ -36,6 +27,12 @@ interface PdhesPageProps {
 export default function PdhesPage({ sectionId }: PdhesPageProps) {
   const [query, setQuery] = useState('');
   const getContent = useWorkspaceStore((state) => state.getContent);
+  const [modalImage, setModalImage] = useState<{ src: string; title: string } | null>(null);
+
+  const openModal = (src: string, title: string) => {
+    setModalImage({ src, title });
+  };
+
   const filteredGlossary = useMemo(() => {
     const needle = query.trim().toLocaleLowerCase('tr-TR');
     if (!needle) return GLOSSARY;
@@ -468,7 +465,6 @@ V: aktif hacim
             </div>
           </article>
 
-          {/* Glossary Section from old PdhesPage */}
           <article className="info-card" id="sec-sozluk">
             <h2 style={{ marginTop: 0 }}>Teknik Terimler Sözlüğü</h2>
             <p style={{ marginTop: '8px', color: 'var(--muted)' }}>PDHES ve enerji depolama dünyasında sıkça kullanılan terimlerin açıklamaları:</p>
@@ -505,10 +501,17 @@ V: aktif hacim
               </table>
             </div>
           </article>
-
         </div></div>
         </div>
       </article>
+      {modalImage && (
+        <FullscreenImageModal
+          isOpen={true}
+          src={modalImage.src}
+          title={modalImage.title}
+          onClose={() => setModalImage(null)}
+        />
+      )}
     </section>
   );
 }
