@@ -42,7 +42,7 @@ html[data-theme="light"] body {
 }
 
 /* ── App Layout ── */
-.app { height: 100vh; display: grid; grid-template-rows: 76px 52px 1fr; gap: 0; }
+.app { height: 100vh; display: grid; grid-template-rows: min-content 52px 1fr; gap: 0; }
 
 /* ── TopBar ── */
 .topbar {
@@ -65,7 +65,8 @@ html[data-theme="light"] .logo {
 }
 .brand h1 { font-size: 17px; margin: 0; letter-spacing: .2px; }
 .brand p { margin: 2px 0 0; color: var(--muted); font-size: 12px; }
-.global-controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
+.global-controls { display: flex; align-items: center; gap: 6px; flex-wrap: nowrap; justify-content: flex-end; }
+.global-controls .select { max-width: 160px; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; }
 
 /* ── Tabs ── */
 .tabs {
@@ -418,7 +419,7 @@ html[data-theme="light"] .layer-btn.active {
 html[data-theme="light"] .kbd { color: #0f1c18; }
 
 /* ── PDHES Encyclopedia ── */
-.encyclopedia-layout { display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: 40px; align-items: start; max-width: 1200px; margin: 0 auto; }
+.encyclopedia-layout { display: grid; grid-template-columns: 192px minmax(0, 1fr); gap: 40px; align-items: start; max-width: 1200px; margin: 0 auto; }
 .encyclopedia-sidebar { position: sticky; top: 30px; max-height: calc(100vh - 40px); overflow-y: auto; scrollbar-width: thin; }
 .section-nav-title { margin: 0 0 16px; color: var(--text); font-weight: 700; font-size: 16px; }
 .section-nav-list {

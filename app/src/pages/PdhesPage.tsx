@@ -492,42 +492,6 @@ V: aktif hacim
             </div>
           </article>
 
-          <article className="info-card" id="sec-sozluk">
-            <h2 style={{ marginTop: 0 }}>Teknik Terimler Sözlüğü</h2>
-            <p style={{ marginTop: '8px', color: 'var(--muted)' }}>PDHES ve enerji depolama dünyasında sıkça kullanılan terimlerin açıklamaları:</p>
-            <label className="sr-only" htmlFor="pdhes-glossary-search">Teknik terim ara</label>
-            <input
-              id="pdhes-glossary-search"
-              name="glossarySearch"
-              className="input glossary-search"
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Terim ara"
-              style={{ marginBottom: 16 }}
-            />
-            <div style={{ overflow: 'auto', maxHeight: 400, border: '1px solid var(--line)', borderRadius: 12 }}>
-              <table style={{ margin: 0, width: '100%', borderCollapse: 'collapse' }}>
-                <thead style={{ position: 'sticky', top: 0, background: 'var(--panel3)' }}>
-                  <tr><th style={{ padding: '12px', textAlign: 'left' }}>Terim</th><th style={{ padding: '12px', textAlign: 'left' }}>Açıklama</th></tr>
-                </thead>
-                <tbody>
-                  {filteredGlossary.map((item) => (
-                    <tr key={item.term} style={{ borderBottom: '1px solid var(--line)' }}>
-                      <td style={{ padding: '12px', width: '30%' }}><b>{item.term}</b></td>
-                      <td style={{ padding: '12px' }}>{item.definition}</td>
-                    </tr>
-                  ))}
-                  {filteredGlossary.length === 0 && (
-                    <tr>
-                      <td colSpan={2} style={{ padding: '24px', textAlign: 'center', color: 'var(--muted)' }}>
-                        Sonuç bulunamadı.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </article>
         </div></div>
         </div>
       </article>
