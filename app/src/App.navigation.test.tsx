@@ -30,6 +30,8 @@ describe('application navigation', () => {
       .toBe('/data');
     expect(screen.getByRole('link', { name: 'Ayarlar' }).getAttribute('href'))
       .toBe('/settings');
+    expect(screen.getByRole('link', { name: 'Ana içeriğe geç' }).getAttribute('href'))
+      .toBe('#main-content');
   });
 
   it('keeps legacy section links compatible with the canonical PDHES route', async () => {

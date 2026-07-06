@@ -7,6 +7,7 @@ import {
   PDHES_TYPE_FILTERS,
   type PdhesTypeFilter,
 } from '../utils/pdhesFilters';
+import WarningBanner from '../components/ui/WarningBanner';
 
 export default function DataPage({ site }: { site?: Site }) {
   const { sites, selectedId, selectSite } = useSiteStore();
@@ -20,7 +21,7 @@ export default function DataPage({ site }: { site?: Site }) {
 
   return (
     <section className="panel active">
-      <div className="grid" style={{ gridTemplateColumns: '1fr 1fr', marginTop: 14 }}>
+      <div className="grid data-layout">
         <div className="card">
           <h2>Aday saha tablosu</h2>
           <p className="muted small">Satıra tıklayarak uygulamanın tüm panellerindeki seçili sahayı değiştirin.</p>
@@ -29,6 +30,8 @@ export default function DataPage({ site }: { site?: Site }) {
             {PDHES_TYPE_FILTERS.map((filter) => (
               <button
                 key={filter.id}
+                type="button"
+                aria-pressed={typeFilter === filter.id}
                 className={`btn ${typeFilter === filter.id ? 'primary' : 'ghost'}`}
                 style={{ minHeight: 32, padding: '6px 12px', fontSize: 13, borderRadius: 999 }}
                 onClick={() => setTypeFilter(filter.id)}
@@ -54,8 +57,18 @@ export default function DataPage({ site }: { site?: Site }) {
               </thead>
               <tbody>
                 {filteredSites.map((candidate) => (
-                  <tr key={candidate.id} className={candidate.id === selectedId ? 'selected' : ''} onClick={() => selectSite(candidate.id)}>
-                    <td><b>{candidate.name}</b><br /><span className="muted small">{candidate.region}</span></td>
+                  <tr key={candidate.id} className={candidate.id === selectedId ? 'selected' : ''}>
+                    <td>
+                      <button
+                        type="button"
+                        className="site-row-button"
+                        aria-current={candidate.id === selectedId ? 'true' : undefined}
+                        onClick={() => selectSite(candidate.id)}
+                      >
+                        <b>{candidate.name}</b>
+                        <span className="muted small">{candidate.region}</span>
+                      </button>
+                    </td>
                     <td><span className={`tag ${candidate.concept === 'sea' ? 'sea' : 'classic'}`}>{candidate.concept === 'sea' ? 'Deniz suyu' : 'Klasik'}</span></td>
                     <td><b>{num(candidate.powerMW)} MW</b><br /><span className="muted small">{candidate.energyGWh} GWh</span></td>
                     <td>{num(candidate.head, 1)} m</td>
@@ -93,8 +106,11 @@ export default function DataPage({ site }: { site?: Site }) {
           <p className="small"><b>Alt rezervuar:</b> <span className="muted">{site.lower}</span></p>
           <p className="small"><b>Üst rezervuar:</b> <span className="muted">{site.upper}</span></p>
           <div>{site.risks.map((risk) => <span key={risk} className="tag risk">{risk}</span>)}</div>
-          <div className="notice" style={{ marginTop: 12 }}>
-            Bu veriler fizibilite değildir; eğitim, ön eleme ve kavramsal karşılaştırma için masaüstü seviyesinde hazırlanmıştır.
+          <div style={{ marginTop: 12 }}>
+            <WarningBanner
+              type="warning"
+              message="Bu veriler fizibilite değildir; eğitim, ön eleme ve kavramsal karşılaştırma için masaüstü seviyesinde hazırlanmıştır."
+            />
           </div>
         </div>
       </div>

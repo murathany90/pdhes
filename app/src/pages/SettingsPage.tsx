@@ -19,37 +19,40 @@ export default function SettingsPage() {
           <h2>Arayüz ve harita</h2>
           <div className="editor-form">
             <div className="form-group">
-              <label>Tema</label>
-              <select className="select" value={theme} onChange={(event) => setTheme(event.target.value as 'dark' | 'light')}>
+              <label htmlFor="settings-theme">Tema</label>
+              <select id="settings-theme" className="select" value={theme} onChange={(event) => setTheme(event.target.value as 'dark' | 'light')}>
                 <option value="dark">Koyu</option>
                 <option value="light">Açık</option>
               </select>
             </div>
             <div className="form-group">
-              <label>Harita görünümü</label>
-              <select className="select" value={mapStyle} onChange={(event) => setMapStyle(event.target.value as 'dark' | 'light' | 'satellite')}>
+              <label htmlFor="settings-map-style">Harita görünümü</label>
+              <select id="settings-map-style" className="select" value={mapStyle} onChange={(event) => setMapStyle(event.target.value as 'dark' | 'light' | 'satellite')}>
                 <option value="dark">Koyu</option>
                 <option value="light">Açık</option>
                 <option value="satellite">Uydu</option>
               </select>
             </div>
             <div className="range-row">
-              <label>3D yükseklik ölçeği</label>
-              <input type="range" min={0.4} max={3} step={0.1} value={heightScale} onChange={(event) => setHeightScale(+event.target.value)} />
-              <span className="kbd">{heightScale.toFixed(1)}x</span>
+              <label htmlFor="settings-height-scale">3D yükseklik ölçeği</label>
+              <input id="settings-height-scale" type="range" min={0.4} max={3} step={0.1} value={heightScale} aria-valuetext={`${heightScale.toFixed(1)}x`} onChange={(event) => setHeightScale(+event.target.value)} />
+              <output htmlFor="settings-height-scale" className="kbd">{heightScale.toFixed(1)}x</output>
             </div>
           </div>
         </div>
 
         <div className="card">
           <h2>Skor ağırlıkları</h2>
-          {Object.entries(weights).map(([key, value]) => (
-            <div className="range-row" key={key}>
-              <label>{WEIGHT_LABELS[key] || key}</label>
-              <input type="range" min={0} max={50} step={1} value={value} onChange={(event) => setWeight(key as keyof typeof weights, +event.target.value)} />
-              <span className="kbd">{value}</span>
-            </div>
-          ))}
+          {Object.entries(weights).map(([key, value]) => {
+            const inputId = `settings-weight-${key}`;
+            return (
+              <div className="range-row" key={key}>
+                <label htmlFor={inputId}>{WEIGHT_LABELS[key] || key}</label>
+                <input id={inputId} type="range" min={0} max={50} step={1} value={value} aria-valuetext={`${value} ağırlık`} onChange={(event) => setWeight(key as keyof typeof weights, +event.target.value)} />
+                <output htmlFor={inputId} className="kbd">{value}</output>
+              </div>
+            );
+          })}
           <p className="notice small" style={{ marginTop: 12 }}>
             Bu ağırlıklar arayüz taslağıdır; mevcut aday skorlarını henüz yeniden hesaplamaz.
           </p>

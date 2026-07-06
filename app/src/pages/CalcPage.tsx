@@ -2,6 +2,7 @@ import type { Site } from '../types/site';
 import { useCalcEngine } from '../hooks/useCalcEngine';
 import { moneyBn, moneyM } from '../utils/format';
 import ScorePill from '../components/ui/ScorePill';
+import WarningBanner from '../components/ui/WarningBanner';
 
 const SCORE_LABELS: Record<string, string> = {
   topo: 'Topografya / düşü (head)',
@@ -44,24 +45,24 @@ export default function CalcPage({ site }: { site?: Site }) {
             <div>
               <h3>Senaryo ayarları</h3>
               <div className="range-row">
-                <label>Yatırım gideri çarpanı</label>
-                <input type="range" min={0.75} max={1.45} step={0.01} value={scenario.capexFactor} onChange={(event) => setScenarioValue('capexFactor', +event.target.value)} />
-                <span className="kbd">{scenario.capexFactor.toFixed(2)}x</span>
+                <label htmlFor="calc-capex-factor">Yatırım gideri çarpanı</label>
+                <input id="calc-capex-factor" type="range" min={0.75} max={1.45} step={0.01} value={scenario.capexFactor} aria-valuetext={`${scenario.capexFactor.toFixed(2)}x`} onChange={(event) => setScenarioValue('capexFactor', +event.target.value)} />
+                <output htmlFor="calc-capex-factor" className="kbd">{scenario.capexFactor.toFixed(2)}x</output>
               </div>
               <div className="range-row">
-                <label>Gelir yakalama</label>
-                <input type="range" min={0.55} max={1.55} step={0.01} value={scenario.revenueFactor} onChange={(event) => setScenarioValue('revenueFactor', +event.target.value)} />
-                <span className="kbd">{scenario.revenueFactor.toFixed(2)}x</span>
+                <label htmlFor="calc-revenue-factor">Gelir yakalama</label>
+                <input id="calc-revenue-factor" type="range" min={0.55} max={1.55} step={0.01} value={scenario.revenueFactor} aria-valuetext={`${scenario.revenueFactor.toFixed(2)}x`} onChange={(event) => setScenarioValue('revenueFactor', +event.target.value)} />
+                <output htmlFor="calc-revenue-factor" className="kbd">{scenario.revenueFactor.toFixed(2)}x</output>
               </div>
               <div className="range-row">
-                <label>Çevrim / yıl</label>
-                <input type="range" min={180} max={360} step={5} value={scenario.cycles} onChange={(event) => setScenarioValue('cycles', +event.target.value)} />
-                <span className="kbd">{scenario.cycles}</span>
+                <label htmlFor="calc-cycles">Çevrim / yıl</label>
+                <input id="calc-cycles" type="range" min={180} max={360} step={5} value={scenario.cycles} aria-valuetext={`${scenario.cycles} çevrim`} onChange={(event) => setScenarioValue('cycles', +event.target.value)} />
+                <output htmlFor="calc-cycles" className="kbd">{scenario.cycles}</output>
               </div>
               <div className="range-row">
-                <label>Yardımcı hizmet primi</label>
-                <input type="range" min={0} max={45} step={1} value={scenario.reservePremium} onChange={(event) => setScenarioValue('reservePremium', +event.target.value)} />
-                <span className="kbd">{scenario.reservePremium}%</span>
+                <label htmlFor="calc-reserve-premium">Yardımcı hizmet primi</label>
+                <input id="calc-reserve-premium" type="range" min={0} max={45} step={1} value={scenario.reservePremium} aria-valuetext={`${scenario.reservePremium}%`} onChange={(event) => setScenarioValue('reservePremium', +event.target.value)} />
+                <output htmlFor="calc-reserve-premium" className="kbd">{scenario.reservePremium}%</output>
               </div>
               <button className="btn" onClick={resetScenario}>Senaryoyu sıfırla</button>
             </div>
@@ -106,8 +107,11 @@ ${site.revenueM} milyon €/yıl x çevrim(${scenario.cycles}/300) x gelir(${sce
               <span key={risk} className={`tag ${index < 2 ? 'danger' : 'risk'}`}>{risk}</span>
             ))}
           </div>
-          <div className="danger-notice" style={{ marginTop: 14 }}>
-            Nihai skor; yükseklik modeli, parsel, jeoteknik, ÇED, TEİAŞ N-1/kısa devre ve DSİ işletme rejimi doğrulanmadan yatırım kararı yerine kullanılamaz.
+          <div style={{ marginTop: 14 }}>
+            <WarningBanner
+              type="danger"
+              message="Nihai skor; yükseklik modeli, parsel, jeoteknik, ÇED, TEİAŞ N-1/kısa devre ve DSİ işletme rejimi doğrulanmadan yatırım kararı yerine kullanılamaz."
+            />
           </div>
         </div>
       </div>

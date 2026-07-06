@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import type { ReactNode } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 
@@ -10,6 +10,9 @@ interface Props {
 
 export default function InfoAccordion({ title, children, defaultOpen = false }: Props) {
   const [isOpen, setIsOpen] = useState(defaultOpen);
+  const generatedId = useId();
+  const triggerId = `accordion-trigger-${generatedId}`;
+  const contentId = `accordion-panel-${generatedId}`;
 
   return (
     <div className={`accordion ${isOpen ? 'open' : ''}`} style={{
@@ -20,8 +23,12 @@ export default function InfoAccordion({ title, children, defaultOpen = false }: 
       overflow: 'hidden'
     }}>
       <button 
+        id={triggerId}
+        type="button"
         className="accordion-header" 
         onClick={() => setIsOpen(!isOpen)}
+        aria-expanded={isOpen}
+        aria-controls={contentId}
         style={{
           width: '100%',
           display: 'flex',
@@ -37,14 +44,22 @@ export default function InfoAccordion({ title, children, defaultOpen = false }: 
         }}
       >
         <span>{title}</span>
-        {isOpen ? <ChevronUp size={18} className="muted" /> : <ChevronDown size={18} className="muted" />}
+        {isOpen
+          ? <ChevronUp size={18} className="muted" aria-hidden="true" />
+          : <ChevronDown size={18} className="muted" aria-hidden="true" />}
       </button>
       {isOpen && (
-        <div className="accordion-content" style={{
+        <div
+          id={contentId}
+          role="region"
+          aria-labelledby={triggerId}
+          className="accordion-content"
+          style={{
           padding: '0 16px 16px 16px',
           color: 'var(--muted)',
           lineHeight: 1.6
-        }}>
+          }}
+        >
           {children}
         </div>
       )}

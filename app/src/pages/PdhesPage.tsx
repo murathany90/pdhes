@@ -56,7 +56,7 @@ export default function PdhesPage({ sectionId }: PdhesPageProps) {
     <section className="panel active">
       <article className="encyclopedia encyclopedia-layout" id="pdhes-nedir" style={{ marginTop: 12 }}>
         <div className="encyclopedia-sidebar">
-          <h3 style={{ marginBottom: 16 }}>İçindekiler</h3>
+          <p className="section-nav-title">İçindekiler</p>
           <SectionNav sections={[
             { id: 'sec-tanim', title: 'PDHES Nedir?' },
             { id: 'sec-tarihce', title: 'Tarihçe' },
@@ -130,7 +130,7 @@ V: aktif hacim
           <div className="grid auto-fit">
             {WORLD_EXAMPLES.map((example) => (
               <div className="world-example-card" key={`${example.country}-${example.name}`}>
-                <h4>{example.name}</h4>
+                <h3>{example.name}</h3>
                 <div className="specs">
                   <span><b>{example.country}</b></span>
                   <span><b>{example.mw.toLocaleString('tr-TR')} MW</b></span>
@@ -172,6 +172,7 @@ V: aktif hacim
           </div>
 
           <h2 id="sec-sozluk" style={{ marginTop: 32 }}>Teknik Terimler Sözlüğü</h2>
+          <label className="sr-only" htmlFor="pdhes-glossary-search">Teknik terim ara</label>
           <input
             id="pdhes-glossary-search"
             name="glossarySearch"

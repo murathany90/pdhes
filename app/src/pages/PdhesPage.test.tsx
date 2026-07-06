@@ -30,4 +30,11 @@ describe('PdhesPage editable content safety', () => {
     expect(screen.getByRole('heading', { name: 'Pompaj Depolamalı HES (PDHES) Nedir?' }))
       .toBeTruthy();
   });
+
+  it('provides an accessible glossary search and a consistent heading hierarchy', () => {
+    render(<PdhesPage />);
+
+    expect(screen.getByRole('textbox', { name: /teknik terim ara/i })).toBeTruthy();
+    expect(screen.queryAllByRole('heading', { level: 4 })).toHaveLength(0);
+  });
 });
