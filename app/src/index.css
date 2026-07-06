@@ -351,6 +351,7 @@ html[data-theme="light"] .tl:before { box-shadow: 0 0 0 5px rgba(13,158,92,.08);
 
 /* ── Settings ── */
 .settings-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.workspace-settings-card { grid-column: 1 / -1; }
 .scenario-score-preview {
   display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 16px;
 }
@@ -470,6 +471,25 @@ html[data-theme="light"] .kbd { color: #0f1c18; }
   box-shadow: var(--shadow);
 }
 
+/* ── Route feedback ── */
+.loading-state { display: block; }
+.loading-skeleton { display: grid; gap: 18px; max-width: 1120px; margin: 0 auto; }
+.skeleton-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.skeleton-block {
+  border: 1px solid var(--line); border-radius: 14px;
+  background: linear-gradient(100deg, var(--panel) 30%, var(--panel3) 50%, var(--panel) 70%);
+  background-size: 220% 100%; animation: skeleton-shift 1.4s ease-in-out infinite;
+}
+.skeleton-title { width: min(420px, 70%); height: 34px; }
+.skeleton-card { min-height: 220px; }
+.error-state { display: grid; place-items: center; }
+.error-state .card { max-width: 620px; display: grid; grid-template-columns: auto 1fr; gap: 14px; align-items: start; }
+.error-state .btn { grid-column: 2; justify-self: start; }
+@keyframes skeleton-shift {
+  from { background-position: 100% 0; }
+  to { background-position: -100% 0; }
+}
+
 /* ── Responsive ── */
 @media (max-width: 1180px) {
   body { overflow: auto; }
@@ -529,7 +549,7 @@ html[data-theme="light"] .kbd { color: #0f1c18; }
     background: color-mix(in srgb, var(--bg) 94%, transparent);
     backdrop-filter: blur(12px);
   }
-  .grid.cols-3, .grid.cols-4, .metric-row, .pipeline { grid-template-columns: 1fr; }
+  .grid.cols-3, .grid.cols-4, .metric-row, .pipeline, .skeleton-grid { grid-template-columns: 1fr; }
   .brand { min-width: 0; }
   .logo { width: 40px; height: 40px; }
   .brand h1 { font-size: 15px; line-height: 1.25; }

@@ -21,16 +21,36 @@ import AppShell from './components/layout/AppShell';
 import TopNav from './components/layout/TopNav';
 import SiteSelector from './components/interaction/SiteSelector';
 import WarningBanner from './components/ui/WarningBanner';
+import PageLoadingState from './components/ui/PageLoadingState';
+import AppErrorBoundary from './components/layout/AppErrorBoundary';
 import { isLocalWorkspaceEnabled } from './utils/workspaceMode';
 import './index.css';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
-const MapPage = lazy(() => import('./pages/MapPage'));
-const ThreeDPage = lazy(() => import('./pages/ThreeDPage'));
-const WorkspacePage = lazy(() => import('./pages/WorkspacePage'));
-const SettingsPage = lazy(() => import('./pages/SettingsPage'));
-const SiteEditorPage = lazy(() => import('./pages/SiteEditorPage'));
-const ThreeDEditorPage = lazy(() => import('./pages/ThreeDEditorPage'));
+const loadMapPage = () => import('./pages/MapPage');
+const loadThreeDPage = () => import('./pages/ThreeDPage');
+const loadWorkspacePage = () => import('./pages/WorkspacePage');
+const loadSettingsPage = () => import('./pages/SettingsPage');
+const loadSiteEditorPage = () => import('./pages/SiteEditorPage');
+const loadThreeDEditorPage = () => import('./pages/ThreeDEditorPage');
+
+const MapPage = lazy(loadMapPage);
+const ThreeDPage = lazy(loadThreeDPage);
+const WorkspacePage = lazy(loadWorkspacePage);
+const SettingsPage = lazy(loadSettingsPage);
+const SiteEditorPage = lazy(loadSiteEditorPage);
+const ThreeDEditorPage = lazy(loadThreeDEditorPage);
+
+const ROUTE_PRELOADERS: Record<string, () => Promise<unknown>> = {
+  '/map': loadMapPage,
+  '/3d': loadThreeDPage,
+  '/workspace': loadWorkspacePage,
+  '/settings': loadSettingsPage,
+};
+
+function preloadRoute(path: string) {
+  void ROUTE_PRELOADERS[path]?.();
+}
 
 const TABS = [
   { id: 'pdhes', path: '/pdhes', label: 'PDHES Nedir', Icon: BookOpen },
@@ -88,7 +108,7 @@ export default function App() {
   const controls = (
     <>
       <SiteSelector sites={sites} selectedId={selectedId} onChange={selectSite} />
-      <NavLink className="btn primary" to="/map">
+      <NavLink className="btn primary" to="/map" onPointerEnter={() => preloadRoute('/map')} onFocus={() => preloadRoute('/map')}>
         <MapPinned size={16} aria-hidden="true" />
         Haritada incele
       </NavLink>
@@ -97,7 +117,14 @@ export default function App() {
         {theme === 'dark' ? <Sun size={16} aria-hidden="true" /> : <Moon size={16} aria-hidden="true" />}
         {theme === 'dark' ? 'Açık' : 'Koyu'}
       </button>
-      <NavLink className="btn ghost utility-link" to="/settings" aria-label="Ayarlar" title="Ayarlar">
+      <NavLink
+        className="btn ghost utility-link"
+        to="/settings"
+        aria-label="Ayarlar"
+        title="Ayarlar"
+        onPointerEnter={() => preloadRoute('/settings')}
+        onFocus={() => preloadRoute('/settings')}
+      >
         <Settings size={16} aria-hidden="true" />
         <span className="utility-label">Ayarlar</span>
       </NavLink>
@@ -111,6 +138,8 @@ export default function App() {
           key={id}
           to={path}
           className={({ isActive }) => `tab-btn ${isActive ? 'active' : ''}`}
+          onPointerEnter={() => preloadRoute(path)}
+          onFocus={() => preloadRoute(path)}
         >
           <Icon size={16} aria-hidden="true" />
           {label}
@@ -152,8 +181,9 @@ export default function App() {
           <WarningBanner message="Bu sayfadaki yerel çalışma ve hesaplama ayarları yalnızca sizin tarayıcınızda (LocalStorage) saklanır." type="info" />
         </div>
       )}
-      <Suspense fallback={<section className="panel active"><p className="muted">İlgili bölüm yükleniyor...</p></section>}>
-        <Routes>
+      <AppErrorBoundary key={location.pathname}>
+        <Suspense fallback={<PageLoadingState />}>
+          <Routes>
           <Route path="/" element={<Navigate to="/pdhes" replace />} />
           <Route path="/pdhes" element={<PdhesRoute />} />
           <Route path="/pdhes/:sectionId" element={<PdhesRoute />} />
@@ -205,8 +235,9 @@ export default function App() {
             )}
           />
           <Route path="*" element={<LegacyRouteRedirect />} />
-        </Routes>
-      </Suspense>
+          </Routes>
+        </Suspense>
+      </AppErrorBoundary>
     </AppShell>
   );
 }

@@ -1,7 +1,9 @@
+import { ShieldCheck } from 'lucide-react';
 import { useSettingsStore } from '../stores/useSettingsStore';
 import { useSiteStore } from '../stores/useSiteStore';
 import WarningBanner from '../components/ui/WarningBanner';
 import { calculateWeightedScore } from '../utils/scoring';
+import { isLocalWorkspaceEnabled } from '../utils/workspaceMode';
 
 const WEIGHT_LABELS: Record<string, string> = {
   topo: 'Topografya / düşü',
@@ -20,6 +22,10 @@ export default function SettingsPage() {
     ? calculateWeightedScore(selectedSite.scores, weights)
     : null;
   const totalWeight = Object.values(weights).reduce((sum, weight) => sum + weight, 0);
+  const workspaceEnabled = isLocalWorkspaceEnabled(window.location.search);
+  const workspaceHref = workspaceEnabled
+    ? '#/workspace'
+    : `${window.location.pathname || '/'}?editor=1#/workspace`;
 
   return (
     <section className="panel active">
@@ -89,6 +95,25 @@ export default function SettingsPage() {
           <p className="muted small" style={{ marginTop: 12 }}>
             Mevcut çalışma listesinde {sites.length} aday saha var. Yedek alma ve geri yükleme işlemleri Yerel Çalışma Alanı sekmesinden yapılır.
           </p>
+        </div>
+
+        <div className="card workspace-settings-card">
+          <h2>Yerel çalışma alanı</h2>
+          <p className="muted">
+            Saha ve 3D yerleşim düzenleme araçları yalnızca bu tarayıcıda çalışır; genel veri setini veya yayımlanan uygulamayı değiştirmez.
+          </p>
+          <div style={{ margin: '14px 0' }}>
+            <WarningBanner
+              type="info"
+              message={workspaceEnabled
+                ? 'Yerel çalışma alanı bu oturum için etkin.'
+                : 'Gelişmiş düzenleme araçları varsayılan olarak kapalıdır. İhtiyacınız olduğunda buradan etkinleştirebilirsiniz.'}
+            />
+          </div>
+          <a className="btn primary" href={workspaceHref}>
+            <ShieldCheck size={16} aria-hidden="true" />
+            {workspaceEnabled ? 'Yerel çalışma alanını aç' : 'Yerel çalışma alanını etkinleştir'}
+          </a>
         </div>
       </div>
     </section>

@@ -35,5 +35,6 @@ describe('SettingsPage', () => {
     expect(screen.getByRole('slider', { name: 'Piyasa ve yük' })).toBeTruthy();
     expect(screen.getByText(/kaynak skor 70/i)).toBeTruthy();
     expect(screen.getByText(/^senaryo skoru 70$/i)).toBeTruthy();
+    expect(screen.getByRole('link', { name: /yerel çalışma alanını etkinleştir/i })).toBeTruthy();
   });
 });
