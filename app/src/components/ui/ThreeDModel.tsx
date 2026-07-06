@@ -110,9 +110,9 @@ function RealisticTerrain({ opacity, isPresenzano }: { opacity: number; isPresen
       if (normalZ < 0.76) {
         c = colorRock.clone();
       } else {
-        if (h < 12) c = colorValley.clone().lerp(colorGrass, h / 12);
-        else if (h < 66) c = colorGrass.clone().lerp(colorRock, (h - 12) / 54);
-        else if (h < 96) c = colorRock.clone().lerp(colorSnow, (h - 66) / 30);
+        if (h < 12) c = colorValley.clone().lerp(colorGrass, clamp(h / 12, 0, 1));
+        else if (h < 66) c = colorGrass.clone().lerp(colorRock, clamp((h - 12) / 54, 0, 1));
+        else if (h < 96) c = colorRock.clone().lerp(colorSnow, clamp((h - 66) / 30, 0, 1));
         else c = colorSnow.clone();
       }
 
@@ -125,10 +125,18 @@ function RealisticTerrain({ opacity, isPresenzano }: { opacity: number; isPresen
   }, [geometry, opacity]);
 
   return (
-    <mesh ref={mesh} geometry={geometry} material={material}
-      rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]}
-      receiveShadow
-    />
+    <group rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]}>
+      <mesh ref={mesh} geometry={geometry} material={material} receiveShadow />
+      {/* Topographic grid overlay to make the 3D surface obvious */}
+      <mesh geometry={geometry}>
+        <meshBasicMaterial 
+          color="#000000" 
+          wireframe 
+          transparent 
+          opacity={0.06} 
+        />
+      </mesh>
+    </group>
   );
 }
 
@@ -826,6 +834,7 @@ function TransmissionLine({ isPresenzano, isPlaying, mode, activeUnits }: any) {
             color={mode === 'generate' ? '#00ffff' : '#ff3333'} 
             transparent 
             opacity={0.9} 
+            depthTest={false}
           />
         </instancedMesh>
       ))}
@@ -926,8 +935,9 @@ function RealisticPenstock({ active, onClick, from, to, isPlaying, mode, activeU
     roughness: 0.2,
     emissive: active ? '#553c00' : '#000',
     emissiveIntensity: active ? 0.35 : 0,
-    transparent: isPlaying,
-    opacity: isPlaying ? 0.25 : 1,
+    transparent: true,
+    opacity: isPlaying ? 0.4 : 1,
+    depthWrite: !isPlaying,
     wireframe: isPlaying
   });
 
@@ -956,8 +966,13 @@ function RealisticPenstock({ active, onClick, from, to, isPlaying, mode, activeU
           ref={(el) => { if (el) instancedMeshesRef.current[line.id] = el; }}
           args={[undefined, undefined, particleCount]}
         >
-          <sphereGeometry args={[1, 6, 6]} />
-          <meshBasicMaterial color={mode === 'generate' ? '#06b6d4' : '#10b981'} />
+          <sphereGeometry args={[1, 12, 12]} />
+          <meshBasicMaterial 
+            color={mode === 'generate' ? '#06b6d4' : '#10b981'} 
+            transparent 
+            opacity={0.9} 
+            depthTest={false} 
+          />
         </instancedMesh>
       ))}
 
