@@ -56,8 +56,8 @@ export default function PdhesPage({ }: PdhesPageProps) {
             { id: 'sec-tipler', title: 'PDHES Tipleri' },
             { id: 'sec-ornekler', title: 'Dünya Örnekleri' },
             { id: 'sec-faydalar', title: 'Faydalar' },
-            { id: 'sec-maliyet', title: 'Maliyet ve Gelir' },
             { id: 'sec-riskler', title: 'Riskler' },
+            { id: 'sec-maliyet', title: 'Maliyet ve Gelir' },
             { id: 'sec-sozluk', title: 'Teknik Sözlük' },
             { id: 'sec-sss', title: 'Sık Sorulan Sorular' },
           ]} />
