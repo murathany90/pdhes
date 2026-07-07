@@ -297,6 +297,13 @@ export function useMapLibre({
           const { setWorldExampleFocus } = useSiteStore.getState();
           setWorldExampleFocus(example.id);
         });
+
+        popup.on('close', () => {
+          const { worldExampleFocusId, clearWorldExampleFocus } = useSiteStore.getState();
+          if (worldExampleFocusId === example.id) {
+            clearWorldExampleFocus();
+          }
+        });
         
         marker.setPopup(popup);
         

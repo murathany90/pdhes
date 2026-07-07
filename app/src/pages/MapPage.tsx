@@ -84,9 +84,8 @@ export default function MapPage() {
           }
         }, 300);
       }
-      clearWorldExampleFocus();
     }
-  }, [worldExampleFocusId, mapRef, clearWorldExampleFocus]);
+  }, [worldExampleFocusId, mapRef]);
 
   if (!site) return <section className="panel active"><p className="muted">Veri yükleniyor...</p></section>;
 
