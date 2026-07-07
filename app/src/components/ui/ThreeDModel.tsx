@@ -237,7 +237,7 @@ function RealisticUpperReservoir({ position, active, onClick, detail, waterLevel
         />
       </mesh>
 
-      <Html position={[0, damH + 3, 0]} center style={{ display: showLabels ? 'block' : 'none' }} zIndexRange={[100, 0]}>
+      <Html position={[0, damH + 20, 0]} center style={{ display: showLabels ? 'block' : 'none' }} zIndexRange={[100, 0]}>
         <div style={labelStyle(active, '#3d7dff')}>
           {isPresenzano ? 'Cesima Üst Rezervuarı (6 Milyon m³)' : (site?.upper ? `${site.upper} (${detail.active_volume_mcm} Milyon m³)` : `Üst Rezervuar (${detail.active_volume_mcm} Milyon m³)`)}
         </div>
@@ -316,7 +316,7 @@ function RealisticLowerReservoir({ position, active, onClick, waterLevelRef, sho
         />
       </mesh>
 
-      <Html position={[0, 4, 0]} center style={{ display: showLabels ? 'block' : 'none' }} zIndexRange={[100, 0]}>
+      <Html position={[0, depth + 25, 0]} center style={{ display: showLabels ? 'block' : 'none' }} zIndexRange={[100, 0]}>
         <div style={labelStyle(active, '#15cfe8')}>{isPresenzano ? 'Presenzano Alt Rezervuarı (6 Milyon m³)' : 'Alt Rezervuar'}</div>
       </Html>
     </group>
@@ -367,7 +367,7 @@ function SeaWaterReservoir({ position, active, onClick, waterLevelRef, showLabel
       </group>
 
       {/* Infinite Sea Plane */}
-      <mesh ref={waterMesh} rotation={[-Math.PI/2, 0, 0]} position={[20, 0, 0]}>
+      <mesh ref={waterMesh} rotation={[-Math.PI/2, 0, 0]} position={[260, 0, 0]}>
         <planeGeometry args={[400, 400, 32, 32]} />
         <MeshDistortMaterial 
           color="#045a7a" 
@@ -655,15 +655,17 @@ function RealisticSwitchyard({ active, onClick, detail, showLabels, isPresenzano
         <boxGeometry args={[12, 0.25, 0.25]} />
         <meshStandardMaterial color="#88929e" metalness={0.7} />
       </mesh>
-      <mesh position={[-5.6, 2.0, -4.6]} castShadow><boxGeometry args={[0.25, 4.0, 0.25]} /><meshStandardMaterial color="#88929e" metalness={0.7} /></mesh>
-      <mesh position={[5.6, 2.0, -4.6]} castShadow><boxGeometry args={[0.25, 4.0, 0.25]} /><meshStandardMaterial color="#88929e" metalness={0.7} /></mesh>
+      <mesh position={[-5.6, 2.0, -4.6]} castShadow><boxGeometry args={[0.25, 4.0, 0.25]} /><meshStandardMaterial color="#88929e" metalness={0.7} />
+      </mesh>
+      <mesh position={[5.6, 2.0, -4.6]} castShadow><boxGeometry args={[0.25, 4.0, 0.25]} /><meshStandardMaterial color="#88929e" metalness={0.7} />
+      </mesh>
       
       {/* Gantry insulators */}
       <mesh position={[-3.6, 3.4, -4.6]}><cylinderGeometry args={[0.04, 0.04, 0.8]} /><meshStandardMaterial color="#c0c4c8" /></mesh>
       <mesh position={[0, 3.4, -4.6]}><cylinderGeometry args={[0.04, 0.04, 0.8]} /><meshStandardMaterial color="#c0c4c8" /></mesh>
       <mesh position={[3.6, 3.4, -4.6]}><cylinderGeometry args={[0.04, 0.04, 0.8]} /><meshStandardMaterial color="#c0c4c8" /></mesh>
 
-      <Html position={[0, 5, 0]} center style={{ display: showLabels ? 'block' : 'none' }}>
+      <Html position={[10, 15, 0]} center style={{ display: showLabels ? 'block' : 'none' }} zIndexRange={[100, 0]}>
         <div style={labelStyle(active, 'var(--green)')}>{isPresenzano ? 'Presenzano Şalt Sahası (380 kV)' : `Şalt Sahası (${detail.voltage_kv} kV)`}</div>
       </Html>
 
@@ -866,27 +868,23 @@ function TransmissionLine({ isPresenzano, isPlaying, mode, activeUnits }: any) {
    ───────────────────────────────────────────── */
 function RealisticPenstock({ active, onClick, from, to, isPlaying, mode, activeUnits, maxUnits = 2, showLabels, isPresenzano }: any) {
   const linesData = useMemo(() => {
-    const pTop = from.clone();
-    
-    // Middle point representation for steep slopes:
-    // Presenzano upper section: 55% slope, lower section: 110% slope
-    const pMid = isPresenzano
-      ? new THREE.Vector3(from.x + 11.0, from.y - 6.5, (from.z + to.z) / 2)
-      : new THREE.Vector3().lerpVectors(from, to, 0.55).setY(from.y - (from.y - to.y) * 0.45 - 2.5);
-    const pBot = to.clone();
-
     // Spacing offsets along Z-axis dynamically calculated based on maxUnits
     const spacing = isPresenzano ? 1.4 : 2.2;
     const zOffsets = Array.from({ length: maxUnits }, (_, i) => (i - (maxUnits - 1) / 2) * spacing);
     
     return zOffsets.map((offsetVal, index) => {
       const offsetVec = new THREE.Vector3(0, 0, offsetVal);
-      const cLine = new THREE.QuadraticBezierCurve3(
-        pTop.clone().add(offsetVec),
-        pMid.clone().add(offsetVec),
-        pBot.clone().add(offsetVec)
-      );
       
+      const pts: THREE.Vector3[] = [];
+      const segments = 25;
+      for (let i = 0; i <= segments; i++) {
+        const t = i / segments;
+        const pt = new THREE.Vector3().lerpVectors(from, to, t);
+        // Ensure Penstock stays slightly above the terrain
+        pt.y = getTerrainHeight(pt.x, pt.z, isPresenzano) + 1.2;
+        pts.push(pt.add(offsetVec));
+      }
+      const cLine = new THREE.CatmullRomCurve3(pts);
       const radius = isPresenzano ? 0.35 : 0.55;
       
       return {
@@ -898,12 +896,14 @@ function RealisticPenstock({ active, onClick, from, to, isPlaying, mode, activeU
   }, [from, to, isPresenzano, maxUnits]);
 
   const anchorPoints = useMemo(() => {
-    const pTop = from.clone();
-    const pMid = isPresenzano
-      ? new THREE.Vector3(from.x + 11.0, from.y - 6.5, (from.z + to.z) / 2)
-      : new THREE.Vector3().lerpVectors(from, to, 0.55).setY(from.y - (from.y - to.y) * 0.45 - 2.5);
-    const pBot = to.clone();
-    return [pTop, pMid, pBot];
+    const pts: THREE.Vector3[] = [];
+    // Place anchors at 0%, 50%, 100% of the curve
+    [0, 0.5, 1].forEach(t => {
+        const pt = new THREE.Vector3().lerpVectors(from, to, t);
+        pt.y = getTerrainHeight(pt.x, pt.z, isPresenzano) + 0.5;
+        pts.push(pt);
+    });
+    return pts;
   }, [from, to, isPresenzano]);
 
   // instanced water flow particles inside
@@ -1032,7 +1032,7 @@ function UndergroundTunnel({ from, to, active, onClick, showLabels }: any) {
       <mesh geometry={geometry}>
         <meshBasicMaterial color="#1e293b" wireframe transparent opacity={0.15} />
       </mesh>
-      <Html position={[(from.x+to.x)/2, (from.y+to.y)/2 + 5, (from.z+to.z)/2]} center style={{ display: showLabels ? 'block' : 'none' }} zIndexRange={[100, 0]}>
+      <Html position={[(from.x+to.x)/2, (from.y+to.y)/2 + 25, (from.z+to.z)/2]} center style={{ display: showLabels ? 'block' : 'none' }} zIndexRange={[100, 0]}>
         <div style={labelStyle(active, '#94a3b8')}>Yeraltı Tüneli</div>
       </Html>
     </group>
@@ -1102,7 +1102,7 @@ function TailraceChannel({ from, to, active, onClick, showLabels, isPlaying, mod
         <sphereGeometry args={[1, 6, 6]} />
         <meshBasicMaterial color={mode === 'generate' ? '#06b6d4' : '#10b981'} />
       </instancedMesh>
-      <Html position={[(from.x+to.x)/2 + 4, (from.y+to.y)/2 + 2, (from.z+to.z)/2 - 5]} center style={{ display: showLabels ? 'block' : 'none' }} zIndexRange={[100, 0]}>
+      <Html position={[(from.x+to.x)/2 + 4, (from.y+to.y)/2 + 25, (from.z+to.z)/2 - 5]} center style={{ display: showLabels ? 'block' : 'none' }} zIndexRange={[100, 0]}>
         <div style={labelStyle(active, '#0891b2')}>Kuyruk Suyu</div>
       </Html>
     </group>

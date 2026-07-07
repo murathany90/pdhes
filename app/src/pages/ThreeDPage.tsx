@@ -186,18 +186,19 @@ export default function ThreeDPage({ site: propSite }: { site?: Site }) {
             </div>
           </div>
 
-          <div style={{ marginBottom: 24 }}>
-            <WarningBanner
-              type="warning"
-              message="Önemli: Bu 3D model kavramsal yerleşim amaçlıdır. Gerçek rezervuar sınırları, kotlar, tünel güzergâhı, cebri boru, şalt sahası ve iletim bağlantısı mühendislik etüdü, jeoteknik çalışma, DSİ/TEİAŞ görüşleri ve arazi ölçümleriyle doğrulanmalıdır."
-            />
-          </div>
-
-          <h3 style={{ marginTop: 16, marginBottom: 12 }}>Güven Etiketi</h3>
-          <div className="notice">
-            Konsept güveni: <b>{site.confidence}</b><br />
-            Konum doğruluğu: <b>{site.locationConfidence}</b><br />
-            Son doğrulama: <b>{site.verifiedAt}</b>
+          <h3 style={{ marginTop: 16, marginBottom: 12 }}>Fare (Mouse) Kontrolleri</h3>
+          <div className="card" style={{ padding: 16, backgroundColor: 'var(--surface-sunken)', border: '1px solid var(--border)' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, fontSize: 13, color: 'var(--text)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <b style={{ minWidth: 120 }}>Sol Tık + Sürükle:</b> <span>Kamerayı Döndür</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <b style={{ minWidth: 120 }}>Sağ Tık + Sürükle:</b> <span>Modeli Kaydır (Pan)</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <b style={{ minWidth: 120 }}>Tekerlek (Scroll):</b> <span>Yakınlaş / Uzaklaş</span>
+              </div>
+            </div>
           </div>
 
         </div>
