@@ -327,13 +327,18 @@ export function useMapLibre({
       zoom: site.view.zoom,
       pitch: site.view.pitch,
       bearing: site.view.bearing,
-      attributionControl: { compact: true },
+      attributionControl: false,
       maxZoom: 22,
     });
+    map.addControl(new maplibregl.AttributionControl({ compact: true }), 'bottom-right');
     map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'bottom-right');
     mapRef.current = map;
     mapStyleRef.current = mapStyle;
-    queueDrawLayers();
+    
+    map.on('load', () => {
+      queueDrawLayers();
+    });
+    
     return () => {
       markersRef.current.forEach(m => m.remove());
       markersRef.current = [];
