@@ -1,6 +1,9 @@
 import { useState, useMemo } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
+import 'katex/dist/katex.min.css';
 import { FileText, ArrowLeft, Clock, Calendar, User } from 'lucide-react';
 import { REPORTS_DATA } from '../data/reportsData';
 import { publicAssetUrl } from '../utils/publicUrl';
@@ -66,7 +69,7 @@ export default function ReportsPage() {
               </div>
 
               <div className="markdown-body">
-                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                <ReactMarkdown remarkPlugins={[remarkGfm, remarkMath]} rehypePlugins={[rehypeKatex]}>
                   {activeReport.content}
                 </ReactMarkdown>
               </div>
