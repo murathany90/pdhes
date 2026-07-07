@@ -1,7 +1,7 @@
 import { lazy, Suspense, useEffect, useState } from 'react';
 import {
   BookOpen,
-  Calculator,
+  FileText,
   Database,
   MapPinned,
   Moon,
@@ -15,7 +15,7 @@ import { useSiteStore } from './stores/useSiteStore';
 import { useSettingsStore } from './stores/useSettingsStore';
 import { useAppData } from './hooks/useAppData';
 import DataPage from './pages/DataPage';
-import CalcPage from './pages/CalcPage';
+import ReportsPage from './pages/ReportsPage';
 import PdhesPage from './pages/PdhesPage';
 import AppShell from './components/layout/AppShell';
 import TopNav from './components/layout/TopNav';
@@ -54,10 +54,10 @@ function preloadRoute(path: string) {
 
 const TABS = [
   { id: 'pdhes', path: '/pdhes', label: 'PDHES Nedir', Icon: BookOpen },
-  { id: 'data', path: '/data', label: 'Datalar', Icon: Database },
-  { id: 'map', path: '/map', label: 'Harita', Icon: MapPinned },
+  { id: 'data', path: '/data', label: 'PDHES Adayları', Icon: Database },
+  { id: 'map', path: '/map', label: 'Harita Gösterim', Icon: MapPinned },
   { id: 'threeD', path: '/3d', label: '3D Yerleşim', Icon: Mountain },
-  { id: 'calc', path: '/calc', label: 'Hesaplamalar', Icon: Calculator },
+  { id: 'reports', path: '/reports', label: 'Raporlar ve Haberler', Icon: FileText },
   { id: 'workspace', path: '/workspace', label: 'Yerel Çalışma Alanı', Icon: ShieldCheck },
 ];
 
@@ -153,7 +153,7 @@ export default function App() {
     </nav>
   );
 
-  const showLocalWarning = ['/workspace', '/settings', '/calc', '/site-editor', '/three-d-editor']
+  const showLocalWarning = ['/workspace', '/settings', '/reports', '/site-editor', '/three-d-editor']
     .some((path) => location.pathname.startsWith(path));
 
   return (
@@ -168,7 +168,7 @@ export default function App() {
       }
       tabs={tabsNode}
     >
-      {location.pathname === '/calc' && (
+      {location.pathname === '/reports' && (
         <div style={{ padding: '18px 18px 0 18px', flexShrink: 0 }}>
           <WarningBanner
             message="Eğitim ve masaüstü ön inceleme demosudur; yatırım tavsiyesi, fizibilite, mühendislik tasarımı veya resmi kurum görüşü değildir. Harita altlıkları ve arazi verileri 3. taraf servislerden yüklenmektedir."
@@ -195,7 +195,7 @@ export default function App() {
           <Route path="/data" element={<DataPage site={selectedSite} />} />
           <Route path="/map" element={<MapPage />} />
           <Route path="/3d" element={<ThreeDPage site={selectedSite} />} />
-          <Route path="/calc" element={<CalcPage site={selectedSite} />} />
+          <Route path="/reports" element={<ReportsPage />} />
           <Route
             path="/workspace"
             element={workspaceEnabled ? (
