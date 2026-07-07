@@ -290,7 +290,7 @@ Açık çevrim projelere kıyasla kapalı çevrim (nehir sisteminden bağımsız
     author: 'Sistem Araştırma Modülü',
     publishDate: '2026-07-07',
     readTime: 20,
-    coverImage: '/pdhes_site_gorselleri_webp/3d_pdhes_arazi_1.webp',
+    coverImage: '/pdhes_site_gorselleri_webp/italya_dev_yercekimi_bataryasi/italya_dev_yercekimi_bataryasi_01.webp',
     summary: 'Dünyadaki ilk ve tek deniz suyu pompaj depolamalı hidroelektrik santrali olan Okinawa Yanbaru projesinin neden başarısız olduğuna dair kapsamlı mühendislik ve ekonomik analiz.',
     content: `# **Dünyadaki Deniz Suyu Pompaj Depolamalı Hidroelektrik Santrallerinin Kapsamlı Analizi: Okinawa Yanbaru Örneği ve Küresel Perspektif**
 
@@ -298,9 +298,9 @@ Açık çevrim projelere kıyasla kapalı çevrim (nehir sisteminden bağımsız
 
 Küresel enerji matrisi, iklim değişikliği ile mücadele ve karbon nötr hedefleri doğrultusunda, fosil yakıtlardan yenilenebilir enerji kaynaklarına doğru tarihsel ve benzeri görülmemiş bir hızla kaymaktadır. Ancak, özellikle rüzgar ve güneş enerjisi gibi kaynakların doğasında var olan kesintililik (intermittency) ve meteorolojik koşullara bağlı değişkenlik, modern elektrik şebekelerinin stabilitesini, güvenilirliğini ve operasyonel esnekliğini tehdit eden en büyük mühendislik ve ekonomik problemlerden biri haline gelmiştir. Bu bağlamda, enerji arzı ile enerji talebi arasındaki zamansal uyumsuzluğu gidermek, şebeke frekansını düzenlemek ve baz yük ihtiyacını karşılamak için "uzun süreli enerji depolama" (Long-Duration Energy Storage \\- LDES) sistemleri kritik bir altyapı zorunluluğu olarak öne çıkmaktadır. Günümüzde, batarya teknolojilerindeki muazzam ilerlemelere rağmen, küresel elektrik depolama kapasitesinin yüzde 94'ünden fazlası hala kanıtlanmış, uzun ömürlü ve büyük ölçekli bir teknoloji olan geleneksel Pompaj Depolamalı Hidroelektrik Santralleri (PDHES) tarafından sağlanmaktadır.1  
 Geleneksel PDHES sistemleri, aralarında belirli bir kot farkı (düşü) bulunan iki devasa tatlı su rezervuarı arasında suyun yerçekimine karşı pompalanması ve ardından yerçekimi ivmesiyle türbinlenmesi prensibiyle çalışır. Temel fiziksel prensip, ihtiyaç fazlası ve ucuz elektriğin bulunduğu saatlerde suyun yukarı pompalanarak potansiyel enerji formunda depolanması, talebin pik yaptığı saatlerde ise bu suyun aşağı bırakılarak kinetik ve nihayetinde elektrik enerjisine dönüştürülmesidir.4 Bu termodinamik dönüşüm, matematiksel olarak potansiyel enerji formülü ile ifade edilir:  
-![Görsel](/pdhes_site_gorselleri_webp/3d_pdhes_arazi_2.webp)  
-Bu denklemde ![Görsel](/pdhes_site_gorselleri_webp/3d_pdhes_arazi_2.webp) depolanan toplam enerjiyi, ![Görsel](/pdhes_site_gorselleri_webp/3d_pdhes_arazi_2.webp) kullanılan suyun yoğunluğunu, ![Görsel](/pdhes_site_gorselleri_webp/3d_pdhes_arazi_2.webp) yerçekimi ivmesini, ![Görsel](/pdhes_site_gorselleri_webp/3d_pdhes_arazi_2.webp) iki rezervuar arasındaki net düşüyü, ![Görsel](/pdhes_site_gorselleri_webp/3d_pdhes_arazi_2.webp) pompalanabilen suyun hacmini ve ![Görsel](/pdhes_site_gorselleri_webp/3d_pdhes_arazi_2.webp) hidromekanik ve elektromekanik sistemin genel çevrim verimliliğini (round-trip efficiency) temsil etmektedir.9 Bu fiziksel gerçekliğin gösterdiği üzere, yüksek bir enerji depolama kapasitesi elde etmek için mühendislerin ya düşü miktarını (![Görsel](/pdhes_site_gorselleri_webp/3d_pdhes_arazi_2.webp)) ya da kullanılabilir su hacmini (![Görsel](/pdhes_site_gorselleri_webp/3d_pdhes_arazi_2.webp)) maksimize etmeleri gerekmektedir. Ancak geleneksel tatlı su tabanlı PDHES tesislerinin inşası, spesifik topografik koşullara, yani birbirine yakın ancak aralarında yüksek kot farkı bulunan dağlık alanlara ve devasa hacimlerde tatlı su kaynaklarına sıkı sıkıya bağlıdır. Dünyanın pek çok gelişmiş bölgesinde, özellikle Japonya ve Avrupa'da, bu coğrafi kriterleri karşılayan tatlı su alanlarının halihazırda değerlendirilmiş olması veya katı çevresel koruma kanunlarıyla sınırlandırılması, sektörü yeni ve sınırsız bir kaynak arayışına itmiştir.10  
-İşte tam bu noktada "Deniz Suyu Pompaj Depolamalı Hidroelektrik Santrali" (DSPDHES) konsepti teorik bir mühendislik devrimi olarak ortaya çıkmıştır. Okyanusların ve denizlerin sistemin alt rezervuarı olarak kullanılması, formüldeki su hacmi (![Görsel](/pdhes_site_gorselleri_webp/3d_pdhes_arazi_2.webp)) kısıtlamasını teorik olarak sonsuzluğa genişletmekte ve kara içlerindeki tatlı su ekosistemleri üzerindeki ekolojik baskıyı tamamen ortadan kaldırmaktadır.6 Okyanusların alt rezervuar olarak işlev gördüğü bu sistemlerde, yalnızca kıyı şeridine yakın, yüksek rakımlı bir falez veya dağ zirvesine tek bir yapay üst rezervuarın inşa edilmesi yeterli olmaktadır.6 Ancak okyanus suyunun sınırsız potansiyeli, beraberinde muazzam metalurjik tahribat, biyolojik istila ve çevresel yıkım potansiyellerini de getirmektedir. Bu araştırma raporu, deniz suyu kullanan dünyadaki ilk PDHES pilot uygulaması olan Okinawa Yanbaru projesinin neden başarısız olduğunu, sistemin arkasındaki korozyon ve biyo-kirlenme zorluklarını, Şili, Avustralya, Japonya ve İspanya gibi ülkelerdeki diğer deniz tipi PDHES projelerinin geçmişini ve bu teknolojinin gelecekteki evrimini son derece detaylı bir analitik çerçevede incelemektedir.
+![Görsel](/pdhes_site_gorselleri_webp/gokcekaya_pompaj_depolama_bataryasi/gokcekaya_pompaj_depolama_bataryasi_01.webp)  
+Bu denklemde ![Görsel](/pdhes_site_gorselleri_webp/gokcekaya_pompaj_depolama_bataryasi/gokcekaya_pompaj_depolama_bataryasi_01.webp) depolanan toplam enerjiyi, ![Görsel](/pdhes_site_gorselleri_webp/gokcekaya_pompaj_depolama_bataryasi/gokcekaya_pompaj_depolama_bataryasi_01.webp) kullanılan suyun yoğunluğunu, ![Görsel](/pdhes_site_gorselleri_webp/gokcekaya_pompaj_depolama_bataryasi/gokcekaya_pompaj_depolama_bataryasi_01.webp) yerçekimi ivmesini, ![Görsel](/pdhes_site_gorselleri_webp/gokcekaya_pompaj_depolama_bataryasi/gokcekaya_pompaj_depolama_bataryasi_01.webp) iki rezervuar arasındaki net düşüyü, ![Görsel](/pdhes_site_gorselleri_webp/gokcekaya_pompaj_depolama_bataryasi/gokcekaya_pompaj_depolama_bataryasi_01.webp) pompalanabilen suyun hacmini ve ![Görsel](/pdhes_site_gorselleri_webp/gokcekaya_pompaj_depolama_bataryasi/gokcekaya_pompaj_depolama_bataryasi_01.webp) hidromekanik ve elektromekanik sistemin genel çevrim verimliliğini (round-trip efficiency) temsil etmektedir.9 Bu fiziksel gerçekliğin gösterdiği üzere, yüksek bir enerji depolama kapasitesi elde etmek için mühendislerin ya düşü miktarını (![Görsel](/pdhes_site_gorselleri_webp/gokcekaya_pompaj_depolama_bataryasi/gokcekaya_pompaj_depolama_bataryasi_01.webp)) ya da kullanılabilir su hacmini (![Görsel](/pdhes_site_gorselleri_webp/gokcekaya_pompaj_depolama_bataryasi/gokcekaya_pompaj_depolama_bataryasi_01.webp)) maksimize etmeleri gerekmektedir. Ancak geleneksel tatlı su tabanlı PDHES tesislerinin inşası, spesifik topografik koşullara, yani birbirine yakın ancak aralarında yüksek kot farkı bulunan dağlık alanlara ve devasa hacimlerde tatlı su kaynaklarına sıkı sıkıya bağlıdır. Dünyanın pek çok gelişmiş bölgesinde, özellikle Japonya ve Avrupa'da, bu coğrafi kriterleri karşılayan tatlı su alanlarının halihazırda değerlendirilmiş olması veya katı çevresel koruma kanunlarıyla sınırlandırılması, sektörü yeni ve sınırsız bir kaynak arayışına itmiştir.10  
+İşte tam bu noktada "Deniz Suyu Pompaj Depolamalı Hidroelektrik Santrali" (DSPDHES) konsepti teorik bir mühendislik devrimi olarak ortaya çıkmıştır. Okyanusların ve denizlerin sistemin alt rezervuarı olarak kullanılması, formüldeki su hacmi (![Görsel](/pdhes_site_gorselleri_webp/gokcekaya_pompaj_depolama_bataryasi/gokcekaya_pompaj_depolama_bataryasi_01.webp)) kısıtlamasını teorik olarak sonsuzluğa genişletmekte ve kara içlerindeki tatlı su ekosistemleri üzerindeki ekolojik baskıyı tamamen ortadan kaldırmaktadır.6 Okyanusların alt rezervuar olarak işlev gördüğü bu sistemlerde, yalnızca kıyı şeridine yakın, yüksek rakımlı bir falez veya dağ zirvesine tek bir yapay üst rezervuarın inşa edilmesi yeterli olmaktadır.6 Ancak okyanus suyunun sınırsız potansiyeli, beraberinde muazzam metalurjik tahribat, biyolojik istila ve çevresel yıkım potansiyellerini de getirmektedir. Bu araştırma raporu, deniz suyu kullanan dünyadaki ilk PDHES pilot uygulaması olan Okinawa Yanbaru projesinin neden başarısız olduğunu, sistemin arkasındaki korozyon ve biyo-kirlenme zorluklarını, Şili, Avustralya, Japonya ve İspanya gibi ülkelerdeki diğer deniz tipi PDHES projelerinin geçmişini ve bu teknolojinin gelecekteki evrimini son derece detaylı bir analitik çerçevede incelemektedir.
 
 ## **Deniz Suyu Pompaj Depolama Sistemlerinin Hidromekanik Anatomisi**
 
@@ -354,7 +354,7 @@ Buna rağmen, Okinawa Yanbaru'nun mirası tamamen silinmemiştir. Orada gelişti
 ## **Deniz Suyu Kullanımındaki Agresif Doğa Dinamikleri: Korozyon ve Biyo-Kirlenme Derinlemesine Analizi**
 
 Okinawa Yanbaru projesi ve sonrasındaki teorik modellemeler göstermiştir ki; bir okyanus veya denizi alt rezervuar olarak kullanmak, geleneksel hidroelektrik mühendisliğinden ziyade, denizcilik ve malzeme bilimlerinin en karmaşık disiplinlerine girmeyi gerektirir. Sistemlerin fizibilitesini etkileyen en temel engeller, suyun kimyasal agresifliği (korozyon) ve okyanusun biyolojik üretkenliğidir (biofouling).  
-Korozyon, deniz suyunun sahip olduğu yüksek klorür iyonu (![Görsel](/pdhes_site_gorselleri_webp/3d_pdhes_arazi_2.webp)) konsantrasyonundan kaynaklanır. Klorür iyonları, paslanmaz çelik gibi metallerin yüzeyinde doğal olarak oluşan ve metali koruyan pasif oksit tabakasını yerel olarak delme eğilimindedir.24 Bu delinme, mikroskobik düzeyde başlar ancak otokatalitik bir reaksiyonla hızla derinleşerek "çukurcuk korozyonuna" (pitting corrosion) dönüşür. Sistemdeki flanş bağlantıları, cıvata altları veya contalar gibi suyun durağan kaldığı dar boşluklarda ise oksijen konsantrasyonu düşer ve klorür yoğunlaşarak çok daha hızlı ilerleyen "aralık korozyonuna" (crevice corrosion) yol açar.24 Pompaj depolamalı santrallerde su, borulardan ve türbin kanatçıklarından saniyede metrelerce hızla geçer. Korozyon hızının suyun akış hızıyla, türbülansıyla ve kavitasyon etkisiyle eksponansiyel olarak arttığı iyi bilinen bir metalurjik gerçektir.14 Bu nedenle yüksek titanyum alaşımları, süper dubleks paslanmaz çelikler (UNS S31254 gibi) kullanmak zorunludur ki bu malzemeler standart çeliğe göre muazzam fiyat farklarına sahiptir.33  
+Korozyon, deniz suyunun sahip olduğu yüksek klorür iyonu (![Görsel](/pdhes_site_gorselleri_webp/gokcekaya_pompaj_depolama_bataryasi/gokcekaya_pompaj_depolama_bataryasi_01.webp)) konsantrasyonundan kaynaklanır. Klorür iyonları, paslanmaz çelik gibi metallerin yüzeyinde doğal olarak oluşan ve metali koruyan pasif oksit tabakasını yerel olarak delme eğilimindedir.24 Bu delinme, mikroskobik düzeyde başlar ancak otokatalitik bir reaksiyonla hızla derinleşerek "çukurcuk korozyonuna" (pitting corrosion) dönüşür. Sistemdeki flanş bağlantıları, cıvata altları veya contalar gibi suyun durağan kaldığı dar boşluklarda ise oksijen konsantrasyonu düşer ve klorür yoğunlaşarak çok daha hızlı ilerleyen "aralık korozyonuna" (crevice corrosion) yol açar.24 Pompaj depolamalı santrallerde su, borulardan ve türbin kanatçıklarından saniyede metrelerce hızla geçer. Korozyon hızının suyun akış hızıyla, türbülansıyla ve kavitasyon etkisiyle eksponansiyel olarak arttığı iyi bilinen bir metalurjik gerçektir.14 Bu nedenle yüksek titanyum alaşımları, süper dubleks paslanmaz çelikler (UNS S31254 gibi) kullanmak zorunludur ki bu malzemeler standart çeliğe göre muazzam fiyat farklarına sahiptir.33  
 Biyo-kirlenme (Biofouling) ise en az korozyon kadar sinsi bir problemdir. Deniz suyu pompalandığında sadece tuzu değil, içinde yaşayan milyonlarca mikroorganizmayı, makroorganizmaların larvalarını, bakterileri ve yosunları da sisteme çeker.21 Sistem içine alınan deniz suyu borularda, filtrelerde ve türbin yüzeylerinde kaldığı süre boyunca bu organizmalar yüzeye tutunarak bir biyofilm oluşturur. Bu biyofilm tabakası üzerine kaya koruğu (barnacles), istiridye, yeşil midye gibi sert kabuklu canlılar yerleşerek hızla kolonileşir.22  
 Biyo-kirlenmenin iki büyük yıkıcı etkisi vardır. Birincisi hidrolik verim kaybıdır; boru çeperlerinde biriken kalın biyolojik tabaka, yüzey pürüzlülüğünü (surface roughness) inanılmaz boyutlarda artırır. Bu durum, su akışını kısıtlar, sürtünme kayıplarını maksimize eder ve pompaların aynı miktarda suyu basmak için çok daha fazla enerji harcamasına neden olur.13 İkincisi ise Biyolojik Olarak İndüklenmiş Korozyondur (Microbiologically Influenced Corrosion \\- MIC). Singapur açıklarında yapılan çok detaylı 30 aylık deniz suyu testleri şaşırtıcı bir gerçeği ortaya koymuştur: Çelik üzerindeki korozyon, istiridyeler tarafından şiddetle hızlandırılmakta, istiridyeler 12 ay içinde 2 milimetre kalınlığındaki paslanmaz çelik plakaları (UNS S31603) delerek santimetrelerce uzunlukta korozyon yolları açmaktadır.33 Daha da ilginç olanı, canlı kaya koruklarının altından ziyade, *ölü* kaya koruklarının kabukları altında korozyonun çok daha şiddetli olmasıdır. Ölü organizmaların altında oksijensiz (anaerobik) bir ortam oluşur ve Sülfat İndirgeyen Bakteriler (SRB) burada üreyerek çeliği asidik bir salgıyla parçalar.33 Bu tahribatı önlemek için toksik olmayan biyosit boyalar, SLIC (Superhydrophobic Lubricant Infused Composite) gibi teflondan on kat daha kaygan nano-kaplamalar kullanılsa da, türbin içindeki aşırı hız ve kavitasyon bu boyaların ömrünü çok kısaltmakta ve bakım (OPEX) maliyetlerini sürdürülemez kılmaktadır.13
 
@@ -544,11 +544,11 @@ Bu tarihsel süreçten çıkarılan en derinlemesine stratejik içgörü, İspan
     author: 'Murathan Yeniceli',
     publishDate: '2026-07-07',
     readTime: 8,
-    coverImage: '/pdhes_site_gorselleri_webp/3d_pdhes_arazi_2.webp',
+    coverImage: '/pdhes_site_gorselleri_webp/gokcekaya_pompaj_depolama_bataryasi/gokcekaya_pompaj_depolama_bataryasi_01.webp',
     summary: 'PDHES, elektrik sisteminin fazla enerjisini suyun potansiyel enerjisine çeviren, ihtiyaç anında ise bu enerjiyi yeniden şebekeye veren büyük ölçekli “su bataryalarıdır”.',
     content: `[
 
-![](https://substackcdn.com/image/fetch/$s_!3ZWU!,w_2400,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F9e5856c3-8747-49ea-a102-bd047243c0ee_767x415.jpeg)
+![Görsel](/pdhes_site_gorselleri_webp/direncli_sebeke_mimarisi/direncli_sebeke_mimarisi_02.webp)
 
 
 
@@ -570,7 +570,7 @@ PDHES’in “şarj” modu pompalama modudur. Elektrik talebinin düşük, yeni
 
 [
 
-![](https://substackcdn.com/image/fetch/$s_!hdmf!,w_2400,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F324db8e9-4023-4932-8112-21a2b9e4ca3d_728x387.jpeg)
+![Görsel](/pdhes_site_gorselleri_webp/direncli_sebeke_mimarisi/direncli_sebeke_mimarisi_03.webp)
 
 
 
@@ -586,7 +586,7 @@ Modern PDHES tesislerinde en yaygın mimari, aynı hidrolik makinenin hem pompa 
 
 [
 
-![](https://substackcdn.com/image/fetch/$s_!UGG_!,w_2400,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Fff423fd6-e2fa-4f6a-824d-f2d0a4ee08af_739x419.jpeg)
+![Görsel](/pdhes_site_gorselleri_webp/direncli_sebeke_mimarisi/direncli_sebeke_mimarisi_04.webp)
 
 
 
@@ -602,7 +602,7 @@ PDHES tesisleri su kaynakları ile ilişkisine göre iki ana gruba ayrılır. A�
 
 [
 
-![](https://substackcdn.com/image/fetch/$s_!-4FH!,w_2400,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F9f91a012-0abb-4725-9cd8-87a15a1631ec_743x398.jpeg)
+![Görsel](/pdhes_site_gorselleri_webp/direncli_sebeke_mimarisi/direncli_sebeke_mimarisi_05.webp)
 
 
 
@@ -616,7 +616,7 @@ Türkiye gibi mevcut baraj stoku güçlü ülkelerde açık devre veya mevcut HE
 
 [
 
-![](https://substackcdn.com/image/fetch/$s_!unrr!,w_2400,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F9c1e6852-982e-48a9-a933-5fbfc55ead25_729x300.png)
+![Görsel](/pdhes_site_gorselleri_webp/direncli_sebeke_mimarisi/direncli_sebeke_mimarisi_06.webp)
 
 
 
@@ -628,7 +628,7 @@ Bir PDHES’in gelir ve sistem değeri yalnızca elektrik fiyat farkından oluş
 
 [
 
-![](https://substackcdn.com/image/fetch/$s_!CiOl!,w_2400,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F7ae60b1a-5b91-4aaf-b616-d6fead0099b2_754x421.jpeg)
+![Görsel](/pdhes_site_gorselleri_webp/direncli_sebeke_mimarisi/direncli_sebeke_mimarisi_07.webp)
 
 
 
@@ -644,7 +644,7 @@ Klasik gelir modeli düşük fiyatlı saatlerde pompalamak, yüksek fiyatlı saa
 
 [
 
-![](https://substackcdn.com/image/fetch/$s_!TQxA!,w_2400,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Fe74ab8bb-5c45-48cf-b426-faeaa2fd76fe_668x391.jpeg)
+![Görsel](/pdhes_site_gorselleri_webp/direncli_sebeke_mimarisi/direncli_sebeke_mimarisi_08.webp)
 
 
 
@@ -663,7 +663,7 @@ PDHES’i yalnızca “barajdan elektrik üretmek” gibi okumak eksik kalır. B
     author: 'Murathan Yeniceli',
     publishDate: '2026-07-07',
     readTime: 8,
-    coverImage: '/pdhes_site_gorselleri_webp/3d_pdhes_arazi_3.webp',
+    coverImage: '/pdhes_site_gorselleri_webp/birlesik_enerji_depolama_stratejisi/birlesik_enerji_depolama_stratejisi_01.webp',
     summary: 'Dünya hidroelektrik yatırımlarında ağırlık noktası değişiyor: pompaj depolama artık yalnızca eski bir depolama teknolojisi değil, yenilenebilir çağın ana şebeke esnekliği altyapılarından biri.',
     content: `Küresel elektrik sistemi üç baskı altında dönüşüyor: değişken yenilenebilir üretim artıyor, fosil yakıtlara bağımlılık azaltılmak isteniyor ve şebekelerin aynı anda hem daha esnek hem daha güvenilir çalışması bekleniyor. Bu üç baskının kesiştiği yerde pompaj depolamalı hidroelektrik santraller yeniden stratejik teknoloji haline geliyor.
 
@@ -671,7 +671,7 @@ GEM, IHA ve DOE/ORNL kaynakları üzerinden hazırlanan derin araştırma dosyal
 
 [
 
-![](https://substackcdn.com/image/fetch/$s_!cZE-!,w_1456,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F6f7f1373-1db8-4c12-929e-8323d9ae7289_780x424.png)
+![Görsel](/pdhes_site_gorselleri_webp/direncli_sebeke_mimarisi/direncli_sebeke_mimarisi_09.webp)
 
 
 
@@ -689,7 +689,7 @@ Boru hattının ölçeği önemlidir; çünkü PDHES projeleri büyük inşaat i
 
 [
 
-![](https://substackcdn.com/image/fetch/$s_!rNM2!,w_1456,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F68a25c32-09a1-4497-810f-707943b8b307_780x566.png)
+![Görsel](/pdhes_site_gorselleri_webp/direncli_sebeke_mimarisi/direncli_sebeke_mimarisi_10.webp)
 
 
 
@@ -705,7 +705,7 @@ Avrupa’da İtalya, İspanya, Avusturya, Almanya, Fransa, İsviçre, Portekiz v
 
 [
 
-![](https://substackcdn.com/image/fetch/$s_!Bkrn!,w_1456,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Fa2313e07-cadb-4715-b5ea-309b15cd73db_780x435.png)
+![Görsel](/pdhes_site_gorselleri_webp/direncli_sebeke_mimarisi/direncli_sebeke_mimarisi_01.webp)
 
 
 
@@ -717,7 +717,7 @@ Hidroelektrik bakımından zengin olmak, otomatik olarak pompaj depolama lideri 
 
 [
 
-![](https://substackcdn.com/image/fetch/$s_!Ns1l!,w_1456,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F4adf9bd9-5e10-402c-a06b-973dcbe0303f_780x450.png)
+![Görsel](/pdhes_site_gorselleri_webp/direncli_sebeke_mimarisi/direncli_sebeke_mimarisi_02.webp)
 
 
 
@@ -738,7 +738,7 @@ Bu ayrım Türkiye açısından çok önemlidir. Türkiye hidroelektrik kurulu g
 
 [
 
-![](https://substackcdn.com/image/fetch/$s_!CV8j!,w_1456,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F2784139b-0540-4a7b-b51d-b51fe97353fa_728x418.jpeg)
+![Görsel](/pdhes_site_gorselleri_webp/direncli_sebeke_mimarisi/direncli_sebeke_mimarisi_03.webp)
 
 
 
@@ -754,7 +754,7 @@ Bu nedenle iyi bir PDHES veri tabanı, yalnızca santral listesinden ibaret olma
 
 [
 
-![](https://substackcdn.com/image/fetch/$s_!CGPI!,w_1456,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F8f203f15-edde-4cf0-8170-65f52aa4755b_620x817.jpeg)
+![Görsel](/pdhes_site_gorselleri_webp/direncli_sebeke_mimarisi/direncli_sebeke_mimarisi_04.webp)
 
 
 
@@ -773,11 +773,11 @@ PDHES küresel ölçekte eski bir teknolojinin yeniden keşfi değil; yeni enerj
     author: 'Murathan Yeniceli',
     publishDate: '2026-07-07',
     readTime: 8,
-    coverImage: '/pdhes_site_gorselleri_webp/3d_pdhes_arazi_4.webp',
+    coverImage: '/pdhes_site_gorselleri_webp/turkiye_pdhes_yatirim_yol_haritasi/turkiye_pdhes_yatirim_yol_haritasi_01.webp',
     summary: '2035’e giden yolda soru şudur: mevcut baraj stoku nasıl şebeke bataryasına dönüştürülür?',
     content: `[
 
-![](https://substackcdn.com/image/fetch/$s_!Ql63!,w_1456,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F5ceeedad-1f47-4e8c-a3c7-ac80fac95e04_718x377.jpeg)
+![Görsel](/pdhes_site_gorselleri_webp/direncli_sebeke_mimarisi/direncli_sebeke_mimarisi_05.webp)
 
 
 
@@ -799,7 +799,7 @@ Rüzgar ve güneş kurulu gücü arttıkça üretim profili daha değişken hale
 
 [
 
-![](https://substackcdn.com/image/fetch/$s_!rOaA!,w_1456,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F4571b263-8187-4e2e-8769-da9b24fb25de_743x382.jpeg)
+![Görsel](/pdhes_site_gorselleri_webp/direncli_sebeke_mimarisi/direncli_sebeke_mimarisi_06.webp)
 
 
 
@@ -813,7 +813,7 @@ Bu nedenle PDHES, Türkiye için yalnızca enerji depolama değil, aynı zamanda
 
 [
 
-![](https://substackcdn.com/image/fetch/$s_!bjbI!,w_1456,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F258fb42c-1354-45ca-b36f-fcc387107b24_734x352.jpeg)
+![Görsel](/pdhes_site_gorselleri_webp/direncli_sebeke_mimarisi/direncli_sebeke_mimarisi_07.webp)
 
 
 
@@ -827,7 +827,7 @@ Strateji dosyalarında Gökçekaya, Altınkaya, Oymapınar, Ulubat ve deniz suyu
 
 [
 
-![](https://substackcdn.com/image/fetch/$s_!EaM-!,w_1456,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Fc0a34794-f64e-4247-86fa-d4ea49428e89_713x376.jpeg)
+![Görsel](/pdhes_site_gorselleri_webp/direncli_sebeke_mimarisi/direncli_sebeke_mimarisi_08.webp)
 
 
 
@@ -841,7 +841,7 @@ Gökçekaya, dosyalardaki görsel strateji setlerinde “yatırıma yakın aday�
 
 [
 
-![](https://substackcdn.com/image/fetch/$s_!eJ6f!,w_1456,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Fa26c07f7-8843-4e30-8696-261f70b3d47a_666x368.jpeg)
+![Görsel](/pdhes_site_gorselleri_webp/direncli_sebeke_mimarisi/direncli_sebeke_mimarisi_09.webp)
 
 
 
@@ -855,7 +855,7 @@ Pilot proje, sadece elektrik üretmek için değil, Türkiye’nin PDHES standar
 
 [
 
-![](https://substackcdn.com/image/fetch/$s_!O1Bc!,w_1456,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F4aab5bd6-72be-455b-90c7-7d14ab4e084f_697x379.jpeg)
+![Görsel](/pdhes_site_gorselleri_webp/direncli_sebeke_mimarisi/direncli_sebeke_mimarisi_10.webp)
 
 
 
@@ -867,7 +867,7 @@ Türkiye’nin PDHES portföyü üç ailede ele alınabilir. Birinci aile mevcut
 
 [
 
-![](https://substackcdn.com/image/fetch/$s_!q9Ob!,w_1456,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Fcabb02b7-05dd-415b-91e0-07278c4eca15_719x390.jpeg)
+![Görsel](/pdhes_site_gorselleri_webp/direncli_sebeke_mimarisi/direncli_sebeke_mimarisi_01.webp)
 
 
 
@@ -881,7 +881,7 @@ Deniz suyu seçeneği teknik olarak çekicidir; ancak korozyon, deniz ekosistemi
 
 [
 
-![](https://substackcdn.com/image/fetch/$s_!6ckj!,w_1456,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Fd547efdb-cd5a-440b-905f-10a3da8a96e6_717x395.jpeg)
+![Görsel](/pdhes_site_gorselleri_webp/direncli_sebeke_mimarisi/direncli_sebeke_mimarisi_02.webp)
 
 
 
@@ -897,7 +897,7 @@ Yerli üretim avantajı iddiası, gerçekçi bir yerlileştirme takvimiyle deste
 
 [
 
-![](https://substackcdn.com/image/fetch/$s_!iinN!,w_1456,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F35c152a8-287c-4c9a-8064-60bca9cb20be_718x390.jpeg)
+![Görsel](/pdhes_site_gorselleri_webp/direncli_sebeke_mimarisi/direncli_sebeke_mimarisi_03.webp)
 
 
 
@@ -909,7 +909,7 @@ PDHES yatırımının finansmanı için enerji arbitrajı tek başına yeterli o
 
 [
 
-![](https://substackcdn.com/image/fetch/$s_!E2h_!,w_1456,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Fa4ce89b9-8f09-4387-a84a-bdf295319855_716x355.png)
+![Görsel](/pdhes_site_gorselleri_webp/direncli_sebeke_mimarisi/direncli_sebeke_mimarisi_04.webp)
 
 
 
@@ -921,7 +921,7 @@ Görsel 10 - PDHES proje önceliklendirme matrisi: teknik avantaj, risk ve strat
 
 [
 
-![](https://substackcdn.com/image/fetch/$s_!reKv!,w_1456,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F21ad4d38-d933-4bce-92c5-e27bc43e765f_733x258.png)
+![Görsel](/pdhes_site_gorselleri_webp/direncli_sebeke_mimarisi/direncli_sebeke_mimarisi_05.webp)
 
 
 
