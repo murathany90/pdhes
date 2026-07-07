@@ -907,7 +907,7 @@ html[data-theme="light"] .pdhes-rich-shell .source-footer { background: var(--pa
   background: var(--panel);
   border: 1px solid var(--line);
   border-radius: 12px;
-  width: 456px;
+  width: 520px;
   height: 750px; max-height: 80vh;
   display: flex;
   flex-direction: column;
@@ -968,7 +968,7 @@ html[data-theme="light"] .pdhes-rich-shell .source-footer { background: var(--pa
 .fab-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 13px;
+  font-size: 12.5px;
 }
 
 .fab-table th {
@@ -984,7 +984,7 @@ html[data-theme="light"] .pdhes-rich-shell .source-footer { background: var(--pa
 }
 
 .fab-table td, .fab-table th {
-  padding: 10px 12px;
+  padding: 8px 8px;
   border-bottom: 1px solid var(--line);
   color: var(--text);
 }
