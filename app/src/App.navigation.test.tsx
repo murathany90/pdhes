@@ -27,7 +27,7 @@ describe('application navigation', () => {
 
     expect(screen.getByRole('link', { name: 'PDHES Nedir' }).getAttribute('aria-current'))
       .toBe('page');
-    expect(screen.getByRole('link', { name: 'Datalar' }).getAttribute('href'))
+    expect(screen.getByRole('link', { name: 'PDHES Adayları' }).getAttribute('href'))
       .toBe('/data');
     expect(screen.getByRole('link', { name: 'Ayarlar' }).getAttribute('href'))
       .toBe('/settings');
