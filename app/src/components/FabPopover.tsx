@@ -96,8 +96,8 @@ export function FabPopover({
                         }}
                       >
                         <td>{site.name.replace(/PSPP/g, 'PDHES')}</td>
-                        <td>{num(site.powerMW)} MW / {site.energyGWh} GWh</td>
-                        <td>{num(site.head, 1)} m / {num(site.tunnelKm, 1)} km</td>
+                        <td><div>{num(site.powerMW)} MW</div><div style={{fontSize: '0.85em', color: 'var(--muted)'}}>{site.energyGWh} GWh</div></td>
+                        <td><div>{num(site.head, 1)} m</div><div style={{fontSize: '0.85em', color: 'var(--muted)'}}>{num(site.tunnelKm, 1)} km</div></td>
                         <td>{site.score.toFixed(1)}</td>
                       </tr>
                     ))}
@@ -120,8 +120,8 @@ export function FabPopover({
                     {WORLD_EXAMPLES.map(ex => (
                       <tr key={ex.id}>
                         <td>{ex.name}</td>
-                        <td>{num(ex.capacityMw)} MW / {ex.storageMwh ? num(ex.storageMwh) + ' MWh' : '-'}</td>
-                        <td>{ex.headM ? `${num(ex.headM)} m` : '-'} / -</td>
+                        <td><div>{num(ex.capacityMw)} MW</div><div style={{fontSize: '0.85em', color: 'var(--muted)'}}>{ex.storageMwh ? num(ex.storageMwh) + ' MWh' : '-'}</div></td>
+                        <td><div>{ex.headM ? `${num(ex.headM)} m` : '-'}</div><div style={{fontSize: '0.85em', color: 'var(--muted)'}}>-</div></td>
                       </tr>
                     ))}
                   </tbody>

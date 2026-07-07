@@ -142,7 +142,7 @@ export default function MapPage() {
             ›
           </button>
           <h2 style={{ marginTop: 0 }}>Kavramsal kapasite özeti</h2>
-          <div className="grid" style={{ gap: 10 }}>
+          <div className="grid" style={{ gap: 6 }}>
             <div className="metric good"><span>Kapasite</span><b>{num(site.powerMW)} MW / {site.energyGWh} GWh</b></div>
             <div className="metric info"><span>Düşü / su yolu</span><b>{num(site.head, 1)} m / {site.tunnelKm} km</b></div>
             <div className="metric warn"><span>Yatırım gideri</span><b>{moneyBn(site.capexBn)}</b></div>
