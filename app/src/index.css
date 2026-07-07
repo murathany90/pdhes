@@ -274,7 +274,7 @@ html[data-theme="light"] .formula { background: #eef3f0; color: #2f4a3e; }
 }
 .map-stage { grid-area: stage; }
 .map-right { grid-area: right; }
-html[data-theme="light"] html[data-theme="light"] .map-right { background: rgba(255,255,255,.9); }
+html[data-theme="light"] .map-right { background: rgba(255,255,255,.95); color: #000; }
 .map-layout.collapsed-right .map-right { opacity: 0; pointer-events: none; }
 .map-stage {
   height: 100%; position: relative; border: 1px solid var(--line);
@@ -909,7 +909,7 @@ html[data-theme="light"] .pdhes-rich-shell .source-footer { background: var(--pa
   border: 1px solid var(--line);
   border-radius: 12px;
   width: 400px;
-  height: 750px; max-height: calc(100vh - 180px); overflow-y: auto;
+  max-height: calc(100vh - 120px);
   display: flex;
   flex-direction: column;
   box-shadow: 0 8px 32px rgba(0,0,0,0.3);
@@ -1099,3 +1099,9 @@ html[data-theme="light"] .pdhes-rich-shell .source-footer { background: var(--pa
 }
 
 .hoverable-row:hover { background-color: var(--panel2); }
+
+/* FAQ InfoAccordion Dark Mode Background */
+html[data-theme="dark"] #pdhes-nedir .info-accordion {
+  background: rgba(16, 36, 56, 0.4);
+  border-color: rgba(30, 60, 90, 0.5);
+}

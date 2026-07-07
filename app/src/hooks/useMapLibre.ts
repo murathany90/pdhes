@@ -267,13 +267,8 @@ export function useMapLibre({
       // Add World Examples
       WORLD_EXAMPLES.forEach((example) => {
         const el = document.createElement('div');
-        el.innerHTML = getMarkerIconHtml((example as any).concept || 'classic', '#00a8ff', false); // Focus ID state not easily available here without adding it to hook props, so defaulting to standard size
+        el.innerHTML = getMarkerIconHtml('classic', '#00a8ff', false); // Focus ID state not easily available here without adding it to hook props, so defaulting to standard size
         el.style.cursor = 'pointer';
-        el.addEventListener('click', (e) => {
-          e.stopPropagation();
-          const { setWorldExampleFocus } = useSiteStore.getState();
-          setWorldExampleFocus(example.id);
-        });
         
         const marker = new maplibregl.Marker({ element: el })
           .setLngLat([example.lon, example.lat])
@@ -297,6 +292,11 @@ export function useMapLibre({
         const popup = new maplibregl.Popup({ offset: 15, maxWidth: '260px' })
           .setLngLat([example.lon, example.lat])
           .setHTML(popupHtml);
+          
+        popup.on('open', () => {
+          const { setWorldExampleFocus } = useSiteStore.getState();
+          setWorldExampleFocus(example.id);
+        });
         
         marker.setPopup(popup);
         
