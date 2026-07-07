@@ -866,3 +866,230 @@ html[data-theme="light"] .pdhes-rich-shell .source-footer { background: var(--pa
   table { min-width: 100%; font-size: 14px; }
   .card:has(table) { overflow-x: auto; }
 }
+
+
+/* --- FAB POPOVER --- */
+.fab-container {
+  position: absolute;
+  bottom: 24px;
+  left: 24px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.fab-main {
+  width: 56px;
+  height: 56px;
+  border-radius: 28px;
+  background: var(--blue);
+  color: #fff;
+  border: none;
+  box-shadow: 0 4px 16px rgba(54, 214, 255, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.fab-main:hover {
+  transform: scale(1.05);
+  background: #36d6ff;
+}
+
+.fab-main.open {
+  background: var(--panel2);
+  color: var(--text);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  transform: rotate(90deg);
+}
+
+.fab-popover {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  width: 380px;
+  max-height: 500px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+  animation: slideUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  overflow: hidden;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px) scale(0.95); transform-origin: bottom left; }
+  to { opacity: 1; transform: translateY(0) scale(1); transform-origin: bottom left; }
+}
+
+.fab-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--line);
+  background: var(--panel2);
+}
+
+.fab-tab {
+  flex: 1;
+  padding: 12px 0;
+  background: transparent;
+  border: none;
+  color: var(--soft);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.2s;
+  border-bottom: 2px solid transparent;
+}
+
+.fab-tab:hover {
+  color: var(--text);
+}
+
+.fab-tab.active {
+  color: var(--blue);
+  border-bottom-color: var(--blue);
+  background: var(--panel);
+}
+
+.fab-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  max-height: 440px;
+}
+
+.fab-list-wrapper {
+  margin: -16px; /* Negate padding */
+}
+
+.fab-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.fab-table th {
+  text-align: left;
+  padding: 10px 12px;
+  background: var(--panel2);
+  color: var(--muted);
+  font-weight: 600;
+  position: sticky;
+  top: 0;
+  border-bottom: 1px solid var(--line);
+  z-index: 10;
+}
+
+.fab-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.fab-table tbody tr {
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.fab-table tbody tr:hover {
+  background: rgba(255,255,255,0.02);
+}
+
+.fab-table tr.active-row td {
+  background: rgba(54, 214, 255, 0.1);
+  color: #36d6ff;
+  font-weight: 500;
+}
+
+.fab-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.fab-settings .setting-group h4 {
+  margin: 0 0 10px 0;
+  font-size: 13px;
+  color: var(--soft);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.map-style-picker {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.style-btn {
+  background: var(--panel2);
+  border: 1px solid var(--line);
+  padding: 10px;
+  border-radius: 8px;
+  color: var(--text);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 13px;
+}
+
+.style-btn:hover {
+  border-color: var(--soft);
+}
+
+.style-btn.active {
+  background: rgba(54, 214, 255, 0.1);
+  border-color: var(--blue);
+  color: var(--blue);
+}
+
+.minimalist-3d-toggle {
+  position: absolute;
+  bottom: 24px;
+  right: 24px;
+  z-index: 100;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.minimalist-3d-toggle:hover {
+  border-color: var(--soft);
+  background: var(--panel2);
+}
+
+/* --- ELEVATION PROFILE --- */
+.elevation-profile-card {
+  background: var(--panel2);
+  border-radius: 12px;
+  padding: 16px;
+  margin-top: 16px;
+  border: 1px solid var(--line);
+}
+
+.elevation-profile-empty {
+  background: var(--panel2);
+  border-radius: 12px;
+  padding: 24px;
+  margin-top: 16px;
+  text-align: center;
+  border: 1px solid var(--line);
+}
+
+.elevation-svg {
+  display: block;
+  overflow: visible;
+}

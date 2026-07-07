@@ -1,6 +1,8 @@
 import { useRef, useState, useEffect } from 'react';
-import { MapPin, Mountain, AlertTriangle, Droplets, Zap, Activity, Waypoints, Box, Layers, X } from 'lucide-react';
+import { MapPin, Mountain, AlertTriangle, Droplets, Zap, Activity, Waypoints, Box, Layers } from 'lucide-react';
 import { useMapLibre, type MapLayerVisibility } from '../hooks/useMapLibre';
+import { FabPopover } from '../components/FabPopover';
+import { ElevationProfile } from '../components/ElevationProfile';
 import { useSiteStore } from '../stores/useSiteStore';
 import { useSettingsStore } from '../stores/useSettingsStore';
 import { COMPONENTS } from '../utils/constants';
@@ -34,11 +36,9 @@ const LAYER_LABELS: Array<{ key: keyof MapLayerVisibility; label: string; Icon: 
 export default function MapPage() {
   const mapContainer = useRef<HTMLDivElement>(null);
   const { sites, selectedId, selectSite, gridAssets, fetchGridAssets, worldExampleFocusId, clearWorldExampleFocus } = useSiteStore();
-  const { mapStyle, heightScale, setHeightScale } = useSettingsStore();
-  const [leftCollapsed, setLeftCollapsed] = useState(false);
-  const [rightCollapsed, setRightCollapsed] = useState(false);
+  const { mapStyle, setMapStyle, heightScale, setHeightScale } = useSettingsStore();
+    const [rightCollapsed, setRightCollapsed] = useState(false);
   const [layers, setLayers] = useState<MapLayerVisibility>(DEFAULT_LAYERS);
-  const [isCardOpen, setIsCardOpen] = useState(true);
   const site = sites.find((item) => item.id === selectedId) || sites[0];
 
   useEffect(() => {
@@ -86,128 +86,38 @@ export default function MapPage() {
 
   if (!site) return <section className="panel active"><p className="muted">Veri yükleniyor...</p></section>;
 
-  const layoutCls = `map-layout ${leftCollapsed ? 'collapsed-left' : ''} ${rightCollapsed ? 'collapsed-right' : ''}`;
+  const layoutCls = `map-layout ${rightCollapsed ? 'collapsed-right' : ''}`;
 
   return (
     <section className="panel active no-pad">
       <div className={layoutCls}>
-        <aside className="map-left" aria-label="Saha keşfi">
-          <button
-            type="button"
-            className="btn ghost panel-toggle"
-            aria-label="Saha keşfi panelini kapat"
-            title="Saha keşfi panelini kapat"
-            onClick={() => setLeftCollapsed(true)}
-          >
-            ‹
-          </button>
-          <h2 style={{ marginTop: 0 }}>Saha keşfi</h2>
-          <p className="muted small">Seçili aday için tahmini rezervuar, su yolu, güç evi ve şebeke bağlantısı yerleşimini gösterir.</p>
-          <div className="card" style={{ padding: 12, boxShadow: 'none', marginTop: 10 }}>
-            <span className={`tag ${site.concept === 'sea' ? 'sea' : 'classic'}`}>{site.concept === 'sea' ? 'Deniz suyu' : 'Klasik'}</span>
-            <h3 style={{ margin: '8px 0 6px' }}>{site.name}</h3>
-            <p className="muted small">{site.thesis}</p>
-            <div className="metric-row" style={{ gridTemplateColumns: '1fr 1fr' }}>
-              <div className="metric"><span>Kurulu güç</span><b>{num(site.powerMW)} MW</b></div>
-              <div className="metric"><span>Depolama</span><b>{site.energyGWh} GWh</b></div>
-            </div>
-          </div>
-          <h3 style={{ marginTop: 16 }}>Adaylar</h3>
-          <div className="site-list">
-            {sites.map((candidate) => (
-              <button
-                type="button"
-                key={candidate.id}
-                className={`site-item ${candidate.id === selectedId ? 'active' : ''}`}
-                aria-current={candidate.id === selectedId ? 'true' : undefined}
-                onClick={() => selectSite(candidate.id)}
-              >
-                <div className="row">
-                  <b>{candidate.name}</b>
-                  <span className={`tag ${candidate.concept === 'sea' ? 'sea' : 'classic'}`}>{candidate.score}</span>
-                </div>
-                <span className="muted small">{candidate.region}</span>
-              </button>
-            ))}
-          </div>
-        </aside>
+        
 
         <div className="map-stage">
           <div ref={mapContainer} style={{ position: 'absolute', inset: 0 }} />
-          
-          {/* 3D / 2D Geçiş ve Kalite Kontrol Kartı */}
-          {isCardOpen ? (
-          <div className="map-floating-card">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-              <div className="card-title" style={{ margin: 0 }}>HARİTA GÖRÜNÜMÜ</div>
-              <button type="button" className="btn ghost" onClick={() => setIsCardOpen(false)} style={{ padding: 4, minHeight: 24, height: 24 }} title="Kapat" aria-label="Kapat"><X size={16}/></button>
-            </div>
-            
-            <div className="card-row">
-              <span className="card-label">Mod</span>
-              <div className="segmented-control" role="group" aria-label="Harita boyutu">
-                <button
-                  type="button"
-                  className={`segment-btn ${!layers.terrain3d ? 'active' : ''}`}
-                  aria-pressed={!layers.terrain3d}
-                  onClick={() => setLayers(current => ({ ...current, terrain3d: false }))}
-                >
-                  2D Düz
-                </button>
-                <button
-                  type="button"
-                  className={`segment-btn ${layers.terrain3d ? 'active' : ''}`}
-                  aria-pressed={layers.terrain3d}
-                  onClick={() => setLayers(current => ({ ...current, terrain3d: true }))}
-                >
-                  3D Arazi
-                </button>
-              </div>
-            </div>
 
-            {layers.terrain3d && (
-              <div className="card-row" style={{ marginTop: 4 }}>
-                <span className="card-label">3D Kalitesi (Engebe)</span>
-                <div className="quality-options" role="group" aria-label="3D arazi kalitesi">
-                  {[
-                    { label: 'Düşük', val: 1.0 },
-                    { label: 'Orta', val: 1.3 },
-                    { label: 'Yüksek', val: 2.2 },
-                    { label: 'Ekstrem', val: 3.0 }
-                  ].map((opt) => (
-                    <button
-                      type="button"
-                      key={opt.val}
-                      className={`quality-btn ${Math.abs(heightScale - opt.val) < 0.1 ? 'active' : ''}`}
-                      aria-pressed={Math.abs(heightScale - opt.val) < 0.1}
-                      onClick={() => setHeightScale(opt.val)}
-                      title={`${opt.label} (${opt.val}x)`}
-                    >
-                      {opt.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-          ) : (
-            <button type="button" className="btn" onClick={() => setIsCardOpen(true)} title="Harita Görünümü" style={{ position: 'absolute', top: 10, right: 10, zIndex: 10, background: 'var(--panel)', color: 'var(--text)', border: '1px solid var(--line)', borderRadius: '8px', padding: '8px 12px', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.5)' }}>
-              <Layers size={16} />
-              <b style={{ fontSize: 13 }}>Görünüm</b>
-            </button>
-          )}
+          <FabPopover 
+            mapStyle={mapStyle} 
+            setMapStyle={setMapStyle} 
+            terrain3d={layers.terrain3d} 
+            setTerrain3d={(val) => setLayers(c => ({...c, terrain3d: val}))} 
+            heightScale={heightScale} 
+            setHeightScale={setHeightScale} 
+            selectedSiteId={selectedId} 
+            selectSite={selectSite} 
+          />
 
-          {leftCollapsed && (
-            <button
-              type="button"
-              className="btn ghost floating-toggle left"
-              aria-label="Saha keşfi panelini aç"
-              title="Saha keşfi panelini aç"
-              onClick={() => setLeftCollapsed(false)}
-            >
-              ›
-            </button>
-          )}
+          <button
+            type="button"
+            className="btn minimalist-3d-toggle"
+            onClick={() => setLayers(c => ({...c, terrain3d: !c.terrain3d}))}
+            title={layers.terrain3d ? "2D Görünüme Geç" : "3D Araziye Geç"}
+          >
+            <Layers size={18} />
+            <b>{layers.terrain3d ? "3D" : "2D"}</b>
+          </button>
+
+
           {rightCollapsed && (
             <button
               type="button"
@@ -238,6 +148,9 @@ export default function MapPage() {
             <div className="metric warn"><span>Yatırım gideri</span><b>{moneyBn(site.capexBn)}</b></div>
             <div className="metric"><span>Gelir / geri ödeme</span><b>{moneyM(site.revenueM)} / {site.payback} yıl</b></div>
           </div>
+
+          
+          <ElevationProfile site={site} />
 
           <h3 style={{ marginTop: 16 }}>Harita katmanları</h3>
           <div className="layer-grid">
