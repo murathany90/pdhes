@@ -29,7 +29,7 @@ export function ElevationProfile({ site }: ElevationProfileProps) {
   // Define SVG dimensions
   const w = 280;
   const h = 140;
-  const padding = 20;
+  const padding = 12;
     const chartH = h - padding * 2;
 
   // Determine min/max for Y scale
@@ -67,7 +67,7 @@ export function ElevationProfile({ site }: ElevationProfileProps) {
 
   return (
     <div className="elevation-profile-card">
-      <h3 style={{ margin: '0 0 12px' }}>Topografik Kesit</h3>
+      <h3 style={{ margin: '0 0 6px', fontSize: '14px' }}>Topografik Kesit</h3>
       <svg width="100%" height={h} viewBox={`0 0 ${w} ${h}`} className="elevation-svg">
         <defs>
           <linearGradient id="mountainGrad" x1="0" y1="0" x2="0" y2="1">

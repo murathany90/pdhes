@@ -81,9 +81,8 @@ export function FabPopover({
                   <thead>
                     <tr>
                       <th>Aday Adı</th>
-                      <th>Kurulu Güç</th>
-                      <th>Düşü</th>
-                      <th>Depolama</th>
+                      <th>Güç / Enerji</th>
+                      <th>Düşü / Su Yolu</th>
                       <th>Puan</th>
                     </tr>
                   </thead>
@@ -97,9 +96,8 @@ export function FabPopover({
                         }}
                       >
                         <td>{site.name.replace(/PSPP/g, 'PDHES')}</td>
-                        <td>{num(site.powerMW)} MW</td>
-                        <td>{num(site.head, 1)} m</td>
-                        <td>{site.energyGWh * 1000} MWh</td>
+                        <td>{num(site.powerMW)} MW / {site.energyGWh} GWh</td>
+                        <td>{num(site.head, 1)} m / {num(site.tunnelKm, 1)} km</td>
                         <td>{site.score.toFixed(1)}</td>
                       </tr>
                     ))}
@@ -114,18 +112,16 @@ export function FabPopover({
                   <thead>
                     <tr>
                       <th>Tesis Adı</th>
-                      <th>Kurulu Güç</th>
-                      <th>Düşü</th>
-                      <th>Depolama</th>
+                      <th>Güç / Enerji</th>
+                      <th>Düşü / Su Yolu</th>
                     </tr>
                   </thead>
                   <tbody>
                     {WORLD_EXAMPLES.map(ex => (
                       <tr key={ex.id}>
                         <td>{ex.name}</td>
-                        <td>{num(ex.capacityMw)} MW</td>
-                        <td>{ex.headM ? `${num(ex.headM)} m` : '-'}</td>
-                        <td>{ex.storageMwh ? `${num(ex.storageMwh)} MWh` : '-'}</td>
+                        <td>{num(ex.capacityMw)} MW / {ex.storageMwh ? num(ex.storageMwh) + ' MWh' : '-'}</td>
+                        <td>{ex.headM ? `${num(ex.headM)} m` : '-'} / -</td>
                       </tr>
                     ))}
                   </tbody>
