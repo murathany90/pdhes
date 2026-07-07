@@ -3,6 +3,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { FileText, ArrowLeft, Clock, Calendar, User } from 'lucide-react';
 import { REPORTS_DATA } from '../data/reportsData';
+import { publicAssetUrl } from '../utils/publicUrl';
 
 const CATEGORY_LABELS: Record<string, string> = {
   report: 'Rapor',
@@ -38,7 +39,7 @@ export default function ReportsPage() {
           <div className="card" style={{ padding: '0', overflow: 'hidden' }}>
             {activeReport.coverImage && (
               <img 
-                src={activeReport.coverImage} 
+                src={publicAssetUrl(activeReport.coverImage)} 
                 alt="" 
                 style={{ width: '100%', height: '240px', objectFit: 'cover', display: 'block', borderBottom: '1px solid var(--line)' }}
               />
@@ -106,7 +107,7 @@ export default function ReportsPage() {
             <div key={report.id} className="card interactive" style={{ display: 'flex', flexDirection: 'column', cursor: 'pointer', padding: 0, overflow: 'hidden' }} onClick={() => setActiveReportId(report.id)}>
               {report.coverImage && (
                 <img 
-                  src={report.coverImage} 
+                  src={publicAssetUrl(report.coverImage)} 
                   alt="" 
                   style={{ width: '100%', height: '140px', objectFit: 'cover', display: 'block', borderBottom: '1px solid var(--line)' }}
                 />
