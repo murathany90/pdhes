@@ -1,10 +1,11 @@
 import { useRef, useMemo, useEffect } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { OrbitControls, Html, Line, Sky } from '@react-three/drei';
+import { OrbitControls, Html, Line, Sky, MeshDistortMaterial } from '@react-three/drei';
 import { BatteryCharging, Zap } from 'lucide-react';
 import * as THREE from 'three';
 import type { ComponentsDetail } from '../../types/site';
 import { useSiteStore } from '../../stores/useSiteStore';
+import { useSettingsStore } from '../../stores/useSettingsStore';
 
 
 
@@ -26,6 +27,11 @@ interface ThreeDModelProps {
 const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
 const logScale = (v: number, base: number, min: number, max: number) =>
   clamp(Math.log(v / base + 1) * 2, min, max);
+
+const pseudoRandom = (seed: number) => {
+  const x = Math.sin(seed) * 10000;
+  return x - Math.floor(x);
+};
 
 /* ─────────────────────────────────────────────
    Terrain Height Lookup Helper (Cesima Mountain for Presenzano)
@@ -81,20 +87,7 @@ function RealisticTerrain({ opacity, isPresenzano }: { opacity: number; isPresen
       pos.setZ(i, z);
     }
     g.computeVertexNormals();
-    return g;
-  }, [isPresenzano]);
 
-  const material = useMemo(() => {
-    const m = new THREE.MeshStandardMaterial({
-      vertexColors: true,
-      roughness: 0.85,
-      metalness: 0.1,
-      flatShading: true,
-      transparent: true,
-      opacity: opacity,
-    });
-    
-    const pos = geometry.attributes.position;
     const colors = new Float32Array(pos.count * 3);
     const colorValley = new THREE.Color('#1b382b'); // deep green forest floor
     const colorGrass = new THREE.Color('#385a3c');  // healthy grassy slope
@@ -103,27 +96,39 @@ function RealisticTerrain({ opacity, isPresenzano }: { opacity: number; isPresen
     
     for (let i = 0; i < pos.count; i++) {
       const h = pos.getZ(i);
-      const normalZ = geometry.attributes.normal.getZ(i);
+      const normalZ = g.attributes.normal.getZ(i);
       
       let c: THREE.Color;
       
       // Slope steepness (rocky cliffs where it is steep)
       if (normalZ < 0.76) {
-        c = colorRock.clone();
+        c = colorRock;
       } else {
         if (h < 12) c = colorValley.clone().lerp(colorGrass, clamp(h / 12, 0, 1));
         else if (h < 66) c = colorGrass.clone().lerp(colorRock, clamp((h - 12) / 54, 0, 1));
         else if (h < 96) c = colorRock.clone().lerp(colorSnow, clamp((h - 66) / 30, 0, 1));
-        else c = colorSnow.clone();
+        else c = colorSnow;
       }
 
       colors[i * 3] = c.r;
       colors[i * 3 + 1] = c.g;
       colors[i * 3 + 2] = c.b;
     }
-    geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-    return m;
-  }, [geometry, opacity]);
+    g.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+    
+    return g;
+  }, [isPresenzano]);
+
+  const material = useMemo(() => {
+    return new THREE.MeshStandardMaterial({
+      vertexColors: true,
+      roughness: 0.85,
+      metalness: 0.1,
+      flatShading: true,
+      transparent: true,
+      opacity: opacity,
+    });
+  }, [opacity]);
 
   return (
     <group rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]}>
@@ -144,7 +149,7 @@ function RealisticTerrain({ opacity, isPresenzano }: { opacity: number; isPresen
 /* ─────────────────────────────────────────────
    Realistic Upper Reservoir (Open Basin with Crescent Dam Wall)
    ───────────────────────────────────────────── */
-function RealisticUpperReservoir({ position, active, onClick, detail, waterLevelRef, showLabels, isPresenzano, isPlaying, mode, activeUnits }: any) {
+function RealisticUpperReservoir({ position, active, onClick, detail, waterLevelRef, showLabels, isPresenzano, isPlaying, mode, activeUnits, site }: any) {
   const damH = logScale(detail.dam_height_m, 20, 3, 8) * 1.2;
   const radius = 22;
   const pos: [number, number, number] = [position.x, position.y - 2, position.z];
@@ -232,8 +237,10 @@ function RealisticUpperReservoir({ position, active, onClick, detail, waterLevel
         />
       </mesh>
 
-      <Html position={[0, damH + 3, 0]} center style={{ display: showLabels ? 'block' : 'none' }}>
-        <div style={labelStyle(active, '#3d7dff')}>{isPresenzano ? 'Cesima Üst Rezervuarı (6 Milyon m³)' : 'Üst Rezervuar'}</div>
+      <Html position={[0, damH + 3, 0]} center style={{ display: showLabels ? 'block' : 'none' }} zIndexRange={[100, 0]}>
+        <div style={labelStyle(active, '#3d7dff')}>
+          {isPresenzano ? 'Cesima Üst Rezervuarı (6 Milyon m³)' : (site?.upper ? `${site.upper} (${detail.active_volume_mcm} Milyon m³)` : `Üst Rezervuar (${detail.active_volume_mcm} Milyon m³)`)}
+        </div>
       </Html>
     </group>
   );
@@ -309,7 +316,7 @@ function RealisticLowerReservoir({ position, active, onClick, waterLevelRef, sho
         />
       </mesh>
 
-      <Html position={[0, 4, 0]} center style={{ display: showLabels ? 'block' : 'none' }}>
+      <Html position={[0, 4, 0]} center style={{ display: showLabels ? 'block' : 'none' }} zIndexRange={[100, 0]}>
         <div style={labelStyle(active, '#15cfe8')}>{isPresenzano ? 'Presenzano Alt Rezervuarı (6 Milyon m³)' : 'Alt Rezervuar'}</div>
       </Html>
     </group>
@@ -362,14 +369,14 @@ function SeaWaterReservoir({ position, active, onClick, waterLevelRef, showLabel
       {/* Infinite Sea Plane */}
       <mesh ref={waterMesh} rotation={[-Math.PI/2, 0, 0]} position={[20, 0, 0]}>
         <planeGeometry args={[400, 400, 32, 32]} />
-        <meshPhysicalMaterial 
+        <MeshDistortMaterial 
           color="#045a7a" 
           transparent 
           opacity={0.85}
           roughness={0.1} 
           metalness={0.1}
-          transmission={0.8} 
-          ior={1.333}
+          distort={isPlaying && activeUnits > 0 ? 0.2 : 0.05}
+          speed={isPlaying && activeUnits > 0 ? 3 : 1}
         />
       </mesh>
 
@@ -387,7 +394,7 @@ function RealisticPowerhouse({ active, onClick, detail, activeUnits, isPlaying, 
   const w = logScale(detail.cavern_width_m, 20, 3, 6);
   const l = logScale(detail.cavern_length_m, 100, 6, 12);
   const h = logScale(detail.cavern_height_m, 20, 3, 6);
-  const pos: [number, number, number] = [45, getTerrainHeight(45, 15, false) - 2, 15];
+  const pos: [number, number, number] = [45, getTerrainHeight(45, 15, isPresenzano) - 2, 15];
   
   const turbineRefs = useRef<THREE.Group[]>([]);
 
@@ -881,28 +888,14 @@ function RealisticPenstock({ active, onClick, from, to, isPlaying, mode, activeU
       );
       
       const radius = isPresenzano ? 0.35 : 0.55;
-      let geometry;
-      
-      if (isPlaying) {
-        // Half pipe open at top when playing
-        const shape = new THREE.Shape();
-        shape.absarc(0, 0, radius, Math.PI, Math.PI * 2, false);
-        geometry = new THREE.ExtrudeGeometry(shape, {
-          steps: 64,
-          extrudePath: cLine,
-          bevelEnabled: false
-        });
-      } else {
-        geometry = new THREE.TubeGeometry(cLine, 64, radius, 16, false);
-      }
       
       return {
-        geometry,
         curve: cLine,
+        radius,
         id: index
       };
     });
-  }, [from, to, isPresenzano, maxUnits, isPlaying]);
+  }, [from, to, isPresenzano, maxUnits]);
 
   const anchorPoints = useMemo(() => {
     const pTop = from.clone();
@@ -917,7 +910,7 @@ function RealisticPenstock({ active, onClick, from, to, isPlaying, mode, activeU
   const particleCount = isPresenzano ? 45 : 90;
   const instancedMeshesRef = useRef<THREE.InstancedMesh[]>([]);
   const dummy = useMemo(() => new THREE.Object3D(), []);
-  const offsets = useMemo(() => Array.from({ length: particleCount }, () => Math.random()), [particleCount]);
+  const offsets = useMemo(() => Array.from({ length: particleCount }, (_, i) => pseudoRandom(i * 100)), [particleCount]);
 
   useFrame(({ clock }) => {
     const isFlowing = isPlaying && activeUnits > 0;
@@ -946,9 +939,9 @@ function RealisticPenstock({ active, onClick, from, to, isPlaying, mode, activeU
         const pt = line.curve.getPoint(param);
         
         dummy.position.copy(pt);
-        dummy.position.x += (Math.random() - 0.5) * (isPresenzano ? 0.08 : 0.12);
-        dummy.position.y += (Math.random() - 0.5) * (isPresenzano ? 0.08 : 0.12);
-        dummy.position.z += (Math.random() - 0.5) * (isPresenzano ? 0.08 : 0.12);
+        dummy.position.x += (pseudoRandom(i + 1) - 0.5) * (isPresenzano ? 0.08 : 0.12);
+        dummy.position.y += (pseudoRandom(i + 2) - 0.5) * (isPresenzano ? 0.08 : 0.12);
+        dummy.position.z += (pseudoRandom(i + 3) - 0.5) * (isPresenzano ? 0.08 : 0.12);
         dummy.scale.setScalar(isPresenzano ? 0.08 : 0.12);
         dummy.updateMatrix();
         mesh.setMatrixAt(i, dummy.matrix);
@@ -957,24 +950,26 @@ function RealisticPenstock({ active, onClick, from, to, isPlaying, mode, activeU
     });
   });
 
-  const steelMat = new THREE.MeshStandardMaterial({
+  const steelMat = useMemo(() => new THREE.MeshStandardMaterial({
     color: active ? '#f5b50b' : (isPlaying ? '#5aa8e3' : '#606972'),
     metalness: 0.7,
     roughness: 0.3,
     emissive: active ? '#553c00' : '#000',
     emissiveIntensity: active ? 0.35 : 0,
     transparent: true,
-    opacity: isPlaying ? 0.8 : 1,
+    opacity: isPlaying ? 0.35 : 1,
     depthWrite: true,
     wireframe: false,
     side: THREE.DoubleSide
-  });
+  }), [active, isPlaying]);
 
   return (
     <group>
       {/* Pipelines */}
       {linesData.map((line) => (
-        <mesh key={`pipe-${line.id}`} geometry={line.geometry} onClick={(e) => { e.stopPropagation(); onClick(); }} material={steelMat} castShadow />
+        <mesh key={`pipe-${line.id}`} onClick={(e) => { e.stopPropagation(); onClick(); }} material={steelMat} castShadow>
+          <tubeGeometry args={[line.curve, 64, line.radius, 12, false]} />
+        </mesh>
       ))}
 
       {/* Concrete Anchor Blocks */}
@@ -1005,7 +1000,7 @@ function RealisticPenstock({ active, onClick, from, to, isPlaying, mode, activeU
         </instancedMesh>
       ))}
 
-      <Html position={[(from.x+to.x)/2, (from.y+to.y)/2 + 2, (from.z+to.z)/2]} center style={{ display: showLabels ? 'block' : 'none' }}>
+      <Html position={[(from.x+to.x)/2, (from.y+to.y)/2 + 2, (from.z+to.z)/2]} center style={{ display: showLabels ? 'block' : 'none' }} zIndexRange={[100, 0]}>
         <div style={labelStyle(active, '#eab308')}>{isPresenzano ? 'Cebri Borular (4 Hat)' : 'Cebri Boru'}</div>
       </Html>
     </group>
@@ -1037,7 +1032,7 @@ function UndergroundTunnel({ from, to, active, onClick, showLabels }: any) {
       <mesh geometry={geometry}>
         <meshBasicMaterial color="#1e293b" wireframe transparent opacity={0.15} />
       </mesh>
-      <Html position={[(from.x+to.x)/2, (from.y+to.y)/2 + 25 - 5, (from.z+to.z)/2]} center style={{ display: showLabels ? 'block' : 'none' }}>
+      <Html position={[(from.x+to.x)/2, (from.y+to.y)/2 + 5, (from.z+to.z)/2]} center style={{ display: showLabels ? 'block' : 'none' }} zIndexRange={[100, 0]}>
         <div style={labelStyle(active, '#94a3b8')}>Yeraltı Tüneli</div>
       </Html>
     </group>
@@ -1058,7 +1053,7 @@ function TailraceChannel({ from, to, active, onClick, showLabels, isPlaying, mod
   const particleCount = 30;
   const meshRef = useRef<THREE.InstancedMesh>(null);
   const dummy = useMemo(() => new THREE.Object3D(), []);
-  const offsets = useMemo(() => Array.from({ length: particleCount }, () => Math.random()), [particleCount]);
+  const offsets = useMemo(() => Array.from({ length: particleCount }, (_, i) => pseudoRandom(i * 100)), [particleCount]);
 
   useFrame(({ clock }) => {
     if (!meshRef.current) return;
@@ -1073,9 +1068,9 @@ function TailraceChannel({ from, to, active, onClick, showLabels, isPlaying, mod
 
       const pt = curve.getPoint(param);
       dummy.position.copy(pt);
-      dummy.position.x += (Math.random() - 0.5) * 0.5;
-      dummy.position.y += (Math.random() - 0.5) * 0.5;
-      dummy.position.z += (Math.random() - 0.5) * 0.5;
+      dummy.position.x += (pseudoRandom(i + 1) - 0.5) * 0.5;
+      dummy.position.y += (pseudoRandom(i + 2) - 0.5) * 0.5;
+      dummy.position.z += (pseudoRandom(i + 3) - 0.5) * 0.5;
       dummy.scale.setScalar(0.25);
       dummy.updateMatrix();
       meshRef.current.setMatrixAt(i, dummy.matrix);
@@ -1107,7 +1102,7 @@ function TailraceChannel({ from, to, active, onClick, showLabels, isPlaying, mod
         <sphereGeometry args={[1, 6, 6]} />
         <meshBasicMaterial color={mode === 'generate' ? '#06b6d4' : '#10b981'} />
       </instancedMesh>
-      <Html position={[(from.x+to.x)/2 + 4, (from.y+to.y)/2 + 2, (from.z+to.z)/2 - 5]} center style={{ display: showLabels ? 'block' : 'none' }}>
+      <Html position={[(from.x+to.x)/2 + 4, (from.y+to.y)/2 + 2, (from.z+to.z)/2 - 5]} center style={{ display: showLabels ? 'block' : 'none' }} zIndexRange={[100, 0]}>
         <div style={labelStyle(active, '#0891b2')}>Kuyruk Suyu</div>
       </Html>
     </group>
@@ -1164,7 +1159,7 @@ function Portal({ position, rotation, active, onClick, showLabels, label }: any)
 /* ─────────────────────────────────────────────
    Instanced Environment (Performance Optimization)
    ───────────────────────────────────────────── */
-function InstancedEnvironment({ assets }: { assets: Array<{ type: 'tree' | 'rock'; pos: [number, number, number]; scale: number; rot: [number, number, number] }> }) {
+function InstancedEnvironment({ assets, opacity }: { assets: Array<{ type: 'tree' | 'rock'; pos: [number, number, number]; scale: number; rot: [number, number, number] }>; opacity: number }) {
   const trees = assets.filter(a => a.type === 'tree');
   const rocks = assets.filter(a => a.type === 'rock');
 
@@ -1217,22 +1212,22 @@ function InstancedEnvironment({ assets }: { assets: Array<{ type: 'tree' | 'rock
         <>
           <instancedMesh ref={treeTrunkRef} args={[undefined, undefined, trees.length]} castShadow>
             <cylinderGeometry args={[0.12, 0.2, 1.0, 5]} />
-            <meshStandardMaterial color="#422b1c" roughness={0.95} />
+            <meshStandardMaterial color="#422b1c" roughness={0.95} transparent opacity={opacity} />
           </instancedMesh>
           <instancedMesh ref={treeFoliage1Ref} args={[undefined, undefined, trees.length]} castShadow>
             <coneGeometry args={[0.7, 1.2, 5]} />
-            <meshStandardMaterial color="#1a3f24" roughness={0.8} flatShading />
+            <meshStandardMaterial color="#1a3f24" roughness={0.8} flatShading transparent opacity={opacity} />
           </instancedMesh>
           <instancedMesh ref={treeFoliage2Ref} args={[undefined, undefined, trees.length]} castShadow>
             <coneGeometry args={[0.5, 0.8, 5]} />
-            <meshStandardMaterial color="#225430" roughness={0.8} flatShading />
+            <meshStandardMaterial color="#225430" roughness={0.8} flatShading transparent opacity={opacity} />
           </instancedMesh>
         </>
       )}
       {rocks.length > 0 && (
         <instancedMesh ref={rockRef} args={[undefined, undefined, rocks.length]} castShadow receiveShadow>
           <dodecahedronGeometry args={[0.7, 0]} />
-          <meshStandardMaterial color="#504c46" roughness={0.88} flatShading />
+          <meshStandardMaterial color="#504c46" roughness={0.88} flatShading transparent opacity={opacity} />
         </instancedMesh>
       )}
     </group>
@@ -1257,7 +1252,7 @@ function labelStyle(active: boolean, color: string): React.CSSProperties {
 /* ─────────────────────────────────────────────
    Main Scene Assembly
    ───────────────────────────────────────────── */
-function Scene({ siteId, activeComponent, onSelectComponent, layers, mode, componentsDetail, isPlaying, activeUnits, maxUnits, showTerrain, showLabels, terrainOpacity }: ThreeDModelProps) {
+function Scene({ siteId, activeComponent, onSelectComponent, layers, mode, componentsDetail, isPlaying, activeUnits, maxUnits, showTerrain, showLabels, terrainOpacity, theme }: ThreeDModelProps & { theme?: string }) {
   const site = useSiteStore(state => state.sites.find(s => s.id === siteId));
   const isPresenzano = siteId === 'presenzano';
   const isSeaWater = site?.pdhesType === 'SEA_WATER';
@@ -1284,19 +1279,14 @@ function Scene({ siteId, activeComponent, onSelectComponent, layers, mode, compo
   const upperPos = useMemo(() => placeOnTerrain(-140 * tunnelScale, -15, 0, isPresenzano), [tunnelScale, isPresenzano]);
   const surgeTankPos = useMemo(() => placeOnTerrain(-30 * tunnelScale, 0, 0, isPresenzano), [tunnelScale, isPresenzano]);
   const powerhousePos = useMemo(() => placeOnTerrain(45, 15, -2, isPresenzano), [isPresenzano]);
-  const lowerPos = useMemo(() => placeOnTerrain(80, 30, 0, isPresenzano), [isPresenzano]);
+  const lowerPos = useMemo(() => isSeaWater ? new THREE.Vector3(80, 0, 0) : placeOnTerrain(80, 30, 0, isPresenzano), [isPresenzano, isSeaWater]);
   const portalUpperPos = useMemo(() => placeOnTerrain(-100 * tunnelScale, -10, 0, isPresenzano), [tunnelScale, isPresenzano]);
-  const portalLowerPos = useMemo(() => placeOnTerrain(60, 20, 0, isPresenzano), [isPresenzano]);
+  const portalLowerPos = useMemo(() => isSeaWater ? new THREE.Vector3(60, 0, 0) : placeOnTerrain(60, 20, 0, isPresenzano), [isPresenzano, isSeaWater]);
 
   // environment assets list
   const environmentAssets = useMemo(() => {
     const assets: Array<{ type: 'tree' | 'rock'; pos: [number, number, number]; scale: number; rot: [number, number, number] }> = [];
     let count = 0;
-    
-    const pseudoRandom = (seed: number) => {
-      const x = Math.sin(seed) * 10000;
-      return x - Math.floor(x);
-    };
 
     for (let i = 0; i < 600; i++) {
       const rx = -210 + pseudoRandom(count++) * 420;
@@ -1332,20 +1322,24 @@ function Scene({ siteId, activeComponent, onSelectComponent, layers, mode, compo
 
   return (
     <>
-      <Sky sunPosition={[120, 30, 90]} turbidity={0.2} rayleigh={1.0} />
-      <ambientLight intensity={0.45} />
+      {theme === 'dark' ? (
+        <Sky sunPosition={[0, -10, -50]} turbidity={10} rayleigh={0.1} mieCoefficient={0.005} />
+      ) : (
+        <Sky sunPosition={[120, 30, 90]} turbidity={0.2} rayleigh={1.0} />
+      )}
+      <ambientLight intensity={theme === 'dark' ? 0.15 : 0.45} />
       <directionalLight 
-        position={[120, 150, 100]} intensity={1.8} castShadow 
+        position={[120, 150, 100]} intensity={theme === 'dark' ? 0.2 : 1.8} castShadow 
         shadow-mapSize={[2048, 2048]}
         shadow-camera-left={-200} shadow-camera-right={200}
         shadow-camera-top={200} shadow-camera-bottom={-200}
       />
-      <fog attach="fog" args={['#a2adb9', 150, 550]} />
+      <fog attach="fog" args={[theme === 'dark' ? '#0a0c10' : '#a2adb9', 150, 550]} />
 
       {showTerrain && <RealisticTerrain opacity={terrainOpacity} isPresenzano={isPresenzano} />}
 
       {/* Scattered Vegetation and Rocks (Instanced for Performance) */}
-      {showTerrain && terrainOpacity >= 95 && <InstancedEnvironment assets={environmentAssets} />}
+      {showTerrain && terrainOpacity > 0 && <InstancedEnvironment assets={environmentAssets} opacity={terrainOpacity / 100} />}
 
       {/* Upper Reservoir & Dam */}
       {layers.upper_reservoir && (
@@ -1360,6 +1354,7 @@ function Scene({ siteId, activeComponent, onSelectComponent, layers, mode, compo
           isPlaying={isPlaying}
           mode={mode}
           activeUnits={activeUnits}
+          site={site}
         />
       )}
       
@@ -1539,16 +1534,18 @@ function Scene({ siteId, activeComponent, onSelectComponent, layers, mode, compo
       {/* Transmission pylons and lines */}
       {layers.transmission && <TransmissionLine isPresenzano={isPresenzano} isPlaying={isPlaying} mode={mode} activeUnits={activeUnits} />}
 
-      <OrbitControls makeDefault enableDamping dampingFactor={0.05} maxPolarAngle={Math.PI/2.1} minDistance={20} maxDistance={1000} />
+      <OrbitControls makeDefault enableDamping dampingFactor={0.05} minDistance={20} maxDistance={2500} />
     </>
   );
 }
 
 export default function ThreeDModel(props: ThreeDModelProps) {
+  const theme = useSettingsStore(state => state.theme);
+  
   return (
-    <div style={{ width: '100%', height: '100%', minHeight: 600, borderRadius: 16, overflow: 'hidden', background: '#0e1117' }}>
+    <div style={{ width: '100%', height: '100%', minHeight: '50vh', borderRadius: 16, overflow: 'hidden', background: theme === 'dark' ? '#0a0c10' : '#d2e4f0' }}>
       <Canvas shadows="basic" camera={{ position: [150, 120, 180], fov: 45 }}>
-        <Scene {...props} />
+        <Scene {...props} theme={theme} />
       </Canvas>
     </div>
   );
