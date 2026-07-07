@@ -152,7 +152,7 @@ export function FabPopover({
 
                 <div className="setting-group">
                   <h4>3D Modu</h4>
-                  <div className="segmented-control">
+                  <div className="segmented-control" role="group" aria-label="Harita boyutu">
                     <button
                       className={`segment-btn ${!terrain3d ? 'active' : ''}`}
                       onClick={() => setTerrain3d(false)}
@@ -171,7 +171,7 @@ export function FabPopover({
                 {terrain3d && (
                   <div className="setting-group">
                     <h4>3D Kalitesi (Engebe)</h4>
-                    <div className="quality-options">
+                    <div className="quality-options" role="group" aria-label="3D arazi kalitesi">
                       {[
                         { label: 'Düşük', val: 1.0 },
                         { label: 'Orta', val: 1.3 },

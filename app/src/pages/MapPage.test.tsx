@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { cleanup, render, screen, within } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { useSettingsStore } from '../stores/useSettingsStore';
 import { useSiteStore } from '../stores/useSiteStore';
@@ -44,13 +44,35 @@ describe('MapPage controls', () => {
   it('exposes candidate, panel, and view state controls to assistive technology', () => {
     render(<MapPage />);
 
-    expect(screen.getByRole('button', { name: /test sahası/i })).toBeTruthy();
-    expect(screen.getByRole('button', { name: /saha keşfi panelini kapat/i })).toBeTruthy();
+    // Kapasite özeti panelini kapat should be visible
     expect(screen.getByRole('button', { name: /kapasite özeti panelini kapat/i })).toBeTruthy();
-    const dimensionControls = within(screen.getByRole('group', { name: 'Harita boyutu' }));
-    expect(dimensionControls.getByRole('button', { name: '2D Düz' }).getAttribute('aria-pressed')).toBe('false');
-    expect(dimensionControls.getByRole('button', { name: '3D Arazi' }).getAttribute('aria-pressed')).toBe('true');
-    const qualityControls = within(screen.getByRole('group', { name: '3D arazi kalitesi' }));
-    expect(qualityControls.getByRole('button', { name: /orta/i }).getAttribute('aria-pressed')).toBe('true');
+    
+    // Minimalist 2D/3D toggle should be visible (exact match to avoid "3D Arazi" collision)
+    const toggleBtn = screen.getByRole('button', { name: '3D' });
+    expect(toggleBtn).toBeTruthy();
+
+    // Open FAB Popover
+    const fabBtn = screen.getByRole('button', { name: /Menüyü Aç/i });
+    fireEvent.click(fabBtn);
+
+    // Now Candidates tab should be visible and active
+    expect(screen.getByText(/Test sahası/i)).toBeTruthy();
+
+    // Go to Settings Tab
+    const settingsTab = screen.getByRole('button', { name: /Ayarlar/i });
+    fireEvent.click(settingsTab);
+
+    // Check dimension controls
+    const dimensionGroup = screen.getByRole('group', { name: 'Harita boyutu' });
+    const dimension2D = within(dimensionGroup).getByRole('button', { name: '2D Düz' });
+    const dimension3D = within(dimensionGroup).getByRole('button', { name: '3D Arazi' });
+    
+    expect(dimension2D.classList.contains('active')).toBe(false);
+    expect(dimension3D.classList.contains('active')).toBe(true);
+
+    // Check quality controls
+    const qualityGroup = screen.getByRole('group', { name: '3D arazi kalitesi' });
+    const qualityOrta = within(qualityGroup).getByRole('button', { name: /Orta/i });
+    expect(qualityOrta.classList.contains('active')).toBe(true);
   });
 });
