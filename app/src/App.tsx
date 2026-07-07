@@ -153,7 +153,7 @@ export default function App() {
     </nav>
   );
 
-  const showLocalWarning = ['/workspace', '/settings', '/reports', '/site-editor', '/three-d-editor']
+  const showLocalWarning = ['/workspace', '/settings', '/site-editor', '/three-d-editor']
     .some((path) => location.pathname.startsWith(path));
 
   return (
@@ -168,7 +168,7 @@ export default function App() {
       }
       tabs={tabsNode}
     >
-      {location.pathname === '/reports' && (
+      {location.pathname === '/settings' && (
         <div style={{ padding: '18px 18px 0 18px', flexShrink: 0 }}>
           <WarningBanner
             message="Eğitim ve masaüstü ön inceleme demosudur; yatırım tavsiyesi, fizibilite, mühendislik tasarımı veya resmi kurum görüşü değildir. Harita altlıkları ve arazi verileri 3. taraf servislerden yüklenmektedir."
