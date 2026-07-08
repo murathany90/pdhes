@@ -1,28 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MapPin, ExternalLink, } from 'lucide-react';
-import { CONTENT_DEFAULTS, GLOSSARY, PDHES_TYPE_LABELS, WORLD_EXAMPLES } from '../utils/constants';
+import { CONTENT_DEFAULTS, GLOSSARY, WORLD_EXAMPLES } from '../utils/constants';
 import { STATUS_LABELS } from '../data/worldExamples';
 import { useWorkspaceStore } from '../stores/useWorkspaceStore';
 import { useSiteStore } from '../stores/useSiteStore';
 import SectionNav from '../components/ui/SectionNav';
 import InfoAccordion from '../components/ui/InfoAccordion';
 import FullscreenImageModal from '../components/ui/FullscreenImageModal';
-
-const TYPE_DESCRIPTIONS: Record<string, string> = {
-  CLOSED_LOOP: 'Üst ve alt rezervuarın doğal su sistemlerinden büyük ölçüde ayrıldığı ve suyun kapalı bir çevrimde dolaştığı model.',
-  OPEN_LOOP: 'Mevcut baraj, göl veya hidroelektrik altyapısıyla doğrudan bağlantılı pompa-türbin modeli.',
-  SEA_WATER: 'Denizi alt rezervuar olarak kullanan, kıyı izinleri ve korozyon kontrolü gerektiren model.',
-  PROTOTYPE: 'Eğitim, pilot, ada sistemi veya özel endüstriyel kullanım için daha küçük ölçekte değerlendirilen model.',
-};
-
-const HISTORY = [
-  ['1900ler', 'Avrupa dağlık bölgelerinde pompaj fikri ve ilk küçük uygulamalar.', 'İlk Adımlar'],
-  ['1930lar', 'Büyük rezervuarlar ve gece-gündüz yük farkı için ilk endüstriyel tesisler.', 'Endüstriyel Ölçek'],
-  ['1970-80ler', 'Baz yük santralleri, pik talep yönetimi ve büyük iletim şebekeleriyle hızlı yaygınlaşma.', 'Nükleer ve Kömür Destekleyici'],
-  ['2011', 'Japonya Uluslararası İşbirliği Ajansı (JICA) tarafından Türkiye Pompaj Depolamalı HES Master Plan Çalışması yayınlandı. 7 potansiyel saha belirlendi.', 'JICA Türkiye Çalışması'],
-  ['2020ler', 'Güneş ve rüzgar üretiminin artmasıyla n kritik ilk etüt nedir?', 'Düşü (head), aktif hacim, jeoloji, bağlantı mesafesi ve çevresel kısıtlar birlikte doğrulanmalıdır.'],
-];
 
 interface PdhesPageProps {
   sectionId?: string;
@@ -79,208 +64,30 @@ export default function PdhesPage({ sectionId }: PdhesPageProps) {
           <p className="section-nav-title">İçindekiler</p>
           <SectionNav sections={[
             { id: 'sec-tanim', title: 'PDHES Nedir?' },
-            { id: 'sec-tarihce', title: 'Tarihçe' },
-            { id: 'sec-turkiye', title: 'Türkiye Potansiyeli' },
+            { id: 'sec-dongu', title: 'Şarj / Deşarj' },
+            { id: 'sec-bilesenler', title: 'Ana Bileşenler' },
+            { id: 'sec-enerji', title: 'Enerji Hesabı' },
+            { id: 'sec-sebeke', title: 'Şebeke Değeri' },
+            { id: 'sec-olgunluk', title: 'Teknoloji Olgunluğu' },
             { id: 'sec-tipler', title: 'PDHES Tipleri' },
-            { id: 'sec-ornekler', title: 'Dünya Örnekleri' },
-            { id: 'sec-faydalar', title: 'Faydalar' },
+            { id: 'sec-turkiye', title: 'Türkiye Potansiyeli' },
+            { id: 'sec-maliyet', title: 'Gelir Modeli' },
             { id: 'sec-riskler', title: 'Riskler' },
-            { id: 'sec-maliyet', title: 'Maliyet ve Gelir' },
+            { id: 'sec-jica', title: 'JİCA/EİE + Deniz Tipi' },
+            { id: 'sec-ornekler', title: 'Dünya Örnekleri' },
             { id: 'sec-sozluk', title: 'Teknik Sözlük' },
             { id: 'sec-sss', title: 'Sık Sorulan Sorular' },
-            { id: 'su-bataryasi', title: '1. PDHES nedir ve çalışma mantığı', sub: true },
-            { id: 'sarj-desarj', title: '2. Şarj ve deşarj döngüsü', sub: true },
-            { id: 'anatomi', title: '3. Ana yapılar ve bileşenler', sub: true },
-            { id: 'enerji-formulu', title: '4. Enerji depolama kapasitesi', sub: true },
-            { id: 'sebeke-degeri', title: '5. Şebekeye sağladığı katkılar', sub: true },
-            { id: 'teknoloji-olgunluk', title: '6. Neden uzun ömürlü bir teknoloji?', sub: true },
-            { id: 'topolojiler', title: '7. Tesis tipleri ve farkları', sub: true },
-            { id: 'turkiye-potansiyeli', title: '8. Türkiye için önemi', sub: true },
-            { id: 'piyasa-gelir', title: '9. Gelir modeli nasıl oluşur?', sub: true },
-            { id: 'riskler-yol-haritasi', title: '10. Riskler ve değerlendirme', sub: true },
           ]} />
         </div>
         
         <div>
-          <h2 id="sec-tanim" className="big-title" style={{ marginTop: 0 }}>{content('pdhesWhatIs.title')}</h2>
-
-          <div className="grid content-split">
-            <div className="card">
-              <h2>Tanım ve Çalışma Prensibi</h2>
-              <p>
-                Pompa depolamalı hidroelektrik santral, farklı kotlarda bulunan iki su rezervuarı arasında çalışan büyük ölçekli bir enerji depolama sistemidir. Sistem, elektrik talebinin düşük olduğu veya yenilenebilir üretimin fazla olduğu saatlerde suyu alt rezervuardan üst rezervuara pompalar. Böylece elektrik enerjisi, yüksek kotta depolanan suyun potansiyel enerjisine dönüştürülür.
-              </p>
-              <p>
-                Talebin arttığı saatlerde su üst rezervuardan alt rezervuara doğru bırakılır. Su, cebri boru veya tünel sistemi üzerinden türbinlerden geçerken jeneratörleri döndürür ve elektrik üretir. Bu nedenle PDHES, hem elektrik tüketebilen hem de elektrik üretebilen çift yönlü bir tesis olarak çalışır.
-              </p>
-              <p>
-                Bu yapı özellikle rüzgâr ve güneş üretiminin değişken olduğu elektrik sistemlerinde önemlidir. Üretimin fazla olduğu saatlerde enerjiyi depolayabilir, talebin arttığı saatlerde ise hızlı şekilde üretime geçerek şebeke dengesine katkı sağlayabilir.
-              </p>
-            </div>
-            <div className="card">
-              <h2>Pompalama ve Üretim Döngüsü</h2>
-              <ul style={{ paddingLeft: '1rem', margin: 0, gap: '8px', display: 'flex', flexDirection: 'column' }}>
-                <li><b>Pompalama modu:</b> Elektrik talebinin düşük olduğu veya sistemde üretim fazlası bulunduğu saatlerde alt rezervuardaki su pompalarla üst rezervuara basılır. Bu aşamada tesis elektrik tüketir ve enerjiyi suyun yüksek kotta sahip olduğu potansiyel enerji olarak depolar.</li>
-                <li><b>Üretim modu:</b> Elektrik talebinin arttığı saatlerde üst rezervuardaki su türbinlerden geçirilerek alt rezervuara bırakılır. Bu sırada türbin-jeneratör grubu elektrik üretir ve şebekeye güç verir.</li>
-                <li><b>Temel fikir:</b> PDHES, elektriği doğrudan depolamaz; elektrik enerjisini suyun yüksekliğinden kaynaklanan potansiyel enerjiye dönüştürür. İhtiyaç olduğunda bu enerji tekrar elektrik üretimi için kullanılır.</li>
-              </ul>
-              <div className="formula" style={{ margin: '16px 0 0', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <div>Düşük talep / üretim fazlası &rarr; <b>Pompalama</b> &rarr; Üst rezervuar</div>
-                <div>Yüksek talep / puant saat &rarr; <b>Türbinleme</b> &rarr; Şebekeye üretim</div>
-              </div>
-            </div>
-          </div>
-
-          <h2 id="sec-tarihce" style={{ marginTop: 32 }}>{content('pdhesWhatIs.historyTitle')}</h2>
-          <div className="timeline">
-            {HISTORY.map(([title, body, header]) => (
-              <div className="tl" key={title}>
-                <time>{title}</time>
-                {header && <b style={{ display: 'block', marginTop: 3 }}>{header}</b>}
-                <p>{body}</p>
-              </div>
-            ))}
-          </div>
-
-          <h2 id="sec-turkiye" style={{ marginTop: 32 }}>{content('pdhesWhatIs.turkeyTitle')}</h2>
-          <div className="card">
-            <p>
-              Türkiye için PDHES tartışması; JICA aday çalışmaları, DSİ rezervuarları, TEİAŞ bağlantı kabiliyeti,
-              yenilenebilir üretim artışı ve yan hizmet ihtiyacı etrafında şekillenir.
-            </p>
-            <p>
-              Bu prototipteki adaylar fizibilite sonucu <b>değildir</b>; ön eleme, yatırım anlatımı ve ayrıntılı yatırım incelemesine hazırlık için
-              masaüstü seviyesinde sınıflandırılmıştır. Koordinatlar, teknik değerler, şebeke ilişkileri ve ekonomik varsayımlar kaynak bazlı, 
-              yaklaşık veya kavramsal olabilir.
-            </p>
-          </div>
-
-          <h2 id="sec-tipler" style={{ marginTop: 32 }}>PDHES Tipleri</h2>
-          <div>
-            {Object.entries(PDHES_TYPE_LABELS).map(([key, label]) => (
-              <InfoAccordion key={key} title={label}>
-                <p>{TYPE_DESCRIPTIONS[key]}</p>
-              </InfoAccordion>
-            ))}
-          </div>
-
-          <h2 id="sec-ornekler" style={{ marginTop: 32 }}>Dünya Örnekleri</h2>
-          <div className="grid auto-fit">
-            {WORLD_EXAMPLES.map((example) => (
-              <div className="world-example-card" key={example.id}>
-                <div className="we-header">
-                  <h3>
-                    <span className="we-flag" aria-hidden="true">{example.flag}</span>
-                    {example.name}
-                  </h3>
-                  <span className={`we-status we-status-${example.status}`}>
-                    {STATUS_LABELS[example.status]}
-                  </span>
-                </div>
-                <div className="specs">
-                  <span><b>{example.country}</b></span>
-                  <span><b style={{ fontSize: '14px' }}>{example.capacityMw.toLocaleString('tr-TR')} MW</b></span>
-                  {example.headM && <span><b>{example.headM} m</b> düşü</span>}
-                  {example.storageMwh && <span><b>{example.storageMwh.toLocaleString('tr-TR')} MWh</b> depolama</span>}
-                  {example.commissioningYear && <span>{example.commissioningYear}</span>}
-                </div>
-                
-                <p className="we-desc">{example.shortDescription}</p>
-                
-                <div className="we-details">
-                  {example.wikiNote && <p className="we-note"><b>Not:</b> {example.wikiNote}</p>}
-                </div>
-                
-                <div className="we-actions">
-                  <button 
-                    type="button" 
-                    className="btn primary flex-1"
-                    onClick={() => {
-                      setWorldExampleFocus(example.id);
-                      navigate('/map');
-                    }}
-                  >
-                    <MapPin size={14} />
-                    Konum
-                  </button>
-                  <a 
-                    href={example.wikiUrl} 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
-                    className="btn ghost flex-1"
-                  >
-                    <ExternalLink size={14} />
-                    Wiki
-                  </a>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="grid content-split section-split">
-            <div>
-              <h2 id="sec-faydalar">{content('pdhesWhatIs.benefitsTitle')}</h2>
-              <ul style={{ paddingLeft: 18 }}>
-                <li><b>Enerji arbitrajı:</b> düşük fiyatlı saatlerde pompalama, yüksek fiyatlı saatlerde üretim.</li>
-                <li><b>Şebeke hizmetleri:</b> primer/sekonder frekans kontrolü, reaktif güç desteği, kara başlatma (black-start) ve senkron atalet.</li>
-                <li>Yenilenebilir kısıntıyı azaltma, pik talep yönetimi ve şebeke kararlılığı.</li>
-              </ul>
-            </div>
-            <div>
-              <h2 id="sec-riskler">{content('pdhesWhatIs.risksTitle')}</h2>
-              <ul style={{ paddingLeft: 18 }}>
-                <li>Jeoloji, fay, heyelan, karst ve yeraltı suyu belirsizlikleri.</li>
-                <li>Çevresel Etki Değerlendirmesi (ÇED), korunan alan, ekolojik akış, kamulaştırma ve görsel etki.</li>
-                <li>Deniz suyu projelerinde korozyon, biyolojik birikim (biofouling), sızdırmazlık kaplaması ve tuz aerosolu.</li>
-              </ul>
-            </div>
-          </div>
-
-          <h2 id="sec-maliyet" style={{ marginTop: 32 }}>{content('pdhesWhatIs.costsTitle')}</h2>
-          <div className="card">
-            <p style={{ margin: 0 }}>
-              <b>Yatırım harcaması (CAPEX);</b> rezervuar, tünel, cebri boru (penstock), yeraltı türbin odası (powerhouse),
-              elektromekanik ekipman, şalt sahası (switchyard), yol, izin ve mühendislik kalemlerinden oluşur.
-              Gelir modeli enerji arbitrajı, Dengeleme Güç Piyasası, yan hizmetler ve olası kapasite ödemeleriyle
-              birlikte değerlendirilmelidir.
-            </p>
-          </div>
-
-          <h2 id="sec-sozluk" style={{ marginTop: 32 }}>Teknik Terimler Sözlüğü</h2>
-          <label className="sr-only" htmlFor="pdhes-glossary-search">Teknik terim ara</label>
-          <input
-            id="pdhes-glossary-search"
-            name="glossarySearch"
-            className="input glossary-search"
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder="Terim ara"
-            style={{ marginBottom: 16 }}
-          />
-          <div style={{ overflow: 'auto', maxHeight: 400, border: '1px solid var(--line)', borderRadius: 12 }}>
-            <table style={{ margin: 0 }}>
-              <thead style={{ position: 'sticky', top: 0, background: 'var(--panel3)' }}>
-                <tr><th>Terim</th><th>Açıklama</th></tr>
-              </thead>
-              <tbody>
-                {filteredGlossary.map((item) => (
-                  <tr key={item.term}>
-                    <td><b>{item.term}</b></td>
-                    <td>{item.definition}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          <h2 id="sec-sss" style={{ marginTop: 32 }}>Sık Sorulan Sorular</h2>
-<div className="pdhes-rich-shell" style={{ padding: 0 }}><div className="content">
-          <article className="info-card" id="su-bataryasi">
+          <div className="pdhes-rich-shell" style={{ padding: 0 }}><div className="content">
+          <article className="info-card" id="sec-tanim">
             <header className="card-head">
               <div className="number-pill">01</div>
               <div>
                 <span className="eyebrow">Tanım ve temel fikir</span>
-                <h2>PDHES nedir ve temel çalışma mantığı nasıldır?</h2>
+                <h2>{content('pdhesWhatIs.title')}</h2>
               </div>
             </header>
             <figure className="figure-frame">
@@ -300,7 +107,7 @@ export default function PdhesPage({ sectionId }: PdhesPageProps) {
             </div>
           </article>
 
-          <article className="info-card" id="sarj-desarj">
+          <article className="info-card" id="sec-dongu">
             <header className="card-head">
               <div className="number-pill">02</div>
               <div>
@@ -325,7 +132,7 @@ export default function PdhesPage({ sectionId }: PdhesPageProps) {
             </div>
           </article>
 
-          <article className="info-card" id="anatomi">
+          <article className="info-card" id="sec-bilesenler">
             <header className="card-head">
               <div className="number-pill">03</div>
               <div>
@@ -354,7 +161,7 @@ export default function PdhesPage({ sectionId }: PdhesPageProps) {
             </div>
           </article>
 
-          <article className="info-card" id="enerji-formulu">
+          <article className="info-card" id="sec-enerji">
             <header className="card-head">
               <div className="number-pill">04</div>
               <div>
@@ -383,7 +190,7 @@ export default function PdhesPage({ sectionId }: PdhesPageProps) {
             </div>
           </article>
 
-          <article className="info-card" id="sebeke-degeri">
+          <article className="info-card" id="sec-sebeke">
             <header className="card-head">
               <div className="number-pill">05</div>
               <div>
@@ -411,7 +218,7 @@ export default function PdhesPage({ sectionId }: PdhesPageProps) {
             </div>
           </article>
 
-          <article className="info-card" id="teknoloji-olgunluk">
+          <article className="info-card" id="sec-olgunluk">
             <header className="card-head">
               <div className="number-pill">06</div>
               <div>
@@ -435,7 +242,7 @@ export default function PdhesPage({ sectionId }: PdhesPageProps) {
             </div>
           </article>
 
-          <article className="info-card" id="topolojiler">
+          <article className="info-card" id="sec-tipler">
             <header className="card-head">
               <div className="number-pill">07</div>
               <div>
@@ -462,7 +269,7 @@ export default function PdhesPage({ sectionId }: PdhesPageProps) {
             </div>
           </article>
 
-          <article className="info-card" id="turkiye-potansiyeli">
+          <article className="info-card" id="sec-turkiye">
             <header className="card-head">
               <div className="number-pill">08</div>
               <div>
@@ -484,7 +291,7 @@ export default function PdhesPage({ sectionId }: PdhesPageProps) {
             </div>
           </article>
 
-          <article className="info-card" id="piyasa-gelir">
+          <article className="info-card" id="sec-maliyet">
             <header className="card-head">
               <div className="number-pill">09</div>
               <div>
@@ -512,7 +319,7 @@ export default function PdhesPage({ sectionId }: PdhesPageProps) {
             </div>
           </article>
 
-          <article className="info-card" id="riskler-yol-haritasi">
+          <article className="info-card" id="sec-riskler">
             <header className="card-head">
               <div className="number-pill">10</div>
               <div>
@@ -544,6 +351,145 @@ export default function PdhesPage({ sectionId }: PdhesPageProps) {
             </div>
           </article>
 
+
+
+          <article className="info-card" id="sec-jica">
+            <header className="card-head">
+              <div className="number-pill">11</div>
+              <div>
+                <span className="eyebrow">Veri kurgusu ve sınırlamalar</span>
+                <h2>JİCA/EİE ve 16+4 aday veri kurgusu</h2>
+              </div>
+            </header>
+            <div className="card-body">
+              <p>Bu sürümde Türkiye adayları iki kaynak grubuyla sunulur: JİCA/EİE teknik listesine dayanan 16 kara tipi aday ve önceki uygulamadaki gerçek skor sırasına göre seçilen 4 deniz tipi prototip. Bu ayrım, eski kapalı/açık/deniz/prototip etiketleri yerine çevrim tipi, altyapı tipi, kavram tipi, şebeke besleme türü ve birincil amaç alanlarıyla okunur.</p>
+              <p>JİCA/EİE adaylarında kurulu güç, proje debisi ve düşü değerleri kaynak tablodaki teknik bilgiyi temsil eder. Koordinatlar ise raporda kesin nokta verilmediği için fallback yaklaşık veya eski uygulamadaki doğruluğu korunmuş çizim noktası olarak işaretlenir. Bu yüzden harita ve 3D görünüm bir mühendislik çizimi değil, kavramsal tesis yerleşimi ve ön inceleme görselidir.</p>
+              <p>Deniz tipi adaylarda Taşucu, Bozyazı-Anamur, Karaburun ve Finike-Kumluca mevcut veri setindeki deniz göstergeli adaylardan seçilmiştir. Deniz suyu korozyonu, intake/outfall ekolojisi, biofouling, kıyı izinleri ve sızdırmazlık kaplaması bu adaylarda ayrıca izlenmesi gereken tasarım riskleridir.</p>
+              <ul className="rich-list compact">
+                <li><strong>JİCA/EİE:</strong> teknik kapasite, debi ve düşü kaynak değerleriyle; koordinatlar kesin saha koordinatı gibi kullanılmadan gösterilir.</li>
+                <li><strong>Deniz Tipi:</strong> önceki veri setindeki skor ve kıyı yerleşim çizgisi korunarak, tuzlu suya özel risklerle birlikte sunulur.</li>
+                <li><strong>Ekonomi:</strong> kaynak CAPEX/gelir varsa aynen gösterilir; yoksa tablo açıkça senaryo varsayımı üretir.</li>
+                <li><strong>Harita:</strong> Gökçekaya ve eşleşen eski adaylarda eski uygulamadaki çizim koordinatları korunmuştur.</li>
+              </ul>
+            </div>
+          </article>
+
+          <article className="info-card" id="sec-ornekler">
+            <header className="card-head">
+              <div className="number-pill">12</div>
+              <div>
+                <span className="eyebrow">Küresel bağlam</span>
+                <h2>Dünya örnekleri neden referans alınır?</h2>
+              </div>
+            </header>
+            <div className="card-body">
+              <p>Dünya örnekleri, PDHES teknolojisinin ölçek, düşü, depolama süresi, piyasa değeri ve sistem işletmesi açısından nasıl konumlandığını karşılaştırmak için kullanılır. Bu örnekler Türkiye adaylarının yapılabilir olduğunu kanıtlamaz; yalnızca hangi teknik ve finansal soruların sorulması gerektiğini görünür kılar.</p>
+            </div>
+            <div className="grid auto-fit">
+              {WORLD_EXAMPLES.map((example) => (
+                <div className="world-example-card" key={example.id}>
+                  <div className="we-header">
+                    <h3>
+                      <span className="we-flag" aria-hidden="true">{example.flag}</span>
+                      {example.name}
+                    </h3>
+                    <span className={`we-status we-status-${example.status}`}>
+                      {STATUS_LABELS[example.status]}
+                    </span>
+                  </div>
+                  <div className="specs">
+                    <span><b>{example.country}</b></span>
+                    <span><b style={{ fontSize: '14px' }}>{example.capacityMw.toLocaleString('tr-TR')} MW</b></span>
+                    {example.headM && <span><b>{example.headM} m</b> düşü</span>}
+                    {example.storageMwh && <span><b>{example.storageMwh.toLocaleString('tr-TR')} MWh</b> depolama</span>}
+                    {example.commissioningYear && <span>{example.commissioningYear}</span>}
+                  </div>
+                  <p className="we-desc">{example.shortDescription}</p>
+                  {example.wikiNote && <p className="we-note"><b>Not:</b> {example.wikiNote}</p>}
+                  <div className="we-actions">
+                    <button
+                      type="button"
+                      className="btn primary flex-1"
+                      onClick={() => {
+                        setWorldExampleFocus(example.id);
+                        navigate('/map');
+                      }}
+                    >
+                      <MapPin size={14} />
+                      Konum
+                    </button>
+                    {example.wikiUrl ? (
+                      <a href={example.wikiUrl} target="_blank" rel="noopener noreferrer" className="btn ghost flex-1">
+                        <ExternalLink size={14} />
+                        Wiki
+                      </a>
+                    ) : (
+                      <span className="btn ghost flex-1" aria-disabled="true">Bağlantı yok</span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </article>
+
+          <article className="info-card" id="sec-sozluk">
+            <header className="card-head">
+              <div className="number-pill">13</div>
+              <div>
+                <span className="eyebrow">Teknik okuma yardımı</span>
+                <h2>Teknik Terimler Sözlüğü</h2>
+              </div>
+            </header>
+            <label className="sr-only" htmlFor="pdhes-glossary-search">Teknik terim ara</label>
+            <input
+              id="pdhes-glossary-search"
+              name="glossarySearch"
+              className="input glossary-search"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Terim ara"
+              style={{ marginBottom: 16 }}
+            />
+            <div style={{ overflow: 'auto', maxHeight: 400, border: '1px solid var(--line)', borderRadius: 12 }}>
+              <table style={{ margin: 0 }}>
+                <thead style={{ position: 'sticky', top: 0, background: 'var(--panel3)' }}>
+                  <tr><th>Terim</th><th>Açıklama</th></tr>
+                </thead>
+                <tbody>
+                  {filteredGlossary.map((item) => (
+                    <tr key={item.term}>
+                      <td><b>{item.term}</b></td>
+                      <td>{item.definition}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </article>
+
+          <article className="info-card" id="sec-sss">
+            <header className="card-head">
+              <div className="number-pill">14</div>
+              <div>
+                <span className="eyebrow">Hızlı yanıtlar</span>
+                <h2>Sık Sorulan Sorular</h2>
+              </div>
+            </header>
+            <div className="card-body">
+              <InfoAccordion title="Bu listedeki adaylar yatırım yapılabilir proje midir?">
+                <p>Hayır. Adaylar eğitim, ön inceleme ve karar destek amacıyla sunulur; fizibilite, ÇED, DSİ/TEİAŞ görüşü, arazi ölçümü ve finansal kapanış yerine geçmez.</p>
+              </InfoAccordion>
+              <InfoAccordion title="JİCA/EİE koordinatları neden yaklaşık?">
+                <p>Kaynak teknik listede kesin tesis koordinatı verilmediği için koordinatlar fallback veya eski uygulamada doğruluğu korunmuş kavramsal çizim noktası olarak işaretlenir.</p>
+              </InfoAccordion>
+              <InfoAccordion title="Deniz tipi adaylarda ana belirsizlik nedir?">
+                <p>Tuzlu su korozyonu, deniz canlılarıyla etkileşim, intake/outfall tasarımı, kıyı izinleri, kaplama sızdırmazlığı ve şebeke bağlantısı birlikte doğrulanmalıdır.</p>
+              </InfoAccordion>
+              <InfoAccordion title="Tablodaki senaryo değerleri nasıl okunmalı?">
+                <p>Kaynakta yatırım, gelir veya skor yoksa uygulama eski sistem mantığını izleyerek görünür bir senaryo tahmini üretir ve bunu kaynak değerinden ayrı etiketler.</p>
+              </InfoAccordion>
+            </div>
+          </article>
         </div></div>
         </div>
       </article>

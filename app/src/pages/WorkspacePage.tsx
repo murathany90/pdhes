@@ -3,6 +3,7 @@ import { CONTENT_DEFAULTS } from '../utils/constants';
 import { useWorkspaceStore } from '../stores/useWorkspaceStore';
 import { useSiteStore } from '../stores/useSiteStore';
 import { moneyBn, moneyM, num } from '../utils/format';
+import { CYCLE_TYPE_LABELS, SOURCE_GROUP_LABELS } from '../utils/siteDerived';
 
 interface WorkspacePageProps {
   onCreateSite: () => void;
@@ -77,15 +78,15 @@ export default function WorkspacePage({ onCreateSite, onEditSite, onEditLayout }
 
         <div className="card">
           <h2>PDHES saha çalışma alanı</h2>
-          <p className="muted small">Yerel değişiklikler bu tarayıcıda tutulur; saha listesini yedekleyip geri yükleyebilirsiniz.</p>
+          <p className="muted small">Yerel değişiklikler bu tarayıcıda tutulur; yalnızca schemaVersion 3 saha yedekleri geri yüklenebilir.</p>
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 12 }}>
             <button className="btn primary" onClick={onCreateSite}>Yeni PDHES adayı ekle</button>
             <button className="btn" onClick={() => onEditSite(selectedId)}>Seçili sahayı düzenle</button>
             <button className="btn" onClick={() => onEditLayout(selectedId)}>3D yerleşimi düzenle</button>
-            <button className="btn ghost" onClick={() => downloadText('pspp-sites-export.json', exportSites())}>Saha listesini indir</button>
+            <button className="btn ghost" onClick={() => downloadText('pspp-sites-v3-export.json', exportSites())}>Saha listesini indir</button>
           </div>
-          <textarea id="workspace-site-import" name="siteImport" aria-label="Saha listesi yedeğini içe aktar" className="textarea" value={siteImport} onChange={(event) => setSiteImport(event.target.value)} placeholder="Saha listesi yedeğini buraya yapıştırın" style={{ marginTop: 12 }} />
-          <button className="btn" onClick={() => setMessage(importSites(siteImport) ? 'Saha listesi içe aktarıldı.' : 'Saha listesi geçersiz.')} style={{ marginTop: 8 }}>
+          <textarea id="workspace-site-import" name="siteImport" aria-label="Saha listesi yedeğini içe aktar" className="textarea" value={siteImport} onChange={(event) => setSiteImport(event.target.value)} placeholder="schemaVersion 3 saha yedeğini buraya yapıştırın" style={{ marginTop: 12 }} />
+          <button className="btn" onClick={() => setMessage(importSites(siteImport) ? 'Saha listesi içe aktarıldı.' : 'Saha listesi geçersiz veya eski schemaVersion kullanıyor.')} style={{ marginTop: 8 }}>
             Saha listesini içe aktar
           </button>
         </div>
@@ -96,17 +97,21 @@ export default function WorkspacePage({ onCreateSite, onEditSite, onEditLayout }
         <div style={{ overflow: 'auto' }}>
           <table>
             <thead>
-              <tr><th>Saha</th><th>Tip</th><th>Güç</th><th>Yatırım</th><th>Gelir</th><th>Skor</th><th>İşlem</th></tr>
+              <tr><th>Saha</th><th>Kaynak / çevrim</th><th>Güç</th><th>Yatırım</th><th>Gelir</th><th>Skor</th><th>İşlem</th></tr>
             </thead>
             <tbody>
               {sites.map((site) => (
                 <tr key={site.id} className={site.id === selectedId ? 'selected' : ''} onClick={() => selectSite(site.id)}>
                   <td><b>{site.name}</b><br /><span className="muted small">{site.id}</span></td>
-                  <td><span className={`tag ${site.concept === 'sea' ? 'sea' : 'classic'}`}>{site.conceptLabel}</span></td>
-                  <td>{num(site.powerMW)} MW</td>
-                  <td>{moneyBn(site.capexBn)}</td>
-                  <td>{moneyM(site.revenueM)}</td>
-                  <td>{site.score}/100</td>
+                  <td>
+                    <span className={`tag ${site.sourceGroup === 'SEA_WATER_PROTOTYPE_TOP4' ? 'sea' : 'classic'}`}>{SOURCE_GROUP_LABELS[site.sourceGroup]}</span>
+                    <br />
+                    <span className="muted small">{CYCLE_TYPE_LABELS[site.technicalClassification.cycleType]}</span>
+                  </td>
+                  <td>{num(site.capacityMW)} MW</td>
+                  <td>{moneyBn(site.capexUsdBn)}</td>
+                  <td>{moneyM(site.annualRevenueUsdM)}</td>
+                  <td>{site.score ?? 'Belirtilmedi'}</td>
                   <td>
                     <button className="btn ghost" onClick={(event) => { event.stopPropagation(); onEditSite(site.id); }}>Düzenle</button>
                     <button className="btn ghost" onClick={(event) => { event.stopPropagation(); onEditLayout(site.id); }} style={{ marginLeft: 6 }}>3D yerleşim</button>

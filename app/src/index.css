@@ -227,6 +227,38 @@ html[data-theme="light"] tbody tr.selected { background: rgba(14,165,233,.05); b
 .site-row-button:focus-visible {
   outline: 3px solid rgba(var(--focus-rgb),.35); outline-offset: 4px; border-radius: 4px;
 }
+.candidate-table-wrap { overflow: auto; }
+.candidate-table { min-width: 1240px; table-layout: fixed; }
+.candidate-table .col-order { width: 54px; }
+.candidate-table .col-site { width: 190px; }
+.candidate-table .col-source { width: 96px; }
+.candidate-table .col-power { width: 116px; }
+.candidate-table .col-waterway { width: 138px; }
+.candidate-table .col-money { width: 108px; }
+.candidate-table .col-score { width: 150px; }
+.candidate-table .col-reservoir { width: 230px; }
+.candidate-table .col-classification { width: 150px; }
+.candidate-table td { line-height: 1.35; }
+.candidate-table td > b,
+.candidate-table td > span { display: block; }
+.source-chip {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  border: 1px solid rgba(148,163,184,.35);
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--text);
+  background: color-mix(in srgb, var(--panel2) 72%, transparent);
+  white-space: normal;
+}
+.source-chip.jica { border-color: rgba(61,125,255,.42); color: #b9caff; }
+.source-chip.sea { border-color: rgba(54,214,255,.45); color: #9eeaff; }
+html[data-theme="light"] .source-chip.jica { color: #1d4ed8; border-color: rgba(29,78,216,.35); background: #eff6ff; }
+html[data-theme="light"] .source-chip.sea { color: #075985; border-color: rgba(7,89,133,.32); background: #ecfeff; }
 
 /* ── Score bars ── */
 .score { display: inline-flex; align-items: center; gap: 7px; }

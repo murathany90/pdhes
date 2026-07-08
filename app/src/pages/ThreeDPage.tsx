@@ -7,6 +7,7 @@ import LayerToggle from '../components/ui/LayerToggle';
 import ScenarioSlider from '../components/ui/ScenarioSlider';
 import ThreeDModel from '../components/ui/ThreeDModel';
 import WarningBanner from '../components/ui/WarningBanner';
+import { buildComponentsDetail, COORDINATE_CONFIDENCE_LABELS } from '../utils/siteDerived';
 
 export default function ThreeDPage({ site: propSite }: { site?: Site }) {
   const { sites, selectedId } = useSiteStore();
@@ -22,7 +23,8 @@ export default function ThreeDPage({ site: propSite }: { site?: Site }) {
   const [mode, setMode] = useState<'generate' | 'pump'>('generate');
   
   const [isPlaying, setIsPlaying] = useState(false);
-  const maxUnits = site?.components_detail?.powerhouse?.units || 4;
+  const componentsDetail = site ? buildComponentsDetail(site) : null;
+  const maxUnits = componentsDetail?.powerhouse?.units || 4;
   const [activeUnits, setActiveUnits] = useState(maxUnits);
 
   // Reset state when site changes
@@ -31,7 +33,7 @@ export default function ThreeDPage({ site: propSite }: { site?: Site }) {
       setActiveComponent('upper_reservoir');
       setMode('generate');
       setIsPlaying(false);
-      setActiveUnits(site?.components_detail?.powerhouse?.units || 4);
+      setActiveUnits(buildComponentsDetail(site).powerhouse.units || 4);
     }
   }, [site?.id]);
 
@@ -40,6 +42,8 @@ export default function ThreeDPage({ site: propSite }: { site?: Site }) {
   const [terrainOpacity, setTerrainOpacity] = useState(70);
 
   if (!site) return <section className="panel active"><p className="muted">Veri yükleniyor...</p></section>;
+
+  const detail = componentsDetail ?? buildComponentsDetail(site);
 
   return (
     <section className="panel active no-pad threed-page">
@@ -52,7 +56,8 @@ export default function ThreeDPage({ site: propSite }: { site?: Site }) {
             onSelectComponent={setActiveComponent}
             layers={layers}
             mode={mode}
-            componentsDetail={site.components_detail}
+            componentsDetail={detail}
+            site={site}
             isPlaying={isPlaying}
             activeUnits={activeUnits}
             maxUnits={maxUnits}
@@ -174,7 +179,7 @@ export default function ThreeDPage({ site: propSite }: { site?: Site }) {
             </p>
 
             {/* Dynamic data from site details */}
-            {Object.entries((site.components_detail as any)[activeComponent] || {}).map(([k, v]) => (
+            {Object.entries((detail as any)[activeComponent] || {}).map(([k, v]) => (
               <p key={k} style={{ marginBottom: 8, fontSize: 14 }}>
                 <b style={{ color: 'var(--text)' }}>{k.replace(/_/g, ' ').toUpperCase()}:</b>{' '}
                 <span className="muted">{String(v)}</span>
@@ -182,7 +187,7 @@ export default function ThreeDPage({ site: propSite }: { site?: Site }) {
             ))}
             
             <div style={{ marginTop: 16 }}>
-              <WarningBanner type="danger" message="Bu değerler ve 3D konumlar temsilidir." />
+              <WarningBanner type="danger" message={`Bu değerler ve 3D konumlar temsilidir. Koordinat güveni: ${COORDINATE_CONFIDENCE_LABELS[site.coordinates.coordinateConfidence]}.`} />
             </div>
           </div>
 

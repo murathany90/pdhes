@@ -3,31 +3,10 @@
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { useSiteStore } from '../stores/useSiteStore';
-import type { Site } from '../types/site';
+import { makeTestSite } from '../test-utils/makeTestSite';
 import DataPage from './DataPage';
 
-const site = {
-  id: 'test-site',
-  name: 'Test sahası',
-  region: 'Test bölgesi',
-  concept: 'classic',
-  pdhesType: 'CLOSED_LOOP',
-  powerMW: 1000,
-  energyGWh: 8,
-  head: 400,
-  tunnelKm: 5,
-  capexBn: 2,
-  revenueM: 200,
-  score: 75,
-  payback: 10,
-  activeMcm: 10,
-  gridDistKm: 4,
-  lower: 'Alt',
-  upper: 'Üst',
-  thesis: 'Test açıklaması',
-  risks: ['Jeoloji'],
-  scores: { topo: 80, grid: 70, env: 60, geology: 50, access: 90, market: 70 },
-} as Site;
+const site = makeTestSite({ id: 'jica-test-site' });
 
 describe('DataPage', () => {
   beforeEach(() => {
@@ -40,9 +19,33 @@ describe('DataPage', () => {
     render(<DataPage site={site} />);
 
     expect(screen.getByRole('button', { name: 'Tümü' }).getAttribute('aria-pressed')).toBe('true');
-    const siteButton = screen.getByRole('button', { name: /test sahası/i });
+    const siteButton = screen.getByRole('button', { name: /test pdhes/i });
     fireEvent.click(siteButton);
     expect(useSiteStore.getState().selectedId).toBe(site.id);
-    expect(screen.getAllByText(/kaynak \/ senaryo skoru/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/JİCA\/EİE/i).length).toBeGreaterThan(0);
+    expect(screen.getByText(/Açık döngü/i)).toBeTruthy();
+    expect(document.body.textContent).not.toMatch(/undefined|NaN|null/i);
+  });
+
+  it('uses compact 16+4 table columns without province or coordinate filters', () => {
+    render(<DataPage site={site} />);
+
+    expect(screen.getByRole('columnheader', { name: 'Güç / Enerji' })).toBeTruthy();
+    expect(screen.getByRole('columnheader', { name: 'Düşü (head) / Su Yolu' })).toBeTruthy();
+    expect(screen.getByRole('columnheader', { name: 'Yatırım' })).toBeTruthy();
+    expect(screen.getByRole('columnheader', { name: 'Gelir' })).toBeTruthy();
+    expect(screen.getByRole('columnheader', { name: 'Kaynak / Senaryo Skoru' })).toBeTruthy();
+
+    expect(screen.queryByRole('columnheader', { name: 'Kurulu güç' })).toBeNull();
+    expect(screen.queryByRole('columnheader', { name: 'Debi / düşü' })).toBeNull();
+    expect(screen.queryByRole('columnheader', { name: 'Skor' })).toBeNull();
+    expect(screen.queryByRole('columnheader', { name: 'Koordinat' })).toBeNull();
+    expect(screen.queryByLabelText('İl')).toBeNull();
+    expect(screen.queryByLabelText('Koordinat güveni')).toBeNull();
+
+    expect(screen.getByRole('button', { name: 'JİCA/EİE' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Deniz Tipi' })).toBeTruthy();
+    expect(screen.getByText(/Kaynak: 75/i)).toBeTruthy();
+    expect(screen.getByText(/Senaryo:/i)).toBeTruthy();
   });
 });

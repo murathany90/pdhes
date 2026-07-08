@@ -28,7 +28,7 @@ export interface WorldExample {
   status: WorldExampleStatus;
   lat: number;
   lon: number;
-  wikiUrl: string;
+  wikiUrl?: string;
    sourceNote?: string;
   shortDescription: string;
    wikiNote?: string;
@@ -423,6 +423,23 @@ export const WORLD_EXAMPLES: WorldExample[] = [
     sourceNote: 'Wikipedia listesinde 1.040 MW olarak yer alır.',
     shortDescription: 'İran\'da bölgesel ölçekte önemli olan pompaj depolama tesisidir.',
     wikiNote: 'Türkiye\'ye coğrafi olarak yakın bölgesel PDHES örneklerinden biridir.',
+  },
+  {
+    id: 'presenzano',
+    name: 'Presenzano (Domenico Cimarosa) PSPP',
+    country: 'İtalya',
+    countryCode: 'IT',
+    flag: '🇮🇹',
+    capacityMw: 1000,
+    headM: 498,
+    storageMwh: 7000,
+    commissioningYear: 1992,
+    status: 'operational',
+    lat: 41.3878,
+    lon: 14.073,
+    sourceNote: 'Önceki Türkiye aday listesindeki Presenzano kaydından taşındı; 1.000 MW, yaklaşık 7 GWh ve 498 m düşü bilgileri korunmuştur.',
+    shortDescription: 'İtalya Campania bölgesinde yer alan, kuyu tipi türbin odası kurgusuyla uygulamadaki dünya örnekleri bölümüne taşınan pompaj depolama tesisidir.',
+    wikiNote: 'Türkiye aday listesinde gösterilmez; dünya örneği olarak harita ve PDHES Nedir içeriklerinde görünür.',
   },
   {
     id: 'drakensberg',

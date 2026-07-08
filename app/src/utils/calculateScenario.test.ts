@@ -6,8 +6,9 @@ import { calculateScenario } from './calculateScenario';
 const site = sites[0] as unknown as Site;
 
 describe('calculateScenario', () => {
-  it('calculates physical energy and financial scenario values', () => {
+  it('calculates energy from head and scenario volume when source active volume is missing', () => {
     const result = calculateScenario(site, {
+      activeVolumeHm3: 10,
       capexFactor: 1,
       revenueFactor: 1,
       cycles: 300,
@@ -15,14 +16,14 @@ describe('calculateScenario', () => {
     });
 
     expect(result.physicsGWh).toBeGreaterThan(0);
-    expect(result.adjCapex).toBe(site.capexBn);
-    expect(result.adjRevenue).toBeCloseTo(site.revenueM * 1.18);
-    expect(result.payback).not.toBeNull();
-    expect(result.eurPerKw).not.toBeNull();
+    expect(result.volumeSource).toBe('scenario');
+    expect(result.consistencyNote).toMatch(/aktif hacim kaynakta yok/i);
+    expect(result.sourceCapacityMW).toBe(site.capacityMW);
   });
 
   it('does not expose Infinity for zero revenue or power', () => {
-    const result = calculateScenario({ ...site, revenueM: 0, powerMW: 0 }, {
+    const result = calculateScenario({ ...site, annualRevenueUsdM: 0, capacityMW: 0 }, {
+      activeVolumeHm3: 10,
       capexFactor: 1,
       revenueFactor: 1,
       cycles: 300,

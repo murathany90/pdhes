@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { cleanup, render, screen } from '@testing-library/react';
+import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { useWorkspaceStore } from '../stores/useWorkspaceStore';
 import PdhesPage from './PdhesPage';
@@ -15,7 +15,10 @@ describe('PdhesPage editable content safety', () => {
     useWorkspaceStore.setState({ contentOverrides: {} });
   });
 
-  afterEach(cleanup);
+  afterEach(() => {
+    cleanup();
+    vi.restoreAllMocks();
+  });
 
   it('renders local workspace overrides as text instead of HTML', () => {
     const payload = '<img src=x onerror=alert(1)>Güvenli başlık';
@@ -40,5 +43,31 @@ describe('PdhesPage editable content safety', () => {
 
     expect(screen.getByRole('textbox', { name: /teknik terim ara/i })).toBeTruthy();
 
+  });
+
+  it('uses the updated single-card contents for the PDHES primer', () => {
+    render(<PdhesPage />);
+
+    expect(screen.getByRole('link', { name: 'JİCA/EİE + Deniz Tipi' })).toBeTruthy();
+    expect(screen.getByRole('heading', { name: /JİCA\/EİE ve 16\+4 aday veri kurgusu/i })).toBeTruthy();
+    expect(screen.getByRole('heading', { name: 'Sık Sorulan Sorular' })).toBeTruthy();
+    expect(document.querySelectorAll('.encyclopedia .content-split .card')).toHaveLength(0);
+    expect(document.querySelectorAll('.pdhes-rich-shell > .content > article.info-card').length).toBeGreaterThanOrEqual(13);
+  });
+
+  it('scrolls the nested content panel to the requested section', async () => {
+    const scrollTo = vi.fn();
+    const windowScrollTo = vi.fn();
+    HTMLElement.prototype.scrollTo = scrollTo;
+    window.scrollTo = windowScrollTo;
+    vi.spyOn(HTMLElement.prototype, 'scrollHeight', 'get').mockReturnValue(1000);
+    vi.spyOn(HTMLElement.prototype, 'clientHeight', 'get').mockReturnValue(500);
+
+    render(<PdhesPage sectionId="sec-jica" />);
+
+    await waitFor(() => {
+      expect(scrollTo).toHaveBeenCalledWith({ top: 0, behavior: 'auto' });
+      expect(windowScrollTo).toHaveBeenCalledWith({ top: 0, behavior: 'auto' });
+    });
   });
 });

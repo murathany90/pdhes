@@ -8,6 +8,7 @@ import { useSiteStore } from '../stores/useSiteStore';
 import { useSettingsStore } from '../stores/useSettingsStore';
 import { WORLD_EXAMPLES } from '../data/worldExamples';
 import { num, moneyBn, moneyM } from '../utils/format';
+import { COORDINATE_CONFIDENCE_LABELS, SOURCE_GROUP_LABELS } from '../utils/siteDerived';
 
 const DEFAULT_LAYERS: MapLayerVisibility = {
   candidates: true,
@@ -176,10 +177,12 @@ export default function MapPage() {
           ) : (
             <>
               <div className="grid" style={{ gap: 6 }}>
-                <div className="metric good"><span>Kapasite</span><b>{num(site.powerMW)} MW / {site.energyGWh} GWh</b></div>
-                <div className="metric info"><span>Düşü / su yolu</span><b>{num(site.head, 1)} m / {site.tunnelKm} km</b></div>
-                <div className="metric warn"><span>Yatırım gideri</span><b>{moneyBn(site.capexBn)}</b></div>
-                <div className="metric"><span>Gelir / geri ödeme</span><b>{moneyM(site.revenueM)} / {site.payback} yıl</b></div>
+                <div className="metric good"><span>Kapasite</span><b>{num(site.capacityMW)} MW</b></div>
+                <div className="metric info"><span>Debi / düşü</span><b>{num(site.projectFlowCms)} m³/s / {num(site.headM)} m</b></div>
+                <div className="metric warn"><span>Kaynak grubu</span><b>{SOURCE_GROUP_LABELS[site.sourceGroup]}</b></div>
+                <div className="metric"><span>Koordinat güveni</span><b>{COORDINATE_CONFIDENCE_LABELS[site.coordinates.coordinateConfidence]}</b></div>
+                <div className="metric"><span>Yatırım gideri</span><b>{moneyBn(site.capexUsdBn)}</b></div>
+                <div className="metric"><span>Gelir / geri ödeme</span><b>{moneyM(site.annualRevenueUsdM)} / {site.paybackYear ? `${site.paybackYear} yıl` : 'Belirtilmedi'}</b></div>
               </div>
               <ElevationProfile site={site} />
             </>
@@ -206,7 +209,7 @@ export default function MapPage() {
             <div style={{ marginTop: 16 }}>
               <InfoAccordion title="Proje zaman çizelgesi" defaultOpen={false}>
                 <div className="timeline">
-                  {site.timeline.map((event, index) => (
+                  {(site.timeline ?? []).map((event, index) => (
                     <div className="tl" key={`${event.date}-${index}`}>
                       <time>{event.date}</time>
                       <b style={{ display: 'block', marginTop: 3 }}>{event.title}</b>

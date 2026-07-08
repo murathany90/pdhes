@@ -6,6 +6,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { useSettingsStore } from './stores/useSettingsStore';
 import App from './App';
 
+vi.mock('./pages/PdhesPage', () => ({
+  default: ({ sectionId }: { sectionId?: string }) => (
+    <main data-testid="pdhes-page" data-section-id={sectionId ?? ''} />
+  ),
+}));
+
 describe('application navigation', () => {
   beforeEach(() => {
     localStorage.clear();
@@ -36,7 +42,7 @@ describe('application navigation', () => {
   });
 
   it('keeps legacy section links compatible with the canonical PDHES route', async () => {
-    window.location.hash = '#sec-tarihce';
+    window.location.hash = '#sec-jica';
 
     render(
       <HashRouter>
@@ -45,18 +51,12 @@ describe('application navigation', () => {
     );
 
     await waitFor(() => {
-      expect(window.location.hash).toBe('#/pdhes/sec-tarihce');
+      expect(window.location.hash).toBe('#/pdhes/sec-jica');
     });
   });
 
-  it('scrolls the nested content panel to the section encoded in the route', async () => {
-    const scrollTo = vi.fn();
-    const windowScrollTo = vi.fn();
-    HTMLElement.prototype.scrollTo = scrollTo;
-    window.scrollTo = windowScrollTo;
-    vi.spyOn(HTMLElement.prototype, 'scrollHeight', 'get').mockReturnValue(1000);
-    vi.spyOn(HTMLElement.prototype, 'clientHeight', 'get').mockReturnValue(500);
-    window.location.hash = '#/pdhes/sec-tarihce';
+  it('passes the nested content section encoded in the route to the PDHES page', async () => {
+    window.location.hash = '#/pdhes/sec-jica';
 
     render(
       <HashRouter>
@@ -65,8 +65,7 @@ describe('application navigation', () => {
     );
 
     await waitFor(() => {
-      expect(scrollTo).toHaveBeenCalledWith({ top: 0, behavior: 'auto' });
-      expect(windowScrollTo).toHaveBeenCalledWith({ top: 0, behavior: 'auto' });
+      expect(screen.getByTestId('pdhes-page').getAttribute('data-section-id')).toBe('sec-jica');
     });
   });
 

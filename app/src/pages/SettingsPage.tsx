@@ -2,50 +2,28 @@ import { ShieldCheck } from 'lucide-react';
 import { useSettingsStore } from '../stores/useSettingsStore';
 import { useSiteStore } from '../stores/useSiteStore';
 import WarningBanner from '../components/ui/WarningBanner';
-import ScorePill from '../components/ui/ScorePill';
-import { calculateWeightedScore } from '../utils/scoring';
 import { isLocalWorkspaceEnabled } from '../utils/workspaceMode';
 import { useCalcEngine } from '../hooks/useCalcEngine';
-import { moneyBn, moneyM } from '../utils/format';
-
-const WEIGHT_LABELS: Record<string, string> = {
-  topo: 'Topografya / düşü',
-  grid: 'Şebeke yakınlığı',
-  env: 'Çevresel kısıt',
-  geology: 'Jeoloji / deprem',
-  access: 'Erişim ve lojistik',
-  market: 'Piyasa ve yük',
-};
-
-
+import { moneyBn, moneyM, num } from '../utils/format';
+import { COORDINATE_CONFIDENCE_LABELS, SOURCE_GROUP_LABELS } from '../utils/siteDerived';
 
 export default function SettingsPage() {
-  const { theme, mapStyle, heightScale, weights, setTheme, setMapStyle, setHeightScale, setWeight } = useSettingsStore();
+  const { theme, mapStyle, heightScale, setTheme, setMapStyle, setHeightScale } = useSettingsStore();
   const { resetSites, sites, selectedId } = useSiteStore();
-  
+
   const selectedSite = sites.find((site) => site.id === selectedId) || sites[0];
   const { scenario, values, setScenarioValue, resetScenario } = useCalcEngine(selectedSite);
-  
-  const scenarioScore = selectedSite
-    ? calculateWeightedScore(selectedSite.scores, weights)
-    : null;
-  const totalWeight = Object.values(weights).reduce((sum, weight) => sum + weight, 0);
+
   const workspaceEnabled = isLocalWorkspaceEnabled(window.location.search);
   const workspaceHref = workspaceEnabled
     ? '#/workspace'
     : `${window.location.pathname || '/'}?editor=1#/workspace`;
 
-  // Karlılık skoru
-  const profitScore = values?.payback === null || values?.payback === undefined
-    ? 0
-    : Math.max(0, Math.min(100, 100 - (values.payback - 4) * 5));
   const paybackLabel = values?.payback === null || values?.payback === undefined ? 'hesaplanamaz' : `${values.payback.toFixed(1)} yıl`;
 
   return (
     <section className="panel active">
       <div className="settings-layout">
-        
-        {/* Ayarlar ve Tema Kartı */}
         <div className="card">
           <h2>Arayüz ve harita</h2>
           <div className="editor-form">
@@ -72,52 +50,37 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        {/* Skor Ağırlıkları Kartı */}
         <div className="card">
-          <h2>Skor ağırlıkları</h2>
-          {Object.entries(weights).map(([key, value]) => {
-            const inputId = `settings-weight-${key}`;
-            return (
-              <div className="range-row" key={key}>
-                <label htmlFor={inputId}>{WEIGHT_LABELS[key] || key}</label>
-                <input id={inputId} type="range" min={0} max={50} step={1} value={value} aria-valuetext={`${value} ağırlık`} onChange={(event) => setWeight(key as keyof typeof weights, +event.target.value)} />
-                <output htmlFor={inputId} className="kbd">{value}</output>
-              </div>
-            );
-          })}
+          <h2>Veri yönetimi</h2>
           {selectedSite && (
             <div className="scenario-score-preview" aria-live="polite">
               <div>
-                <span>Kaynak skor {selectedSite.score}</span>
-                <small>Veri seti, değişmez</small>
+                <span>{SOURCE_GROUP_LABELS[selectedSite.sourceGroup]}</span>
+                <small>{selectedSite.name}</small>
               </div>
               <div>
-                <span>Senaryo skoru {scenarioScore}</span>
-                <small>{totalWeight} toplam ağırlık</small>
+                <span>{COORDINATE_CONFIDENCE_LABELS[selectedSite.coordinates.coordinateConfidence]}</span>
+                <small>Koordinat güveni</small>
               </div>
             </div>
           )}
           <div style={{ marginTop: 12 }}>
             <WarningBanner
-              type={totalWeight === 0 ? 'warning' : 'info'}
-              message={totalWeight === 0
-                ? 'Senaryo skoru için en az bir ağırlığı sıfırdan büyük seçin.'
-                : 'Ağırlıklar senaryo skorunu anlık hesaplar; veri setindeki kaynak skoru değiştirmez.'}
+              type="info"
+              message="Saha verisi JICA/EİE 16 aday + mevcut veri setinden skorla seçilen 4 deniz tipi prototip olarak okunur. Eski v1/v2 çalışma alanı yedekleri içe aktarılmaz."
             />
           </div>
-          <h3 style={{ marginTop: 16 }}>Veri yönetimi</h3>
-          <button className="btn danger" onClick={() => { if (confirm('Kaydedilmiş saha düzenlemeleri sıfırlansın mı?')) resetSites(); }}>
+          <button className="btn danger" style={{ marginTop: 14 }} onClick={() => { if (confirm('Kaydedilmiş saha düzenlemeleri sıfırlansın mı?')) resetSites(); }}>
             Saha düzenlemelerini sıfırla
           </button>
           <p className="muted small" style={{ marginTop: 12 }}>
-            Mevcut çalışma listesinde {sites.length} aday saha var. Yedek alma ve geri yükleme işlemleri Yerel Çalışma Alanı sekmesinden yapılır.
+            Mevcut çalışma listesinde {sites.length} Türkiye adayı var.
           </p>
         </div>
 
-        {/* Hesaplama Motoru Kartı (CalcPage'den taşındı) */}
         <div className="card" style={{ gridColumn: '1 / -1' }}>
           <h2>Hesaplama Motoru (Aktif Tesis: {selectedSite?.name || 'Seçilmedi'})</h2>
-          <p className="muted">Seçili saha için enerji, yatırım gideri ve gelir varsayımlarını stres test edin.</p>
+          <p className="muted">Enerji hesabı kaynak düşü değerini ve aktif hacim yoksa kullanıcı senaryo hacmini kullanır.</p>
 
           {(!selectedSite || !values) ? (
             <p className="muted" style={{ marginTop: 16 }}>Hesaplama verisi yükleniyor veya tesis seçilmedi...</p>
@@ -125,17 +88,19 @@ export default function SettingsPage() {
             <>
               <div className="metric-row" style={{ margin: '16px 0' }}>
                 <div className="metric good"><span>Fiziksel enerji</span><b>{values.physicsGWh.toFixed(2)} GWh</b></div>
-                <div className="metric info"><span>Senaryo yatırım gideri</span><b>{moneyBn(values.adjCapex)}</b></div>
-                <div className="metric warn"><span>Brüt yıllık gelir</span><b>{moneyM(values.adjRevenue)}</b></div>
-                <div className="metric">
-                  <span>Senaryo göstergesi ({paybackLabel})</span>
-                  <div style={{ marginTop: 6 }}><ScorePill score={Math.round(profitScore)} label="Skor" /></div>
-                </div>
+                <div className="metric info"><span>Teorik güç kontrolü</span><b>{values.theoreticalPowerMW === null ? 'Belirtilmedi' : `${num(values.theoreticalPowerMW)} MW`}</b></div>
+                <div className="metric warn"><span>Senaryo yatırım gideri</span><b>{moneyBn(values.adjCapex)}</b></div>
+                <div className="metric"><span>Geri ödeme ({paybackLabel})</span><b>{moneyM(values.adjRevenue)}</b></div>
               </div>
 
               <div className="grid cols-2">
                 <div>
                   <h3>Senaryo ayarları</h3>
+                  <div className="range-row">
+                    <label htmlFor="calc-active-volume">Senaryo aktif hacmi</label>
+                    <input id="calc-active-volume" type="range" min={1} max={50} step={1} value={scenario.activeVolumeHm3} aria-valuetext={`${scenario.activeVolumeHm3} hm³`} onChange={(event) => setScenarioValue('activeVolumeHm3', +event.target.value)} />
+                    <output htmlFor="calc-active-volume" className="kbd">{scenario.activeVolumeHm3} hm³</output>
+                  </div>
                   <div className="range-row">
                     <label htmlFor="calc-capex-factor">Yatırım gideri çarpanı</label>
                     <input id="calc-capex-factor" type="range" min={0.75} max={1.45} step={0.01} value={scenario.capexFactor} aria-valuetext={`${scenario.capexFactor.toFixed(2)}x`} onChange={(event) => setScenarioValue('capexFactor', +event.target.value)} />
@@ -165,18 +130,21 @@ export default function SettingsPage() {
 
 Enerji formülü:
 E = ρ · g · H · V · η / 3.6e12
-ρ: su yoğunluğu, g: yerçekimi, H: net düşü (head), V: aktif hacim, η: çevrim verimi
+ρ: su yoğunluğu, g: yerçekimi, H: net düşü, V: aktif hacim, η: çevrim verimi
 
-H=${selectedSite.head} m, V=${selectedSite.activeMcm} milyon m³, η=0.85
-Veri setindeki enerji ölçeği: ${selectedSite.energyGWh} GWh
+H=${selectedSite.headM ?? 'Belirtilmedi'} m, V=${selectedSite.activeVolumeHm3 ?? scenario.activeVolumeHm3} hm³, η=0.85
+Hacim kaynağı: ${values.volumeSource === 'source' ? 'veri seti' : 'senaryo varsayımı'}
+${values.consistencyNote}
+Kaynak kurulu güç: ${selectedSite.capacityMW} MW
+Teorik güç kontrolü: ${values.theoreticalPowerMW === null ? 'Belirtilmedi' : `${num(values.theoreticalPowerMW)} MW`}
 Hesaplanan fiziksel enerji: ${values.physicsGWh.toFixed(2)} GWh
 
 Yatırım gideri:
-${selectedSite.capexBn} milyar € x ${scenario.capexFactor.toFixed(2)} = ${values.adjCapex.toFixed(2)} milyar €
-${values.eurPerKw === null ? 'Hesaplanamaz' : `${Math.round(values.eurPerKw).toLocaleString('tr-TR')} €/kW`}
+${selectedSite.capexUsdBn ?? 'Belirtilmedi'} milyar USD x ${scenario.capexFactor.toFixed(2)} = ${values.adjCapex.toFixed(2)} milyar USD
+${values.eurPerKw === null ? 'Hesaplanamaz' : `${Math.round(values.eurPerKw).toLocaleString('tr-TR')} USD/kW`}
 
 Gelir:
-${selectedSite.revenueM} milyon €/yıl x çevrim(${scenario.cycles}/300) x gelir(${scenario.revenueFactor.toFixed(2)}) x yardımcı hizmet(${(1 + scenario.reservePremium / 100).toFixed(2)}) = ${values.adjRevenue.toFixed(1)} milyon €/yıl`}
+${selectedSite.annualRevenueUsdM ?? 'Belirtilmedi'} milyon USD/yıl x çevrim(${scenario.cycles}/300) x gelir(${scenario.revenueFactor.toFixed(2)}) x yardımcı hizmet(${(1 + scenario.reservePremium / 100).toFixed(2)}) = ${values.adjRevenue.toFixed(1)} milyon USD/yıl`}
                   </div>
                 </div>
               </div>
@@ -184,7 +152,6 @@ ${selectedSite.revenueM} milyon €/yıl x çevrim(${scenario.cycles}/300) x gel
           )}
         </div>
 
-        {/* Yerel Çalışma Alanı Kartı */}
         <div className="card workspace-settings-card" style={{ gridColumn: '1 / -1' }}>
           <h2>Yerel çalışma alanı</h2>
           <p className="muted">
@@ -203,7 +170,6 @@ ${selectedSite.revenueM} milyon €/yıl x çevrim(${scenario.cycles}/300) x gel
             {workspaceEnabled ? 'Yerel çalışma alanını aç' : 'Yerel çalışma alanını etkinleştir'}
           </a>
         </div>
-
       </div>
     </section>
   );

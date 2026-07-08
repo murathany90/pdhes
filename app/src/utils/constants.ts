@@ -34,20 +34,6 @@ export const CONTENT_DEFAULTS: Record<string, unknown> = {
   },
 };
 
-export const PDHES_TYPE_LABELS: Record<string, string> = {
-  CLOSED_LOOP: 'Kapalı devre PDHES',
-  OPEN_LOOP: 'Açık devre PDHES',
-  SEA_WATER: 'Deniz suyu PDHES',
-  PROTOTYPE: 'Prototip / pilot PDHES',
-};
-
-export const PDHES_TYPE_COLORS: Record<string, string> = {
-  CLOSED_LOOP: '#48f49a',
-  OPEN_LOOP: '#3d7dff',
-  SEA_WATER: '#36d6ff',
-  PROTOTYPE: '#b277ff',
-};
-
 export const GLOSSARY: { term: string; definition: string }[] = [
   { term: 'Düşü (head)', definition: 'Üst ve alt rezervuar arasındaki yükseklik farkı. Net düşü, hidrolik kayıplar düşüldükten sonra türbine kalan etkili yüksekliktir.' },
   { term: 'Cebri boru (penstock)', definition: 'Yüksek basınçlı suyu türbine veya pompa-türbine taşıyan çelik ya da kompozit boru hattı.' },

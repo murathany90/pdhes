@@ -1,26 +1,77 @@
-export interface Coordinates {
-  mapAnchor: [number, number];
-  lowerReservoir: [number, number];
-  upperReservoir: [number, number];
-  powerhouse: [number, number];
-  surgeTank: [number, number];
-  switchyard: [number, number];
-  gridConnection: [number, number];
-  intakeOutfall: [number, number] | null;
-  bbox: [[number, number], [number, number]];
+export type CandidateSourceGroup =
+  | 'JICA_EIE_16'
+  | 'SEA_WATER_PROTOTYPE_TOP4';
+
+export type CycleType =
+  | 'OPEN_LOOP'
+  | 'CLOSED_LOOP'
+  | 'SEA_LOWER_RESERVOIR';
+
+export type InfrastructureType =
+  | 'PURE_NEW_BUILD'
+  | 'MIXED_EXISTING_HYDRO_CASCADE'
+  | 'EXISTING_RESERVOIR_INTEGRATED'
+  | 'SEAWATER_COASTAL';
+
+export type ConceptType =
+  | 'CONVENTIONAL_LAND'
+  | 'SEAWATER'
+  | 'VARIABLE_SPEED_OPTION'
+  | 'HYBRID_RENEWABLE_OPTION';
+
+export type GridSupplyType =
+  | 'GRID_SUPPORTED'
+  | 'HYBRID_RENEWABLE_POTENTIAL'
+  | 'OFFGRID_OR_ISLAND_PILOT';
+
+export type PrimaryPurpose =
+  | 'PEAK_POWER'
+  | 'ENERGY_STORAGE'
+  | 'RENEWABLE_BALANCING'
+  | 'ISLAND_GRID_RESILIENCE';
+
+export type CoordinateConfidence =
+  | 'existing-data'
+  | 'fallback-approximate'
+  | 'agent-verified-dem'
+  | 'official-or-surveyed';
+
+export interface TechnicalClassification {
+  cycleType: CycleType;
+  infrastructureType: InfrastructureType;
+  conceptType: ConceptType;
+  gridSupplyType: GridSupplyType;
+  primaryPurpose: PrimaryPurpose;
+  classificationNote: string;
 }
 
-export interface SiteLayout {
-  bearing: number;
-  upper: [number, number];
-  lower: [number, number];
-  power: [number, number];
-  surge: [number, number];
-  switchyard: [number, number];
-  gridA: [number, number];
-  gridB: [number, number];
-  risk: [number, number];
-  gridTap?: [number, number];
+export interface PdhCoordinateSet {
+  coordinateSystem: 'WGS84';
+  coordinateOrder: '[lon, lat]';
+  coordinateConfidence: CoordinateConfidence;
+  coordinateNote: string;
+  mapAnchor: [number, number];
+  lowerReservoir: { name: string; point: [number, number] };
+  upperReservoir: { description: string; point: [number, number] };
+  upperReservoirPolygon?: [number, number][];
+  powerhouse: { point: [number, number]; preferred3dType: string };
+  surgeTank: { point: [number, number] };
+  servicePortal?: { point: [number, number] };
+  penstockRoute: [number, number][];
+  tailraceOutlet: { point: [number, number] };
+  switchyard: { point: [number, number] };
+  gridConnection: { point: [number, number]; voltageClassHint: string };
+  intakeOutfall?: { point: [number, number]; description: string } | null;
+  bbox: [number, number, number, number];
+}
+
+export interface Pdh3dModelSpec {
+  terrainMode: 'real-dem-if-available-else-procedural';
+  lowerReservoirMode: 'existing-dam-lake' | 'artificial-lower-pond' | 'sea';
+  upperReservoirMode: 'concrete-lined-pool' | 'compacted-clay-pool' | 'geomembrane-or-conceptual-pool';
+  powerhouseMode: 'underground-cavern' | 'semi-underground-or-surface';
+  penstockMode: 'shaft-plus-pressure-tunnel' | 'surface-or-buried-penstock' | 'conceptual-waterway';
+  showUncertaintyOverlay: boolean;
 }
 
 export interface SiteView {
@@ -34,16 +85,6 @@ export interface TimelineEvent {
   date: string;
   title: string;
   text: string;
-}
-
-export interface LocationEvidence {
-  field: string;
-  sourceName: string;
-  sourceType: string;
-  sourceUrl: string;
-  method: string;
-  confidence: string;
-  note: string;
 }
 
 export interface Scores {
@@ -62,6 +103,8 @@ export interface ComponentsDetail {
     dam_height_m: number;
     lining: string;
     geology_note: string;
+    shape_note?: string;
+    render_mode?: 'polygon_footprint';
   };
   lower_reservoir: {
     elevation_m: number;
@@ -114,63 +157,49 @@ export interface GridConnection {
   nearest154: { lineName: string; distanceKm: number; tapCoord: [number, number] };
 }
 
-export type PdhesType = 'CLOSED_LOOP' | 'OPEN_LOOP' | 'SEA_WATER' | 'PROTOTYPE';
-export type Concept = 'classic' | 'sea';
-export type CapacityClass = 'macro' | 'micro' | 'medium';
-export type TechnologyReadiness = 'concept' | 'pre_feasibility' | 'feasibility';
-export type Confidence = 'reference_based' | 'gis_inferred' | 'dem_inferred';
-export type LocationConfidenceLevel = 'high' | 'medium' | 'low';
-
 export interface Site {
   id: string;
   name: string;
-  concept: Concept;
-  conceptLabel: string;
-  lat: number;
-  lon: number;
-  region: string;
-  score: number;
-  head: number;
-  tunnelKm: number;
-  activeMcm: number;
-  powerMW: number;
-  energyGWh: number;
-  capexBn: number;
-  revenueM: number;
-  payback: number;
-  gridDistKm: number;
-  lower: string;
-  upper: string;
-  thesis: string;
-  risks: string[];
-  scores: Scores;
-  view: SiteView;
-  color: string;
-  layout: SiteLayout;
-  timeline: TimelineEvent[];
-  pdhesType: PdhesType;
   province: string;
-  locationConfidence: LocationConfidenceLevel;
-  isApproximate: boolean;
-  confidence: Confidence;
-  technologyReadiness: TechnologyReadiness;
-  coordinates: Coordinates;
-  evidence: string[];
-  note: string;
-  capacityClass: CapacityClass;
-  lowerReservoirType: string;
-  upperReservoirType: string;
-  oldCoordinates?: [number, number];
-  verifiedAt: string;
-  verificationNotes: string;
-  locationEvidence: LocationEvidence[];
-  layout3D: { scale: string; preferredBearing: number; componentFootprints: unknown[] };
-  components_detail: ComponentsDetail;
+  country: 'Türkiye';
+  sourceGroup: CandidateSourceGroup;
+  sourceNote: string;
+  order: number;
+
+  capacityMW: number;
+  projectFlowCms: number | null;
+  headM: number | null;
+  energyGWh?: number | null;
+  activeVolumeHm3?: number | null;
+  tunnelLengthKm?: number | null;
+  capexUsdBn?: number | null;
+  annualRevenueUsdM?: number | null;
+  paybackYear?: number | null;
+  score?: number | null;
+
+  lowerReservoirName: string;
+  upperReservoirDescription: string;
+  shaftLengthM?: number | null;
+  penstockLengthM?: number | null;
+  tailraceTunnelLengthM?: number | null;
+
+  technicalClassification: TechnicalClassification;
+  coordinates: PdhCoordinateSet;
+  risks: string[];
+  assumptions: string[];
+  model3d: Pdh3dModelSpec;
+  components_detail?: ComponentsDetail;
+
+  thesis?: string;
+  note?: string;
+  verificationNotes?: string;
+  timeline?: TimelineEvent[];
+  evidence?: string[];
+  view?: SiteView;
+  layout?: SiteLayout;
+  layout3D?: Layout3DSpec;
+  color?: string;
   gridConnection?: GridConnection;
-  nearest380Km?: number;
-  nearest154Km?: number;
-  nearestSubstation?: { name: string; voltage_kv: number; coord: [number, number]; distance_km: number };
-  nMinusOneNote?: string;
 }
 
 export interface ComponentDef {
@@ -180,5 +209,57 @@ export interface ComponentDef {
   description?: string;
 }
 
-// WorldExample type is now defined in data/worldExamples.ts
+export interface SiteLayout {
+  bearing: number;
+  upper: [number, number];
+  upperPolygon?: [number, number][];
+  lower: [number, number];
+  power: [number, number];
+  surge: [number, number];
+  servicePortal?: [number, number];
+  switchyard: [number, number];
+  gridA: [number, number];
+  gridB: [number, number];
+  risk: [number, number];
+  gridTap?: [number, number];
+}
+
+export type Layout3DFootprintKind = 'polygon' | 'polyline';
+
+export type Layout3DMaterial =
+  | 'water'
+  | 'embankment'
+  | 'crest_road'
+  | 'concrete'
+  | 'tunnel_axis'
+  | 'shaft'
+  | 'portal'
+  | 'industrial'
+  | 'tailrace_channel'
+  | 'switchyard';
+
+export interface Layout3DFootprint {
+  id: string;
+  component: string;
+  kind: Layout3DFootprintKind;
+  material: Layout3DMaterial;
+  closed?: boolean;
+  coords: [number, number][];
+  baseElevationM?: number;
+  topElevationM?: number;
+  extrudeM?: number;
+  elevationM?: number;
+  profileElevationM?: number[];
+}
+
+export interface Layout3DSpec {
+  scale: 'macro';
+  preferredBearing: number;
+  terrainExaggeration: number;
+  reservoirSurfaceMode: 'polygon';
+  useFootprintPolygons: boolean;
+  hideLegacySquareReservoir: boolean;
+  componentFootprints: Layout3DFootprint[];
+}
+
 export type { WorldExample } from '../data/worldExamples';

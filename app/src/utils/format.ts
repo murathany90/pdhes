@@ -1,12 +1,19 @@
-export function moneyBn(v: number): string {
-  return '€' + v.toFixed(2) + ' bn';
+function isFiniteValue(v: unknown): v is number {
+  return typeof v === 'number' && Number.isFinite(v);
 }
 
-export function moneyM(v: number): string {
-  return '€' + Math.round(v) + ' m/yıl';
+export function moneyBn(v: number | null | undefined): string {
+  if (!isFiniteValue(v)) return 'Belirtilmedi';
+  return '$' + v.toFixed(2) + ' bn';
 }
 
-export function num(v: number, d = 0): string {
+export function moneyM(v: number | null | undefined): string {
+  if (!isFiniteValue(v)) return 'Belirtilmedi';
+  return '$' + Math.round(v) + ' m/yıl';
+}
+
+export function num(v: number | null | undefined, d = 0): string {
+  if (!isFiniteValue(v)) return 'Belirtilmedi';
   return Number(v).toLocaleString('tr-TR', { maximumFractionDigits: d, minimumFractionDigits: d });
 }
 

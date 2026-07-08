@@ -7,6 +7,23 @@ import { buildLayout } from '../utils/layout';
 import { getMapStyleSpecification, getMarkerIconHtml, type MapStyleKind } from '../utils/mapProviders';
 import { useSiteStore } from '../stores/useSiteStore';
 import { WORLD_EXAMPLES } from '../data/worldExamples';
+import {
+  COORDINATE_CONFIDENCE_LABELS,
+  CYCLE_TYPE_LABELS,
+  SOURCE_GROUP_LABELS,
+  getSiteCenter,
+  getSiteColor,
+  getSiteView,
+  isSeaLowerReservoir,
+} from '../utils/siteDerived';
+import { num } from '../utils/format';
+
+function popupWaterwayText(site: Site): string {
+  if (site.tunnelLengthKm !== null && site.tunnelLengthKm !== undefined) return `${num(site.tunnelLengthKm, 1)} km tünel`;
+  if (site.penstockLengthM !== null && site.penstockLengthM !== undefined) return `${num(site.penstockLengthM)} m cebri boru`;
+  if (site.tailraceTunnelLengthM !== null && site.tailraceTunnelLengthM !== undefined) return `${num(site.tailraceTunnelLengthM)} m kuyruk suyu`;
+  return 'Su yolu belirtilmedi';
+}
 
 export interface MapLayerVisibility {
   candidates: boolean;
@@ -229,8 +246,8 @@ export function useMapLibre({
           type: 'FeatureCollection',
           features: sites.map((candidate) => ({
             type: 'Feature',
-            geometry: { type: 'Point', coordinates: [candidate.lon, candidate.lat] },
-            properties: { id: candidate.id, name: candidate.name, concept: candidate.conceptLabel, color: candidate.color },
+            geometry: { type: 'Point', coordinates: getSiteCenter(candidate) },
+            properties: { id: candidate.id, name: candidate.name, sourceGroupLabel: SOURCE_GROUP_LABELS[candidate.sourceGroup], color: getSiteColor(candidate) },
           })),
         };
         map.addSource('candidates', { type: 'geojson', data: candidates });
@@ -244,9 +261,11 @@ export function useMapLibre({
         
         sites.forEach((candidate) => {
           const el = document.createElement('div');
-          el.innerHTML = getMarkerIconHtml(candidate.concept || 'classic', candidate.id === selectedId ? '#ff2a55' : candidate.color, candidate.id === selectedId);
+          const markerColor = candidate.id === selectedId ? '#ff2a55' : getSiteColor(candidate);
+          const center = getSiteCenter(candidate);
+          el.innerHTML = getMarkerIconHtml(isSeaLowerReservoir(candidate) ? 'sea' : 'classic', markerColor, candidate.id === selectedId);
           const marker = new maplibregl.Marker({ element: el })
-            .setLngLat([candidate.lon, candidate.lat])
+            .setLngLat(center)
             .addTo(map);
 
           if (interactiveCandidates) {
@@ -255,8 +274,20 @@ export function useMapLibre({
               e.stopPropagation();
               onSelectSiteRef.current?.(candidate.id);
               new maplibregl.Popup({ closeButton: false, offset: 25 })
-                .setLngLat([candidate.lon, candidate.lat])
-                .setHTML(`<b>${escapeHtml(candidate.name)}</b><br><span style="font-size: 12px">${escapeHtml(candidate.conceptLabel)}</span>`)
+                .setLngLat(center)
+                .setHTML(`
+                  <b>${escapeHtml(candidate.name)}</b><br>
+                  <span style="font-size:12px">${escapeHtml(SOURCE_GROUP_LABELS[candidate.sourceGroup])}</span>
+                  <div style="font-size:12px;margin-top:6px">
+                    <div><b>Güç / Enerji:</b> ${num(candidate.capacityMW)} MW${candidate.energyGWh ? ` / ${num(candidate.energyGWh)} GWh` : ''}</div>
+                    <div><b>Düşü (head) / Su Yolu:</b> ${num(candidate.headM)} m / ${escapeHtml(popupWaterwayText(candidate))}</div>
+                    <div><b>Teknik sınıf:</b> ${escapeHtml(CYCLE_TYPE_LABELS[candidate.technicalClassification.cycleType])}</div>
+                    <div><b>Alt rezervuar:</b> ${escapeHtml(candidate.lowerReservoirName)}</div>
+                    <div><b>Üst rezervuar:</b> ${escapeHtml(candidate.upperReservoirDescription)}</div>
+                    <div><b>Koordinat:</b> ${escapeHtml(COORDINATE_CONFIDENCE_LABELS[candidate.coordinates.coordinateConfidence])}</div>
+                    <button type="button" style="margin-top:6px">Kavramsal tesis yerleşimini göster</button>
+                  </div>
+                `)
                 .addTo(map);
             });
           }
@@ -285,7 +316,7 @@ export function useMapLibre({
               ${example.commissioningYear ? `<div><b>Yıl:</b> ${example.commissioningYear}</div>` : ''}
             </div>
             ${example.wikiNote ? `<div style="font-size:12px;color:var(--soft);margin-bottom:6px;"><b>Not:</b> ${escapeHtml(example.wikiNote)}</div>` : ''}
-            <a href="${example.wikiUrl}" target="_blank" rel="noopener noreferrer" style="display:inline-block;font-size:12px;color:var(--blue);text-decoration:none;margin-top:4px;">Wikipedia &nearr;</a>
+            ${example.wikiUrl ? `<a href="${example.wikiUrl}" target="_blank" rel="noopener noreferrer" style="display:inline-block;font-size:12px;color:var(--blue);text-decoration:none;margin-top:4px;">Wikipedia &nearr;</a>` : ''}
           </div>
         `;
 
@@ -323,10 +354,10 @@ export function useMapLibre({
     const map = new maplibregl.Map({
       container: containerRef.current,
       style: getMapStyleSpecification(mapStyle),
-      center: site.view.center,
-      zoom: site.view.zoom,
-      pitch: site.view.pitch,
-      bearing: site.view.bearing,
+      center: getSiteView(site).center,
+      zoom: getSiteView(site).zoom,
+      pitch: getSiteView(site).pitch,
+      bearing: getSiteView(site).bearing,
       attributionControl: false,
       maxZoom: 22,
     });
@@ -370,11 +401,12 @@ export function useMapLibre({
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !site) return;
+    const view = getSiteView(site);
     map.flyTo({
-      center: site.view.center,
-      zoom: site.view.zoom,
-      pitch: site.view.pitch,
-      bearing: site.view.bearing,
+      center: view.center,
+      zoom: view.zoom,
+      pitch: view.pitch,
+      bearing: view.bearing,
       duration: 900,
     });
   }, [selectedId, site]);

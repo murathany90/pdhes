@@ -1,0 +1,41 @@
+
+> app@0.0.0 dev
+> vite --host 127.0.0.1 --port 5174 --strictPort
+
+
+  [32m[1mVITE[22m v8.1.3[39m  [2mready in [0m[1m275[22m[2m[0m ms[22m
+
+  [32m➜[39m  [1mLocal[22m:   [36mhttp://127.0.0.1:[1m5174[22m/[39m
+[2m03:50:55[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/DataPage.tsx[22m
+[2m03:51:05[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/PdhesPage.tsx, /src/pages/DataPage.tsx, /src/pages/MapPage.tsx, /src/components/ElevationProfile.tsx, /src/pages/ThreeDPage.tsx, /src/components/ui/ThreeDModel.tsx[22m
+[2m03:52:06[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/DataPage.tsx[22m
+[2m03:52:13[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/DataPage.tsx[22m
+[2m03:52:26[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/DataPage.tsx[22m
+[2m03:52:55[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/DataPage.tsx[22m
+[2m03:53:15[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m03:56:13[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/PdhesPage.tsx[22m
+[2m03:59:50[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/PdhesPage.tsx[22m
+[2m04:00:36[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/PdhesPage.tsx[22m
+[2m04:00:41[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/PdhesPage.tsx[22m
+[2m04:02:13[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/PdhesPage.tsx[22m
+[2m04:05:34[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/MapPage.tsx[22m
+[2m04:05:39[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/MapPage.tsx[22m
+[2m04:06:50[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/DataPage.tsx[22m
+[2m04:06:56[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/MapPage.tsx[22m
+[2m04:31:12[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/DataPage.tsx, /src/pages/MapPage.tsx, /src/components/ElevationProfile.tsx, /src/pages/ThreeDPage.tsx, /src/components/ui/ThreeDModel.tsx, /src/pages/SettingsPage.tsx[22m
+[2m04:32:12[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/App.tsx, /src/pages/PdhesPage.tsx, /src/pages/DataPage.tsx, /src/pages/MapPage.tsx, /src/components/FabPopover.tsx, /src/pages/ThreeDPage.tsx, /src/components/ui/ThreeDModel.tsx, /src/pages/SettingsPage.tsx[22m
+[2m04:32:23[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/App.tsx, /src/pages/PdhesPage.tsx, /src/pages/DataPage.tsx, /src/pages/MapPage.tsx, /src/components/FabPopover.tsx, /src/pages/ThreeDPage.tsx, /src/components/ui/ThreeDModel.tsx, /src/pages/SettingsPage.tsx[22m
+[2m04:32:48[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/App.tsx, /src/pages/PdhesPage.tsx, /src/pages/DataPage.tsx, /src/pages/MapPage.tsx, /src/components/FabPopover.tsx, /src/pages/ThreeDPage.tsx, /src/components/ui/ThreeDModel.tsx, /src/pages/SettingsPage.tsx[22m
+[2m04:33:30[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/App.tsx, /src/pages/PdhesPage.tsx, /src/pages/DataPage.tsx, /src/pages/MapPage.tsx, /src/components/FabPopover.tsx, /src/pages/ThreeDPage.tsx, /src/components/ui/ThreeDModel.tsx, /src/pages/SettingsPage.tsx[22m
+[2m04:33:56[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/App.tsx, /src/pages/PdhesPage.tsx, /src/pages/DataPage.tsx, /src/pages/MapPage.tsx, /src/components/FabPopover.tsx, /src/pages/ThreeDPage.tsx, /src/components/ui/ThreeDModel.tsx, /src/pages/SettingsPage.tsx[22m
+[2m04:36:27[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/MapPage.tsx[22m
+[2m04:36:42[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/MapPage.tsx[22m
+[2m04:37:00[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/MapPage.tsx[22m
+[2m04:38:10[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/components/ui/ThreeDModel.tsx[22m
+[2m04:40:16[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/components/ui/ThreeDModel.tsx[22m
+[2m04:40:39[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/components/ui/ThreeDModel.tsx[22m
+[2m04:40:51[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/components/ui/ThreeDModel.tsx[22m
+[2m04:41:02[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/components/ui/ThreeDModel.tsx[22m
+[2m04:41:12[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/components/ui/ThreeDModel.tsx[22m
+[2m04:51:57[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/MapPage.tsx[22m
+[2m04:52:06[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/components/ui/ThreeDModel.tsx[22m

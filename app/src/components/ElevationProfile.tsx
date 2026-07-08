@@ -1,11 +1,12 @@
 import type { Site } from '../types/site';
+import { buildComponentsDetail } from '../utils/siteDerived';
 
 interface ElevationProfileProps {
   site: Site | null;
 }
 
 export function ElevationProfile({ site }: ElevationProfileProps) {
-  if (!site || !site.components_detail || !site.components_detail.upper_reservoir || !site.components_detail.lower_reservoir) {
+  if (!site) {
     return (
       <div className="elevation-profile-empty">
         <p className="muted small">Lütfen bir santral seçin</p>
@@ -13,9 +14,10 @@ export function ElevationProfile({ site }: ElevationProfileProps) {
     );
   }
 
-  const upper = site.components_detail.upper_reservoir.elevation_m;
-  const lower = site.components_detail.lower_reservoir.elevation_m;
-  const head = site.head || (upper - lower);
+  const detail = buildComponentsDetail(site);
+  const upper = detail.upper_reservoir.elevation_m;
+  const lower = detail.lower_reservoir.elevation_m;
+  const head = site.headM || (upper - lower);
 
   // Fallbacks if data is missing
   if (!upper || !lower) {

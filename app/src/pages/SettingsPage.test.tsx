@@ -3,38 +3,34 @@
 import { cleanup, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { useSiteStore } from '../stores/useSiteStore';
-import type { Site } from '../types/site';
+import { makeTestSite } from '../test-utils/makeTestSite';
 import SettingsPage from './SettingsPage';
+
+const site = makeTestSite();
 
 describe('SettingsPage', () => {
   beforeEach(() => {
     useSiteStore.setState({
-      selectedId: 'test-site',
-      sites: [{
-        id: 'test-site',
-        name: 'Test sahası',
-        score: 70,
-        scores: { topo: 80, grid: 70, env: 60, geology: 50, access: 90, market: 70 },
-      } as Site],
+      selectedId: site.id,
+      sites: [site],
     });
   });
 
   afterEach(cleanup);
 
-  it('labels every preference control', () => {
+  it('labels every preference and scenario control', () => {
     render(<SettingsPage />);
 
     expect(screen.getByRole('combobox', { name: 'Tema' })).toBeTruthy();
     expect(screen.getByRole('combobox', { name: 'Harita görünümü' })).toBeTruthy();
     expect(screen.getByRole('slider', { name: '3D yükseklik ölçeği' })).toBeTruthy();
-    expect(screen.getByRole('slider', { name: 'Topografya / düşü' })).toBeTruthy();
-    expect(screen.getByRole('slider', { name: 'Şebeke yakınlığı' })).toBeTruthy();
-    expect(screen.getByRole('slider', { name: 'Çevresel kısıt' })).toBeTruthy();
-    expect(screen.getByRole('slider', { name: 'Jeoloji / deprem' })).toBeTruthy();
-    expect(screen.getByRole('slider', { name: 'Erişim ve lojistik' })).toBeTruthy();
-    expect(screen.getByRole('slider', { name: 'Piyasa ve yük' })).toBeTruthy();
-    expect(screen.getByText(/kaynak skor 70/i)).toBeTruthy();
-    expect(screen.getByText(/^senaryo skoru 70$/i)).toBeTruthy();
+    expect(screen.getByRole('slider', { name: 'Senaryo aktif hacmi' })).toBeTruthy();
+    expect(screen.getByRole('slider', { name: 'Yatırım gideri çarpanı' })).toBeTruthy();
+    expect(screen.getByRole('slider', { name: 'Gelir yakalama' })).toBeTruthy();
+    expect(screen.getByRole('slider', { name: 'Çevrim / yıl' })).toBeTruthy();
+    expect(screen.getByRole('slider', { name: 'Yardımcı hizmet primi' })).toBeTruthy();
+    expect(screen.getByText(/JİCA\/EİE/i)).toBeTruthy();
+    expect(screen.getByText(/Fallback yaklaşık/i)).toBeTruthy();
     expect(screen.getByRole('link', { name: /yerel çalışma alanını etkinleştir/i })).toBeTruthy();
   });
 });

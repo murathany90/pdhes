@@ -3,9 +3,15 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Html, Line, Sky, MeshDistortMaterial } from '@react-three/drei';
 import { BatteryCharging, Zap } from 'lucide-react';
 import * as THREE from 'three';
-import type { ComponentsDetail } from '../../types/site';
+import type { ComponentsDetail, Site } from '../../types/site';
 import { useSiteStore } from '../../stores/useSiteStore';
 import { useSettingsStore } from '../../stores/useSettingsStore';
+import { isSeaLowerReservoir } from '../../utils/siteDerived';
+import {
+  buildLayout3DFootprintPlan,
+  LAYOUT_3D_MATERIAL_COLORS,
+  type Layout3DProjectedFootprint,
+} from '../../utils/layout3dFootprints';
 
 
 
@@ -16,6 +22,7 @@ interface ThreeDModelProps {
   layers: Record<string, boolean>;
   mode: 'generate' | 'pump';
   componentsDetail: ComponentsDetail;
+  site: Site;
   isPlaying: boolean;
   activeUnits: number;
   maxUnits: number;
@@ -1252,11 +1259,170 @@ function labelStyle(active: boolean, color: string): React.CSSProperties {
 /* ─────────────────────────────────────────────
    Main Scene Assembly
    ───────────────────────────────────────────── */
+function footprintLayerKey(component: string): string {
+  if (component === 'intake') return 'upper_reservoir';
+  return component;
+}
+
+function footprintLabel(item: Layout3DProjectedFootprint): string {
+  const labels: Record<string, string> = {
+    upperReservoirWater: '\u00dcst Rezervuar',
+    upperReservoirEmbankment: '\u00dcst Rezervuar Seti',
+    upperDamCrestRoad: 'Kret Yolu',
+    upperIntake: 'Intake',
+    headraceAlignment: 'Bas\u0131n\u00e7 T\u00fcneli Ekseni',
+    surgeTankFootprint: 'Denge Bacas\u0131',
+    serviceDrainPortal: 'Servis Portal\u0131',
+    powerhouseFootprint: 'T\u00fcrbin Odas\u0131',
+    tailraceOutfall: 'Kuyruksuyu',
+    switchyardFootprint: '\u015ealt Sahas\u0131',
+  };
+  return labels[item.id] ?? item.component;
+}
+
+function footprintCenter(item: Layout3DProjectedFootprint): [number, number, number] {
+  const points = item.points.slice(0, item.closed ? -1 : undefined);
+  const count = Math.max(1, points.length);
+  const sum = points.reduce((acc, point) => ({
+    x: acc.x + point.x,
+    y: acc.y + point.y,
+    z: acc.z + point.z,
+  }), { x: 0, y: 0, z: 0 });
+  return [sum.x / count, Math.max(item.topY, sum.y / count) + 8, sum.z / count];
+}
+
+function createFootprintPolygonGeometry(item: Layout3DProjectedFootprint): THREE.BufferGeometry {
+  const ring = item.points.slice(0, item.closed ? -1 : undefined);
+  const shapePoints = ring.map((point) => new THREE.Vector2(point.x, point.z));
+  const triangles = THREE.ShapeUtils.triangulateShape(shapePoints, []);
+  const vertices: number[] = [];
+  const indices: number[] = [];
+
+  ring.forEach((point) => vertices.push(point.x, item.topY, point.z));
+  if (item.extrudeY > 0) {
+    ring.forEach((point) => vertices.push(point.x, item.baseY, point.z));
+  }
+
+  triangles.forEach(([a, b, c]) => indices.push(a, b, c));
+  if (item.extrudeY > 0) {
+    const offset = ring.length;
+    triangles.forEach(([a, b, c]) => indices.push(offset + c, offset + b, offset + a));
+    for (let i = 0; i < ring.length; i += 1) {
+      const next = (i + 1) % ring.length;
+      indices.push(i, next, offset + next, i, offset + next, offset + i);
+    }
+  }
+
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+  geometry.setIndex(indices);
+  geometry.computeVertexNormals();
+  return geometry;
+}
+
+function FootprintPolygon({ item, active, onClick, showLabels }: {
+  item: Layout3DProjectedFootprint;
+  active: boolean;
+  onClick: () => void;
+  showLabels: boolean;
+}) {
+  const geometry = useMemo(() => createFootprintPolygonGeometry(item), [item]);
+  const color = LAYOUT_3D_MATERIAL_COLORS[item.material] ?? '#9aa3ad';
+  const opacity = item.material === 'water' ? 0.82 : item.material === 'embankment' ? 0.74 : 0.9;
+  const labelPosition = footprintCenter(item);
+
+  return (
+    <group onClick={(event) => { event.stopPropagation(); onClick(); }}>
+      <mesh geometry={geometry} castShadow receiveShadow>
+        <meshStandardMaterial
+          color={color}
+          transparent
+          opacity={opacity}
+          roughness={item.material === 'water' ? 0.18 : 0.8}
+          metalness={item.material === 'water' ? 0.04 : 0.02}
+          side={THREE.DoubleSide}
+        />
+      </mesh>
+      <Html position={labelPosition} center style={{ display: showLabels ? 'block' : 'none' }} zIndexRange={[100, 0]}>
+        <div style={labelStyle(active, color)}>{footprintLabel(item)}</div>
+      </Html>
+    </group>
+  );
+}
+
+function FootprintPolyline({ item, active, onClick, showLabels }: {
+  item: Layout3DProjectedFootprint;
+  active: boolean;
+  onClick: () => void;
+  showLabels: boolean;
+}) {
+  const color = LAYOUT_3D_MATERIAL_COLORS[item.material] ?? '#36d6ff';
+  const points = item.points.map((point) => [point.x, point.y + 1, point.z]) as [number, number, number][];
+  const labelPosition = footprintCenter(item);
+
+  return (
+    <group onClick={(event) => { event.stopPropagation(); onClick(); }}>
+      <Line points={points} color={color} lineWidth={item.material === 'crest_road' ? 3 : 4} />
+      <Html position={labelPosition} center style={{ display: showLabels ? 'block' : 'none' }} zIndexRange={[100, 0]}>
+        <div style={labelStyle(active, color)}>{footprintLabel(item)}</div>
+      </Html>
+    </group>
+  );
+}
+
+function FootprintSceneLayer({ items, layers, activeComponent, onSelectComponent, showLabels }: {
+  items: Layout3DProjectedFootprint[];
+  layers: Record<string, boolean>;
+  activeComponent: string;
+  onSelectComponent: (component: string) => void;
+  showLabels: boolean;
+}) {
+  return (
+    <group>
+      {items
+        .filter((item) => layers[footprintLayerKey(item.component)] !== false)
+        .map((item) => {
+          const layerKey = footprintLayerKey(item.component);
+          const active = activeComponent === item.component || activeComponent === layerKey;
+          if (item.kind === 'polygon') {
+            return (
+              <FootprintPolygon
+                key={item.id}
+                item={item}
+                active={active}
+                onClick={() => onSelectComponent(layerKey)}
+                showLabels={showLabels}
+              />
+            );
+          }
+          return (
+            <FootprintPolyline
+              key={item.id}
+              item={item}
+              active={active}
+              onClick={() => onSelectComponent(layerKey)}
+              showLabels={showLabels}
+            />
+          );
+        })}
+    </group>
+  );
+}
+
 function Scene({ siteId, activeComponent, onSelectComponent, layers, mode, componentsDetail, isPlaying, activeUnits, maxUnits, showTerrain, showLabels, terrainOpacity, theme }: ThreeDModelProps & { theme?: string }) {
   const site = useSiteStore(state => state.sites.find(s => s.id === siteId));
-  const isPresenzano = siteId === 'presenzano';
-  const isSeaWater = site?.pdhesType === 'SEA_WATER';
+  const worldExampleFocusId = useSiteStore(state => state.worldExampleFocusId);
+  const isPresenzano = worldExampleFocusId === 'presenzano';
+  const isSeaWater = site ? isSeaLowerReservoir(site) : false;
   const d = componentsDetail;
+  const footprintPlan = useMemo(
+    () => site ? buildLayout3DFootprintPlan(site) : { enabled: false, hideLegacySquareReservoir: false, items: [] },
+    [site],
+  );
+  const footprintComponentKeys = useMemo(
+    () => new Set(footprintPlan.items.map((item) => footprintLayerKey(item.component))),
+    [footprintPlan.items],
+  );
   
   // Shared Simulation Water Levels
   const waterLevelRef = useRef(0.85);
@@ -1273,7 +1439,7 @@ function Scene({ siteId, activeComponent, onSelectComponent, layers, mode, compo
   });
 
   // Dynamic Spacing Factors based on real site properties
-  const tunnelScale = site?.tunnelKm ? Math.max(0.6, Math.min(1.8, site.tunnelKm / 3)) : 1;
+  const tunnelScale = site?.tunnelLengthKm ? Math.max(0.6, Math.min(1.8, site.tunnelLengthKm / 3)) : 1;
 
   // Calculate dynamic heights/positions aligned to terrain height field
   const upperPos = useMemo(() => placeOnTerrain(-140 * tunnelScale, -15, 0, isPresenzano), [tunnelScale, isPresenzano]);
@@ -1341,8 +1507,18 @@ function Scene({ siteId, activeComponent, onSelectComponent, layers, mode, compo
       {/* Scattered Vegetation and Rocks (Instanced for Performance) */}
       {showTerrain && terrainOpacity > 0 && <InstancedEnvironment assets={environmentAssets} opacity={terrainOpacity / 100} />}
 
+      {footprintPlan.enabled && (
+        <FootprintSceneLayer
+          items={footprintPlan.items}
+          layers={layers}
+          activeComponent={activeComponent}
+          onSelectComponent={onSelectComponent}
+          showLabels={showLabels}
+        />
+      )}
+
       {/* Upper Reservoir & Dam */}
-      {layers.upper_reservoir && (
+      {layers.upper_reservoir && !(footprintPlan.enabled && footprintPlan.hideLegacySquareReservoir) && (
         <RealisticUpperReservoir 
           position={upperPos}
           active={activeComponent === 'upper_reservoir'} 
@@ -1387,7 +1563,7 @@ function Scene({ siteId, activeComponent, onSelectComponent, layers, mode, compo
       )}
 
       {/* Cavern Powerhouse */}
-      {layers.powerhouse && (
+      {layers.powerhouse && !footprintComponentKeys.has('powerhouse') && (
         <RealisticPowerhouse 
           active={activeComponent === 'powerhouse'} 
           onClick={() => onSelectComponent('powerhouse')} 
@@ -1401,7 +1577,7 @@ function Scene({ siteId, activeComponent, onSelectComponent, layers, mode, compo
       )}
 
       {/* Switchyard (Substation) */}
-      {layers.switchyard && (
+      {layers.switchyard && !footprintComponentKeys.has('switchyard') && (
         <RealisticSwitchyard 
           active={activeComponent === 'switchyard'} 
           onClick={() => onSelectComponent('switchyard')}
@@ -1412,12 +1588,12 @@ function Scene({ siteId, activeComponent, onSelectComponent, layers, mode, compo
           mode={mode}
           activeUnits={activeUnits}
           maxUnits={maxUnits}
-          powerMW={site?.powerMW}
+          powerMW={site?.capacityMW}
         />
       )}
 
       {/* Surge Tank cylindrical concrete tower */}
-      {layers.surge_tank && (
+      {layers.surge_tank && !footprintComponentKeys.has('surge_tank') && (
         <RealisticSurgeTank 
           position={surgeTankPos} 
           active={activeComponent === 'surge_tank'} 
@@ -1427,7 +1603,7 @@ function Scene({ siteId, activeComponent, onSelectComponent, layers, mode, compo
       )}
 
       {/* Portals */}
-      {layers.portal && (
+      {layers.portal && !footprintComponentKeys.has('portal') && (
         <>
           <Portal 
             position={portalUpperPos} 
@@ -1449,7 +1625,7 @@ function Scene({ siteId, activeComponent, onSelectComponent, layers, mode, compo
       )}
 
       {/* Steel Penstocks */}
-      {layers.penstock && (
+      {layers.penstock && !footprintComponentKeys.has('tunnel') && (
         <RealisticPenstock 
           active={activeComponent === 'penstock'} 
           onClick={() => onSelectComponent('penstock')} 
@@ -1465,7 +1641,7 @@ function Scene({ siteId, activeComponent, onSelectComponent, layers, mode, compo
       )}
 
       {/* Underground Concrete Tunnel */}
-      {layers.tunnel && (
+      {layers.tunnel && !footprintComponentKeys.has('tunnel') && (
         <UndergroundTunnel 
           from={upperPos} 
           to={surgeTankPos} 
@@ -1476,7 +1652,7 @@ function Scene({ siteId, activeComponent, onSelectComponent, layers, mode, compo
       )}
 
       {/* Tailrace Concrete Channel */}
-      {layers.tailrace && (
+      {layers.tailrace && !footprintComponentKeys.has('tailrace') && (
         <TailraceChannel 
           from={powerhousePos} 
           to={lowerPos} 
@@ -1487,7 +1663,7 @@ function Scene({ siteId, activeComponent, onSelectComponent, layers, mode, compo
       )}
 
       {/* Powerhouse to Switchyard underground cable */}
-      {layers.switchyard && layers.powerhouse && (
+      {layers.switchyard && layers.powerhouse && !footprintPlan.enabled && (
         <group>
           {(() => {
             const syPos = new THREE.Vector3(75, getTerrainHeight(75, -25, isPresenzano) - 1, -25);
@@ -1509,7 +1685,7 @@ function Scene({ siteId, activeComponent, onSelectComponent, layers, mode, compo
       )}
 
       {/* Switchyard to first transmission tower cable */}
-      {layers.transmission && layers.switchyard && (
+      {layers.transmission && layers.switchyard && !footprintPlan.enabled && (
         <group>
           {(() => {
             const syPos = new THREE.Vector3(75, getTerrainHeight(75, -25, isPresenzano) - 1, -25);
@@ -1532,7 +1708,7 @@ function Scene({ siteId, activeComponent, onSelectComponent, layers, mode, compo
       )}
 
       {/* Transmission pylons and lines */}
-      {layers.transmission && <TransmissionLine isPresenzano={isPresenzano} isPlaying={isPlaying} mode={mode} activeUnits={activeUnits} />}
+      {layers.transmission && !footprintPlan.enabled && <TransmissionLine isPresenzano={isPresenzano} isPlaying={isPlaying} mode={mode} activeUnits={activeUnits} />}
 
       <OrbitControls makeDefault enableDamping dampingFactor={0.05} minDistance={20} maxDistance={2500} />
     </>

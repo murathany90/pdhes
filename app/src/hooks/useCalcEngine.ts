@@ -7,6 +7,7 @@ export type { CalcScenario } from '../utils/calculateScenario';
 export const CALC_SCENARIO_STORAGE_KEY = 'pspp-calc-scenario-v1';
 
 const DEFAULT_SCENARIO: CalcScenario = {
+  activeVolumeHm3: 10,
   capexFactor: 1,
   revenueFactor: 1,
   cycles: 300,
@@ -16,7 +17,7 @@ const DEFAULT_SCENARIO: CalcScenario = {
 function readScenario(): CalcScenario {
   try {
     const parsed = JSON.parse(localStorage.getItem(CALC_SCENARIO_STORAGE_KEY) || '');
-    const keys: Array<keyof CalcScenario> = ['capexFactor', 'revenueFactor', 'cycles', 'reservePremium'];
+    const keys: Array<keyof CalcScenario> = ['activeVolumeHm3', 'capexFactor', 'revenueFactor', 'cycles', 'reservePremium'];
     if (keys.every((key) => Number.isFinite(parsed[key]))) {
       return parsed as CalcScenario;
     }

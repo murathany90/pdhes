@@ -48,7 +48,7 @@ export function getMapStyleSpecification(kind: MapStyleKind): StyleSpecification
 }
 
 
-export function getMarkerIconHtml(_concept: string, color: string, isActive: boolean): string {
+export function getMarkerIconHtml(_variant: string, color: string, isActive: boolean): string {
   const size = isActive ? 24 : 18;
   const innerSize = isActive ? 12 : 10;
   const shadow = isActive ? '0px 0px 8px rgba(0,0,0,0.8)' : '0px 0px 4px rgba(0,0,0,0.4)';

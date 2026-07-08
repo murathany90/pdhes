@@ -1,7 +1,7 @@
 import type { Site } from '../types/site';
 import { validateSites } from './siteSchema';
 
-export const WORKSPACE_SCHEMA_VERSION = 2;
+export const WORKSPACE_SCHEMA_VERSION = 3;
 export const MAX_WORKSPACE_IMPORT_BYTES = 5 * 1024 * 1024;
 
 export type WorkspaceParseResult =
@@ -25,22 +25,18 @@ export function parseWorkspaceImport(text: string): WorkspaceParseResult {
   }
 
   let candidateData: unknown = parsed;
-  let migratedFrom: number | 'legacy' = 'legacy';
+  let migratedFrom: number | 'legacy' = WORKSPACE_SCHEMA_VERSION;
 
-  if (isRecord(parsed)) {
-    const version = parsed.schemaVersion;
-    if (!Number.isInteger(version) || Number(version) < 1) {
-      return { ok: false, errors: ['Çalışma alanı schemaVersion değeri geçersiz.'] };
-    }
-    if (Number(version) > WORKSPACE_SCHEMA_VERSION) {
-      return {
-        ok: false,
-        errors: [`Bu dosya daha yeni bir şema sürümü kullanıyor: ${String(version)}.`],
-      };
-    }
-    migratedFrom = Number(version);
-    candidateData = parsed.sites;
+  if (!isRecord(parsed)) {
+    return { ok: false, errors: ['Saha yedeği schemaVersion 3 içeren bir nesne olmalıdır.'] };
   }
+
+  const version = parsed.schemaVersion;
+  if (version !== WORKSPACE_SCHEMA_VERSION) {
+    return { ok: false, errors: ['Bu çalışma alanı yalnızca schemaVersion 3 yedeklerini destekler.'] };
+  }
+  migratedFrom = Number(version);
+  candidateData = parsed.sites;
 
   const validation = validateSites(candidateData);
   if (!validation.ok) {

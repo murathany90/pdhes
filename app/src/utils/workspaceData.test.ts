@@ -8,24 +8,31 @@ import {
 } from './workspaceData';
 
 describe('workspace import and export', () => {
-  it('imports the legacy flat site array and normalizes records', () => {
+  it('rejects unversioned legacy flat site arrays', () => {
     const result = parseWorkspaceImport(JSON.stringify(sites));
 
-    expect(result.ok).toBe(true);
-    if (!result.ok) return;
-    expect(result.sites).toHaveLength(20);
-    expect(result.sites.every((site) =>
-      ['CLOSED_LOOP', 'OPEN_LOOP', 'SEA_WATER', 'PROTOTYPE'].includes(site.pdhesType),
-    )).toBe(true);
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.errors[0]).toContain('schemaVersion 3');
   });
 
-  it('imports a versioned workspace envelope', () => {
+  it('imports a version 3 workspace envelope', () => {
     const result = parseWorkspaceImport(JSON.stringify({
       schemaVersion: WORKSPACE_SCHEMA_VERSION,
       sites,
     }));
 
     expect(result.ok).toBe(true);
+  });
+
+  it('rejects older workspace schema versions cleanly', () => {
+    const result = parseWorkspaceImport(JSON.stringify({
+      schemaVersion: 2,
+      sites,
+    }));
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.errors[0]).toContain('schemaVersion 3');
   });
 
   it('rejects invalid data without returning partial sites', () => {
