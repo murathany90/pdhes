@@ -31,84 +31,17 @@
       "classificationNote": "Mevcut baraj gölüne entegre açık döngü JICA/EİE adayıdır. JICA/EİE çalışması pik güç optimizasyonu bağlamındadır; güncel sistemde aynı tesisler yenilenebilir enerji entegrasyonu ve uzun süreli enerji depolama için de değerlendirilebilir."
     },
     "coordinates": {
-      "coordinateSystem": "WGS84",
-      "coordinateOrder": "[lon, lat]",
-      "coordinateConfidence": "fallback-approximate",
-      "coordinateNote": "Kaynak raporda enlem/boylam verilmediği için baraj/göl/regülatör adı ve açık harita/topografya ön kabulüyle öneri koordinat verilmiştir; DEM, uydu görüntüsü, mülkiyet, korunan alan ve saha etüdüyle doğrulanmadan kesin konum gibi kullanılmamalıdır.",
       "mapAnchor": [
         31.021,
         40.035
       ],
-      "lowerReservoir": {
-        "name": "Gökçekaya Barajı / mevcut baraj gölü",
-        "point": [
-          31.021,
-          40.035
-        ]
-      },
-      "upperReservoir": {
-        "description": "Kavramsal üst rezervuar; JICA detayına göre yüksek düşülü yapı",
-        "point": [
-          30.9728,
-          40.0719
-        ]
-      },
-      "powerhouse": {
-        "point": [
-          31.0056,
-          40.0256
-        ],
-        "preferred3dType": "underground-cavern"
-      },
-      "surgeTank": {
-        "point": [
-          30.9888,
-          40.0511
-        ]
-      },
-      "penstockRoute": [
-        [
-          30.9802,
-          40.072
-        ],
-        [
-          30.9888,
-          40.0511
-        ],
-        [
-          30.9976,
-          40.0295
-        ],
-        [
-          31.0056,
-          40.0256
-        ]
+      "lowerReservoir": [
+        31.021,
+        40.035
       ],
-      "tailraceOutlet": {
-        "point": [
-          31.021,
-          40.035
-        ]
-      },
-      "switchyard": {
-        "point": [
-          31.0252,
-          40.0302
-        ]
-      },
-      "gridConnection": {
-        "point": [
-          31.0252,
-          40.0302
-        ],
-        "voltageClassHint": "154/380 kV yakın bağlantı ön kabulü; gerçek trafo merkezi/hat verisiyle doğrulanacak"
-      },
-      "intakeOutfall": null,
-      "bbox": [
-        30.958,
-        40.02,
-        31.033,
-        40.079
+      "upperReservoir": [
+        30.9728,
+        40.0719
       ],
       "upperReservoirPolygon": [
         [
@@ -172,12 +105,37 @@
           40.0737
         ]
       ],
-      "servicePortal": {
-        "point": [
-          30.9976,
-          40.0295
+      "powerhouse": [
+        31.0056,
+        40.0256
+      ],
+      "surgeTank": [
+        30.9888,
+        40.0511
+      ],
+      "servicePortal": [
+        30.9976,
+        40.0295
+      ],
+      "switchyard": [
+        31.0252,
+        40.0302
+      ],
+      "gridConnection": [
+        31.0252,
+        40.0302
+      ],
+      "intakeOutfall": null,
+      "bbox": [
+        [
+          30.958,
+          40.02
+        ],
+        [
+          31.033,
+          40.079
         ]
-      }
+      ]
     },
     "risks": [
       "Yaklaşık koordinat ve kavramsal yerleşim",
@@ -229,38 +187,6 @@
       "upper": [
         30.9728,
         40.0719
-      ],
-      "lower": [
-        31.021,
-        40.035
-      ],
-      "power": [
-        31.0056,
-        40.0256
-      ],
-      "surge": [
-        30.9888,
-        40.0511
-      ],
-      "switchyard": [
-        31.0252,
-        40.0302
-      ],
-      "gridA": [
-        30.437708,
-        39.818699
-      ],
-      "gridB": [
-        30.563097,
-        39.858431
-      ],
-      "risk": [
-        31.021,
-        40.035
-      ],
-      "gridTap": [
-        30.563097,
-        39.858431
       ],
       "upperPolygon": [
         [
@@ -324,9 +250,41 @@
           40.0737
         ]
       ],
+      "lower": [
+        31.021,
+        40.035
+      ],
+      "power": [
+        31.0056,
+        40.0256
+      ],
+      "surge": [
+        30.9888,
+        40.0511
+      ],
       "servicePortal": [
         30.9976,
         40.0295
+      ],
+      "switchyard": [
+        31.0252,
+        40.0302
+      ],
+      "gridA": [
+        30.437708,
+        39.818699
+      ],
+      "gridB": [
+        30.563097,
+        39.858431
+      ],
+      "risk": [
+        31.021,
+        40.035
+      ],
+      "gridTap": [
+        30.563097,
+        39.858431
       ]
     },
     "components_detail": {
