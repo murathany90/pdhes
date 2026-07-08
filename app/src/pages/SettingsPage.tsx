@@ -9,8 +9,8 @@ import { COORDINATE_CONFIDENCE_LABELS, SOURCE_GROUP_LABELS } from '../utils/site
 
 export default function SettingsPage() {
   const { 
-    theme, mapStyle, heightScale, showPowerGrid, powerGridFilters,
-    setTheme, setMapStyle, setHeightScale, setShowPowerGrid, setPowerGridFilter
+    theme, mapStyle, heightScale, showPowerGrid,
+    setTheme, setMapStyle, setHeightScale, setShowPowerGrid
   } = useSettingsStore();
   const { resetSites, sites, selectedId } = useSiteStore();
 
@@ -49,60 +49,6 @@ export default function SettingsPage() {
               <label htmlFor="settings-height-scale">3D yükseklik ölçeği</label>
               <input id="settings-height-scale" type="range" min={0.4} max={3} step={0.1} value={heightScale} aria-valuetext={`${heightScale.toFixed(1)}x`} onChange={(event) => setHeightScale(+event.target.value)} />
               <output htmlFor="settings-height-scale" className="kbd">{heightScale.toFixed(1)}x</output>
-            </div>
-          </div>
-        </div>
-
-        <div className="card">
-          <h2>OSM Elektrik Şebekesi (Power Grid)</h2>
-          <p className="muted small" style={{ marginBottom: 12 }}>Haritada gösterilen hat, kablo, trafo ve santralleri filtreleyin.</p>
-          <div className="editor-form">
-            <div className="form-group" style={{ flexDirection: 'row', alignItems: 'center', gap: 8, padding: '8px 0' }}>
-              <input 
-                type="checkbox" 
-                id="pg-show-all" 
-                checked={showPowerGrid} 
-                onChange={(e) => setShowPowerGrid(e.target.checked)} 
-              />
-              <label htmlFor="pg-show-all" style={{ margin: 0, fontWeight: 500 }}>Şebeke Katmanını Göster</label>
-            </div>
-            
-            <div className="form-group" style={{ flexDirection: 'row', alignItems: 'center', gap: 8, padding: '8px 0', opacity: showPowerGrid ? 1 : 0.5 }}>
-              <input 
-                type="checkbox" 
-                id="pg-show-lines" 
-                disabled={!showPowerGrid}
-                checked={powerGridFilters.showLines} 
-                onChange={(e) => setPowerGridFilter('showLines', e.target.checked)} 
-              />
-              <label htmlFor="pg-show-lines" style={{ margin: 0 }}>Hatları ve Kabloları Göster</label>
-            </div>
-
-            <div className="form-group" style={{ flexDirection: 'row', alignItems: 'center', gap: 8, padding: '8px 0', opacity: showPowerGrid ? 1 : 0.5 }}>
-              <input 
-                type="checkbox" 
-                id="pg-show-subs" 
-                disabled={!showPowerGrid}
-                checked={powerGridFilters.showSubstations} 
-                onChange={(e) => setPowerGridFilter('showSubstations', e.target.checked)} 
-              />
-              <label htmlFor="pg-show-subs" style={{ margin: 0 }}>Trafo Merkezleri ve Santralleri Göster</label>
-            </div>
-
-            <div className="form-group" style={{ opacity: showPowerGrid ? 1 : 0.5 }}>
-              <label htmlFor="pg-min-volt">Minimum Gerilim Seviyesi (kV)</label>
-              <select 
-                id="pg-min-volt" 
-                className="select" 
-                disabled={!showPowerGrid}
-                value={powerGridFilters.minVoltage} 
-                onChange={(e) => setPowerGridFilter('minVoltage', Number(e.target.value))}
-              >
-                <option value={0}>Tümü (0kV ve üstü)</option>
-                <option value={34}>Orta Gerilim (34.5kV ve üstü)</option>
-                <option value={154}>Yüksek Gerilim (154kV ve üstü)</option>
-                <option value={380}>Çok Yüksek Gerilim (380kV ve üstü)</option>
-              </select>
             </div>
           </div>
         </div>

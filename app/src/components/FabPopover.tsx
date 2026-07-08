@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Zap, X, Settings, Globe, List } from 'lucide-react';
 import { useSiteStore } from '../stores/useSiteStore';
+import { useSettingsStore, type VoltageGroup, type ElementGroup } from '../stores/useSettingsStore';
 import { WORLD_EXAMPLES } from '../data/worldExamples';
 import { num } from '../utils/format';
 import type { MapStyleKind } from '../utils/mapProviders';
@@ -28,6 +29,7 @@ export function FabPopover({
   
   const sites = useSiteStore(state => state.sites);
   const setWorldExampleFocus = useSiteStore(state => state.setWorldExampleFocus);
+  const { showPowerGrid, setShowPowerGrid, powerGridConfig, updatePowerGridVoltage, updatePowerGridElement } = useSettingsStore();
 
   // Close when clicking outside
   useEffect(() => {
@@ -72,6 +74,12 @@ export function FabPopover({
               onClick={() => setActiveTab('settings')}
             >
               <Settings size={16} /> Ayarlar
+            </button>
+            <button 
+              className={`fab-tab ${activeTab === 'grid' ? 'active' : ''}`}
+              onClick={() => setActiveTab('grid')}
+            >
+              <Zap size={16} /> Şebeke
             </button>
           </div>
 
@@ -186,6 +194,109 @@ export function FabPopover({
                     </div>
                   </div>
                 )}
+              </div>
+            )}
+
+            {activeTab === 'grid' && (
+              <div className="fab-settings">
+                <div className="setting-group" style={{ marginBottom: 12 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <input 
+                      type="checkbox" 
+                      id="pg-master-toggle" 
+                      checked={showPowerGrid} 
+                      onChange={(e) => setShowPowerGrid(e.target.checked)} 
+                    />
+                    <label htmlFor="pg-master-toggle" style={{ fontWeight: 'bold', margin: 0 }}>Şebeke Katmanını Göster</label>
+                  </div>
+                </div>
+
+                <div className="setting-group" style={{ opacity: showPowerGrid ? 1 : 0.5, pointerEvents: showPowerGrid ? 'auto' : 'none' }}>
+                  <h4 style={{ marginBottom: 12 }}>Gerilim Grupları Renk ve Kalınlık</h4>
+                  
+                  {[
+                    { key: 'under33', label: '33 kV altı' },
+                    { key: 'v33', label: '33 kV' },
+                    { key: 'v154', label: '154 kV' },
+                    { key: 'v400', label: '400 kV' },
+                    { key: 'over500', label: '500 kV üstü' },
+                    { key: 'unknown', label: 'Bilinmeyen kV' },
+                    { key: 'external', label: 'Harici Katmanlar' },
+                  ].map(({ key, label }) => {
+                    const k = key as VoltageGroup;
+                    const val = powerGridConfig.voltages[k];
+                    return (
+                      <div key={key} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                        <div style={{ width: 12, height: 12, backgroundColor: val.color }} />
+                        <span style={{ fontSize: 13, flex: 1 }}>{label}</span>
+                        <input 
+                          type="color" 
+                          value={val.color} 
+                          onChange={(e) => updatePowerGridVoltage(k, { color: e.target.value })}
+                          style={{ width: 32, height: 24, padding: 0, border: '1px solid var(--border)' }}
+                        />
+                        <input 
+                          type="number" 
+                          min={0.5} max={10} step={0.5}
+                          value={val.width} 
+                          onChange={(e) => updatePowerGridVoltage(k, { width: parseFloat(e.target.value) || 1 })}
+                          style={{ width: 48, fontSize: 13, padding: '2px 4px', border: '1px solid var(--border)', borderRadius: 4 }}
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <div className="setting-group" style={{ opacity: showPowerGrid ? 1 : 0.5, pointerEvents: showPowerGrid ? 'auto' : 'none', marginTop: 16 }}>
+                  <h4 style={{ marginBottom: 12 }}>Eleman Grubu Stilleri</h4>
+                  
+                  {[
+                    { key: 'lines', label: 'Hatlar', props: ['line', 'size'] },
+                    { key: 'cables', label: 'Kablolar', props: ['line', 'size'] },
+                    { key: 'substation', label: 'Trafo Merkezi', props: ['size'] },
+                    { key: 'plant', label: 'Santraller', props: ['size'] },
+                    { key: 'substationInner', label: 'Trafo Merkezi (İçi)', props: ['size'] },
+                  ].map(({ key, label, props }) => {
+                    const k = key as ElementGroup;
+                    const val = powerGridConfig.elements[k];
+                    return (
+                      <div key={key} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 0', borderBottom: '1px solid var(--border-light)' }}>
+                        <input 
+                          type="checkbox" 
+                          checked={val.show} 
+                          onChange={(e) => updatePowerGridElement(k, { show: e.target.checked })}
+                        />
+                        <span style={{ fontSize: 13, flex: 1 }}>{label}</span>
+                        
+                        {props.includes('line') && (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                            <span style={{ fontSize: 12, color: 'var(--muted)' }}>Çizgi</span>
+                            <input 
+                              type="number" 
+                              min={0.5} max={10} step={0.5}
+                              value={val.line} 
+                              onChange={(e) => updatePowerGridElement(k, { line: parseFloat(e.target.value) || 1 })}
+                              style={{ width: 42, fontSize: 13, padding: '2px 4px', border: '1px solid var(--border)', borderRadius: 4 }}
+                            />
+                          </div>
+                        )}
+                        
+                        {props.includes('size') && (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                            <span style={{ fontSize: 12, color: 'var(--muted)' }}>Boyut</span>
+                            <input 
+                              type="number" 
+                              min={0.1} max={5} step={0.1}
+                              value={val.size} 
+                              onChange={(e) => updatePowerGridElement(k, { size: parseFloat(e.target.value) || 0.1 })}
+                              style={{ width: 42, fontSize: 13, padding: '2px 4px', border: '1px solid var(--border)', borderRadius: 4 }}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             )}
           </div>

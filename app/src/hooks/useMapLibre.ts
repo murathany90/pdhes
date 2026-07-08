@@ -246,65 +246,109 @@ export function useMapLibre({
       if (showPowerGrid) {
         map.addSource('osm-power-grid', { type: 'geojson', data: import.meta.env.BASE_URL.replace(/\/$/, '') + '/power-grid-filtered.geojson' });
         
-        if (powerGridFilters.showLines) {
+        const getVoltageProp = (prop: 'color' | 'width'): any[] => [
+          'case',
+          ['>=', ['coalesce', ['get', 'voltage'], 0], 500], powerGridConfig.voltages.over500[prop],
+          ['>=', ['coalesce', ['get', 'voltage'], 0], 400], powerGridConfig.voltages.v400[prop],
+          ['>=', ['coalesce', ['get', 'voltage'], 0], 154], powerGridConfig.voltages.v154[prop],
+          ['==', ['coalesce', ['get', 'voltage'], 0], 33], powerGridConfig.voltages.v33[prop],
+          ['all', ['>', ['coalesce', ['get', 'voltage'], 0], 0], ['<', ['coalesce', ['get', 'voltage'], 0], 33]], powerGridConfig.voltages.under33[prop],
+          powerGridConfig.voltages.unknown[prop]
+        ];
+
+        if (powerGridConfig.elements.lines.show || powerGridConfig.elements.cables.show) {
+          const typeFilter = [];
+          if (powerGridConfig.elements.lines.show) typeFilter.push('line', 'minor_line');
+          if (powerGridConfig.elements.cables.show) typeFilter.push('cable');
+
           map.addLayer({
             id: 'osm-power-lines',
             type: 'line',
             source: 'osm-power-grid',
-            filter: [
-              'all',
-              ['in', ['get', 'type'], ['literal', ['line', 'minor_line', 'cable']]],
-              ['>=', ['coalesce', ['get', 'voltage'], 0], powerGridFilters.minVoltage]
-            ],
+            filter: ['in', ['get', 'type'], ['literal', typeFilter]],
             paint: {
-              'line-color': [
-                'case',
-                ['>=', ['coalesce', ['get', 'voltage'], 0], 380], '#ff3b30',
-                ['>=', ['coalesce', ['get', 'voltage'], 0], 154], '#34c759',
-                ['>=', ['coalesce', ['get', 'voltage'], 0], 34], '#007aff',
-                '#8e8e93'
-              ],
+              'line-color': getVoltageProp('color'),
               'line-width': [
-                'case',
-                ['>=', ['coalesce', ['get', 'voltage'], 0], 380], 2,
-                ['>=', ['coalesce', ['get', 'voltage'], 0], 154], 1.5,
-                1
+                '*',
+                getVoltageProp('width'),
+                ['case',
+                  ['==', ['get', 'type'], 'cable'], powerGridConfig.elements.cables.size || 0.5,
+                  powerGridConfig.elements.lines.size || 0.5
+                ]
               ],
-              'line-opacity': 0.6
+              'line-opacity': 0.7
             }
           });
         }
         
-        if (powerGridFilters.showSubstations) {
+        if (powerGridConfig.elements.substation.show || powerGridConfig.elements.plant.show) {
+          const pointTypes = [];
+          if (powerGridConfig.elements.substation.show) pointTypes.push('substation');
+          if (powerGridConfig.elements.plant.show) pointTypes.push('plant');
+
           map.addLayer({
             id: 'osm-power-points',
-            type: 'circle',
+            type: 'symbol',
             source: 'osm-power-grid',
-            filter: [
-              'all',
-              ['in', ['get', 'type'], ['literal', ['substation', 'plant']]],
-              ['>=', ['coalesce', ['get', 'voltage'], 0], powerGridFilters.minVoltage]
-            ],
+            filter: ['in', ['get', 'type'], ['literal', pointTypes]],
+            layout: {
+              'text-field': [
+                'case',
+                ['==', ['get', 'type'], 'plant'], '⬤', // Circle for plants
+                '■' // Square for substations
+              ],
+              'text-size': [
+                '*',
+                getVoltageProp('width'),
+                ['case',
+                  ['==', ['get', 'type'], 'plant'], (powerGridConfig.elements.plant.size || 0.6) * 5,
+                  (powerGridConfig.elements.substation.size || 0.8) * 5
+                ]
+              ],
+              'text-allow-overlap': true,
+              'text-ignore-placement': true
+            },
             paint: {
-              'circle-color': [
-                'case',
-                ['==', ['get', 'type'], 'plant'], '#ff9500',
-                ['>=', ['coalesce', ['get', 'voltage'], 0], 380], '#ff3b30',
-                ['>=', ['coalesce', ['get', 'voltage'], 0], 154], '#34c759',
-                '#5ac8fa'
-              ],
-              'circle-radius': [
-                'case',
-                ['==', ['get', 'type'], 'plant'], 6,
-                ['>=', ['coalesce', ['get', 'voltage'], 0], 380], 5,
-                ['>=', ['coalesce', ['get', 'voltage'], 0], 154], 4,
-                3
-              ],
-              'circle-stroke-width': 1,
-              'circle-stroke-color': '#ffffff',
-              'circle-opacity': 0.8
+              'text-color': getVoltageProp('color'),
+              'text-halo-color': '#ffffff',
+              'text-halo-width': 1
             }
           });
+        }
+
+        // Add tooltips
+        if (!(map as any)._pgBound) {
+          (map as any)._pgBound = true;
+          
+          const showTooltip = (e: any) => {
+            map.getCanvas().style.cursor = 'pointer';
+            const feature = e.features[0];
+            const props = feature.properties;
+            const html = `
+              <div style="font-family:sans-serif;font-size:12px;padding:2px">
+                <strong style="display:block;margin-bottom:4px;font-size:13px">${props.name || 'İsimsiz'}</strong>
+                <div style="color:#555">Tip: <b>${props.type || 'Bilinmiyor'}</b></div>
+                <div style="color:#555">Gerilim: <b>${props.voltage ? props.voltage + ' kV' : 'Bilinmiyor'}</b></div>
+              </div>
+            `;
+            
+            if (!(map as any)._pgPopup) {
+              (map as any)._pgPopup = new maplibregl.Popup({ closeButton: false, closeOnClick: false, offset: 10 });
+            }
+            (map as any)._pgPopup.setLngLat(e.lngLat).setHTML(html).addTo(map);
+          };
+
+          const hideTooltip = () => {
+            map.getCanvas().style.cursor = '';
+            if ((map as any)._pgPopup) {
+              (map as any)._pgPopup.remove();
+            }
+          };
+
+          map.on('mouseenter', 'osm-power-lines', showTooltip);
+          map.on('mouseleave', 'osm-power-lines', hideTooltip);
+          map.on('mouseenter', 'osm-power-points', showTooltip);
+          map.on('mouseleave', 'osm-power-points', hideTooltip);
         }
       }
 
@@ -414,7 +458,7 @@ export function useMapLibre({
 
     };
     run();
-  }, [gridAssets, handleCandidateClick, heightScale, interactiveCandidates, layers, selectedId, site, sites]);
+  }, [gridAssets, handleCandidateClick, heightScale, interactiveCandidates, layers, selectedId, site, sites, showPowerGrid, powerGridConfig]);
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current || !site) return;
