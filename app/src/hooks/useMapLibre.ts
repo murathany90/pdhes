@@ -277,8 +277,8 @@ export function useMapLibre({
                 '*',
                 getVoltageProp('width'),
                 ['case',
-                  ['==', ['get', 'type'], 'cable'], ['*', powerGridConfig.elements.cables.size || 0.5, 1.5],
-                  ['*', powerGridConfig.elements.lines.size || 0.5, 1.5]
+                  ['==', ['get', 'type'], 'cable'], ['*', powerGridConfig.elements.cables.size || 0.5, 1.1],
+                  ['*', powerGridConfig.elements.lines.size || 0.5, 1.1]
                 ]
               ],
               'line-opacity': 0.85
