@@ -16,28 +16,35 @@ export const DEFAULT_SCORE_WEIGHTS: ScoreWeights = {
 export type VoltageGroup = 'under33' | 'v33' | 'v154' | 'v400' | 'over500' | 'unknown' | 'external';
 export type ElementGroup = 'lines' | 'cables' | 'substation' | 'plant' | 'substationInner';
 
+export interface PowerGridElementStyle {
+  show: boolean;
+  line: number;
+  size: number;
+  color: string;
+}
+
 export interface PowerGridConfig {
   voltages: Record<VoltageGroup, { color: string; width: number }>;
-  elements: Record<ElementGroup, { show: boolean; line?: number; size?: number }>;
+  elements: Record<ElementGroup, PowerGridElementStyle>;
 }
 
 export const DEFAULT_POWER_GRID_CONFIG: PowerGridConfig = {
   voltages: {
-    under33: { color: '#5ac8fa', width: 2 },
-    v33: { color: '#007aff', width: 2.5 },
-    v154: { color: '#34c759', width: 3 },
-    v400: { color: '#ff3b30', width: 4 },
-    over500: { color: '#8b0000', width: 5 },
-    unknown: { color: '#f38b2a', width: 1.5 },
+    under33: { color: '#4ade80', width: 2 },
+    v33: { color: '#16a34a', width: 2.5 },
+    v154: { color: '#1e293b', width: 3 },
+    v400: { color: '#ef4444', width: 4 },
+    over500: { color: '#b91c1c', width: 5 },
+    unknown: { color: '#f97316', width: 1.5 },
     external: { color: '#8c52ff', width: 2.5 },
   },
   elements: {
-    lines: { show: true, line: 3, size: 0.5 },
-    cables: { show: true, line: 2, size: 0.5 },
-    substation: { show: true, size: 0.8 },
-    plant: { show: true, size: 0.6 },
-    substationInner: { show: true, size: 0.5 },
-  }
+    lines: { show: true, line: 1, size: 1, color: '#0f8b8d' },
+    cables: { show: true, line: 1.5, size: 1, color: '#64748b' },
+    substation: { show: true, line: 1, size: 1, color: '#e4572e' },
+    plant: { show: true, line: 1, size: 1, color: '#7c3aed' },
+    substationInner: { show: true, line: 1, size: 1, color: '#f59e0b' },
+  },
 };
 
 interface SettingsStore {
@@ -107,7 +114,7 @@ export const useSettingsStore = create<SettingsStore>()(
     }),
     {
       name: SETTINGS_STORAGE_KEY,
-      version: 2,
+      version: 3,
       storage: createJSONStorage(() => localStorage),
       partialize: ({ theme, mapStyle, heightScale, weights, showPowerGrid, powerGridConfig }) => ({
         theme,

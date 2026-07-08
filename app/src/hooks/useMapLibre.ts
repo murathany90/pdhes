@@ -314,7 +314,11 @@ export function useMapLibre({
               'text-ignore-placement': true
             },
             paint: {
-              'text-color': getVoltageProp('color'),
+              'text-color': [
+                'case',
+                ['==', ['get', 'type'], 'plant'], powerGridConfig.elements.plant.color,
+                powerGridConfig.elements.substation.color
+              ],
               'text-halo-color': '#ffffff',
               'text-halo-width': 2
             }
