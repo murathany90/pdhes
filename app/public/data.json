@@ -3162,13 +3162,817 @@
     "totalWaterwayLengthM": 1462
   },
   {
+    "id": "altinkaya",
+    "name": "Altınkaya PDHES",
+    "province": "Samsun",
+    "country": "Türkiye",
+    "sourceGroup": "JICA_EIE_16",
+    "sourceNote": "JICA kavramsal tasarımı yapılmış öncelikli 5 adaydan biri; B/C oranı en yüksek proje (1.87).",
+    "order": 17,
+    "capacityMW": 1800,
+    "projectFlowCms": 350,
+    "headM": 611,
+    "energyGWh": 12.6,
+    "activeVolumeHm3": 8.9,
+    "tunnelLengthKm": 4.555,
+    "capexUsdBn": 1.301,
+    "annualRevenueUsdM": 92.2,
+    "paybackYear": 14.1,
+    "score": 93,
+    "lowerReservoirName": "Altınkaya Barajı Gölü / mevcut Altınkaya HES",
+    "upperReservoirDescription": "79 m beton ağırlıklı baraj ile oluşturulan yapay üst rezervuar",
+    "penstockLengthM": 870,
+    "tailraceTunnelLengthM": 1603,
+    "totalWaterwayLengthM": 4555,
+    "technicalClassification": {
+      "cycleType": "OPEN_LOOP",
+      "infrastructureType": "EXISTING_RESERVOIR_INTEGRATED",
+      "conceptType": "CONVENTIONAL_LAND",
+      "gridSupplyType": "GRID_SUPPORTED",
+      "primaryPurpose": "PEAK_POWER",
+      "classificationNote": "Mevcut Altınkaya Barajı alt rezervuar olarak kullanılır; üst rezervuar yeni yapay havuzdur. Yeraltı santralli klasik kara tipi açık döngü PDHES’tir."
+    },
+    "coordinates": {
+      "coordinateSystem": "WGS84",
+      "coordinateOrder": "[lon, lat]",
+      "coordinateConfidence": "fallback-approximate",
+      "coordinateNote": "JICA general layout ve waterway longitudinal section paftalarından türetilmiş kavramsal yerleşimdir; saha etüdüyle doğrulanmalıdır.",
+      "mapAnchor": [
+        35.7138,
+        41.3562
+      ],
+      "lowerReservoir": {
+        "name": "Altınkaya Barajı",
+        "point": [
+          35.7246,
+          41.3668
+        ]
+      },
+      "upperReservoir": {
+        "description": "Yapay havuz",
+        "point": [
+          35.6989,
+          41.3495
+        ]
+      },
+      "upperReservoirPolygon": [
+        [
+          35.6938,
+          41.3512
+        ],
+        [
+          35.695,
+          41.352
+        ],
+        [
+          35.6972,
+          41.3526
+        ],
+        [
+          35.7002,
+          41.3526
+        ],
+        [
+          35.7028,
+          41.3518
+        ],
+        [
+          35.704,
+          41.3505
+        ],
+        [
+          35.7042,
+          41.3489
+        ],
+        [
+          35.7033,
+          41.3476
+        ],
+        [
+          35.7013,
+          41.3468
+        ],
+        [
+          35.6983,
+          41.3466
+        ],
+        [
+          35.6959,
+          41.3469
+        ],
+        [
+          35.6942,
+          41.3478
+        ],
+        [
+          35.6934,
+          41.3492
+        ],
+        [
+          35.6935,
+          41.3504
+        ],
+        [
+          35.6938,
+          41.3512
+        ]
+      ],
+      "powerhouse": {
+        "point": [
+          35.7099,
+          41.3549
+        ],
+        "preferred3dType": "underground"
+      },
+      "surgeTank": {
+        "point": [
+          35.7048,
+          41.3586
+        ]
+      },
+      "servicePortal": {
+        "point": [
+          35.7076,
+          41.3558
+        ]
+      },
+      "penstockRoute": [
+        [
+          35.7048,
+          41.3586
+        ],
+        [
+          35.7099,
+          41.3549
+        ]
+      ],
+      "tailraceOutlet": {
+        "point": [
+          35.7218,
+          41.3622
+        ]
+      },
+      "switchyard": {
+        "point": [
+          35.7162,
+          41.3557
+        ]
+      },
+      "gridConnection": {
+        "point": [
+          35.7162,
+          41.3557
+        ],
+        "voltageClassHint": "380kV"
+      },
+      "bbox": [
+        35.689,
+        41.344,
+        35.729,
+        41.369
+      ]
+    },
+    "risks": [
+      "Ayrıntılı jeoloji ve yeraltı kazı koşulları",
+      "Uzun yeraltı su yolu ve şaft/penstock yapım zorluğu",
+      "DSİ işletme rejimi ve mevcut baraj işletmesiyle koordinasyon",
+      "ÇED ve sosyal/çevresel etki yönetimi",
+      "TEİAŞ sistem etüdü, kısa devre gücü ve N-1 uyumluluğu"
+    ],
+    "assumptions": [
+      "JICA'nın Türkiye için belirlediği ölçek ekonomisi kullanılmıştır."
+    ],
+    "model3d": {
+      "terrainMode": "real-dem-if-available-else-procedural",
+      "lowerReservoirMode": "existing-dam-lake",
+      "upperReservoirMode": "concrete-lined-pool",
+      "powerhouseMode": "underground-cavern",
+      "penstockMode": "shaft-plus-pressure-tunnel",
+      "showUncertaintyOverlay": true
+    },
+    "components_detail": {
+      "upper_reservoir": {
+        "elevation_m": 782,
+        "active_volume_mcm": 8.9,
+        "dam_height_m": 79,
+        "lining": "beton ağırlıklı baraj ile oluşturulan yapay rezervuar",
+        "reservoir_type": "new_concrete_gravity_dam_reservoir",
+        "geology_note": "JICA kavramsal tasarımında yapay üst rezervuar öngörülmüştür.",
+        "shape_note": "Genel yerleşim planına uygun olarak çokgen/oval footprint ile çizilmelidir.",
+        "render_mode": "polygon_footprint"
+      },
+      "lower_reservoir": {
+        "name": "Altınkaya Barajı Gölü",
+        "type": "existing_dam_reservoir",
+        "note": "Mevcut Altınkaya Barajı alt rezervuar olarak kullanılacaktır; işletme rejimi DSİ ile doğrulanmalıdır."
+      },
+      "headrace_tunnel": {
+        "length_m": 2082,
+        "count": 1,
+        "material": "beton kaplı basınçsız/basınçlı iletim tüneli",
+        "section_note": "JICA su yolu kesit paftasına göre büyük kesitli ana iletim tüneli."
+      },
+      "penstock": {
+        "length_m": 870,
+        "material": "çelik kaplı eğimli cebri boru / penstock",
+        "pressure_class": "yüksek basınçlı",
+        "count": 2,
+        "section_note": "JICA paftasında iki branşmanlı eğimli şaft/penstock sistemi gösterilmiştir."
+      },
+      "powerhouse": {
+        "type": "underground_powerhouse",
+        "units": 4,
+        "unitPowerMW": 450,
+        "turbine_type": "single-stage Francis pump-turbine",
+        "generator_type": "motor-generator",
+        "transformer_note": "Yeraltı ana trafo düzeni JICA kesit paftasında gösterilmiştir.",
+        "station_length_note": "Kavramsal kesitte toplam yeraltı santral uzunluğu yaklaşık 213 m mertebesindedir."
+      },
+      "surge_tank": {
+        "type": "headrace surge tank",
+        "note": "İletim tüneli ile penstock arasında ana denge bacası."
+      },
+      "tailrace_surge_tank": {
+        "type": "tailrace surge tank",
+        "note": "Kuyruk suyu tüneli tarafında ikinci denge yapısı."
+      },
+      "tailrace_tunnel": {
+        "length_m": 1603,
+        "count": 1,
+        "material": "beton kaplı kuyruk suyu tüneli",
+        "note": "JICA su yolu kesit paftasında tailrace room/tunnel düzeni gösterilmiştir."
+      },
+      "switchyard": {
+        "voltage_kv": 380,
+        "transformer_count": 2,
+        "connection_line_km": 1.2,
+        "note": "Mevcut HES şalt düzeniyle entegre veya yakın konumlu yeni şalt alternatifidir."
+      },
+      "tunnel": {
+        "length_m": 4555,
+        "excavation_type": "drill-and-blast ağırlıklı, gerektiğinde TBM/hibrid yaklaşım",
+        "note": "Toplam su yolu uzunluğu: headrace + penstock + tailrace yaklaşık 4.555 km."
+      },
+      "intake_outfall": {
+        "intake_type": "upper reservoir intake structure",
+        "outfall_type": "tailrace outlet to Altınkaya reservoir"
+      }
+    },
+    "layout3D": {
+      "scale": "macro",
+      "preferredBearing": 48,
+      "terrainExaggeration": 1.32,
+      "reservoirSurfaceMode": "polygon",
+      "useFootprintPolygons": true,
+      "hideLegacySquareReservoir": true,
+      "componentFootprints": [
+        {
+          "id": "upperReservoirWater",
+          "component": "upper_reservoir",
+          "kind": "polygon",
+          "material": "water",
+          "closed": true,
+          "coords": [
+            [
+              35.6938,
+              41.3512
+            ],
+            [
+              35.695,
+              41.352
+            ],
+            [
+              35.6972,
+              41.3526
+            ],
+            [
+              35.7002,
+              41.3526
+            ],
+            [
+              35.7028,
+              41.3518
+            ],
+            [
+              35.704,
+              41.3505
+            ],
+            [
+              35.7042,
+              41.3489
+            ],
+            [
+              35.7033,
+              41.3476
+            ],
+            [
+              35.7013,
+              41.3468
+            ],
+            [
+              35.6983,
+              41.3466
+            ],
+            [
+              35.6959,
+              41.3469
+            ],
+            [
+              35.6942,
+              41.3478
+            ],
+            [
+              35.6934,
+              41.3492
+            ],
+            [
+              35.6935,
+              41.3504
+            ],
+            [
+              35.6938,
+              41.3512
+            ]
+          ],
+          "baseElevationM": 782,
+          "topElevationM": 782,
+          "extrudeM": 0
+        },
+        {
+          "id": "upperReservoirDamEmbankment",
+          "component": "upper_reservoir",
+          "kind": "polygon",
+          "material": "embankment",
+          "closed": true,
+          "coords": [
+            [
+              35.6927,
+              41.352
+            ],
+            [
+              35.6944,
+              41.3532
+            ],
+            [
+              35.6971,
+              41.3538
+            ],
+            [
+              35.7008,
+              41.3538
+            ],
+            [
+              35.704,
+              41.3528
+            ],
+            [
+              35.7055,
+              41.351
+            ],
+            [
+              35.7058,
+              41.3487
+            ],
+            [
+              35.7047,
+              41.3468
+            ],
+            [
+              35.7021,
+              41.3457
+            ],
+            [
+              35.6984,
+              41.3453
+            ],
+            [
+              35.6952,
+              41.3456
+            ],
+            [
+              35.6932,
+              41.3466
+            ],
+            [
+              35.6922,
+              41.3484
+            ],
+            [
+              35.6922,
+              41.3504
+            ],
+            [
+              35.6927,
+              41.352
+            ]
+          ],
+          "baseElevationM": 703,
+          "topElevationM": 782,
+          "extrudeM": 79
+        },
+        {
+          "id": "upperDamCrestRoad",
+          "component": "upper_reservoir",
+          "kind": "polyline",
+          "material": "crest_road",
+          "closed": true,
+          "coords": [
+            [
+              35.6931,
+              41.3517
+            ],
+            [
+              35.6948,
+              41.3528
+            ],
+            [
+              35.6972,
+              41.3533
+            ],
+            [
+              35.7005,
+              41.3533
+            ],
+            [
+              35.7034,
+              41.3524
+            ],
+            [
+              35.7049,
+              41.3508
+            ],
+            [
+              35.7052,
+              41.3488
+            ],
+            [
+              35.7042,
+              41.3471
+            ],
+            [
+              35.7019,
+              41.3461
+            ],
+            [
+              35.6984,
+              41.3458
+            ],
+            [
+              35.6954,
+              41.3461
+            ],
+            [
+              35.6936,
+              41.3471
+            ],
+            [
+              35.6928,
+              41.3487
+            ],
+            [
+              35.6928,
+              41.3503
+            ],
+            [
+              35.6931,
+              41.3517
+            ]
+          ],
+          "elevationM": 782
+        },
+        {
+          "id": "upperIntake",
+          "component": "intake",
+          "kind": "polygon",
+          "material": "concrete",
+          "closed": true,
+          "coords": [
+            [
+              35.7035,
+              41.3497
+            ],
+            [
+              35.7041,
+              41.3497
+            ],
+            [
+              35.7041,
+              41.3492
+            ],
+            [
+              35.7035,
+              41.3492
+            ],
+            [
+              35.7035,
+              41.3497
+            ]
+          ],
+          "baseElevationM": 779,
+          "topElevationM": 782,
+          "extrudeM": 3
+        },
+        {
+          "id": "headraceAlignment",
+          "component": "headrace_tunnel",
+          "kind": "polyline",
+          "material": "tunnel_axis",
+          "coords": [
+            [
+              35.7038,
+              41.3495
+            ],
+            [
+              35.7048,
+              41.3586
+            ]
+          ],
+          "profileElevationM": [
+            782,
+            690
+          ]
+        },
+        {
+          "id": "surgeTankFootprint",
+          "component": "surge_tank",
+          "kind": "polygon",
+          "material": "shaft",
+          "closed": true,
+          "coords": [
+            [
+              35.7048,
+              41.359
+            ],
+            [
+              35.7051,
+              41.3589
+            ],
+            [
+              35.7052,
+              41.3586
+            ],
+            [
+              35.7051,
+              41.3583
+            ],
+            [
+              35.7048,
+              41.3582
+            ],
+            [
+              35.7045,
+              41.3583
+            ],
+            [
+              35.7044,
+              41.3586
+            ],
+            [
+              35.7045,
+              41.3589
+            ],
+            [
+              35.7048,
+              41.359
+            ]
+          ],
+          "baseElevationM": 690,
+          "topElevationM": 735,
+          "extrudeM": 45
+        },
+        {
+          "id": "penstockAlignment",
+          "component": "penstock",
+          "kind": "polyline",
+          "material": "tunnel_axis",
+          "coords": [
+            [
+              35.7048,
+              41.3586
+            ],
+            [
+              35.7099,
+              41.3549
+            ]
+          ],
+          "profileElevationM": [
+            690,
+            250
+          ]
+        },
+        {
+          "id": "servicePortal",
+          "component": "portal",
+          "kind": "polygon",
+          "material": "portal",
+          "closed": true,
+          "coords": [
+            [
+              35.7072,
+              41.3561
+            ],
+            [
+              35.708,
+              41.3561
+            ],
+            [
+              35.708,
+              41.3555
+            ],
+            [
+              35.7072,
+              41.3555
+            ],
+            [
+              35.7072,
+              41.3561
+            ]
+          ],
+          "baseElevationM": 285,
+          "topElevationM": 291,
+          "extrudeM": 6
+        },
+        {
+          "id": "powerhouseFootprint",
+          "component": "powerhouse",
+          "kind": "polygon",
+          "material": "industrial",
+          "closed": true,
+          "coords": [
+            [
+              35.7089,
+              41.3554
+            ],
+            [
+              35.7111,
+              41.3554
+            ],
+            [
+              35.7111,
+              41.3543
+            ],
+            [
+              35.7089,
+              41.3543
+            ],
+            [
+              35.7089,
+              41.3554
+            ]
+          ],
+          "baseElevationM": 170,
+          "topElevationM": 186,
+          "extrudeM": 16
+        },
+        {
+          "id": "tailraceSurgeTankFootprint",
+          "component": "tailrace_surge_tank",
+          "kind": "polygon",
+          "material": "shaft",
+          "closed": true,
+          "coords": [
+            [
+              35.7146,
+              41.3573
+            ],
+            [
+              35.7149,
+              41.3572
+            ],
+            [
+              35.715,
+              41.3569
+            ],
+            [
+              35.7149,
+              41.3566
+            ],
+            [
+              35.7146,
+              41.3565
+            ],
+            [
+              35.7143,
+              41.3566
+            ],
+            [
+              35.7142,
+              41.3569
+            ],
+            [
+              35.7143,
+              41.3572
+            ],
+            [
+              35.7146,
+              41.3573
+            ]
+          ],
+          "baseElevationM": 170,
+          "topElevationM": 230,
+          "extrudeM": 60
+        },
+        {
+          "id": "tailraceAlignment",
+          "component": "tailrace_tunnel",
+          "kind": "polyline",
+          "material": "tailrace_channel",
+          "coords": [
+            [
+              35.7099,
+              41.3549
+            ],
+            [
+              35.7146,
+              41.3569
+            ],
+            [
+              35.7218,
+              41.3622
+            ]
+          ],
+          "profileElevationM": [
+            170,
+            155,
+            145
+          ]
+        },
+        {
+          "id": "switchyardFootprint",
+          "component": "switchyard",
+          "kind": "polygon",
+          "material": "switchyard",
+          "closed": true,
+          "coords": [
+            [
+              35.7152,
+              41.3562
+            ],
+            [
+              35.7171,
+              41.3562
+            ],
+            [
+              35.7171,
+              41.3552
+            ],
+            [
+              35.7152,
+              41.3552
+            ],
+            [
+              35.7152,
+              41.3562
+            ]
+          ],
+          "baseElevationM": 182,
+          "topElevationM": 190,
+          "extrudeM": 8
+        }
+      ]
+    },
+    "note": "Altınkaya PDHES, JICA ve Mülga EİE’nin kavramsal tasarım çalışmalarına dayalı olarak 17. aday şeklinde eklenmiştir. Koordinatlar ve 3D bileşen konumları ekteki general layout ve waterway longitudinal section paftalarından türetilmiş yaklaşık yerleşimdir.",
+    "verificationNotes": "Altınkaya Barajı ana konumu kamuya açık harita verilerinden, üst rezervuar ve yeraltı santral yerleşimi ise JICA general layout ve su yolu kesit paftasına göre yaklaşık olarak yerleştirilmiştir. Nihai mühendislik koordinatı değildir.",
+    "timeline": [
+      {
+        "date": "2011",
+        "title": "JICA kavramsal tasarım",
+        "text": "Altınkaya PDHES için 1.800 MW ölçekli kavramsal tasarım, su yolu kesitleri ve maliyet ön tahmini hazırlanmıştır."
+      },
+      {
+        "date": "2026 Q1",
+        "title": "Masaüstü yeniden doğrulama",
+        "text": "Genel yerleşim, üst rezervuar konumu, yeraltı güç evi, şalt sahası ve su yolları güncellenir."
+      },
+      {
+        "date": "2026 Q2",
+        "title": "TEİAŞ + DSİ ön görüş paketi",
+        "text": "Bağlantı gerilimi, mevcut HES şalt kullanımı, işletme rejimi ve iletim gereksinimleri için ön etüt paketi hazırlanır."
+      },
+      {
+        "date": "2026 Q4",
+        "title": "Ön fizibilite kapısı",
+        "text": "Jeoloji, tünel kazısı, CAPEX P50/P90, çevresel etkiler ve finansman modeli olgunlaştırılır."
+      }
+    ],
+    "view": {
+      "center": [
+        35.7138,
+        41.3562
+      ],
+      "zoom": 11.6,
+      "pitch": 58,
+      "bearing": 48
+    }
+  },
+  {
     "id": "tasucu",
     "name": "Taşucu-Gülnar Deniz Suyu PSPP",
     "province": "Mersin",
     "country": "Türkiye",
     "sourceGroup": "SEA_WATER_PROTOTYPE_TOP4",
     "sourceNote": "Mevcut veri setindeki deniz tipi/offshore adaylar arasından gerçek score alanına göre seçilen top4 prototiptir.",
-    "order": 17,
+    "order": 18,
     "capacityMW": 600,
     "projectFlowCms": null,
     "headM": 780,
@@ -3426,7 +4230,7 @@
     "country": "Türkiye",
     "sourceGroup": "SEA_WATER_PROTOTYPE_TOP4",
     "sourceNote": "Mevcut veri setindeki deniz tipi/offshore adaylar arasından gerçek score alanına göre seçilen top4 prototiptir.",
-    "order": 18,
+    "order": 19,
     "capacityMW": 700,
     "projectFlowCms": null,
     "headM": 900,
@@ -3679,7 +4483,7 @@
     "country": "Türkiye",
     "sourceGroup": "SEA_WATER_PROTOTYPE_TOP4",
     "sourceNote": "Mevcut veri setindeki deniz tipi/offshore adaylar arasından gerçek score alanına göre seçilen top4 prototiptir.",
-    "order": 19,
+    "order": 20,
     "capacityMW": 500,
     "projectFlowCms": null,
     "headM": 620,
@@ -3916,223 +4720,6 @@
       "gridTap": [
         26.441944,
         38.561944
-      ]
-    },
-    "totalWaterwayLengthM": null
-  },
-  {
-    "id": "finike_kumluca",
-    "name": "Finike-Kumluca Deniz Suyu PDHES",
-    "province": "Antalya",
-    "country": "Türkiye",
-    "sourceGroup": "SEA_WATER_PROTOTYPE_TOP4",
-    "sourceNote": "Mevcut veri setindeki deniz tipi/offshore adaylar arasından gerçek score alanına göre seçilen top4 prototiptir.",
-    "order": 20,
-    "capacityMW": 520,
-    "projectFlowCms": null,
-    "headM": 720,
-    "energyGWh": 3.64,
-    "activeVolumeHm3": 2.35,
-    "tunnelLengthKm": 8.6,
-    "capexUsdBn": 1.32,
-    "annualRevenueUsdM": 70,
-    "paybackYear": 18.9,
-    "score": 71,
-    "lowerReservoirName": "Finike/Kumluca kıyısi deniz alımı",
-    "upperReservoirDescription": "Beydağları eteğinde kaplamali ust rezervuar konsepti",
-    "shaftLengthM": null,
-    "penstockLengthM": 8600,
-    "tailraceTunnelLengthM": null,
-    "technicalClassification": {
-      "cycleType": "SEA_LOWER_RESERVOIR",
-      "infrastructureType": "SEAWATER_COASTAL",
-      "conceptType": "SEAWATER",
-      "gridSupplyType": "GRID_SUPPORTED",
-      "primaryPurpose": "ENERGY_STORAGE",
-      "classificationNote": "Alt rezervuarı deniz olan kıyı tipi PDHES prototipidir; deniz suyu korozyonu, biofouling ve kıyı izinleri ayrı risk başlığıdır."
-    },
-    "coordinates": {
-      "coordinateSystem": "WGS84",
-      "coordinateOrder": "[lon, lat]",
-      "coordinateConfidence": "existing-data",
-      "coordinateNote": "Mevcut veri setindeki deniz tipi aday koordinatları korunmuştur; resmi fizibilite konumu değildir.",
-      "mapAnchor": [
-        30.18,
-        36.36
-      ],
-      "lowerReservoir": {
-        "name": "Finike/Kumluca kıyısi deniz alımı",
-        "point": [
-          30.148,
-          36.301
-        ]
-      },
-      "upperReservoir": {
-        "description": "Beydağları eteğinde kaplamali ust rezervuar konsepti",
-        "point": [
-          30.232,
-          36.43
-        ]
-      },
-      "powerhouse": {
-        "point": [
-          30.185,
-          36.365
-        ],
-        "preferred3dType": "underground-cavern"
-      },
-      "surgeTank": {
-        "point": [
-          30.208,
-          36.398
-        ]
-      },
-      "penstockRoute": [
-        [
-          30.232,
-          36.43
-        ],
-        [
-          30.208,
-          36.398
-        ],
-        [
-          30.185,
-          36.365
-        ]
-      ],
-      "tailraceOutlet": {
-        "point": [
-          30.148,
-          36.301
-        ]
-      },
-      "switchyard": {
-        "point": [
-          30.218,
-          36.352
-        ]
-      },
-      "gridConnection": {
-        "point": [
-          30.28,
-          36.36
-        ],
-        "voltageClassHint": "154/380 kV yakın bağlantı ön kabulü"
-      },
-      "intakeOutfall": {
-        "point": [
-          30.148,
-          36.301
-        ],
-        "description": "Deniz suyu alım/deşarj yapısı"
-      },
-      "bbox": [
-        30.12,
-        36.28,
-        30.25,
-        36.45
-      ]
-    },
-    "risks": [
-      "kıyı izinleri",
-      "liner/sızdırmazlık",
-      "korozyon",
-      "biofouling",
-      "turizm/görsel etki",
-      "korunan alan",
-      "deprem/fay",
-      "Deniz suyu korozyonu",
-      "Biofouling / biyolojik birikim",
-      "Denizel korunan alan riski",
-      "Tuzlu su sızdırmazlığı",
-      "Deniz intake/outfall çevresel etkisi",
-      "Kıyı izinleri",
-      "Turizm/görsel etki",
-      "Kıyı erozyonu ve dalga etkisi",
-      "Şalt ve trafo sahası tuzlu atmosfer etkisi",
-      "İçme suyu/yeraltı suyu karışımı riski",
-      "Acil boşaltma ve taşkın güvenliği"
-    ],
-    "assumptions": [
-      "Mevcut veri setindeki skor alanına göre seçilmiştir; yeni deniz tipi ad uydurulmamıştır.",
-      "Koordinatlar mevcut uygulama veri setinden korunmuştur; saha etüdü yerine geçmez.",
-      "Deniz suyu temas eden tüm ekipmanda korozyon, sızdırmazlık ve çevresel izin doğrulaması gerekir."
-    ],
-    "model3d": {
-      "terrainMode": "real-dem-if-available-else-procedural",
-      "lowerReservoirMode": "sea",
-      "upperReservoirMode": "geomembrane-or-conceptual-pool",
-      "powerhouseMode": "underground-cavern",
-      "penstockMode": "conceptual-waterway",
-      "showUncertaintyOverlay": true
-    },
-    "thesis": "Yüksek düşü avantajli, ancak tarim, turizm ve korunan alan hassasiyeti yüksek bati Antalya adayi.",
-    "note": "Deniz tipi prototip adayı",
-    "timeline": [
-      {
-        "date": "2026 Q2",
-        "title": "Masaustu GIS taramasi",
-        "text": "DEM, kıyı, şebeke, yerleşim ve risk katmanlariyla ilk eleme yapilir."
-      },
-      {
-        "date": "2026 Q3",
-        "title": "Saha on teyidi",
-        "text": "Gorsel etki, jeoloji, izin ve baglanti belirsizlikleri saha notuna donusturulur."
-      },
-      {
-        "date": "2027",
-        "title": "Go / no-go",
-        "text": "Parsel, jeoteknik, CED ve TEIAS/DSI gorusleriyle aday korunur veya elenir."
-      }
-    ],
-    "evidence": [],
-    "view": {
-      "center": [
-        30.18,
-        36.36
-      ],
-      "zoom": 8,
-      "pitch": 55,
-      "bearing": 26
-    },
-    "layout": {
-      "bearing": 26,
-      "upper": [
-        30.232,
-        36.43
-      ],
-      "lower": [
-        30.148,
-        36.301
-      ],
-      "power": [
-        30.185,
-        36.365
-      ],
-      "surge": [
-        30.208,
-        36.398
-      ],
-      "switchyard": [
-        30.218,
-        36.352
-      ],
-      "gridA": [
-        30.28,
-        36.36
-      ],
-      "gridB": [
-        30.28,
-        36.36
-      ],
-      "risk": [
-        30.18,
-        36.36
-      ],
-      "gridTap": [
-        30.28,
-        36.36
       ]
     },
     "totalWaterwayLengthM": null

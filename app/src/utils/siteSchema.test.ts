@@ -31,14 +31,14 @@ describe('validateSites', () => {
     expect(result.sites).toHaveLength(20);
     expect(new Set(result.sites.map((site) => site.id)).size).toBe(20);
 
-    expect(result.sites.filter((site) => site.sourceGroup === 'JICA_EIE_16')).toHaveLength(16);
-    expect(result.sites.filter((site) => site.sourceGroup === 'SEA_WATER_PROTOTYPE_TOP4')).toHaveLength(4);
+    expect(result.sites.filter((site) => site.sourceGroup === 'JICA_EIE_16')).toHaveLength(17);
+    expect(result.sites.filter((site) => site.sourceGroup === 'SEA_WATER_PROTOTYPE_TOP4')).toHaveLength(3);
     expect(result.sites.some((site) => site.id === 'presenzano')).toBe(false);
     expect(result.sites.map((site) => site.id).slice(16)).toEqual([
+      'altinkaya',
       'tasucu',
       'bozyazi_anamur',
       'karaburun',
-      'finike_kumluca',
     ]);
   });
 
@@ -128,7 +128,7 @@ describe('validateSites', () => {
     if (!result.ok) return;
 
     const seaSites = result.sites.filter((site) => site.sourceGroup === 'SEA_WATER_PROTOTYPE_TOP4');
-    expect(seaSites.map((site) => site.score)).toEqual([79, 76, 72, 71]);
+    expect(seaSites.map((site) => site.score)).toEqual([79, 76, 72]);
     expect(seaSites.every((site) =>
       site.technicalClassification.cycleType === 'SEA_LOWER_RESERVOIR'
       && site.technicalClassification.infrastructureType === 'SEAWATER_COASTAL'

@@ -17,11 +17,11 @@ const datasets = [
         acc[site.sourceGroup] = (acc[site.sourceGroup] || 0) + 1;
         return acc;
       }, {});
-      assert(counts.JICA_EIE_16 === 16, `16 JICA/EİE adayı bekleniyor; bulunan: ${counts.JICA_EIE_16 || 0}`);
-      assert(counts.SEA_WATER_PROTOTYPE_TOP4 === 4, `4 Deniz Tipi aday bekleniyor; bulunan: ${counts.SEA_WATER_PROTOTYPE_TOP4 || 0}`);
+      assert(counts.JICA_EIE_16 === 17, `17 JICA/EİE adayı bekleniyor; bulunan: ${counts.JICA_EIE_16 || 0}`);
+      assert(counts.SEA_WATER_PROTOTYPE_TOP4 === 3, `3 Deniz Tipi aday bekleniyor; bulunan: ${counts.SEA_WATER_PROTOTYPE_TOP4 || 0}`);
       assert(!value.some((site) => site.id === 'presenzano'), 'Presenzano Türkiye aday listesinde olmamalıdır.');
       const seaIds = value.filter((site) => site.sourceGroup === 'SEA_WATER_PROTOTYPE_TOP4').map((site) => site.id).join(',');
-      assert(seaIds === 'tasucu,bozyazi_anamur,karaburun,finike_kumluca', `Deniz Tipi sırası hatalı: ${seaIds}`);
+      assert(seaIds === 'tasucu,bozyazi_anamur,karaburun', `Deniz Tipi sırası hatalı: ${seaIds}`);
       for (const site of value) {
         assert(site.technicalClassification?.cycleType, `${site.id}: technicalClassification.cycleType eksik.`);
         assert(site.coordinates?.coordinateOrder === '[lon, lat]', `${site.id}: koordinat sırası [lon, lat] olmalıdır.`);
