@@ -109,7 +109,7 @@ export const useSettingsStore = create<SettingsStore>()(
       name: SETTINGS_STORAGE_KEY,
       version: 1,
       storage: createJSONStorage(() => localStorage),
-      partialize: ({ theme, mapStyle, heightScale, weights, showPowerGrid, powerGridFilters }) => ({
+      partialize: ({ theme, mapStyle, heightScale, weights, showPowerGrid, powerGridConfig }) => ({
         theme,
         mapStyle,
         heightScale,
