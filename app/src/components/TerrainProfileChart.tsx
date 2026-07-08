@@ -39,7 +39,7 @@ export default function TerrainProfileChart({ onClose }: TerrainProfileChartProp
         const profileData: ProfilePoint[] = [];
         
         const heightScale = useSettingsStore.getState().heightScale;
-        const exaggeration = heightScale * 1.3;
+        const exaggeration = (heightScale || 1) * 1.3;
         
         for (let i = 0; i <= samples; i++) {
           const dist = Math.min(i * sampleInterval, totalLength);
@@ -86,24 +86,43 @@ export default function TerrainProfileChart({ onClose }: TerrainProfileChartProp
   }, [data]);
 
   return (
-    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-3xl z-40 bg-black/80 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl overflow-hidden animate-in slide-in-from-bottom-8">
-      <div className="flex items-center justify-between px-4 py-2 border-b border-white/10 bg-white/5">
-        <h3 className="text-sm font-semibold text-white/90">Arazi Kot Profili</h3>
-        <button onClick={onClose} className="p-1 text-white/50 hover:text-white transition-colors rounded-full hover:bg-white/10">
+    <div style={{
+      position: 'absolute',
+      bottom: '24px',
+      left: '50%',
+      transform: 'translateX(-50%)',
+      width: '90%',
+      maxWidth: '768px',
+      zIndex: 40,
+      background: 'rgba(0, 0, 0, 0.85)',
+      backdropFilter: 'blur(16px)',
+      border: '1px solid rgba(255, 255, 255, 0.1)',
+      borderRadius: '12px',
+      boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+      overflow: 'hidden'
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 16px', borderBottom: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.05)' }}>
+        <h3 style={{ fontSize: '14px', fontWeight: 'bold', color: 'rgba(255,255,255,0.9)' }}>Arazi Kot Profili</h3>
+        <button 
+          onClick={onClose} 
+          style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.5)', cursor: 'pointer', padding: '4px', borderRadius: '50%' }}
+          onMouseOver={e => { e.currentTarget.style.color = 'white'; e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; }}
+          onMouseOut={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.5)'; e.currentTarget.style.background = 'none'; }}
+        >
           <X size={16} />
         </button>
       </div>
       
-      <div className="h-48 p-4">
+      <div style={{ height: '192px', padding: '16px' }}>
         {loading && (
-          <div className="w-full h-full flex flex-col items-center justify-center text-white/50 gap-2">
+          <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.5)', gap: '8px' }}>
             <Loader2 size={24} className="animate-spin" />
-            <span className="text-xs">Arazi verisi hesaplanıyor...</span>
+            <span style={{ fontSize: '12px' }}>Arazi verisi hesaplanıyor...</span>
           </div>
         )}
         
         {error && (
-          <div className="w-full h-full flex items-center justify-center text-red-400 text-sm">
+          <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#f87171', fontSize: '14px' }}>
             {error}
           </div>
         )}
