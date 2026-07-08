@@ -1,11 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 
-// Bounding box for Turkey (approximate)
-const MIN_LNG = 25.6;
-const MAX_LNG = 44.9;
-const MIN_LAT = 35.8;
-const MAX_LAT = 42.1;
+// Replaced bounding box with countryCode filtering
 
 // Only these element types will be included
 const ALLOWED_ELEMENT_TYPES = new Set(['line', 'minor_line', 'cable', 'substation', 'plant']);
@@ -29,13 +25,9 @@ function processGeojson() {
       return false;
     }
 
-    // Filter by location (Turkey BBox)
-    const center = props.center;
-    if (center && Array.isArray(center) && center.length === 2) {
-      const [lng, lat] = center;
-      if (lng < MIN_LNG || lng > MAX_LNG || lat < MIN_LAT || lat > MAX_LAT) {
-        return false;
-      }
+    // Filter by Country Code (Turkey only)
+    if (props.countryCode !== 'TR') {
+      return false;
     }
 
     return true;
