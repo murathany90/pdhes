@@ -125,8 +125,10 @@ export function useMapLibre({
         'candidate-circles',
         'candidate-labels',
         'hillshade-layer',
+        'osm-power-lines',
+        'osm-power-points',
       ];
-      const oldSources = ['grid400', 'grid154', 'substations', 'risk', 'projectGrid', 'water', 'blocks', 'blockLabels', 'candidates'];
+      const oldSources = ['grid400', 'grid154', 'substations', 'risk', 'projectGrid', 'water', 'blocks', 'blockLabels', 'candidates', 'osm-power-grid'];
       if (map.getLayer('candidate-circles')) {
         map.off('click', 'candidate-circles', handleCandidateClick);
       }
