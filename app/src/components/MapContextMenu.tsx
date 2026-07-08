@@ -1,6 +1,8 @@
 import { useEffect, useRef } from 'react';
 import { useMapToolsStore } from '../stores/useMapToolsStore';
 import { Ruler, Mountain, X } from 'lucide-react';
+import { useSettingsStore } from '../stores/useSettingsStore';
+
 export default function MapContextMenu() {
   const { map, contextMenu, closeContextMenu, setElevationResult, setMode } = useMapToolsStore();
   const menuRef = useRef<HTMLDivElement>(null);
@@ -25,7 +27,9 @@ export default function MapContextMenu() {
   const handleQueryElevation = () => {
     if (map && contextMenu.lngLat) {
       const ele = map.queryTerrainElevation(contextMenu.lngLat);
-      setElevationResult(ele !== null ? Math.round(ele) : null);
+      const heightScale = useSettingsStore.getState().heightScale;
+      const actualEle = ele !== null ? (ele / (heightScale * 1.3)) : null;
+      setElevationResult(actualEle !== null ? Math.round(actualEle) : null);
     }
   };
 
@@ -42,44 +46,55 @@ export default function MapContextMenu() {
         left: contextMenu.x,
         top: contextMenu.y,
         zIndex: 50,
+        background: 'rgba(15, 23, 42, 0.85)',
+        backdropFilter: 'blur(8px)',
+        border: '1px solid rgba(255, 255, 255, 0.1)',
+        borderRadius: '8px',
+        boxShadow: '0 10px 25px rgba(0,0,0,0.5)',
+        overflow: 'hidden',
+        minWidth: '180px',
+        fontSize: '13px',
       }}
-      className="bg-black/60 backdrop-blur-md border border-white/10 rounded-lg shadow-xl shadow-black/50 overflow-hidden text-sm min-w-[180px] animate-in fade-in zoom-in-95 duration-200"
     >
-      <div className="flex items-center justify-between px-3 py-2 border-b border-white/10 bg-white/5">
-        <span className="text-xs text-white/50 font-mono">
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 12px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+        <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', fontFamily: 'monospace' }}>
           {contextMenu.lngLat.lat.toFixed(4)}, {contextMenu.lngLat.lng.toFixed(4)}
         </span>
-        <button onClick={closeContextMenu} className="text-white/50 hover:text-white transition-colors">
+        <button onClick={closeContextMenu} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)', cursor: 'pointer' }}>
           <X size={14} />
         </button>
       </div>
       
-      <div className="p-1">
+      <div style={{ padding: '4px' }}>
         <button
           onClick={handleQueryElevation}
-          className="w-full flex items-center gap-2 px-3 py-2 text-left text-white/90 hover:bg-white/10 rounded transition-colors"
+          style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 12px', textAlign: 'left', background: 'none', border: 'none', color: '#e2e8f0', cursor: 'pointer', borderRadius: '4px' }}
+          onMouseOver={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+          onMouseOut={e => e.currentTarget.style.background = 'none'}
         >
-          <Mountain size={16} className="text-blue-400" />
+          <Mountain size={15} color="#38bdf8" />
           <span>Buranın Rakımı Ne?</span>
         </button>
         
         <button
           onClick={handleMeasure}
-          className="w-full flex items-center gap-2 px-3 py-2 text-left text-white/90 hover:bg-white/10 rounded transition-colors"
+          style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 12px', textAlign: 'left', background: 'none', border: 'none', color: '#e2e8f0', cursor: 'pointer', borderRadius: '4px' }}
+          onMouseOver={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+          onMouseOut={e => e.currentTarget.style.background = 'none'}
         >
-          <Ruler size={16} className="text-emerald-400" />
+          <Ruler size={15} color="#34d399" />
           <span>Mesafe Ölç (Cetvel)</span>
         </button>
       </div>
 
       {contextMenu.elevationResult !== null && contextMenu.elevationResult !== undefined && (
-        <div className="px-3 py-2 bg-emerald-500/20 border-t border-emerald-500/30 text-emerald-100 flex items-center gap-2">
-          <span className="font-semibold text-emerald-400">{contextMenu.elevationResult} m</span>
-          <span className="text-xs opacity-70">deniz seviyesinden</span>
+        <div style={{ padding: '8px 12px', background: 'rgba(16, 185, 129, 0.1)', borderTop: '1px solid rgba(16, 185, 129, 0.2)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span style={{ fontWeight: 'bold', color: '#34d399', fontSize: '14px' }}>{contextMenu.elevationResult} m</span>
+          <span style={{ fontSize: '11px', opacity: 0.6, color: '#d1fae5' }}>deniz seviyesinden</span>
         </div>
       )}
       {contextMenu.elevationResult === null && (
-        <div className="px-3 py-2 bg-red-500/20 border-t border-red-500/30 text-red-200 text-xs">
+        <div style={{ padding: '8px 12px', background: 'rgba(239, 68, 68, 0.1)', borderTop: '1px solid rgba(239, 68, 68, 0.2)', color: '#fca5a5', fontSize: '11px' }}>
           Rakım verisi alınamadı (Arazi yüklü değil).
         </div>
       )}

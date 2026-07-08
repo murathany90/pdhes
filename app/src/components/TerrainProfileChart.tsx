@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useMapToolsStore } from '../stores/useMapToolsStore';
+import { useSettingsStore } from '../stores/useSettingsStore';
 import * as turf from '@turf/turf';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { X, Loader2 } from 'lucide-react';
@@ -37,16 +38,20 @@ export default function TerrainProfileChart({ onClose }: TerrainProfileChartProp
         
         const profileData: ProfilePoint[] = [];
         
+        const heightScale = useSettingsStore.getState().heightScale;
+        const exaggeration = heightScale * 1.3;
+        
         for (let i = 0; i <= samples; i++) {
           const dist = Math.min(i * sampleInterval, totalLength);
           const pt = turf.along(line, dist, { units: 'kilometers' });
           const lngLat: [number, number] = [pt.geometry.coordinates[0], pt.geometry.coordinates[1]];
           
-          const elevation = map.queryTerrainElevation(lngLat);
+          const ele = map.queryTerrainElevation(lngLat);
+          const actualEle = ele !== null ? (ele / exaggeration) : null;
           
           profileData.push({
             distance: Number(dist.toFixed(2)),
-            elevation: elevation !== null ? Math.round(elevation) : 0,
+            elevation: actualEle !== null ? Math.round(actualEle) : 0,
           });
         }
 

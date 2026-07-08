@@ -5,15 +5,28 @@ import { useMemo, useState, useEffect } from 'react';
 import TerrainProfileChart from './TerrainProfileChart';
 
 export default function MeasurementUI() {
-  const { map, mode, setMode, measurementPoints, clearMeasurement } = useMapToolsStore();
+  const { map, mode, setMode, isDrawing, setIsDrawing, measurementPoints, clearMeasurement } = useMapToolsStore();
   const [showProfile, setShowProfile] = useState(false);
   const [mousePos, setMousePos] = useState<[number, number] | null>(null);
+
+  // Stop drawing on ESC
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isDrawing) {
+        setIsDrawing(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isDrawing, setIsDrawing]);
 
   useEffect(() => {
     if (mode !== 'measure' || !map) return;
     
     const onMouseMove = (e: any) => {
-      setMousePos([e.lngLat.lng, e.lngLat.lat]);
+      if (isDrawing) {
+        setMousePos([e.lngLat.lng, e.lngLat.lat]);
+      }
     };
     
     map.on('mousemove', onMouseMove);
@@ -30,7 +43,7 @@ export default function MeasurementUI() {
     
     const updateSource = () => {
       let coordinates = [...measurementPoints];
-      if (mode === 'measure' && mousePos && coordinates.length > 0) {
+      if (mode === 'measure' && isDrawing && mousePos && coordinates.length > 0) {
         coordinates.push(mousePos);
       }
       
@@ -91,7 +104,7 @@ export default function MeasurementUI() {
       if (map.getLayer('measure-circles')) map.removeLayer('measure-circles');
       if (map.getSource(sourceId)) map.removeSource(sourceId);
     };
-  }, [map, mode, measurementPoints, mousePos]);
+  }, [map, mode, isDrawing, measurementPoints, mousePos]);
 
   const totalDistanceKm = useMemo(() => {
     if (measurementPoints.length < 2) return 0;
@@ -108,42 +121,70 @@ export default function MeasurementUI() {
 
   return (
     <>
-      <div className="absolute top-24 left-1/2 -translate-x-1/2 z-40 bg-black/70 backdrop-blur-md border border-emerald-500/30 rounded-full pl-6 pr-2 py-2 flex items-center gap-4 shadow-lg shadow-black/50 animate-in slide-in-from-top-4">
-        <div className="flex flex-col">
-          <span className="text-[10px] text-emerald-400/70 font-semibold uppercase tracking-wider leading-none mb-1">
+      <div style={{
+        position: 'absolute',
+        top: '24px',
+        left: '50%',
+        transform: 'translateX(-50%)',
+        zIndex: 40,
+        background: 'rgba(0,0,0,0.85)',
+        backdropFilter: 'blur(10px)',
+        border: '1px solid rgba(16, 185, 129, 0.3)',
+        borderRadius: '50px',
+        padding: '8px 12px 8px 24px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '16px',
+        boxShadow: '0 10px 25px rgba(0,0,0,0.5)'
+      }}>
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <span style={{ fontSize: '10px', color: 'rgba(52, 211, 153, 0.7)', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
             Mesafe Ölçümü
           </span>
-          <div className="flex items-baseline gap-1">
-            <span className="text-xl font-bold text-white tabular-nums leading-none">
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
+            <span style={{ fontSize: '20px', fontWeight: 'bold', color: 'white', fontFamily: 'monospace' }}>
               {totalDistanceKm.toFixed(2)}
             </span>
-            <span className="text-sm text-white/50">km</span>
+            <span style={{ fontSize: '14px', color: 'rgba(255,255,255,0.5)' }}>km</span>
           </div>
         </div>
 
-        <div className="w-px h-8 bg-white/10 mx-2" />
+        <div style={{ width: '1px', height: '32px', background: 'rgba(255,255,255,0.1)' }} />
 
-        <div className="flex items-center gap-1">
-          {measurementPoints.length >= 2 && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+          {isDrawing && measurementPoints.length > 0 && (
+            <button
+              onClick={() => setIsDrawing(false)}
+              title="Çizimi Bitir (ESC)"
+              style={{ padding: '6px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: 'bold', background: 'rgba(16, 185, 129, 0.2)', color: '#34d399', border: '1px solid rgba(16, 185, 129, 0.3)', cursor: 'pointer', marginRight: '4px' }}
+            >
+              Bitir
+            </button>
+          )}
+          {measurementPoints.length >= 2 && !isDrawing && (
             <button
               onClick={() => setShowProfile(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium text-blue-300 hover:text-blue-200 hover:bg-blue-500/20 transition-colors"
+              style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: 'bold', background: 'rgba(59, 130, 246, 0.2)', color: '#60a5fa', border: '1px solid rgba(59, 130, 246, 0.3)', cursor: 'pointer', marginRight: '4px' }}
             >
-              <LineChart size={16} />
+              <LineChart size={14} />
               <span>Profil</span>
             </button>
           )}
           <button
             onClick={clearMeasurement}
             title="Temizle"
-            className="p-2 text-white/50 hover:text-red-400 hover:bg-white/10 rounded-full transition-colors"
+            style={{ padding: '8px', background: 'none', border: 'none', color: 'rgba(255,255,255,0.5)', cursor: 'pointer', borderRadius: '50%' }}
+            onMouseOver={e => { e.currentTarget.style.color = '#f87171'; e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; }}
+            onMouseOut={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.5)'; e.currentTarget.style.background = 'none'; }}
           >
             <Trash2 size={16} />
           </button>
           <button
             onClick={handleClose}
             title="Kapat"
-            className="p-2 text-white/50 hover:text-white hover:bg-white/10 rounded-full transition-colors ml-1"
+            style={{ padding: '8px', background: 'none', border: 'none', color: 'rgba(255,255,255,0.5)', cursor: 'pointer', borderRadius: '50%' }}
+            onMouseOver={e => { e.currentTarget.style.color = 'white'; e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; }}
+            onMouseOut={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.5)'; e.currentTarget.style.background = 'none'; }}
           >
             <X size={16} />
           </button>

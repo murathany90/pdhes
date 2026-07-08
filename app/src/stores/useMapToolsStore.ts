@@ -14,10 +14,12 @@ export interface ContextMenuState {
 interface MapToolsState {
   map: maplibregl.Map | null;
   mode: InteractionMode;
+  isDrawing: boolean;
   contextMenu: ContextMenuState;
   measurementPoints: number[][]; // Array of [lng, lat]
   setMap: (map: maplibregl.Map | null) => void;
   setMode: (mode: InteractionMode) => void;
+  setIsDrawing: (isDrawing: boolean) => void;
   openContextMenu: (x: number, y: number, lngLat: LngLat) => void;
   closeContextMenu: () => void;
   setElevationResult: (elevation: number | null) => void;
@@ -28,6 +30,7 @@ interface MapToolsState {
 export const useMapToolsStore = create<MapToolsState>((set) => ({
   map: null,
   mode: 'default',
+  isDrawing: false,
   contextMenu: {
     isOpen: false,
     x: 0,
@@ -38,7 +41,8 @@ export const useMapToolsStore = create<MapToolsState>((set) => ({
   measurementPoints: [],
 
   setMap: (map) => set({ map }),
-  setMode: (mode) => set({ mode, measurementPoints: [] }),
+  setMode: (mode) => set({ mode, measurementPoints: [], isDrawing: mode === 'measure' }),
+  setIsDrawing: (isDrawing) => set({ isDrawing }),
   
   openContextMenu: (x, y, lngLat) => set((state) => ({
     contextMenu: { ...state.contextMenu, isOpen: true, x, y, lngLat, elevationResult: null }

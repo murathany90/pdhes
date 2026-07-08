@@ -493,8 +493,12 @@ export function useMapLibre({
     });
     
     map.on('contextmenu', (e) => {
-      const { openContextMenu } = useMapToolsStore.getState();
-      openContextMenu(e.point.x, e.point.y, e.lngLat);
+      const { mode, isDrawing, setIsDrawing, openContextMenu } = useMapToolsStore.getState();
+      if (mode === 'measure' && isDrawing) {
+        setIsDrawing(false);
+      } else {
+        openContextMenu(e.point.x, e.point.y, e.lngLat);
+      }
     });
 
     map.on('click', (e) => {
