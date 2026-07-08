@@ -248,15 +248,18 @@ export function useMapLibre({
       if (showPowerGrid) {
         map.addSource('osm-power-grid', { type: 'geojson', data: import.meta.env.BASE_URL.replace(/\/$/, '') + '/power-grid-filtered.geojson' });
         
-        const getVoltageProp = (prop: 'color' | 'width'): any => [
-          'case',
-          ['>=', ['coalesce', ['get', 'voltage'], 0], 500], powerGridConfig.voltages.over500[prop],
-          ['>=', ['coalesce', ['get', 'voltage'], 0], 400], powerGridConfig.voltages.v400[prop],
-          ['>=', ['coalesce', ['get', 'voltage'], 0], 154], powerGridConfig.voltages.v154[prop],
-          ['==', ['coalesce', ['get', 'voltage'], 0], 33], powerGridConfig.voltages.v33[prop],
-          ['all', ['>', ['coalesce', ['get', 'voltage'], 0], 0], ['<', ['coalesce', ['get', 'voltage'], 0], 33]], powerGridConfig.voltages.under33[prop],
-          powerGridConfig.voltages.unknown[prop]
-        ];
+        const getVoltageProp = (prop: 'color' | 'width'): any => {
+          const v = ['to-number', ['coalesce', ['get', 'voltage'], 0]];
+          return [
+            'case',
+            ['>=', v, 500], powerGridConfig.voltages.over500[prop],
+            ['>=', v, 400], powerGridConfig.voltages.v400[prop],
+            ['>=', v, 154], powerGridConfig.voltages.v154[prop],
+            ['==', v, 33], powerGridConfig.voltages.v33[prop],
+            ['all', ['>', v, 0], ['<', v, 33]], powerGridConfig.voltages.under33[prop],
+            powerGridConfig.voltages.unknown[prop]
+          ];
+        };
 
         if (powerGridConfig.elements.lines.show || powerGridConfig.elements.cables.show) {
           const typeFilter = [];

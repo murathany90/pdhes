@@ -24,7 +24,7 @@ export function FabPopover({
   selectedSiteId, selectSite
 }: FabPopoverProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<'candidates' | 'world' | 'settings' | 'grid'>('candidates');
+  const [activeTab, setActiveTab] = useState<'candidates' | 'world' | 'settings'>('candidates');
   const popoverRef = useRef<HTMLDivElement>(null);
   
   const sites = useSiteStore(state => state.sites);
@@ -74,12 +74,6 @@ export function FabPopover({
               onClick={() => setActiveTab('settings')}
             >
               <Settings size={16} /> Ayarlar
-            </button>
-            <button 
-              className={`fab-tab ${activeTab === 'grid' ? 'active' : ''}`}
-              onClick={() => setActiveTab('grid')}
-            >
-              <Zap size={16} /> Şebeke
             </button>
           </div>
 
@@ -194,12 +188,9 @@ export function FabPopover({
                     </div>
                   </div>
                 )}
-              </div>
-            )}
 
-            {activeTab === 'grid' && (
-              <div className="fab-settings">
-                <div className="setting-group" style={{ marginBottom: 12 }}>
+                <div className="setting-group" style={{ marginBottom: 12, marginTop: 24, paddingTop: 16, borderTop: '1px solid var(--border)' }}>
+                  <h3 style={{ marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}><Zap size={16} /> Şebeke (OSM Power Grid)</h3>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <input 
                       type="checkbox" 

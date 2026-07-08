@@ -23,11 +23,11 @@ export interface PowerGridConfig {
 
 export const DEFAULT_POWER_GRID_CONFIG: PowerGridConfig = {
   voltages: {
-    under33: { color: '#59d57a', width: 2 },
-    v33: { color: '#1f9443', width: 2.5 },
-    v154: { color: '#1c2633', width: 3 },
-    v400: { color: '#ed4344', width: 4 },
-    over500: { color: '#b72721', width: 5 },
+    under33: { color: '#5ac8fa', width: 2 },
+    v33: { color: '#007aff', width: 2.5 },
+    v154: { color: '#34c759', width: 3 },
+    v400: { color: '#ff3b30', width: 4 },
+    over500: { color: '#8b0000', width: 5 },
     unknown: { color: '#f38b2a', width: 1.5 },
     external: { color: '#8c52ff', width: 2.5 },
   },
@@ -107,7 +107,7 @@ export const useSettingsStore = create<SettingsStore>()(
     }),
     {
       name: SETTINGS_STORAGE_KEY,
-      version: 1,
+      version: 2,
       storage: createJSONStorage(() => localStorage),
       partialize: ({ theme, mapStyle, heightScale, weights, showPowerGrid, powerGridConfig }) => ({
         theme,
