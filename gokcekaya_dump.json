@@ -1,0 +1,294 @@
+{
+  "id": "gokcekaya",
+  "name": "Gökçekaya PSPP",
+  "concept": "classic",
+  "conceptLabel": "Klasik kapalı devre / mevcut rezervuar",
+  "lat": 40.035,
+  "lon": 31.021,
+  "region": "Sakarya havzasi - Gokcekaya Baraji",
+  "score": 84,
+  "head": 379.5,
+  "tunnelKm": 4.05,
+  "activeMcm": 10.8,
+  "powerMW": 1400,
+  "energyGWh": 9.8,
+  "capexBn": 2.59,
+  "revenueM": 252,
+  "payback": 10.3,
+  "gridDistKm": 7.1,
+  "lower": "Gökçekaya Barajı / mevcut HES şaltı",
+  "upper": "~800 m HWL üst rezervuar",
+  "thesis": "İlk 24 ayda fizibiliteye taşınabilecek en hızlı klasik PSPP adayı.",
+  "risks": [
+    "İletim takviyesi",
+    "ayrıntılı jeoloji",
+    "mevcut HES işletme rejimi",
+    "kamulaştırma"
+  ],
+  "scores": {
+    "topo": 83,
+    "grid": 86,
+    "env": 70,
+    "geology": 68,
+    "access": 82,
+    "market": 88
+  },
+  "view": {
+    "center": [
+      31.021,
+      40.035
+    ],
+    "zoom": 10.9,
+    "pitch": 58,
+    "bearing": -28
+  },
+  "color": "#3b82f6",
+  "layout": {
+    "bearing": -32,
+    "upper": [
+      30.972,
+      40.072
+    ],
+    "lower": [
+      31.021,
+      40.035
+    ],
+    "power": [
+      31.006,
+      40.027
+    ],
+    "surge": [
+      30.988,
+      40.052
+    ],
+    "switchyard": [
+      31.025,
+      40.03
+    ],
+    "gridA": [
+      30.437708,
+      39.818699
+    ],
+    "gridB": [
+      30.563097,
+      39.858431
+    ],
+    "risk": [
+      31.021,
+      40.035
+    ],
+    "gridTap": [
+      30.563097,
+      39.858431
+    ]
+  },
+  "timeline": [
+    {
+      "date": "2011",
+      "title": "JICA kavramsal çalışma",
+      "text": "1.400 MW / 7 saat ölçeğinde PSPP konsepti ve kısa su yolu ön çalışması."
+    },
+    {
+      "date": "2026 Q1",
+      "title": "Masaüstü yeniden doğrulama",
+      "text": "DEM, rezervuar kotları, mevcut şalt ve bağlantı mesafesi güncellenir."
+    },
+    {
+      "date": "2026 Q2",
+      "title": "TEİAŞ + DSİ ön görüş paketi",
+      "text": "380 kV bağlantı, su kullanım rejimi ve N-1 ön etüt soruları hazırlanır."
+    },
+    {
+      "date": "2026 Q4",
+      "title": "Ön fizibilite kapısı",
+      "text": "Jeoloji, CAPEX P50/P90, ÇED yol haritası ve finansman modeli tamamlanır."
+    }
+  ],
+  "nearest380Km": 7.1,
+  "nearest154Km": 9.1,
+  "nearestSubstation": {
+    "name": "KARTAL RES",
+    "voltage_kv": 154,
+    "coord": [
+      30.426507,
+      39.930818
+    ],
+    "distance_km": 9.1
+  },
+  "nMinusOneNote": "N-1 ve kısa devre gücü için TEİAŞ sistem etüdü kritik; 380 kV takviye ihtimali yüksek.",
+  "gridConnection": {
+    "preferredVoltageKv": 380,
+    "preferredLineName": "400kV ESKİŞEHİR3 - GÖKÇEKAYA HES EİH",
+    "preferredLineDistanceKm": 7.1,
+    "tapCoord": [
+      30.563097,
+      39.858431
+    ],
+    "lineSegment": [
+      [
+        30.437708,
+        39.818699
+      ],
+      [
+        30.563097,
+        39.858431
+      ]
+    ],
+    "nearest380": {
+      "lineName": "400kV ESKİŞEHİR3 - GÖKÇEKAYA HES EİH",
+      "distanceKm": 7.1,
+      "tapCoord": [
+        30.563097,
+        39.858431
+      ]
+    },
+    "nearest154": {
+      "lineName": "154kV ESKİŞEHİR3 - KARTAL RES EİH",
+      "distanceKm": 9.1,
+      "tapCoord": [
+        30.426507,
+        39.930818
+      ]
+    }
+  },
+  "components_detail": {
+    "upper_reservoir": {
+      "elevation_m": 801,
+      "active_volume_mcm": 10.8,
+      "dam_height_m": 38,
+      "lining": "kil çekirdekli set ve yerel geomembran alternatifi",
+      "geology_note": "İletim takviyesi"
+    },
+    "lower_reservoir": {
+      "elevation_m": 421,
+      "min_level_m": 413,
+      "note": "Gökçekaya Barajı / mevcut HES şaltı; DSİ işletme rejimi ve ekolojik akış doğrulanmalı."
+    },
+    "penstock": {
+      "diameter_m": 8.2,
+      "length_m": 4050,
+      "material": "çelik kaplı basınç tüneli",
+      "pressure_class": "~37 bar statik basınç sınıfı",
+      "count": 2
+    },
+    "powerhouse": {
+      "cavern_width_m": 36,
+      "cavern_length_m": 266,
+      "cavern_height_m": 39,
+      "units": 6,
+      "turbine_type": "ayarlanabilir hızlı Francis pompa-türbin"
+    },
+    "surge_tank": {
+      "type": "denge şaftı / surge tank",
+      "height_m": 112,
+      "diameter_m": 33
+    },
+    "switchyard": {
+      "voltage_kv": 380,
+      "transformer_count": 3,
+      "connection_line_km": 7.1
+    },
+    "tunnel": {
+      "length_m": 4050,
+      "diameter_m": 8.2,
+      "excavation_type": "TBM veya drill-and-blast karma kazı"
+    },
+    "intake_outfall": null
+  },
+  "pdhesType": "OPEN_LOOP",
+  "province": "Eskisehir / Bilecik",
+  "locationConfidence": "medium",
+  "isApproximate": true,
+  "confidence": "reference_based",
+  "technologyReadiness": "pre_feasibility",
+  "coordinates": {
+    "mapAnchor": [
+      31.021,
+      40.035
+    ],
+    "lowerReservoir": [
+      31.021,
+      40.035
+    ],
+    "upperReservoir": [
+      30.972,
+      40.072
+    ],
+    "powerhouse": [
+      31.006,
+      40.027
+    ],
+    "surgeTank": [
+      30.988,
+      40.052
+    ],
+    "switchyard": [
+      31.025,
+      40.03
+    ],
+    "gridConnection": [
+      31.021,
+      40.035
+    ],
+    "intakeOutfall": null,
+    "bbox": [
+      [
+        30.94,
+        39.99
+      ],
+      [
+        31.06,
+        40.09
+      ]
+    ]
+  },
+  "evidence": [
+    "jicaGokcekaya",
+    "jicaStudy",
+    "teiasGrid"
+  ],
+  "note": "JICA proje sahasi Gokcekaya olarak dogrulandi; bileşen koordinatlari masaüstü GIS ve mevcut HES/rezervuar baglamindan türetilmiştir.",
+  "capacityClass": "macro",
+  "lowerReservoirType": "existing_dam",
+  "upperReservoirType": "new_lined_reservoir",
+  "oldCoordinates": [
+    30.52,
+    39.93
+  ],
+  "verifiedAt": "2026-05-11",
+  "verificationNotes": "JICA proje sahasi Gokcekaya olarak dogrulandi; bileşen koordinatlari masaüstü GIS ve mevcut HES/rezervuar baglamindan türetilmiştir.",
+  "locationEvidence": [
+    {
+      "field": "mapAnchor",
+      "sourceName": "JICA Gokcekaya PSPP environmental page",
+      "sourceType": "official",
+      "sourceUrl": "https://www.jica.go.jp/english/about/policy/environment/id/europe/a_b_fi/turkey/c8h0vm000090rdja.html",
+      "method": "dam/reservoir lookup",
+      "confidence": "medium",
+      "note": "JICA proje sahasi Gokcekaya olarak dogrulandi; bileşen koordinatlari masaüstü GIS ve mevcut HES/rezervuar baglamindan türetilmiştir."
+    },
+    {
+      "field": "upperReservoir",
+      "sourceName": "JICA Study on Optimal Power Generation for Peak Demand in Turkey",
+      "sourceType": "report",
+      "sourceUrl": "https://openjicareport.jica.go.jp/pdf/12019808_01.pdf",
+      "method": "dam/reservoir lookup",
+      "confidence": "medium",
+      "note": "JICA proje sahasi Gokcekaya olarak dogrulandi; bileşen koordinatlari masaüstü GIS ve mevcut HES/rezervuar baglamindan türetilmiştir."
+    },
+    {
+      "field": "gridConnection",
+      "sourceName": "TEIAS KML-derived local grid layer",
+      "sourceType": "official",
+      "sourceUrl": "grid_assets.json",
+      "method": "coast-grid",
+      "confidence": "medium",
+      "note": "JICA proje sahasi Gokcekaya olarak dogrulandi; bileşen koordinatlari masaüstü GIS ve mevcut HES/rezervuar baglamindan türetilmiştir."
+    }
+  ],
+  "layout3D": {
+    "scale": "macro",
+    "preferredBearing": -32,
+    "componentFootprints": []
+  }
+}
