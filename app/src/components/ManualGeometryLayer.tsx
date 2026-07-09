@@ -1,8 +1,9 @@
 import { useEffect } from 'react';
 import { useManualGeometryStore } from '../stores/useManualGeometryStore';
+import { useShallow } from 'zustand/react/shallow';
 
 export default function ManualGeometryLayer({ map, siteId }: { map: maplibregl.Map | null, siteId: string }) {
-  const features = useManualGeometryStore(state => state.getFeaturesForSite(siteId));
+  const features = useManualGeometryStore(useShallow(state => state.getFeaturesForSite(siteId)));
 
   useEffect(() => {
     if (!map) return;

@@ -14,6 +14,7 @@ import {
 } from '../../utils/layout3dFootprints';
 import { useManualGeometryStore } from '../../stores/useManualGeometryStore';
 import { overrideSiteWithManualGeometries } from '../../utils/manualGeometryConverter';
+import { useShallow } from 'zustand/react/shallow';
 
 
 
@@ -1417,7 +1418,7 @@ function Scene({ siteId, activeComponent, onSelectComponent, layers, mode, compo
   const isPresenzano = worldExampleFocusId === 'presenzano';
   const isSeaWater = site ? isSeaLowerReservoir(site) : false;
   const d = componentsDetail;
-  const manualFeatures = useManualGeometryStore(state => state.getFeaturesForSite(site?.id || ''));
+  const manualFeatures = useManualGeometryStore(useShallow(state => state.getFeaturesForSite(site?.id || '')));
   const footprintPlan = useMemo(
     () => {
       if (!site) return { enabled: false, hideLegacySquareReservoir: false, items: [] };
