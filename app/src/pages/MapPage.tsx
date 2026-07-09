@@ -6,6 +6,7 @@ import InfoAccordion from '../components/ui/InfoAccordion';
 import { ElevationProfile } from '../components/ElevationProfile';
 import MapContextMenu from '../components/MapContextMenu';
 import MeasurementUI from '../components/MeasurementUI';
+import ManualGeometryLayer from '../components/ManualGeometryLayer';
 import { useSiteStore } from '../stores/useSiteStore';
 import { useSettingsStore } from '../stores/useSettingsStore';
 import { WORLD_EXAMPLES } from '../data/worldExamples';
@@ -104,6 +105,7 @@ export default function MapPage() {
 
           <MapContextMenu />
           <MeasurementUI />
+          <ManualGeometryLayer map={mapRef.current} siteId={site.id} />
 
           <FabPopover 
             mapStyle={mapStyle} 

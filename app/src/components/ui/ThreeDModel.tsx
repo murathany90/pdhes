@@ -12,6 +12,8 @@ import {
   LAYOUT_3D_MATERIAL_COLORS,
   type Layout3DProjectedFootprint,
 } from '../../utils/layout3dFootprints';
+import { useManualGeometryStore } from '../../stores/useManualGeometryStore';
+import { overrideSiteWithManualGeometries } from '../../utils/manualGeometryConverter';
 
 
 
@@ -1415,9 +1417,14 @@ function Scene({ siteId, activeComponent, onSelectComponent, layers, mode, compo
   const isPresenzano = worldExampleFocusId === 'presenzano';
   const isSeaWater = site ? isSeaLowerReservoir(site) : false;
   const d = componentsDetail;
+  const manualFeatures = useManualGeometryStore(state => state.getFeaturesForSite(site?.id || ''));
   const footprintPlan = useMemo(
-    () => site ? buildLayout3DFootprintPlan(site) : { enabled: false, hideLegacySquareReservoir: false, items: [] },
-    [site],
+    () => {
+      if (!site) return { enabled: false, hideLegacySquareReservoir: false, items: [] };
+      const overriddenSite = overrideSiteWithManualGeometries(site, manualFeatures);
+      return buildLayout3DFootprintPlan(overriddenSite);
+    },
+    [site, manualFeatures],
   );
   const footprintComponentKeys = useMemo(
     () => new Set(footprintPlan.items.map((item) => footprintLayerKey(item.component))),
