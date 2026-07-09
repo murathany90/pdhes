@@ -29,8 +29,7 @@ describe('SettingsPage', () => {
     expect(screen.getByRole('slider', { name: 'Gelir yakalama' })).toBeTruthy();
     expect(screen.getByRole('slider', { name: 'Çevrim / yıl' })).toBeTruthy();
     expect(screen.getByRole('slider', { name: 'Yardımcı hizmet primi' })).toBeTruthy();
-    expect(screen.getByText(/JİCA\/EİE/i)).toBeTruthy();
-    expect(screen.getByText(/Fallback yaklaşık/i)).toBeTruthy();
+
     expect(screen.getByRole('link', { name: /yerel çalışma alanını etkinleştir/i })).toBeTruthy();
   });
 });

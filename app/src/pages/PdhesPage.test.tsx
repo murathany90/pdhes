@@ -48,8 +48,8 @@ describe('PdhesPage editable content safety', () => {
   it('uses the updated single-card contents for the PDHES primer', () => {
     render(<PdhesPage />);
 
-    expect(screen.getByRole('link', { name: 'JİCA/EİE + Deniz Tipi' })).toBeTruthy();
-    expect(screen.getByRole('heading', { name: /JİCA\/EİE ve 16\+4 aday veri kurgusu/i })).toBeTruthy();
+    expect(screen.getByRole('link', { name: 'Türkiye Aday Veri Kurgusu' })).toBeTruthy();
+    expect(screen.getByRole('heading', { name: /Türkiye Aday Veri Kurgusu/i })).toBeTruthy();
     expect(screen.getByRole('heading', { name: 'Sık Sorulan Sorular' })).toBeTruthy();
     expect(document.querySelectorAll('.encyclopedia .content-split .card')).toHaveLength(0);
     expect(document.querySelectorAll('.pdhes-rich-shell > .content > article.info-card').length).toBeGreaterThanOrEqual(13);
@@ -63,7 +63,7 @@ describe('PdhesPage editable content safety', () => {
     vi.spyOn(HTMLElement.prototype, 'scrollHeight', 'get').mockReturnValue(1000);
     vi.spyOn(HTMLElement.prototype, 'clientHeight', 'get').mockReturnValue(500);
 
-    render(<PdhesPage sectionId="sec-jica" />);
+    render(<PdhesPage sectionId="sec-veri" />);
 
     await waitFor(() => {
       expect(scrollTo).toHaveBeenCalledWith({ top: 0, behavior: 'auto' });

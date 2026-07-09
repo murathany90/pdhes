@@ -131,13 +131,13 @@ describe('validateSites', () => {
   it('rejects legacy type fields and malformed coordinates', () => {
     const invalid = [{
       ...sites[0],
-      pdhesType: 'SEA_WATER',
+      sourceGroup: 'SEA_WATER_PROTOTYPE_TOP4',
       coordinates: { ...sites[0].coordinates, mapAnchor: [190, 95] },
     }];
     const result = validateSites(invalid);
 
     expect(result.ok).toBe(false);
-    expect(result.errors.some((error) => error.includes('eski pdhesType'))).toBe(true);
+    expect(result.errors.some((error) => error.includes('eski sourceGroup'))).toBe(true);
     expect(result.errors.some((error) => error.includes('coordinates.mapAnchor'))).toBe(true);
   });
 

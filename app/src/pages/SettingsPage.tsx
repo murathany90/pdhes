@@ -5,7 +5,7 @@ import WarningBanner from '../components/ui/WarningBanner';
 import { isLocalWorkspaceEnabled } from '../utils/workspaceMode';
 import { useCalcEngine } from '../hooks/useCalcEngine';
 import { moneyBn, moneyM, num } from '../utils/format';
-import { COORDINATE_CONFIDENCE_LABELS, PDHES_TYPE_LABELS } from '../utils/siteDerived';
+
 import type { MapStyleKind } from '../utils/mapProviders';
 
 export default function SettingsPage() {

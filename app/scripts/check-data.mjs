@@ -1,7 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 
-const legacyFields = ['pdhesType', 'concept', 'conceptLabel', 'lat', 'lon', 'powerMW', 'capexBn', 'revenueM'];
+const legacyFields = ['sourceGroup', 'concept', 'conceptLabel', 'lat', 'lon', 'powerMW', 'capexBn', 'revenueM'];
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);
@@ -14,13 +14,13 @@ const datasets = [
       assert(Array.isArray(value), 'data.json dizi olmalıdır.');
       assert(value.length === 15, `data.json tam 15 Türkiye adayı içermelidir; bulunan: ${value.length}`);
       const counts = value.reduce((acc, site) => {
-        acc[site.sourceGroup] = (acc[site.sourceGroup] || 0) + 1;
+        acc[site.pdhesType] = (acc[site.pdhesType] || 0) + 1;
         return acc;
       }, {});
-      assert(counts.JICA_EIE_16 === 12, `12 JICA/EİE adayı bekleniyor; bulunan: ${counts.JICA_EIE_16 || 0}`);
-      assert(counts.SEA_WATER_PROTOTYPE_TOP4 === 3, `3 Deniz Tipi aday bekleniyor; bulunan: ${counts.SEA_WATER_PROTOTYPE_TOP4 || 0}`);
+      assert(counts.OPEN_LOOP === 12, `12 Açık Çevrim adayı bekleniyor; bulunan: ${counts.OPEN_LOOP || 0}`);
+      assert(counts.SEA_WATER === 3, `3 Deniz Tipi aday bekleniyor; bulunan: ${counts.SEA_WATER || 0}`);
       assert(!value.some((site) => site.id === 'presenzano'), 'Presenzano Türkiye aday listesinde olmamalıdır.');
-      const seaIds = value.filter((site) => site.sourceGroup === 'SEA_WATER_PROTOTYPE_TOP4').map((site) => site.id).join(',');
+      const seaIds = value.filter((site) => site.pdhesType === 'SEA_WATER').map((site) => site.id).join(',');
       assert(seaIds === 'tasucu,bozyazi_anamur,karaburun', `Deniz Tipi sırası hatalı: ${seaIds}`);
       for (const site of value) {
         assert(site.technicalClassification?.cycleType, `${site.id}: technicalClassification.cycleType eksik.`);

@@ -18,11 +18,11 @@ describe('DataPage', () => {
   it('makes filters and site selection keyboard accessible', () => {
     render(<DataPage site={site} />);
 
-    expect(screen.getByRole('button', { name: 'Tümü' }).getAttribute('aria-pressed')).toBe('true');
+    expect((screen.getByRole('option', { name: 'Tümü' }) as HTMLOptionElement).selected).toBe(true);
     const siteButton = screen.getByRole('button', { name: /test pdhes/i });
     fireEvent.click(siteButton);
     expect(useSiteStore.getState().selectedId).toBe(site.id);
-    expect(screen.getAllByText(/JİCA\/EİE/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Açık Çevrim PDHES/i).length).toBeGreaterThan(0);
     expect(screen.getByText(/Açık döngü/i)).toBeTruthy();
     expect(document.body.textContent).not.toMatch(/undefined|NaN|null/i);
   });
@@ -43,7 +43,7 @@ describe('DataPage', () => {
     expect(screen.queryByLabelText('İl')).toBeNull();
     expect(screen.queryByLabelText('Koordinat güveni')).toBeNull();
 
-    expect(screen.getByRole('button', { name: 'JİCA/EİE' })).toBeTruthy();
-    expect(screen.getByRole('button', { name: 'Deniz Tipi' })).toBeTruthy();
+    expect(screen.getByRole('option', { name: 'Açık Çevrim PDHES' })).toBeTruthy();
+    expect(screen.getByRole('option', { name: 'Deniz Suyu PDHES' })).toBeTruthy();
   });
 });

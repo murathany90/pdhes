@@ -64,7 +64,7 @@ const LAYOUT_3D_MATERIALS: readonly Layout3DMaterial[] = [
   'switchyard_new',
 ];
 
-const LEGACY_FIELDS = ['pdhesType', 'concept', 'conceptLabel', 'lat', 'lon'];
+const LEGACY_FIELDS = ['sourceGroup', 'concept', 'conceptLabel', 'lat', 'lon'];
 
 export interface SiteValidationResult {
   ok: boolean;
