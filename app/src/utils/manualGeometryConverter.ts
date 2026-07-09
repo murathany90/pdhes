@@ -14,7 +14,7 @@ export function overrideSiteWithManualGeometries(site: Site, features: ManualGeo
       : (feature.geometry as any).coordinates;
 
     return {
-      id: feature.id as string || crypto.randomUUID(),
+      id: feature.id as string || Date.now().toString(36) + Math.random().toString(36).substring(2),
       component: feature.properties.role, // role acts as the component key in ThreeDModel
       kind: isPolygon ? 'polygon' : 'polyline',
       material: feature.properties.material as any,

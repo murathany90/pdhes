@@ -167,7 +167,7 @@ export default function MeasurementUI() {
 
     const feature: ManualGeometryFeature = {
       type: 'Feature',
-      id: crypto.randomUUID(),
+      id: Date.now().toString(36) + Math.random().toString(36).substring(2),
       geometry,
       properties: {
         siteId: site.id,
