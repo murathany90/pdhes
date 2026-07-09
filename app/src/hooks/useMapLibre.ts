@@ -66,6 +66,7 @@ function filterGrid(gridAssets: FeatureCollection | null, geometryType: string, 
 }
 
 function removeIfExists(map: maplibregl.Map, layers: string[], sources: string[]) {
+  if (!map || typeof map.getStyle !== 'function' || !map.getStyle()) return;
   layers.forEach((id) => {
     if (map.getLayer(id)) map.removeLayer(id);
   });
@@ -108,6 +109,7 @@ export function useMapLibre({
     const requestId = ++drawRequestRef.current;
     const run = () => {
       if (requestId !== drawRequestRef.current) return;
+      if (!map.getStyle()) return;
       if (!map.isStyleLoaded()) {
         map.once('styledata', queueDrawLayers);
         return;
@@ -511,7 +513,7 @@ export function useMapLibre({
     return () => {
       markersRef.current.forEach(m => m.remove());
       markersRef.current = [];
-      if (map.getLayer('candidate-circles')) {
+      if (map && typeof map.getStyle === 'function' && map.getStyle() && map.getLayer('candidate-circles')) {
         map.off('click', 'candidate-circles', handleCandidateClick);
       }
       useMapToolsStore.getState().setMap(null);

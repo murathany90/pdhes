@@ -100,6 +100,7 @@ export default function MeasurementUI() {
     
     return () => {
       map.off('styledata', onStyleLoad);
+      if (!map || typeof map.getStyle !== 'function' || !map.getStyle()) return;
       if (map.getLayer('measure-lines')) map.removeLayer('measure-lines');
       if (map.getLayer('measure-circles')) map.removeLayer('measure-circles');
       if (map.getSource(sourceId)) map.removeSource(sourceId);
