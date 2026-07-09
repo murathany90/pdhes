@@ -48,7 +48,7 @@ Uygulamanın navigasyonu ekranın sol (veya mobil cihazlarda alt) kısmındaki `
 
 ### Sekme 2: PDHES Adayları (DataPage - Ana Veri Tablosu)
 - **Bileşen Yolu:** `src/pages/DataPage.tsx`
-- **İşlevi:** Sistemdeki tüm Türkiye adaylarının (`data.json` içindeki 20 santralin) teknik ve finansal olarak listelendiği merkez interaktif veri tablosudur.
+- **İşlevi:** Sistemdeki tüm Türkiye adaylarının (`data.json` içindeki 15 santralin) teknik ve finansal olarak listelendiği merkez interaktif veri tablosudur.
 - **Filtreleme Menüleri:** 
   - **Konsept Tipi (Concept Type):** Deniz Suyu kullanan adaylar ile Tatlı Su (Nehir/Göl) kullanan adayları ayrıştırır.
   - **Altyapı Tipi (Infrastructure Type):** Sıfırdan yapılan yatırımlar (Tamamen Yeni / Pure New Build) ile Mevcut baraj gölünü alt rezervuar olarak kullanan yatırımları filtreler (Existing Reservoir Integrated). Mevcut barajlı sistemler genelde daha düşük maliyetlidir.
@@ -164,7 +164,7 @@ Kullanıcının projeleri birbiriyle rekabete sokması ve kıyaslaması için uy
 
 ## 5. Türkiye PDHES Adayları Listesi ve Tüm Veriler
 
-Aşağıda veritabanında yer alan 20 adayın son derece detaylı bir dökümü bulunmaktadır. 
+Aşağıda veritabanında yer alan 15 adayın son derece detaylı bir dökümü bulunmaktadır.
 
 
 ### 1. Gökçekaya PDHES (`jica-gokcekaya-pspp`)
@@ -172,141 +172,105 @@ Aşağıda veritabanında yer alan 20 adayın son derece detaylı bir dökümü 
 - **Kaynak Grubu:** JICA_EIE_16
 - **Kapasite ve Enerji Üretimi:** Kurulu gücü **1400 MW** olan bu santral, günlük 7 saatlik tam yük üzerinden yaklaşık **9800 MWh** kapasiteye sahiptir.
 - **Efektif Düşü ve Su Yolu Uzunluğu:** Su kütlesi yaklaşık **379.5 metre** aşağıya düşerek türbinleri çevirir. Bu esnada kat ettiği toplam cebri boru ve tünel hattı uzunluğu **4051 m**'dir.
-- **Koordinat Verileri:** Haritada harita işaretçisi (Lon: 31.02100, Lat: 40.03500) noktasına düşerken, asıl santral binasının yeraltı koordinatları (Lat: 40.02560, Lon: 31.00560) olarak belirlenmiştir.
+- **Koordinat Verileri:** Haritada harita işaretçisi (Lon: 31.00650, Lat: 40.04040) noktasına düşmektedir.
 
-### 2. İznik I PDHES (`jica-iznik-i-pspp`)
-- **İl:** Bursa
-- **Kaynak Grubu:** JICA_EIE_16
-- **Kapasite ve Enerji Üretimi:** Kurulu gücü **1500 MW** olan bu santral, günlük 7 saatlik tam yük üzerinden yaklaşık **10500 MWh** kapasiteye sahiptir.
-- **Efektif Düşü ve Su Yolu Uzunluğu:** Su kütlesi yaklaşık **255 metre** aşağıya düşerek türbinleri çevirir. Bu esnada kat ettiği toplam cebri boru ve tünel hattı uzunluğu **-**'dir.
-- **Koordinat Verileri:** Haritada harita işaretçisi (Lon: 29.50000, Lat: 40.46480) noktasına düşerken, asıl santral binasının yeraltı koordinatları (Lat: 40.44000, Lon: 29.51000) olarak belirlenmiştir.
-
-### 3. Sarıyar PDHES (`jica-sariyar-pspp`)
+### 2. Sarıyar PDHES (`jica-sariyar-pspp`)
 - **İl:** Ankara
 - **Kaynak Grubu:** JICA_EIE_16
 - **Kapasite ve Enerji Üretimi:** Kurulu gücü **1000 MW** olan bu santral, günlük 7 saatlik tam yük üzerinden yaklaşık **7000 MWh** kapasiteye sahiptir.
 - **Efektif Düşü ve Su Yolu Uzunluğu:** Su kütlesi yaklaşık **434 metre** aşağıya düşerek türbinleri çevirir. Bu esnada kat ettiği toplam cebri boru ve tünel hattı uzunluğu **1797 m**'dir.
-- **Koordinat Verileri:** Haritada harita işaretçisi (Lon: 31.39085, Lat: 40.05495) noktasına düşerken, asıl santral binasının yeraltı koordinatları (Lat: 40.03700, Lon: 31.40950) olarak belirlenmiştir.
+- **Koordinat Verileri:** Haritada harita işaretçisi (Lon: 31.39085, Lat: 40.05495) noktasına düşmektedir.
+
+### 3. Altınkaya PDHES (`altinkaya`)
+- **İl:** Samsun
+- **Kaynak Grubu:** JICA_EIE_16
+- **Kapasite ve Enerji Üretimi:** Kurulu gücü **1800 MW** olan bu santral, günlük 7 saatlik tam yük üzerinden yaklaşık **12600 MWh** kapasiteye sahiptir.
+- **Efektif Düşü ve Su Yolu Uzunluğu:** Su kütlesi yaklaşık **611 metre** aşağıya düşerek türbinleri çevirir. Bu esnada kat ettiği toplam cebri boru ve tünel hattı uzunluğu **4555 m**'dir.
+- **Koordinat Verileri:** Haritada harita işaretçisi (Lon: 35.71380, Lat: 41.35620) noktasına düşmektedir.
 
 ### 4. Bayramhacılı PDHES (`jica-bayramhacili-pspp`)
 - **İl:** Kayseri
 - **Kaynak Grubu:** JICA_EIE_16
 - **Kapasite ve Enerji Üretimi:** Kurulu gücü **1000 MW** olan bu santral, günlük 7 saatlik tam yük üzerinden yaklaşık **7000 MWh** kapasiteye sahiptir.
 - **Efektif Düşü ve Su Yolu Uzunluğu:** Su kütlesi yaklaşık **161 metre** aşağıya düşerek türbinleri çevirir. Bu esnada kat ettiği toplam cebri boru ve tünel hattı uzunluğu **465 m**'dir.
-- **Koordinat Verileri:** Haritada harita işaretçisi (Lon: 34.83900, Lat: 38.77000) noktasına düşerken, asıl santral binasının yeraltı koordinatları (Lat: 38.75200, Lon: 34.85000) olarak belirlenmiştir.
+- **Koordinat Verileri:** Haritada harita işaretçisi (Lon: 34.83900, Lat: 38.77000) noktasına düşmektedir.
 
 ### 5. Hasan Uğurlu PDHES (`jica-hasan-ugurlu-pspp`)
 - **İl:** Samsun
 - **Kaynak Grubu:** JICA_EIE_16
 - **Kapasite ve Enerji Üretimi:** Kurulu gücü **1000 MW** olan bu santral, günlük 7 saatlik tam yük üzerinden yaklaşık **7000 MWh** kapasiteye sahiptir.
 - **Efektif Düşü ve Su Yolu Uzunluğu:** Su kütlesi yaklaşık **570 metre** aşağıya düşerek türbinleri çevirir. Bu esnada kat ettiği toplam cebri boru ve tünel hattı uzunluğu **1600 m**'dir.
-- **Koordinat Verileri:** Haritada harita işaretçisi (Lon: 36.62000, Lat: 41.00000) noktasına düşerken, asıl santral binasının yeraltı koordinatları (Lat: 40.99500, Lon: 36.62000) olarak belirlenmiştir.
+- **Koordinat Verileri:** Haritada harita işaretçisi (Lon: 36.62000, Lat: 41.00000) noktasına düşmektedir.
 
 ### 6. Adıgüzel PDHES (`jica-adiguzel-pspp`)
 - **İl:** Denizli
 - **Kaynak Grubu:** JICA_EIE_16
 - **Kapasite ve Enerji Üretimi:** Kurulu gücü **1000 MW** olan bu santral, günlük 7 saatlik tam yük üzerinden yaklaşık **7000 MWh** kapasiteye sahiptir.
 - **Efektif Düşü ve Su Yolu Uzunluğu:** Su kütlesi yaklaşık **242 metre** aşağıya düşerek türbinleri çevirir. Bu esnada kat ettiği toplam cebri boru ve tünel hattı uzunluğu **966 m**'dir.
-- **Koordinat Verileri:** Haritada harita işaretçisi (Lon: 29.19020, Lat: 38.17200) noktasına düşerken, asıl santral binasının yeraltı koordinatları (Lat: 38.16300, Lon: 29.20500) olarak belirlenmiştir.
+- **Koordinat Verileri:** Haritada harita işaretçisi (Lon: 29.19020, Lat: 38.17200) noktasına düşmektedir.
 
-### 7. Burdur PDHES (`jica-burdur-pspp`)
-- **İl:** Burdur
-- **Kaynak Grubu:** JICA_EIE_16
-- **Kapasite ve Enerji Üretimi:** Kurulu gücü **1000 MW** olan bu santral, günlük 7 saatlik tam yük üzerinden yaklaşık **7000 MWh** kapasiteye sahiptir.
-- **Efektif Düşü ve Su Yolu Uzunluğu:** Su kütlesi yaklaşık **370 metre** aşağıya düşerek türbinleri çevirir. Bu esnada kat ettiği toplam cebri boru ve tünel hattı uzunluğu **-**'dir.
-- **Koordinat Verileri:** Haritada harita işaretçisi (Lon: 30.21250, Lat: 37.74750) noktasına düşerken, asıl santral binasının yeraltı koordinatları (Lat: 37.73500, Lon: 30.24000) olarak belirlenmiştir.
-
-### 8. Eğirdir PDHES (`jica-egirdir-pspp`)
-- **İl:** Isparta
-- **Kaynak Grubu:** JICA_EIE_16
-- **Kapasite ve Enerji Üretimi:** Kurulu gücü **1000 MW** olan bu santral, günlük 7 saatlik tam yük üzerinden yaklaşık **7000 MWh** kapasiteye sahiptir.
-- **Efektif Düşü ve Su Yolu Uzunluğu:** Su kütlesi yaklaşık **672 metre** aşağıya düşerek türbinleri çevirir. Bu esnada kat ettiği toplam cebri boru ve tünel hattı uzunluğu **-**'dir.
-- **Koordinat Verileri:** Haritada harita işaretçisi (Lon: 30.82750, Lat: 37.90000) noktasına düşerken, asıl santral binasının yeraltı koordinatları (Lat: 37.88300, Lon: 30.85000) olarak belirlenmiştir.
-
-### 9. Kargı PDHES (`jica-kargi-pspp`)
+### 7. Kargı PDHES (`jica-kargi-pspp`)
 - **İl:** Ankara
 - **Kaynak Grubu:** JICA_EIE_16
 - **Kapasite ve Enerji Üretimi:** Kurulu gücü **1000 MW** olan bu santral, günlük 7 saatlik tam yük üzerinden yaklaşık **7000 MWh** kapasiteye sahiptir.
 - **Efektif Düşü ve Su Yolu Uzunluğu:** Su kütlesi yaklaşık **496 metre** aşağıya düşerek türbinleri çevirir. Bu esnada kat ettiği toplam cebri boru ve tünel hattı uzunluğu **2762 m**'dir.
-- **Koordinat Verileri:** Haritada harita işaretçisi (Lon: 31.78500, Lat: 40.09350) noktasına düşerken, asıl santral binasının yeraltı koordinatları (Lat: 40.08000, Lon: 31.79800) olarak belirlenmiştir.
+- **Koordinat Verileri:** Haritada harita işaretçisi (Lon: 31.78500, Lat: 40.09350) noktasına düşmektedir.
 
-### 10. Karacaören II PDHES (`jica-karacaoren-ii-pspp`)
+### 8. Karacaören II PDHES (`jica-karacaoren-ii-pspp`)
 - **İl:** Burdur
 - **Kaynak Grubu:** JICA_EIE_16
 - **Kapasite ve Enerji Üretimi:** Kurulu gücü **1000 MW** olan bu santral, günlük 7 saatlik tam yük üzerinden yaklaşık **7000 MWh** kapasiteye sahiptir.
 - **Efektif Düşü ve Su Yolu Uzunluğu:** Su kütlesi yaklaşık **615 metre** aşağıya düşerek türbinleri çevirir. Bu esnada kat ettiği toplam cebri boru ve tünel hattı uzunluğu **-**'dir.
-- **Koordinat Verileri:** Haritada harita işaretçisi (Lon: 30.78185, Lat: 37.32830) noktasına düşerken, asıl santral binasının yeraltı koordinatları (Lat: 37.31000, Lon: 30.80200) olarak belirlenmiştir.
+- **Koordinat Verileri:** Haritada harita işaretçisi (Lon: 30.78185, Lat: 37.32830) noktasına düşmektedir.
 
-### 11. Yalova PDHES (`jica-yalova-pspp`)
-- **İl:** Yalova
-- **Kaynak Grubu:** JICA_EIE_16
-- **Kapasite ve Enerji Üretimi:** Kurulu gücü **500 MW** olan bu santral, günlük 7 saatlik tam yük üzerinden yaklaşık **3500 MWh** kapasiteye sahiptir.
-- **Efektif Düşü ve Su Yolu Uzunluğu:** Su kütlesi yaklaşık **400 metre** aşağıya düşerek türbinleri çevirir. Bu esnada kat ettiği toplam cebri boru ve tünel hattı uzunluğu **1100 m**'dir.
-- **Koordinat Verileri:** Haritada harita işaretçisi (Lon: 29.19250, Lat: 40.61250) noktasına düşerken, asıl santral binasının yeraltı koordinatları (Lat: 40.60800, Lon: 29.21000) olarak belirlenmiştir.
-
-### 12. Yamula PDHES (`jica-yamula-pspp`)
+### 9. Yamula PDHES (`jica-yamula-pspp`)
 - **İl:** Kayseri
 - **Kaynak Grubu:** JICA_EIE_16
 - **Kapasite ve Enerji Üretimi:** Kurulu gücü **500 MW** olan bu santral, günlük 7 saatlik tam yük üzerinden yaklaşık **3500 MWh** kapasiteye sahiptir.
 - **Efektif Düşü ve Su Yolu Uzunluğu:** Su kütlesi yaklaşık **260 metre** aşağıya düşerek türbinleri çevirir. Bu esnada kat ettiği toplam cebri boru ve tünel hattı uzunluğu **1920 m**'dir.
-- **Koordinat Verileri:** Haritada harita işaretçisi (Lon: 35.24540, Lat: 38.91360) noktasına düşerken, asıl santral binasının yeraltı koordinatları (Lat: 38.90500, Lon: 35.26500) olarak belirlenmiştir.
+- **Koordinat Verileri:** Haritada harita işaretçisi (Lon: 35.24540, Lat: 38.91360) noktasına düşmektedir.
 
-### 13. Oymapınar PDHES (`jica-oymapinar-pspp`)
+### 10. Oymapınar PDHES (`jica-oymapinar-pspp`)
 - **İl:** Antalya
 - **Kaynak Grubu:** JICA_EIE_16
 - **Kapasite ve Enerji Üretimi:** Kurulu gücü **500 MW** olan bu santral, günlük 7 saatlik tam yük üzerinden yaklaşık **3500 MWh** kapasiteye sahiptir.
 - **Efektif Düşü ve Su Yolu Uzunluğu:** Su kütlesi yaklaşık **372 metre** aşağıya düşerek türbinleri çevirir. Bu esnada kat ettiği toplam cebri boru ve tünel hattı uzunluğu **919 m**'dir.
-- **Koordinat Verileri:** Haritada harita işaretçisi (Lon: 31.52500, Lat: 36.88900) noktasına düşerken, asıl santral binasının yeraltı koordinatları (Lat: 36.91000, Lon: 31.50300) olarak belirlenmiştir.
+- **Koordinat Verileri:** Haritada harita işaretçisi (Lon: 31.52500, Lat: 36.88900) noktasına düşmektedir.
 
-### 14. Aslantaş PDHES (`jica-aslantas-pspp`)
+### 11. Aslantaş PDHES (`jica-aslantas-pspp`)
 - **İl:** Osmaniye
 - **Kaynak Grubu:** JICA_EIE_16
 - **Kapasite ve Enerji Üretimi:** Kurulu gücü **500 MW** olan bu santral, günlük 7 saatlik tam yük üzerinden yaklaşık **3500 MWh** kapasiteye sahiptir.
 - **Efektif Düşü ve Su Yolu Uzunluğu:** Su kütlesi yaklaşık **154 metre** aşağıya düşerek türbinleri çevirir. Bu esnada kat ettiği toplam cebri boru ve tünel hattı uzunluğu **1100 m**'dir.
-- **Koordinat Verileri:** Haritada harita işaretçisi (Lon: 36.24540, Lat: 37.28740) noktasına düşerken, asıl santral binasının yeraltı koordinatları (Lat: 37.27600, Lon: 36.26500) olarak belirlenmiştir.
+- **Koordinat Verileri:** Haritada harita işaretçisi (Lon: 36.24540, Lat: 37.28740) noktasına düşmektedir.
 
-### 15. İznik II PDHES (`jica-iznik-ii-pspp`)
-- **İl:** Bursa
-- **Kaynak Grubu:** JICA_EIE_16
-- **Kapasite ve Enerji Üretimi:** Kurulu gücü **500 MW** olan bu santral, günlük 7 saatlik tam yük üzerinden yaklaşık **3500 MWh** kapasiteye sahiptir.
-- **Efektif Düşü ve Su Yolu Uzunluğu:** Su kütlesi yaklaşık **263 metre** aşağıya düşerek türbinleri çevirir. Bu esnada kat ettiği toplam cebri boru ve tünel hattı uzunluğu **-**'dir.
-- **Koordinat Verileri:** Haritada harita işaretçisi (Lon: 29.69000, Lat: 40.39000) noktasına düşerken, asıl santral binasının yeraltı koordinatları (Lat: 40.41500, Lon: 29.66500) olarak belirlenmiştir.
-
-### 16. Demirköprü PDHES (`jica-demirkopru-pspp`)
+### 12. Demirköprü PDHES (`jica-demirkopru-pspp`)
 - **İl:** Manisa
 - **Kaynak Grubu:** JICA_EIE_16
 - **Kapasite ve Enerji Üretimi:** Kurulu gücü **300 MW** olan bu santral, günlük 7 saatlik tam yük üzerinden yaklaşık **2100 MWh** kapasiteye sahiptir.
 - **Efektif Düşü ve Su Yolu Uzunluğu:** Su kütlesi yaklaşık **213 metre** aşağıya düşerek türbinleri çevirir. Bu esnada kat ettiği toplam cebri boru ve tünel hattı uzunluğu **1462 m**'dir.
-- **Koordinat Verileri:** Haritada harita işaretçisi (Lon: 28.29075, Lat: 38.62840) noktasına düşerken, asıl santral binasının yeraltı koordinatları (Lat: 38.62000, Lon: 28.30500) olarak belirlenmiştir.
+- **Koordinat Verileri:** Haritada harita işaretçisi (Lon: 28.29075, Lat: 38.62840) noktasına düşmektedir.
 
-### 17. Taşucu-Gülnar Deniz Suyu PSPP (`tasucu`)
+### 13. Taşucu-Gülnar Deniz Suyu PSPP (`tasucu`)
 - **İl:** Mersin
 - **Kaynak Grubu:** SEA_WATER_PROTOTYPE_TOP4
 - **Kapasite ve Enerji Üretimi:** Kurulu gücü **600 MW** olan bu santral, günlük 7 saatlik tam yük üzerinden yaklaşık **4200 MWh** kapasiteye sahiptir.
-- **Efektif Düşü ve Su Yolu Uzunluğu:** Su kütlesi yaklaşık **780 metre** aşağıya düşerek türbinleri çevirir. Bu esnada kat ettiği toplam cebri boru ve tünel hattı uzunluğu **9.5 km**'dir.
-- **Koordinat Verileri:** Haritada harita işaretçisi (Lon: 33.95000, Lat: 36.37000) noktasına düşerken, asıl santral binasının yeraltı koordinatları (Lat: 36.37100, Lon: 33.95300) olarak belirlenmiştir.
+- **Efektif Düşü ve Su Yolu Uzunluğu:** Su kütlesi yaklaşık **780 metre** aşağıya düşerek türbinleri çevirir. Bu esnada kat ettiği toplam cebri boru ve tünel hattı uzunluğu **9500 m**'dir.
+- **Koordinat Verileri:** Haritada harita işaretçisi (Lon: 33.95000, Lat: 36.37000) noktasına düşmektedir.
 
-### 18. Bozyazı-Anamur Deniz Suyu PSPP (`bozyazi_anamur`)
+### 14. Bozyazı-Anamur Deniz Suyu PSPP (`bozyazi_anamur`)
 - **İl:** Mersin
 - **Kaynak Grubu:** SEA_WATER_PROTOTYPE_TOP4
 - **Kapasite ve Enerji Üretimi:** Kurulu gücü **700 MW** olan bu santral, günlük 7 saatlik tam yük üzerinden yaklaşık **4900 MWh** kapasiteye sahiptir.
-- **Efektif Düşü ve Su Yolu Uzunluğu:** Su kütlesi yaklaşık **900 metre** aşağıya düşerek türbinleri çevirir. Bu esnada kat ettiği toplam cebri boru ve tünel hattı uzunluğu **11 km**'dir.
-- **Koordinat Verileri:** Haritada harita işaretçisi (Lon: 32.99000, Lat: 36.12000) noktasına düşerken, asıl santral binasının yeraltı koordinatları (Lat: 36.12200, Lon: 32.96500) olarak belirlenmiştir.
+- **Efektif Düşü ve Su Yolu Uzunluğu:** Su kütlesi yaklaşık **900 metre** aşağıya düşerek türbinleri çevirir. Bu esnada kat ettiği toplam cebri boru ve tünel hattı uzunluğu **11000 m**'dir.
+- **Koordinat Verileri:** Haritada harita işaretçisi (Lon: 32.99000, Lat: 36.12000) noktasına düşmektedir.
 
-### 19. Karaburun Sırtı Deniz Suyu PSPP (`karaburun`)
+### 15. Karaburun Sırtı Deniz Suyu PSPP (`karaburun`)
 - **İl:** Izmir
 - **Kaynak Grubu:** SEA_WATER_PROTOTYPE_TOP4
 - **Kapasite ve Enerji Üretimi:** Kurulu gücü **500 MW** olan bu santral, günlük 7 saatlik tam yük üzerinden yaklaşık **3500 MWh** kapasiteye sahiptir.
-- **Efektif Düşü ve Su Yolu Uzunluğu:** Su kütlesi yaklaşık **620 metre** aşağıya düşerek türbinleri çevirir. Bu esnada kat ettiği toplam cebri boru ve tünel hattı uzunluğu **6.5 km**'dir.
-- **Koordinat Verileri:** Haritada harita işaretçisi (Lon: 26.57000, Lat: 38.63000) noktasına düşerken, asıl santral binasının yeraltı koordinatları (Lat: 38.63000, Lon: 26.53500) olarak belirlenmiştir.
-
-### 20. Finike-Kumluca Deniz Suyu PDHES (`finike_kumluca`)
-- **İl:** Antalya
-- **Kaynak Grubu:** SEA_WATER_PROTOTYPE_TOP4
-- **Kapasite ve Enerji Üretimi:** Kurulu gücü **520 MW** olan bu santral, günlük 7 saatlik tam yük üzerinden yaklaşık **3640 MWh** kapasiteye sahiptir.
-- **Efektif Düşü ve Su Yolu Uzunluğu:** Su kütlesi yaklaşık **720 metre** aşağıya düşerek türbinleri çevirir. Bu esnada kat ettiği toplam cebri boru ve tünel hattı uzunluğu **8.6 km**'dir.
-- **Koordinat Verileri:** Haritada harita işaretçisi (Lon: 30.18000, Lat: 36.36000) noktasına düşerken, asıl santral binasının yeraltı koordinatları (Lat: 36.36500, Lon: 30.18500) olarak belirlenmiştir.
-
+- **Efektif Düşü ve Su Yolu Uzunluğu:** Su kütlesi yaklaşık **620 metre** aşağıya düşerek türbinleri çevirir. Bu esnada kat ettiği toplam cebri boru ve tünel hattı uzunluğu **6500 m**'dir.
+- **Koordinat Verileri:** Haritada harita işaretçisi (Lon: 26.57000, Lat: 38.63000) noktasına düşmektedir.
 
 ---
 
