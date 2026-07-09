@@ -1274,6 +1274,7 @@ function footprintLabel(item: Layout3DProjectedFootprint): string {
     upperReservoirEmbankment: 'Üst Rezervuar Seti',
     upperDamCrestRoad: 'Kret Yolu',
     upperIntake: 'Su Alma Yapısı (Intake)',
+    intake: 'Su Alma Yapısı (Intake)',
     headraceAlignment: 'Basınç Tüneli Ekseni',
     surgeTankFootprint: 'Denge Bacası',
     serviceDrainPortal: 'Servis Portalı',
@@ -1281,7 +1282,8 @@ function footprintLabel(item: Layout3DProjectedFootprint): string {
     tailraceOutfall: 'Kuyruksuyu',
     switchyardFootprint: 'Şalt Sahası',
     existingSwitchyardFootprint: 'Mevcut Şalt Sahası',
-    newSwitchyardFootprint: 'Yeni Şalt Sahası'
+    newSwitchyardFootprint: 'Yeni Şalt Sahası',
+    lowerReservoirWater: 'Alt Rezervuar'
   };
   return labels[item.id] ?? COMPONENTS.find(c => c.key === item.component)?.label ?? item.component;
 }
@@ -1558,7 +1560,7 @@ function Scene({ siteId, activeComponent, onSelectComponent, layers, mode, compo
       )}
       
       {/* Lower Reservoir Basin / Sea */}
-      {layers.lower_reservoir && (
+      {layers.lower_reservoir && !(footprintPlan.enabled) && (
         isSeaWater ? (
           <SeaWaterReservoir 
             position={lowerPos}

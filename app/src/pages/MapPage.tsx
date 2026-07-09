@@ -43,8 +43,19 @@ export default function MapPage() {
   const { mapStyle, setMapStyle, heightScale, setHeightScale, showPowerGrid, setShowPowerGrid } = useSettingsStore();
   const [rightCollapsed, setRightCollapsed] = useState(false);
   const [layers, setLayers] = useState<MapLayerVisibility>(DEFAULT_LAYERS);
+  const [imageModalSiteId, setImageModalSiteId] = useState<string | null>(null);
+  const [imageLoadError, setImageLoadError] = useState(false);
   const site = sites.find((item) => item.id === selectedId) || sites[0];
   const worldExample = worldExampleFocusId ? WORLD_EXAMPLES.find((e) => e.id === worldExampleFocusId) : null;
+
+  useEffect(() => {
+    const handleShowImage = (e: any) => {
+      setImageModalSiteId(e.detail);
+      setImageLoadError(false);
+    };
+    window.addEventListener('show-3d-image', handleShowImage);
+    return () => window.removeEventListener('show-3d-image', handleShowImage);
+  }, []);
 
   useEffect(() => {
     fetchGridAssets();
@@ -99,6 +110,27 @@ export default function MapPage() {
     <section className="panel active no-pad">
       <div className={layoutCls}>
         
+        {imageModalSiteId && (
+          <div style={{ position: 'absolute', inset: 0, zIndex: 9999, background: 'rgba(0,0,0,0.85)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+            <div style={{ background: '#1e293b', padding: 20, borderRadius: 8, maxWidth: '90vw', maxHeight: '90vh', overflow: 'auto', position: 'relative' }}>
+              <button onClick={() => setImageModalSiteId(null)} style={{ position: 'absolute', top: 10, right: 10, background: '#ef4444', color: 'white', border: 'none', borderRadius: '50%', width: 30, height: 30, cursor: 'pointer', fontWeight: 'bold' }}>✕</button>
+              <h2 style={{ marginTop: 0, marginBottom: 16 }}>3D Tesis Görseli</h2>
+              {imageLoadError ? (
+                <div style={{ padding: 40, textAlign: 'center', background: '#334155', borderRadius: 6 }}>
+                  <p style={{ margin: 0, color: '#f87171', fontWeight: 'bold', fontSize: 18 }}>Şimdilik görsel yok</p>
+                  <p style={{ marginTop: 8, color: '#cbd5e1' }}>Bu saha için henüz statik 3D görsel eklenmemiştir. (docs/pdhes_taslaklar/)</p>
+                </div>
+              ) : (
+                <img 
+                  src={imageModalSiteId === 'jica-gokcekaya-pspp' ? 'pdhes_taslaklar/01-Gokcekaya_PDHES_taslak1.png' : `pdhes_taslaklar/${imageModalSiteId}.png`} 
+                  alt="3D Tesis Görseli" 
+                  style={{ maxWidth: '100%', maxHeight: 'calc(90vh - 100px)', display: 'block', borderRadius: 4 }}
+                  onError={() => setImageLoadError(true)} 
+                />
+              )}
+            </div>
+          </div>
+        )}
 
         <div className="map-stage">
           <div ref={mapContainer} style={{ position: 'absolute', inset: 0 }} />
