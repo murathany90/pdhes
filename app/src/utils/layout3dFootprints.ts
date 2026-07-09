@@ -35,6 +35,8 @@ export const LAYOUT_3D_MATERIAL_COLORS: Record<Layout3DMaterial, string> = {
   industrial: '#9b6cff',
   tailrace_channel: '#0891b2',
   switchyard: '#48f49a',
+  switchyard_existing: '#8bc34a',
+  switchyard_new: '#48f49a',
 };
 
 const METERS_PER_DEGREE_LAT = 111_320;
