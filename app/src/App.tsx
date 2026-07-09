@@ -41,16 +41,7 @@ const SettingsPage = lazy(loadSettingsPage);
 const SiteEditorPage = lazy(loadSiteEditorPage);
 const ThreeDEditorPage = lazy(loadThreeDEditorPage);
 
-const ROUTE_PRELOADERS: Record<string, () => Promise<unknown>> = {
-  '/map': loadMapPage,
-  '/3d': loadThreeDPage,
-  '/workspace': loadWorkspacePage,
-  '/settings': loadSettingsPage,
-};
-
-function preloadRoute(path: string) {
-  void ROUTE_PRELOADERS[path]?.();
-}
+// Removed ROUTE_PRELOADERS
 
 const TABS = [
   { id: 'pdhes', path: '/pdhes', label: 'PDHES Nedir', Icon: BookOpen },
@@ -108,7 +99,7 @@ export default function App() {
   const controls = (
     <>
       <SiteSelector sites={sites} selectedId={selectedId} onChange={selectSite} />
-      <NavLink className="btn primary" to="/map" onPointerEnter={() => preloadRoute('/map')} onFocus={() => preloadRoute('/map')}>
+      <NavLink className="btn primary" to="/map">
         <MapPinned size={16} aria-hidden="true" />
         Haritada incele
       </NavLink>
@@ -127,8 +118,6 @@ export default function App() {
         to="/settings"
         aria-label="Ayarlar"
         title="Ayarlar"
-        onPointerEnter={() => preloadRoute('/settings')}
-        onFocus={() => preloadRoute('/settings')}
       >
         <Settings size={16} aria-hidden="true" />
         <span className="utility-label">Ayarlar</span>
@@ -143,8 +132,6 @@ export default function App() {
           key={id}
           to={path}
           className={({ isActive }) => `tab-btn ${isActive ? 'active' : ''}`}
-          onPointerEnter={() => preloadRoute(path)}
-          onFocus={() => preloadRoute(path)}
         >
           <Icon size={16} aria-hidden="true" />
           {label}

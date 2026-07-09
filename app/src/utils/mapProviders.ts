@@ -1,10 +1,20 @@
 import type { StyleSpecification } from 'maplibre-gl';
 
-export type MapStyleKind = 'osm' | 'dark' | 'satellite' | 'light' | 'topo' | 'gray';
+export type MapStyleKind = 
+  | 'osm' 
+  | 'dark' 
+  | 'satellite' 
+  | 'light' 
+  | 'topo' 
+  | 'gray'
+  | 'maptiler-backdrop'
+  | 'maptiler-hybrid'
+  | 'maptiler-topo'
+  | 'maptiler-basic';
 
 export const MAP_PROVIDERS: Record<MapStyleKind, {
   name: string;
-  tileUrl: string;
+  tileUrl: string | string[];
   attribution: string;
 }> = {
   osm: {
@@ -17,10 +27,24 @@ export const MAP_PROVIDERS: Record<MapStyleKind, {
     tileUrl: 'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
     attribution: 'Tiles © Esri — Source: Esri, Maxar, Earthstar Geographics and contributors',
   },
+  'maptiler-hybrid': {
+    name: 'Uydu - MapTiler Hybrid',
+    tileUrl: 'https://api.maptiler.com/maps/hybrid/256/{z}/{x}/{y}.jpg?key=HqygBOR91R4AKyJW4UF0',
+    attribution: '© <a href="https://www.maptiler.com/copyright/" target="_blank">MapTiler</a> © <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap contributors</a>',
+  },
   topo: {
     name: 'OpenTopoMap',
-    tileUrl: 'https://tile.opentopomap.org/{z}/{x}/{y}.png',
+    tileUrl: [
+      'https://a.tile.opentopomap.org/{z}/{x}/{y}.png',
+      'https://b.tile.opentopomap.org/{z}/{x}/{y}.png',
+      'https://c.tile.opentopomap.org/{z}/{x}/{y}.png'
+    ],
     attribution: 'Map data: © OpenStreetMap contributors, SRTM | Map style: © OpenTopoMap (CC-BY-SA)',
+  },
+  'maptiler-topo': {
+    name: 'MapTiler Topo',
+    tileUrl: 'https://api.maptiler.com/maps/topo-v2/256/{z}/{x}/{y}.png?key=HqygBOR91R4AKyJW4UF0',
+    attribution: '© <a href="https://www.maptiler.com/copyright/" target="_blank">MapTiler</a> © <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap contributors</a>',
   },
   light: {
     name: 'CartoDB Light',
@@ -37,6 +61,16 @@ export const MAP_PROVIDERS: Record<MapStyleKind, {
     tileUrl: 'https://services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}',
     attribution: 'Tiles © Esri — Esri, HERE, Garmin, NGA, USGS',
   },
+  'maptiler-backdrop': {
+    name: 'MapTiler Backdrop',
+    tileUrl: 'https://api.maptiler.com/maps/backdrop/256/{z}/{x}/{y}.png?key=HqygBOR91R4AKyJW4UF0',
+    attribution: '© <a href="https://www.maptiler.com/copyright/" target="_blank">MapTiler</a> © <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap contributors</a>',
+  },
+  'maptiler-basic': {
+    name: 'MapTiler Basic',
+    tileUrl: 'https://api.maptiler.com/maps/basic-v2/256/{z}/{x}/{y}.png?key=HqygBOR91R4AKyJW4UF0',
+    attribution: '© <a href="https://www.maptiler.com/copyright/" target="_blank">MapTiler</a> © <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap contributors</a>',
+  },
 };
 
 export function getMapStyleSpecification(kind: MapStyleKind): StyleSpecification {
@@ -48,7 +82,7 @@ export function getMapStyleSpecification(kind: MapStyleKind): StyleSpecification
     sources: {
       base: {
         type: 'raster',
-        tiles: [provider.tileUrl],
+        tiles: Array.isArray(provider.tileUrl) ? provider.tileUrl : [provider.tileUrl],
         tileSize: 256,
         maxzoom: 22,
         attribution: provider.attribution,

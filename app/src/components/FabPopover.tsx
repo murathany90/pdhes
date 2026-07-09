@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { Zap, X, Settings, Globe, List } from 'lucide-react';
 import { useSiteStore } from '../stores/useSiteStore';
 import { useSettingsStore, type VoltageGroup, type ElementGroup } from '../stores/useSettingsStore';
@@ -44,6 +44,18 @@ export function FabPopover({
     }
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isOpen]);
+
+  const sortedCandidates = useMemo(() => {
+    return [...sites].sort((a, b) => {
+      const aIsSea = a.name.toLowerCase().includes('deniz') || a.sourceGroup === 'SEA_WATER_PROTOTYPE_TOP4' || a.technicalClassification?.conceptType === 'SEAWATER';
+      const bIsSea = b.name.toLowerCase().includes('deniz') || b.sourceGroup === 'SEA_WATER_PROTOTYPE_TOP4' || b.technicalClassification?.conceptType === 'SEAWATER';
+      
+      if (aIsSea && !bIsSea) return 1;
+      if (!aIsSea && bIsSea) return -1;
+      
+      return (b.score || 0) - (a.score || 0);
+    });
+  }, [sites]);
 
   return (
     <div className="fab-container" ref={popoverRef}>
@@ -91,7 +103,9 @@ export function FabPopover({
                     </tr>
                   </thead>
                   <tbody>
-                    {sites.slice(0, 20).map(site => (
+                    {sortedCandidates.slice(0, 20).map(site => {
+                      const isSea = site.name.toLowerCase().includes('deniz') || site.sourceGroup === 'SEA_WATER_PROTOTYPE_TOP4' || site.technicalClassification?.conceptType === 'SEAWATER';
+                      return (
                       <tr 
                         key={site.id} 
                         className={selectedSiteId === site.id ? 'active-row' : ''}
@@ -102,9 +116,9 @@ export function FabPopover({
                         <td>{site.name.replace(/PSPP/g, 'PDHES')}</td>
                         <td><div>{num(site.capacityMW)} MW</div><div style={{fontSize: '0.85em', color: 'var(--muted)'}}>{site.energyGWh ?? 'Belirtilmedi'} GWh</div></td>
                         <td><div>{num(site.headM, 1)} m</div><div style={{fontSize: '0.85em', color: 'var(--muted)'}}>{num(site.tunnelLengthKm, 1)} km</div></td>
-                        <td>{site.score === null || site.score === undefined ? '-' : site.score.toFixed(1)}</td>
+                        <td>{isSea ? '-' : (site.score === null || site.score === undefined ? '-' : site.score.toFixed(1))}</td>
                       </tr>
-                    ))}
+                    )})}
                   </tbody>
                 </table>
               </div>

@@ -5,7 +5,10 @@ describe('map providers', () => {
   it('declares visible attribution for every basemap', () => {
     for (const provider of Object.values(MAP_PROVIDERS)) {
       expect(provider.attribution.length).toBeGreaterThan(10);
-      expect(provider.tileUrl).toMatch(/^https:\/\//);
+      const urls = Array.isArray(provider.tileUrl) ? provider.tileUrl : [provider.tileUrl];
+      for (const url of urls) {
+        expect(url).toMatch(/^https:\/\//);
+      }
     }
   });
 

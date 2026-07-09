@@ -47,6 +47,10 @@ export default function SettingsPage() {
                 <option value="dark">CartoDB Dark</option>
                 <option value="gray">Esri World Gray</option>
                 <option value="satellite">Uydu - Esri World Imagery</option>
+                <option value="maptiler-basic">MapTiler Basic</option>
+                <option value="maptiler-backdrop">MapTiler Backdrop</option>
+                <option value="maptiler-topo">MapTiler Topo</option>
+                <option value="maptiler-hybrid">Uydu - MapTiler Hybrid</option>
               </select>
             </div>
             <div className="range-row">
