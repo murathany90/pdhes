@@ -1269,11 +1269,17 @@ function footprintLayerKey(component: string): string {
 }
 
 function footprintLabel(item: Layout3DProjectedFootprint): string {
+  if (item.id.startsWith('penstock')) {
+    const num = item.id.replace('penstock', '');
+    return `Cebri Boru ${num}`.trim();
+  }
+
   const labels: Record<string, string> = {
     upperReservoirWater: 'Üst Rezervuar',
     upperReservoirEmbankment: 'Üst Rezervuar Seti',
     upperDamCrestRoad: 'Kret Yolu',
     upperIntake: 'Su Alma Yapısı (Intake)',
+    upperIntakeStructure: 'Su Alma Yapısı (Intake)',
     intake: 'Su Alma Yapısı (Intake)',
     headraceAlignment: 'Basınç Tüneli Ekseni',
     surgeTankFootprint: 'Denge Bacası',
@@ -1283,7 +1289,9 @@ function footprintLabel(item: Layout3DProjectedFootprint): string {
     switchyardFootprint: 'Şalt Sahası',
     existingSwitchyardFootprint: 'Mevcut Şalt Sahası',
     newSwitchyardFootprint: 'Yeni Şalt Sahası',
-    lowerReservoirWater: 'Alt Rezervuar'
+    lowerReservoirWater: 'Alt Rezervuar',
+    lowerDamAxis: 'Alt Rezervuar Seddesi',
+    lowerReservoirDamEmbankment: 'Alt Rezervuar Seti'
   };
   return labels[item.id] ?? COMPONENTS.find(c => c.key === item.component)?.label ?? item.component;
 }
@@ -1436,10 +1444,6 @@ function Scene({ siteId, activeComponent, onSelectComponent, layers, mode, compo
     },
     [site, manualFeatures],
   );
-  const footprintComponentKeys = useMemo(
-    () => new Set(footprintPlan.items.map((item) => footprintLayerKey(item.component))),
-    [footprintPlan.items],
-  );
   
   // Shared Simulation Water Levels
   const waterLevelRef = useRef(0.85);
@@ -1588,7 +1592,7 @@ function Scene({ siteId, activeComponent, onSelectComponent, layers, mode, compo
       )}
 
       {/* Cavern Powerhouse */}
-      {layers.powerhouse && !footprintComponentKeys.has('powerhouse') && (
+      {layers.powerhouse && !(footprintPlan.enabled) && (
         <RealisticPowerhouse 
           active={activeComponent === 'powerhouse'} 
           onClick={() => onSelectComponent('powerhouse')} 
@@ -1602,7 +1606,7 @@ function Scene({ siteId, activeComponent, onSelectComponent, layers, mode, compo
       )}
 
       {/* Switchyard (Substation) */}
-      {layers.switchyard && !footprintComponentKeys.has('switchyard') && (
+      {layers.switchyard && !(footprintPlan.enabled) && (
         <RealisticSwitchyard 
           active={activeComponent === 'switchyard'} 
           onClick={() => onSelectComponent('switchyard')}
@@ -1618,7 +1622,7 @@ function Scene({ siteId, activeComponent, onSelectComponent, layers, mode, compo
       )}
 
       {/* Surge Tank cylindrical concrete tower */}
-      {layers.surge_tank && !footprintComponentKeys.has('surge_tank') && (
+      {layers.surge_tank && !(footprintPlan.enabled) && (
         <RealisticSurgeTank 
           position={surgeTankPos} 
           active={activeComponent === 'surge_tank'} 
@@ -1628,7 +1632,7 @@ function Scene({ siteId, activeComponent, onSelectComponent, layers, mode, compo
       )}
 
       {/* Portals */}
-      {layers.portal && !footprintComponentKeys.has('portal') && (
+      {layers.portal && !(footprintPlan.enabled) && (
         <>
           <Portal 
             position={portalUpperPos} 
@@ -1650,7 +1654,7 @@ function Scene({ siteId, activeComponent, onSelectComponent, layers, mode, compo
       )}
 
       {/* Steel Penstocks */}
-      {layers.penstock && !footprintComponentKeys.has('tunnel') && (
+      {layers.penstock && !(footprintPlan.enabled) && (
         <RealisticPenstock 
           active={activeComponent === 'penstock'} 
           onClick={() => onSelectComponent('penstock')} 
@@ -1666,7 +1670,7 @@ function Scene({ siteId, activeComponent, onSelectComponent, layers, mode, compo
       )}
 
       {/* Underground Concrete Tunnel */}
-      {layers.tunnel && !footprintComponentKeys.has('tunnel') && (
+      {layers.tunnel && !(footprintPlan.enabled) && (
         <UndergroundTunnel 
           from={upperPos} 
           to={surgeTankPos} 
@@ -1677,7 +1681,7 @@ function Scene({ siteId, activeComponent, onSelectComponent, layers, mode, compo
       )}
 
       {/* Tailrace Concrete Channel */}
-      {layers.tailrace && !footprintComponentKeys.has('tailrace') && (
+      {layers.tailrace && !(footprintPlan.enabled) && (
         <TailraceChannel 
           from={powerhousePos} 
           to={lowerPos} 
