@@ -138,11 +138,15 @@ export default function MeasurementUI() {
     
     let coords = [...measurementPoints];
     if (isPolygon) {
+      if (coords.length < 3) {
+        alert('Bir poligon (alan) oluşturmak için haritada en az 3 nokta işaretlemelisiniz.');
+        return;
+      }
       const first = coords[0];
       const last = coords[coords.length - 1];
+      // Otomatik kapatma: Eğer kullanıcı alanı kapatmadıysa (veya yakınına tıkladıysa), ilk noktayı sona ekleyerek tam kapatırız.
       if (first[0] !== last[0] || first[1] !== last[1]) {
-        alert('Alanı kapat: Lütfen son noktayı başlangıç noktasıyla aynı yere tıklayarak alanı kapatın.');
-        return;
+        coords.push(first);
       }
     }
 
