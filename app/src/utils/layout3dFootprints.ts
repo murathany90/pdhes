@@ -38,8 +38,8 @@ export const LAYOUT_3D_MATERIAL_COLORS: Record<Layout3DMaterial, string> = {
 };
 
 const METERS_PER_DEGREE_LAT = 111_320;
-const SCENE_SCALE = 0.014;
-const VERTICAL_SCALE = 0.18;
+const SCENE_SCALE = 0.11; // Increased to match ThreeDModel's realistic terrain scale (~220 units per 2000m)
+const VERTICAL_SCALE = 0.11; // Kept proportional to SCENE_SCALE
 
 export function projectLngLatToScene(
   coord: [number, number],
@@ -54,6 +54,20 @@ export function projectLngLatToScene(
     x: (coord[0] - centerLon) * metersPerDegreeLon * SCENE_SCALE,
     z: -(coord[1] - centerLat) * METERS_PER_DEGREE_LAT * SCENE_SCALE,
   };
+}
+
+function getFootprintsBbox(footprints: Layout3DFootprint[]): [number, number, number, number] {
+  if (footprints.length === 0) return [0, 0, 0, 0];
+  let minLon = Infinity, minLat = Infinity, maxLon = -Infinity, maxLat = -Infinity;
+  for (const f of footprints) {
+    for (const [lon, lat] of f.coords) {
+      if (lon < minLon) minLon = lon;
+      if (lon > maxLon) maxLon = lon;
+      if (lat < minLat) minLat = lat;
+      if (lat > maxLat) maxLat = lat;
+    }
+  }
+  return [minLon, minLat, maxLon, maxLat];
 }
 
 function elevationValues(footprint: Layout3DFootprint): number[] {
@@ -79,6 +93,7 @@ function projectFootprint(
   footprint: Layout3DFootprint,
   site: Site,
   minElevationM: number,
+  bbox: [number, number, number, number]
 ): Layout3DProjectedFootprint {
   const exaggeration = site.layout3D?.terrainExaggeration ?? 1;
   const baseElevation = footprint.baseElevationM ?? footprint.elevationM ?? footprint.profileElevationM?.[0] ?? minElevationM;
@@ -94,7 +109,7 @@ function projectFootprint(
     material: footprint.material,
     closed: Boolean(footprint.closed),
     points: footprint.coords.map((coord, index) => {
-      const { x, z } = projectLngLatToScene(coord, site.coordinates.bbox);
+      const { x, z } = projectLngLatToScene(coord, bbox);
       const profileElevation = footprint.profileElevationM?.[index];
       return {
         x,
@@ -114,10 +129,11 @@ export function buildLayout3DFootprintPlan(site: Site): Layout3DFootprintPlan {
     return { enabled: false, hideLegacySquareReservoir: false, items: [] };
   }
 
+  const bbox = getFootprintsBbox(layout3D.componentFootprints);
   const baseElevation = minElevation(layout3D.componentFootprints);
   return {
     enabled: true,
     hideLegacySquareReservoir: layout3D.hideLegacySquareReservoir,
-    items: layout3D.componentFootprints.map((footprint) => projectFootprint(footprint, site, baseElevation)),
+    items: layout3D.componentFootprints.map((footprint) => projectFootprint(footprint, site, baseElevation, bbox)),
   };
 }

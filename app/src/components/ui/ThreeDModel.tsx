@@ -1502,10 +1502,18 @@ function Scene({ siteId, activeComponent, onSelectComponent, layers, mode, compo
       />
       <fog attach="fog" args={[theme === 'dark' ? '#0a0c10' : '#a2adb9', 150, 550]} />
 
-      {showTerrain && <RealisticTerrain opacity={terrainOpacity} isPresenzano={isPresenzano} />}
+      {showTerrain && !footprintPlan.enabled && <RealisticTerrain opacity={terrainOpacity} isPresenzano={isPresenzano} />}
 
       {/* Scattered Vegetation and Rocks (Instanced for Performance) */}
-      {showTerrain && terrainOpacity > 0 && <InstancedEnvironment assets={environmentAssets} opacity={terrainOpacity / 100} />}
+      {showTerrain && terrainOpacity > 0 && !footprintPlan.enabled && <InstancedEnvironment assets={environmentAssets} opacity={terrainOpacity / 100} />}
+
+      {/* Basic ground plane for footprints to catch shadows if no terrain */}
+      {showTerrain && footprintPlan.enabled && (
+        <mesh position={[0, -2, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+          <planeGeometry args={[1000, 1000]} />
+          <meshStandardMaterial color="#4c6b45" opacity={terrainOpacity} transparent roughness={0.9} />
+        </mesh>
+      )}
 
       {footprintPlan.enabled && (
         <FootprintSceneLayer
