@@ -408,7 +408,7 @@ export function useMapLibre({
                     <div><b>Alt rezervuar:</b> ${escapeHtml(candidate.lowerReservoirName)}</div>
                     <div><b>Üst rezervuar:</b> ${escapeHtml(candidate.upperReservoirDescription)}</div>
                     <div><b>Koordinat:</b> ${escapeHtml(COORDINATE_CONFIDENCE_LABELS[candidate.coordinates.coordinateConfidence])}</div>
-                    <button type="button" style="margin-top:6px">Kavramsal tesis yerleşimini göster</button>
+                    <a href="#/3d" style="display:inline-block;margin-top:10px;padding:6px 12px;background:#3b82f6;color:white;border-radius:4px;text-decoration:none;font-weight:bold;font-size:13px;text-align:center;">Kavramsal 3D Çizimi Gör</a>
                   </div>
                 `)
                 .addTo(map);

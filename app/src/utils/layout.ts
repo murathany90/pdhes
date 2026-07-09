@@ -1,7 +1,8 @@
 import type { Feature, FeatureCollection, LineString, Point, Polygon } from 'geojson';
 import type { Site } from '../types/site';
-import { circlePolygon, centroid, mid, offset, rotatedRectangle } from './geo';
+import { circlePolygon, centroid, mid, offset, rotatedRectangle, scalePolygon } from './geo';
 import { getSiteLayout, isSeaLowerReservoir } from './siteDerived';
+import { COMPONENTS } from './constants';
 
 export interface LayoutBundle {
   blocks: FeatureCollection<Polygon>;
@@ -87,7 +88,7 @@ export function buildLayout(site: Site, hScale: number): LayoutBundle {
             key: footprint.id,
             component: footprint.component,
             material: footprint.material,
-            label: footprintLabels[footprint.id] ?? footprint.component,
+            label: footprintLabels[footprint.id] ?? COMPONENTS.find(c => c.key === footprint.component)?.label ?? footprint.component,
             width: 0,
             length: 0,
             height: Math.max(1, extrude) * hScale,
@@ -149,12 +150,21 @@ export function buildLayout(site: Site, hScale: number): LayoutBundle {
     features: waterFeatures,
   };
 
+  let riskPolygonCoordinates: [number, number][];
+  const upperReservoirBlock = blocks.find(b => b.properties?.component === 'upper_reservoir' || b.properties?.key === 'upper_reservoir');
+  
+  if (upperReservoirBlock && upperReservoirBlock.geometry.coordinates[0]) {
+    riskPolygonCoordinates = scalePolygon(upperReservoirBlock.geometry.coordinates[0] as [number, number][], Math.sqrt(1.1));
+  } else {
+    riskPolygonCoordinates = circlePolygon(layout.risk, sea ? 1700 : 1450, 64);
+  }
+
   const risk: FeatureCollection<Polygon> = {
     type: 'FeatureCollection',
     features: [
       {
         type: 'Feature',
-        geometry: { type: 'Polygon', coordinates: [circlePolygon(layout.risk, sea ? 1700 : 1450, 64)] },
+        geometry: { type: 'Polygon', coordinates: [riskPolygonCoordinates] },
         properties: { label: 'koordinat belirsizlik / kavramsal yerleşim buffer' },
       },
     ],

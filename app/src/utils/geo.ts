@@ -38,3 +38,11 @@ export function centroid(coords: [number, number][]): [number, number] {
 export function mid(a: [number, number], b: [number, number], t = 0.5): [number, number] {
   return [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t];
 }
+
+export function scalePolygon(coords: [number, number][], factor: number): [number, number][] {
+  const c = centroid(coords);
+  return coords.map(([x, y]) => [
+    c[0] + (x - c[0]) * factor,
+    c[1] + (y - c[1]) * factor
+  ]);
+}

@@ -3,6 +3,7 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Html, Line, Sky, MeshDistortMaterial } from '@react-three/drei';
 import { BatteryCharging, Zap } from 'lucide-react';
 import * as THREE from 'three';
+import { COMPONENTS } from '../../utils/constants';
 import type { ComponentsDetail, Site } from '../../types/site';
 import { useSiteStore } from '../../stores/useSiteStore';
 import { useSettingsStore } from '../../stores/useSettingsStore';
@@ -1269,18 +1270,24 @@ function footprintLayerKey(component: string): string {
 
 function footprintLabel(item: Layout3DProjectedFootprint): string {
   const labels: Record<string, string> = {
-    upperReservoirWater: '\u00dcst Rezervuar',
-    upperReservoirEmbankment: '\u00dcst Rezervuar Seti',
+    upperReservoirWater: 'Üst Rezervuar',
+    upperReservoirEmbankment: 'Üst Rezervuar Seti',
     upperDamCrestRoad: 'Kret Yolu',
-    upperIntake: 'Intake',
-    headraceAlignment: 'Bas\u0131n\u00e7 T\u00fcneli Ekseni',
-    surgeTankFootprint: 'Denge Bacas\u0131',
-    serviceDrainPortal: 'Servis Portal\u0131',
-    powerhouseFootprint: 'T\u00fcrbin Odas\u0131',
+    upperIntake: 'Su Alma Yapısı (Intake)',
+    headraceAlignment: 'Basınç Tüneli Ekseni',
+    surgeTankFootprint: 'Denge Bacası',
+    serviceDrainPortal: 'Servis Portalı',
+    powerhouseFootprint: 'Türbin Odası',
     tailraceOutfall: 'Kuyruksuyu',
-    switchyardFootprint: '\u015ealt Sahas\u0131',
+    switchyardFootprint: 'Şalt Sahası',
+    existingSwitchyardFootprint: 'Mevcut Şalt Sahası',
+    newSwitchyardFootprint: 'Yeni Şalt Sahası'
   };
-  return labels[item.id] ?? item.component;
+  return labels[item.id] ?? COMPONENTS.find(c => c.key === item.component)?.label ?? item.component;
+}
+
+function footprintTooltip(item: Layout3DProjectedFootprint): string {
+  return COMPONENTS.find(c => c.key === item.component)?.description ?? '';
 }
 
 function footprintCenter(item: Layout3DProjectedFootprint): [number, number, number] {
@@ -1347,7 +1354,7 @@ function FootprintPolygon({ item, active, onClick, showLabels }: {
         />
       </mesh>
       <Html position={labelPosition} center style={{ display: showLabels ? 'block' : 'none' }} zIndexRange={[100, 0]}>
-        <div style={labelStyle(active, color)}>{footprintLabel(item)}</div>
+        <div style={labelStyle(active, color)} title={footprintTooltip(item)}>{footprintLabel(item)}</div>
       </Html>
     </group>
   );
@@ -1367,7 +1374,7 @@ function FootprintPolyline({ item, active, onClick, showLabels }: {
     <group onClick={(event) => { event.stopPropagation(); onClick(); }}>
       <Line points={points} color={color} lineWidth={item.material === 'crest_road' ? 3 : 4} />
       <Html position={labelPosition} center style={{ display: showLabels ? 'block' : 'none' }} zIndexRange={[100, 0]}>
-        <div style={labelStyle(active, color)}>{footprintLabel(item)}</div>
+        <div style={labelStyle(active, color)} title={footprintTooltip(item)}>{footprintLabel(item)}</div>
       </Html>
     </group>
   );
