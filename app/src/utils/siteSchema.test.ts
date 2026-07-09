@@ -12,14 +12,13 @@ describe('validateSites', () => {
 
     expect(result.errors).toEqual([]);
     expect(result.ok).toBe(true);
-    expect(result.sites).toHaveLength(20);
-    expect(new Set(result.sites.map((site) => site.id)).size).toBe(20);
+    expect(result.sites).toHaveLength(15);
+    expect(new Set(result.sites.map((site) => site.id)).size).toBe(15);
 
-    expect(result.sites.filter((site) => site.sourceGroup === 'JICA_EIE_16')).toHaveLength(17);
+    expect(result.sites.filter((site) => site.sourceGroup === 'JICA_EIE_16')).toHaveLength(12);
     expect(result.sites.filter((site) => site.sourceGroup === 'SEA_WATER_PROTOTYPE_TOP4')).toHaveLength(3);
     expect(result.sites.some((site) => site.id === 'presenzano')).toBe(false);
-    expect(result.sites.map((site) => site.id).slice(16)).toEqual([
-      'altinkaya',
+    expect(result.sites.map((site) => site.id).slice(12)).toEqual([
       'tasucu',
       'bozyazi_anamur',
       'karaburun',

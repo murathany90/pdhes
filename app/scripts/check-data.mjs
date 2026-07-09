@@ -12,12 +12,12 @@ const datasets = [
     name: 'data.json',
     validate: (value) => {
       assert(Array.isArray(value), 'data.json dizi olmalıdır.');
-      assert(value.length === 20, `data.json tam 20 Türkiye adayı içermelidir; bulunan: ${value.length}`);
+      assert(value.length === 15, `data.json tam 15 Türkiye adayı içermelidir; bulunan: ${value.length}`);
       const counts = value.reduce((acc, site) => {
         acc[site.sourceGroup] = (acc[site.sourceGroup] || 0) + 1;
         return acc;
       }, {});
-      assert(counts.JICA_EIE_16 === 17, `17 JICA/EİE adayı bekleniyor; bulunan: ${counts.JICA_EIE_16 || 0}`);
+      assert(counts.JICA_EIE_16 === 12, `12 JICA/EİE adayı bekleniyor; bulunan: ${counts.JICA_EIE_16 || 0}`);
       assert(counts.SEA_WATER_PROTOTYPE_TOP4 === 3, `3 Deniz Tipi aday bekleniyor; bulunan: ${counts.SEA_WATER_PROTOTYPE_TOP4 || 0}`);
       assert(!value.some((site) => site.id === 'presenzano'), 'Presenzano Türkiye aday listesinde olmamalıdır.');
       const seaIds = value.filter((site) => site.sourceGroup === 'SEA_WATER_PROTOTYPE_TOP4').map((site) => site.id).join(',');

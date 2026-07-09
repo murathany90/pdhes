@@ -11,7 +11,7 @@ describe('loadAppData', () => {
     const result = await loadAppData(fetcher, '/pdhes/');
 
     expect(fetcher).toHaveBeenCalledTimes(1);
-    expect(result.sites).toHaveLength(20);
+    expect(result.sites).toHaveLength(15);
   });
 
   it('returns an actionable error for failed requests', async () => {

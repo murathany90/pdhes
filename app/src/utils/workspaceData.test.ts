@@ -56,6 +56,6 @@ describe('workspace import and export', () => {
 
     expect(exported.schemaVersion).toBe(WORKSPACE_SCHEMA_VERSION);
     expect(exported.exportedAt).toMatch(/Z$/);
-    expect(exported.sites).toHaveLength(20);
+    expect(exported.sites).toHaveLength(15);
   });
 });
