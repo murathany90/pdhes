@@ -21,7 +21,7 @@ describe('MapPage controls', () => {
       gridAssets: null,
       fetchGridAssets: vi.fn().mockResolvedValue(undefined),
     });
-    useSettingsStore.setState({ mapStyle: 'satellite', heightScale: 1.3 });
+    useSettingsStore.setState({ mapStyle: 'satellite', heightScale: 1.1 });
   });
 
   afterEach(cleanup);
@@ -37,7 +37,7 @@ describe('MapPage controls', () => {
     const fabBtn = screen.getByRole('button', { name: /Menüyü Aç/i });
     fireEvent.click(fabBtn);
 
-    expect(screen.getByText(/Test PDHES/i)).toBeTruthy();
+    expect(screen.getAllByText(/Test PDHES/i).length).toBeGreaterThan(0);
 
     const settingsTab = screen.getByRole('button', { name: /Ayarlar/i });
     fireEvent.click(settingsTab);

@@ -9,7 +9,7 @@ describe('useSettingsStore persistence', () => {
     useSettingsStore.setState({
       theme: 'light',
       mapStyle: 'satellite',
-      heightScale: 1.3,
+      heightScale: 1.1,
       weights: {
         topo: 25,
         grid: 20,
