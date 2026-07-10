@@ -150,7 +150,29 @@ export default function ThreeDEditorPage({ site, onDone }: ThreeDEditorPageProps
       }
     };
 
+    const onComponentClick = (e: any) => {
+      // Çizim modunda değilken bileşenlere tıklanırsa, onu düzenleme moduna geçir.
+      if (drawingMode !== 'none') return;
+      const feature = e.features?.[0];
+      if (!feature || !feature.properties) return;
+      
+      const comp = feature.properties.component || feature.properties.key;
+      const modeMap: Record<string, any> = {
+        'upper_reservoir': 'upperReservoir',
+        'lower_reservoir': 'lowerReservoir',
+        'powerhouse': 'powerhouse',
+        'switchyard': 'switchyard',
+      };
+      
+      const newMode = modeMap[comp];
+      if (newMode) {
+        setDrawingMode(newMode);
+        setMessage(`${feature.properties.label || comp} seçildi. Haritaya tıklayarak yeni konumunu / çizimini belirleyebilirsiniz.`);
+      }
+    };
+
     map.on('click', onClick);
+    map.on('click', 'blocks-extrusion', onComponentClick);
     map.on('dblclick', onDblClick);
 
     // Sync draftCoords to the draft layer safely
@@ -290,15 +312,25 @@ export default function ThreeDEditorPage({ site, onDone }: ThreeDEditorPageProps
       return;
     }
 
+    const existingPowerhouse = previewSite.coordinates.powerhouse?.point;
+    const existingSwitchyard = previewSite.coordinates.switchyard?.point;
+    const existingSurge = previewSite.coordinates.surgeTank?.point;
+
     const line = turf.lineString([upper, lower]);
     const length = turf.length(line, { units: 'kilometers' });
     
-    // Basit bir orantısal yerleşim:
-    const surgeTankPt = turf.along(line, length * 0.2, { units: 'kilometers' }).geometry.coordinates as [number, number];
-    const powerhousePt = turf.along(line, length * 0.8, { units: 'kilometers' }).geometry.coordinates as [number, number];
-    // Şalt sahasını santrale yakın ama biraz offsetli koyalım
-    const switchyardPt = turf.along(line, length * 0.85, { units: 'kilometers' }).geometry.coordinates as [number, number];
+    // Türbin odası (powerhouse) varsa koru, yoksa hattan türet
+    const powerhousePt = existingPowerhouse || (turf.along(line, length * 0.8, { units: 'kilometers' }).geometry.coordinates as [number, number]);
     
+    // Denge bacası (surge tank): Üst rezervuar ile türbin odası arasındaki mesafede yerleştir (varsa koru)
+    const upperToPower = turf.lineString([upper, powerhousePt]);
+    const distUP = turf.length(upperToPower, { units: 'kilometers' });
+    const surgeTankPt = existingSurge || (turf.along(upperToPower, distUP * 0.25, { units: 'kilometers' }).geometry.coordinates as [number, number]);
+    
+    // Şalt sahası (switchyard) varsa koru, yoksa santrale yakın bir yere koy
+    const switchyardPt = existingSwitchyard || (turf.along(line, length * 0.85, { units: 'kilometers' }).geometry.coordinates as [number, number]);
+    
+    // Su yolu: Üst Rezervuar -> Denge Bacası -> Türbin Odası -> Alt Rezervuar
     const penstock = [upper, surgeTankPt, powerhousePt, lower];
 
     setPreviewSite((prev) => {
@@ -314,7 +346,7 @@ export default function ThreeDEditorPage({ site, onDone }: ThreeDEditorPageProps
         }
       };
     });
-    setMessage("Kalan bileşenler (Denge Bacası, Türbin, Şalt ve Su Yolu) otomatik yerleştirildi!");
+    setMessage("Kalan bileşenler eksikse otomatik yerleştirildi, su yolu çizildi!");
   };
 
   const handleSave = () => {

@@ -303,6 +303,46 @@ export function useMapLibre({
               layout: { 'text-field': ['get', 'label'], 'text-size': 12, 'text-font': ['Noto Sans Bold'], 'text-variable-anchor': ['top', 'bottom', 'left', 'right'] },
               paint: { 'text-color': '#d9fff0', 'text-halo-color': '#06100d', 'text-halo-width': 1.5 },
             });
+
+            if (!(map as any)._blockBound) {
+              (map as any)._blockBound = true;
+              
+              const showBlockTooltip = (e: any) => {
+                map.getCanvas().style.cursor = 'pointer';
+                const feature = e.features[0];
+                const props = feature.properties;
+                const labelMap: Record<string, string> = {
+                  'upper_reservoir': 'Üst Rezervuar',
+                  'lower_reservoir': 'Alt Rezervuar',
+                  'powerhouse': 'Türbin Odası / Güç Evi',
+                  'switchyard': 'Şalt Sahası',
+                  'surge_tank': 'Denge Bacası',
+                  'portal': 'Tünel Portalı'
+                };
+                
+                const label = props.label || labelMap[props.component] || labelMap[props.key] || props.component || 'Bilinmeyen Nesne';
+                const html = `
+                  <div style="font-family:sans-serif;font-size:12px;padding:4px">
+                    <strong style="display:block;font-size:13px">${label}</strong>
+                  </div>
+                `;
+                
+                if (!(map as any)._blockPopup) {
+                  (map as any)._blockPopup = new maplibregl.Popup({ closeButton: false, closeOnClick: false, offset: 10 });
+                }
+                (map as any)._blockPopup.setLngLat(e.lngLat).setHTML(html).addTo(map);
+              };
+
+              const hideBlockTooltip = () => {
+                map.getCanvas().style.cursor = '';
+                if ((map as any)._blockPopup) {
+                  (map as any)._blockPopup.remove();
+                }
+              };
+
+              map.on('mouseenter', 'blocks-extrusion', showBlockTooltip);
+              map.on('mouseleave', 'blocks-extrusion', hideBlockTooltip);
+            }
           }, 50);
         }
       } else {
