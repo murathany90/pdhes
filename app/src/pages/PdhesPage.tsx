@@ -352,16 +352,17 @@ export default function PdhesPage({ sectionId }: PdhesPageProps) {
               <div className="number-pill">11</div>
               <div>
                 <span className="eyebrow">Veri kurgusu ve sınırlamalar</span>
-                <h2>Türkiye Aday Veri Kurgusu</h2>
+                <h2>Türkiye PDHES Adayları Nasıl Okunmalı?</h2>
               </div>
             </header>
             <div className="card-body">
-              <p>Bu sürümde Türkiye adayları iki kaynak grubuyla sunulur: Açık Çevrim PDHES teknik listesine dayanan kara tipi adaylar ve gerçek skor sırasına göre seçilen 4 deniz tipi prototip. Bu ayrım, çevrim tipi, altyapı tipi, kavram tipi, şebeke besleme türü ve birincil amaç alanlarıyla okunur.</p>
-              <p>Karayüzeyli (Açık Çevrim) adaylarda kurulu güç, proje debisi ve düşü değerleri teknik çalışmalara dayanır. Koordinatlar kesin nokta verilmediği için yaklaşık saha yerleşimi olarak işaretlenir. Bu yüzden harita ve 3D görünüm bir mühendislik çizimi değil, kavramsal tesis yerleşimi ve ön inceleme görselidir.</p>
-              <p>Deniz tipi adaylarda Taşucu, Bozyazı-Anamur, Karaburun ve Finike-Kumluca mevcut veri setindeki deniz göstergeli adaylardan seçilmiştir. Deniz suyu korozyonu, intake/outfall ekolojisi, biofouling, kıyı izinleri ve sızdırmazlık kaplaması bu adaylarda ayrıca izlenmesi gereken tasarım riskleridir.</p>
-              <ul className="rich-list compact">
-                <li><strong>Açık Çevrim:</strong> teknik kapasite, debi ve düşü kaynak değerleriyle; koordinatlar kesin saha koordinatı gibi kullanılmadan gösterilir.</li>
-                <li><strong>Deniz Suyu:</strong> skor ve kıyı yerleşim çizgisi korunarak, tuzlu suya özel risklerle birlikte sunulur.</li>
+              <p>Bu bölümdeki adaylar, Türkiye’deki PDHES potansiyelini karşılaştırmak için hazırlanmış ön fizibilite verileridir. Kurulu güç, düşü, depolama süresi, enerji kapasitesi ve tahmini maliyet değerleri adayları teknik ve ekonomik açıdan sıralamak amacıyla kullanılır.</p>
+              <p>Harita ve 3D çizimler kesin mühendislik projesi değil, aday sahayı anlatan kavramsal yerleşim görselleridir. Koordinatlar, rezervuar alanları ve su yolu hatları yatırım kararı için değil; saha mantığını, düşü avantajını ve alt–üst rezervuar ilişkisini göstermek için kullanılmalıdır.</p>
+              <p>Deniz Suyu PDHES adayları, Türkiye kıyılarındaki potansiyeli göstermek için eklenmiş prototip ön inceleme örnekleridir. Bu teknoloji dünyada yaygın değildir; tuzlu su korozyonu, kıyı izinleri, deniz ekolojisi ve sızdırmazlık gibi konular ayrıca değerlendirilmelidir.</p>
+              <div className="callout warning"><b>Kısa not:</b> Gerçek proje için jeolojik etüt, ÇED, kamulaştırma, şebeke bağlantısı, hidrolik tasarım ve detaylı fizibilite çalışması gerekir.</div>
+              <ul className="rich-list compact" style={{ marginTop: '16px' }}>
+                <li><strong>Açık Çevrim PDHES:</strong> teknik kapasite, debi ve düşü kaynak değerleriyle; koordinatlar kesin saha koordinatı gibi kullanılmadan gösterilir.</li>
+                <li><strong>Deniz Suyu PDHES:</strong> Denizi alt rezervuar olarak kullanan, korozyon ve deniz ekolojisi açısından özel tasarım isteyen PDHES tipi.</li>
                 <li><strong>Ekonomi:</strong> hesaplanan CAPEX/gelir varsa gösterilir; yoksa senaryo varsayımı üretilir.</li>
               </ul>
             </div>
