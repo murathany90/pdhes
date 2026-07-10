@@ -112,8 +112,32 @@ export function buildLayout(site: Site, hScale: number): LayoutBundle {
     addRect('switchyard', '154/380 kV şalt sahası', layout.switchyard, 340, 240, 28, '#48f49a', bearing - 12);
     addRect('portal', 'Tünel portalı / servis alanı', mid(layout.upper, layout.power, 0.55), 220, 120, 24, '#ff944d', bearing + 16);
   } else {
-    addRect('upper_reservoir', site.upperReservoirDescription, layout.upper, 1100, 850, 36, '#4aa3ff', bearing + 4);
-    addRect('lower_reservoir', site.lowerReservoirName, layout.lower, 900, 500, 16, '#1fb6ff', bearing - 10);
+    if (site.coordinates.upperReservoirPolygon && site.coordinates.upperReservoirPolygon.length > 2) {
+      const coords = site.coordinates.upperReservoirPolygon;
+      const embankmentCoords = scalePolygon(coords, 1.05);
+      blocks.push({
+        type: 'Feature',
+        geometry: { type: 'Polygon', coordinates: [embankmentCoords] },
+        properties: { key: 'upper_reservoir_embankment', component: 'upper_reservoir', label: 'Üst Rezervuar Gövdesi', width: 0, length: 0, height: 38 * hScale, base: 2, color: '#9aa3ad' },
+      });
+      blocks.push({
+        type: 'Feature',
+        geometry: { type: 'Polygon', coordinates: [coords] },
+        properties: { key: 'upper_reservoir', component: 'upper_reservoir', label: site.upperReservoirDescription, width: 0, length: 0, height: 36 * hScale, base: 4, color: '#4aa3ff' },
+      });
+    } else {
+      addRect('upper_reservoir', site.upperReservoirDescription, layout.upper, 1100, 850, 36, '#4aa3ff', bearing + 4);
+    }
+
+    if (site.coordinates.lowerReservoirPolygon && site.coordinates.lowerReservoirPolygon.length > 2) {
+      blocks.push({
+        type: 'Feature',
+        geometry: { type: 'Polygon', coordinates: [site.coordinates.lowerReservoirPolygon] },
+        properties: { key: 'lower_reservoir', component: 'lower_reservoir', label: site.lowerReservoirName, width: 0, length: 0, height: 16 * hScale, base: 2, color: '#1fb6ff' },
+      });
+    } else {
+      addRect('lower_reservoir', site.lowerReservoirName, layout.lower, 900, 500, 16, '#1fb6ff', bearing - 10);
+    }
     addRect('powerhouse', 'Türbin Odası', layout.power, 320, 170, 78, '#b277ff', bearing + 1);
     addCircle('surge_tank', 'Denge bacası', layout.surge, 82, 120, '#ffd75a');
     addRect('switchyard', 'Şalt / trafo sahası', layout.switchyard, 390, 260, 32, '#48f49a', bearing - 7);

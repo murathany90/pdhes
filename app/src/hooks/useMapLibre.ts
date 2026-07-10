@@ -54,6 +54,7 @@ interface UseMapLibreOptions {
   layers: MapLayerVisibility;
   onSelectSite?: (id: string) => void;
   interactiveCandidates?: boolean;
+  draftingMode?: string;
 }
 
 function featureCollection(features: GeoJSON.Feature<Geometry>[]): FeatureCollection {
@@ -91,6 +92,7 @@ export function useMapLibre({
   layers,
   onSelectSite,
   interactiveCandidates = true,
+  draftingMode,
 }: UseMapLibreOptions) {
   const { showPowerGrid, powerGridConfig } = useSettingsStore();
   const mapRef = useRef<maplibregl.Map | null>(null);
@@ -252,10 +254,20 @@ export function useMapLibre({
           type: 'fill-extrusion',
           source: 'blocks',
           paint: {
-            'fill-extrusion-color': ['get', 'color'],
+            'fill-extrusion-color': [
+              'case',
+              ['==', ['get', 'component'], draftingMode || ''],
+              '#aaaaaa',
+              ['get', 'color']
+            ],
             'fill-extrusion-height': ['get', 'height'],
             'fill-extrusion-base': ['get', 'base'],
-            'fill-extrusion-opacity': 0.85,
+            'fill-extrusion-opacity': [
+              'case',
+              ['==', ['get', 'component'], draftingMode || ''],
+              0.4,
+              0.85
+            ],
           },
         });
         map.addSource('blockLabels', { type: 'geojson', data: filteredLabels });

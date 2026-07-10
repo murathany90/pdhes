@@ -27,6 +27,8 @@ const EDITOR_LAYERS: MapLayerVisibility = {
 
 type DrawingMode = 'none' | 'upperReservoir' | 'lowerReservoir' | 'powerhouse' | 'switchyard' | 'penstockRoute';
 
+type DrawingTemplate = 'point' | 'square' | 'rounded' | 'rectangle' | 'oval';
+
 export default function ThreeDEditorPage({ site, onDone }: ThreeDEditorPageProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const { updateSite, baseSites, gridAssets } = useSiteStore();
@@ -34,6 +36,7 @@ export default function ThreeDEditorPage({ site, onDone }: ThreeDEditorPageProps
 
   const [previewSite, setPreviewSite] = useState<Site | undefined>(site);
   const [drawingMode, setDrawingMode] = useState<DrawingMode>('none');
+  const [drawingTemplate, setDrawingTemplate] = useState<DrawingTemplate>('point');
   const [draftCoords, setDraftCoords] = useState<[number, number][]>([]);
   const [message, setMessage] = useState('');
 
@@ -48,11 +51,6 @@ export default function ThreeDEditorPage({ site, onDone }: ThreeDEditorPageProps
 
   const dynamicLayers: MapLayerVisibility = {
     ...EDITOR_LAYERS,
-    upperReservoir: drawingMode !== 'upperReservoir',
-    lowerReservoir: drawingMode !== 'lowerReservoir',
-    powerhouse: drawingMode !== 'powerhouse',
-    switchyard3d: drawingMode !== 'switchyard',
-    waterPath: drawingMode !== 'penstockRoute',
   };
 
   const { mapRef } = useMapLibre({
@@ -65,6 +63,7 @@ export default function ThreeDEditorPage({ site, onDone }: ThreeDEditorPageProps
     gridAssets,
     layers: dynamicLayers,
     interactiveCandidates: false,
+    draftingMode: drawingMode !== 'none' ? (drawingMode === 'upperReservoir' ? 'upper_reservoir' : drawingMode === 'lowerReservoir' ? 'lower_reservoir' : drawingMode) : undefined,
   });
 
   // Setup click handler and draft layer
@@ -94,12 +93,55 @@ export default function ThreeDEditorPage({ site, onDone }: ThreeDEditorPageProps
         setMessage(`${drawingMode === 'powerhouse' ? 'Türbin Odası' : 'Şalt Sahası'} konumu ayarlandı.`);
         setDrawingMode('none');
       } else {
-        // Line / Polygon modes: append to draft
-        setDraftCoords((prev) => [...prev, [lng, lat]]);
+        if (drawingTemplate !== 'point') {
+          let generatedCoords: [number, number][] = [];
+          try {
+            if (drawingTemplate === 'square') {
+              generatedCoords = turf.circle([lng, lat], 400, { steps: 4 }).geometry.coordinates[0] as [number, number][];
+              generatedCoords = turf.transformRotate(turf.polygon([generatedCoords]), 45).geometry.coordinates[0] as [number, number][];
+            } else if (drawingTemplate === 'rectangle') {
+              const buf = turf.buffer(turf.lineString([[lng - 0.004, lat], [lng + 0.004, lat]]), 200, { units: 'meters' });
+              if (buf) {
+                const bbox = turf.bbox(buf);
+                generatedCoords = turf.bboxPolygon(bbox).geometry.coordinates[0] as [number, number][];
+              }
+            } else if (drawingTemplate === 'oval') {
+              if (turf.ellipse) {
+                generatedCoords = turf.ellipse([lng, lat], 500, 300, { units: 'meters' }).geometry.coordinates[0] as [number, number][];
+              } else {
+                generatedCoords = turf.circle([lng, lat], 400, { steps: 36 }).geometry.coordinates[0] as [number, number][];
+              }
+            } else if (drawingTemplate === 'rounded') {
+              const bbox = turf.bbox(turf.circle([lng, lat], 350, { steps: 4 }));
+              const sq = turf.bboxPolygon(bbox);
+              const buf = turf.buffer(sq, 50, { units: 'meters' });
+              if (buf && buf.geometry && buf.geometry.type === 'Polygon') {
+                generatedCoords = buf.geometry.coordinates[0] as [number, number][];
+              } else if (buf && buf.geometry && buf.geometry.type === 'MultiPolygon') {
+                generatedCoords = buf.geometry.coordinates[0][0] as [number, number][];
+              }
+            }
+            setDraftCoords(generatedCoords);
+          } catch (err) {
+            console.error("Template error", err);
+          }
+        } else {
+          // Line / Polygon modes: append to draft
+          setDraftCoords((prev) => [...prev, [lng, lat]]);
+        }
       }
     };
     
+    const onDblClick = (e: any) => {
+      if (drawingMode !== 'none') {
+        e.preventDefault();
+        const finishBtn = document.getElementById('finish-drawing-btn');
+        if (finishBtn) finishBtn.click();
+      }
+    };
+
     map.on('click', onClick);
+    map.on('dblclick', onDblClick);
 
     // Sync draftCoords to the draft layer safely
     const syncDraftLayer = () => {
@@ -119,6 +161,25 @@ export default function ThreeDEditorPage({ site, onDone }: ThreeDEditorPageProps
           source: draftSourceId,
           paint: { 'circle-radius': 4, 'circle-color': '#ff0000' }
         });
+        map.addLayer({
+          id: 'draft-text-layer',
+          type: 'symbol',
+          source: draftSourceId,
+          filter: ['has', 'label'],
+          layout: {
+            'text-field': ['get', 'label'],
+            'text-size': 13,
+            'text-variable-anchor': ['top', 'bottom', 'left', 'right'],
+            'text-radial-offset': 1,
+            'text-justify': 'auto',
+            'text-font': ['Noto Sans Bold']
+          },
+          paint: {
+            'text-color': '#ff0000',
+            'text-halo-color': '#ffffff',
+            'text-halo-width': 2
+          }
+        });
       }
 
       const source = map.getSource(draftSourceId) as maplibregl.GeoJSONSource;
@@ -129,11 +190,30 @@ export default function ThreeDEditorPage({ site, onDone }: ThreeDEditorPageProps
           if (isPolygon && coords.length > 2) {
             coords.push(coords[0]); // Close polygon visually
           }
+
+          let measurementText = '';
+          if (isPolygon && coords.length > 3) {
+            try {
+              const area = turf.area(turf.polygon([coords]));
+              measurementText = `Alan: ${(area/1000000).toFixed(2)} km²`;
+            } catch(e) {}
+          } else if (!isPolygon && coords.length > 1) {
+            try {
+              const length = turf.length(turf.lineString(coords), { units: 'kilometers' });
+              measurementText = `Mesafe: ${length.toFixed(2)} km`;
+            } catch(e) {}
+          }
+
           source.setData({
             type: 'FeatureCollection',
             features: [
               { type: 'Feature', geometry: { type: 'LineString', coordinates: coords }, properties: {} },
-              ...draftCoords.map(pt => ({ type: 'Feature' as const, geometry: { type: 'Point' as const, coordinates: pt }, properties: {} }))
+              ...draftCoords.map(pt => ({ type: 'Feature' as const, geometry: { type: 'Point' as const, coordinates: pt }, properties: {} })),
+              ...(measurementText && coords.length > 0 ? [{
+                type: 'Feature' as const,
+                geometry: { type: 'Point' as const, coordinates: coords[coords.length - 1] },
+                properties: { label: measurementText }
+              }] : [])
             ]
           });
         } else {
@@ -150,6 +230,7 @@ export default function ThreeDEditorPage({ site, onDone }: ThreeDEditorPageProps
 
     return () => {
       map.off('click', onClick);
+      map.off('dblclick', onDblClick);
     };
   }, [mapRef.current, drawingMode, draftCoords]);
 
@@ -257,10 +338,8 @@ export default function ThreeDEditorPage({ site, onDone }: ThreeDEditorPageProps
   };
 
   const currentUpperPoly = drawingMode === 'upperReservoir' ? draftCoords : previewSite?.coordinates.upperReservoirPolygon;
-  const currentLowerPoly = drawingMode === 'lowerReservoir' ? draftCoords : previewSite?.coordinates.lowerReservoirPolygon;
-
-  const upperStats = calculatePolyStats(currentUpperPoly, previewSite?.activeVolumeHm3 || 0, previewSite?.components_detail?.upper_reservoir?.elevation_m || previewSite?.headM || 0);
-  const lowerStats = calculatePolyStats(currentLowerPoly, previewSite?.activeVolumeHm3 || 0, previewSite?.components_detail?.lower_reservoir?.elevation_m || 0);
+  const upperOldStats = calculatePolyStats(site.coordinates.upperReservoirPolygon, site.activeVolumeHm3 || 0, site.components_detail?.upper_reservoir?.elevation_m || site.headM || 0);
+  const upperNewStats = calculatePolyStats(currentUpperPoly, previewSite?.activeVolumeHm3 || 0, previewSite?.components_detail?.upper_reservoir?.elevation_m || previewSite?.headM || 0);
 
   const formatNum = (num: number) => num.toLocaleString('tr-TR', { maximumFractionDigits: 0 });
 
@@ -271,13 +350,23 @@ export default function ThreeDEditorPage({ site, onDone }: ThreeDEditorPageProps
         <h3 style={{ margin: '0 0 8px 0', fontSize: '13px' }}>{title}</h3>
         {isDrawing ? (
           <div style={{ display: 'flex', gap: 8 }}>
-            <p className="muted small" style={{ flex: 1, margin: 0 }}>Haritaya tıklayarak çiziminizi yapın...</p>
-            <button className="btn primary small" onClick={handleFinishDrawing}>✅ Bitir</button>
+            <p className="muted small" style={{ flex: 1, margin: 0 }}>Haritaya tıklayarak çiziminizi yapın (çift tıklayarak bitirin)...</p>
+            <button id="finish-drawing-btn" className="btn primary small" onClick={handleFinishDrawing}>✅ Bitir</button>
           </div>
         ) : (
           <div style={{ display: 'flex', gap: 8 }}>
-            {modeLine && modeLine !== 'none' && <button className="btn outline small" onClick={() => { setDrawingMode(modeLine); setDraftCoords([]); }}>{modeLine === 'penstockRoute' ? '〽️ Rota Çiz' : '📐 3D Şekil Çiz'}</button>}
+            {modeLine && modeLine !== 'none' && <button className="btn outline small" onClick={() => { setDrawingMode(modeLine); setDrawingTemplate('point'); setDraftCoords([]); }}>{modeLine === 'penstockRoute' ? '〽️ Rota Çiz' : '📐 3D Şekil Çiz'}</button>}
             {modePoint && modePoint !== 'none' && <button className="btn outline small" onClick={() => { setDrawingMode(modePoint); setDraftCoords([]); }}>📍 Konum Seç</button>}
+          </div>
+        )}
+        
+        {modeLine === 'upperReservoir' && isDrawing && (
+          <div style={{ marginTop: 8, display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+             <button className={`btn small ${drawingTemplate === 'point' ? 'primary' : 'outline'}`} onClick={() => { setDrawingTemplate('point'); setDraftCoords([]); }}>✏️ Serbest</button>
+             <button className={`btn small ${drawingTemplate === 'square' ? 'primary' : 'outline'}`} onClick={() => { setDrawingTemplate('square'); setDraftCoords([]); }}>⬛ Kare</button>
+             <button className={`btn small ${drawingTemplate === 'rectangle' ? 'primary' : 'outline'}`} onClick={() => { setDrawingTemplate('rectangle'); setDraftCoords([]); }}>▭ Dikdrt.</button>
+             <button className={`btn small ${drawingTemplate === 'rounded' ? 'primary' : 'outline'}`} onClick={() => { setDrawingTemplate('rounded'); setDraftCoords([]); }}>🔲 Oval-Kr</button>
+             <button className={`btn small ${drawingTemplate === 'oval' ? 'primary' : 'outline'}`} onClick={() => { setDrawingTemplate('oval'); setDraftCoords([]); }}>🕳️ Oval</button>
           </div>
         )}
       </div>
@@ -304,19 +393,19 @@ export default function ThreeDEditorPage({ site, onDone }: ThreeDEditorPageProps
             
             <div style={{ marginTop: 8, display: 'flex', flexDirection: 'column', gap: 8 }}>
               <div className="card" style={{ padding: 12, background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
-                <h4 style={{ margin: '0 0 8px 0', fontSize: '13px', color: 'var(--muted)' }}>Üst Rezervuar Bilgisi</h4>
+                <h4 style={{ margin: '0 0 8px 0', fontSize: '13px', color: 'var(--muted)' }}>Üst Rezervuar Bilgisi (Eski)</h4>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: '12px' }}>
-                  <div><b>Alan:</b> {formatNum(upperStats.area)} m²</div>
-                  <div><b>Hacim:</b> {formatNum(upperStats.volume)} m³</div>
-                  <div><b>Kot:</b> {formatNum(upperStats.elevation)} m</div>
+                  <div><b>Alan:</b> {formatNum(upperOldStats.area)} m²</div>
+                  <div><b>Hacim:</b> {formatNum(upperOldStats.volume)} m³</div>
+                  <div><b>Kot:</b> {formatNum(upperOldStats.elevation)} m</div>
                 </div>
               </div>
               <div className="card" style={{ padding: 12, background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
-                <h4 style={{ margin: '0 0 8px 0', fontSize: '13px', color: 'var(--muted)' }}>Alt Rezervuar Bilgisi</h4>
+                <h4 style={{ margin: '0 0 8px 0', fontSize: '13px', color: 'var(--muted)' }}>Üst Rezervuar Bilgisi (Yeni)</h4>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: '12px' }}>
-                  <div><b>Alan:</b> {formatNum(lowerStats.area)} m²</div>
-                  <div><b>Hacim:</b> {formatNum(lowerStats.volume)} m³</div>
-                  <div><b>Kot:</b> {formatNum(lowerStats.elevation)} m</div>
+                  <div><b>Alan:</b> {formatNum(upperNewStats.area)} m²</div>
+                  <div><b>Hacim:</b> {formatNum(upperNewStats.volume)} m³</div>
+                  <div><b>Kot:</b> {formatNum(upperNewStats.elevation)} m</div>
                 </div>
               </div>
             </div>
