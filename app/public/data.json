@@ -270,7 +270,7 @@
       "coordinateSystem": "WGS84",
       "coordinateOrder": "[lon, lat]",
       "coordinateConfidence": "fallback-approximate",
-      "coordinateNote": "Kaynak raporda enlem/boylam verilmediği için baraj/göl/regülatör adı ve açık harita/topografya ön kabulüyle öneri koordinat verilmiştir; DEM, uydu görüntüsü, mülkiyet, korunan alan ve saha etüdüyle doğrulanmadan kesin konum gibi kullanılmamalıdır.",
+      "coordinateNote": "Kaynak raporda enlem/boylam verilmediği için baraj/göl/regülatör adı ve açık harita/topografya ön kabulüyle öneri koordinat verilmiştir; DEM, uydu görüntüsü, mülkiyet, korunan alan ve saha etüdüyle doğrulanmadan kesin konum gibi kullanılmamalıdır. Alt ve üst rezervuar çoklu polygonlarla güncellenmiştir.",
       "mapAnchor": [
         31.39085,
         40.05495
@@ -282,6 +282,17 @@
           40.0399
         ]
       },
+      "lowerReservoirPolygon": [
+        [31.408, 40.043],
+        [31.412, 40.046],
+        [31.419, 40.044],
+        [31.423, 40.039],
+        [31.421, 40.035],
+        [31.415, 40.033],
+        [31.411, 40.036],
+        [31.407, 40.040],
+        [31.408, 40.043]
+      ],
       "upperReservoir": {
         "description": "435 m yükseklikte beton kaplamalı üst havuz",
         "point": [
@@ -289,6 +300,13 @@
           40.07
         ]
       },
+      "upperReservoirPolygon": [
+        [31.362, 40.076],
+        [31.374, 40.075],
+        [31.375, 40.063],
+        [31.363, 40.064],
+        [31.362, 40.076]
+      ],
       "powerhouse": {
         "point": [
           31.4095,
@@ -304,8 +322,8 @@
       },
       "penstockRoute": [
         [
-          31.367,
-          40.07
+          31.368,
+          40.068
         ],
         [
           31.38825,
