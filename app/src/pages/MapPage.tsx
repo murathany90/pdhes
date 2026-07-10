@@ -247,7 +247,7 @@ export default function MapPage() {
           >
             ›
           </button>
-          <h2 style={{ marginTop: 0 }}>{worldExample ? 'PDHES Bilgileri' : 'Kavramsal Özet'}</h2>
+          <h2 style={{ marginTop: 0 }}>{worldExample ? 'Dünya Örneği Bilgileri' : 'PDHES Aday Bilgileri'}</h2>
           {worldExample ? (
             <div className="grid" style={{ gap: 6, marginBottom: 16 }}>
               <div className="metric good"><span>Tesis Adı</span><b style={{fontSize: 13}}>{worldExample.name}</b></div>
@@ -278,11 +278,32 @@ export default function MapPage() {
             </div>
           ) : (
             <>
-              <div className="grid" style={{ gap: 6, display: 'grid', gridTemplateColumns: '1fr 1fr' }}>
-                <div className="metric good"><span>Aday Adı & Türü</span><b>{site.id.replace(/_/g, ' ').toUpperCase()} / {site.pdhesType === 'OPEN_LOOP' ? 'Açık Çevrim' : (site.pdhesType === 'CLOSED_LOOP' ? 'Kapalı Çevrim' : 'Deniz')}</b></div>
-                <div className="metric info"><span>Güç / Enerji</span><b>{num(site.capacityMW)} MW / {num((site.energyGWh ? site.energyGWh * 1000 : (site.capacityMW ?? 0) * 7))} MWh</b></div>
-                <div className="metric"><span>Düşü / Su Yolu</span><b>{num(site.headM)} m / {site.tunnelLengthKm ? `${num(site.tunnelLengthKm, 1)} km` : (site.penstockLengthM ? `${num(site.penstockLengthM)} m` : 'Bilinmiyor')}</b></div>
-                <div className="metric warn"><span>Yatırım / Amortisman</span><b>{moneyBn(site.capexUsdBn)} / {site.paybackYear ? `${site.paybackYear} yıl` : 'Bilinmiyor'}</b></div>
+              <div className="metric" style={{ padding: '12px 16px', marginBottom: '16px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', rowGap: '8px', columnGap: '12px', alignItems: 'center' }}>
+                  <div style={{ color: 'var(--muted)', fontSize: '11px', textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.5px' }}>Saha Adı</div>
+                  <div style={{ fontSize: '14px', fontWeight: 700, textAlign: 'right', color: 'var(--green)' }}>{site.id.toUpperCase().replace(/^KAMU_/, '').replace(/_PSPP$/, '').replace(/_/g, ' ')}</div>
+                  
+                  <div style={{ color: 'var(--muted)', fontSize: '11px', textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.5px' }}>Tesis Türü</div>
+                  <div style={{ fontSize: '14px', fontWeight: 700, textAlign: 'right' }}>{site.pdhesType === 'OPEN_LOOP' ? 'Açık Çevrim' : (site.pdhesType === 'CLOSED_LOOP' ? 'Kapalı Çevrim' : 'Deniz')}</div>
+                  
+                  <div style={{ color: 'var(--muted)', fontSize: '11px', textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.5px' }}>Kurulu Güç</div>
+                  <div style={{ fontSize: '14px', fontWeight: 700, textAlign: 'right', color: 'var(--cyan)' }}>{num(site.capacityMW)} MW</div>
+                  
+                  <div style={{ color: 'var(--muted)', fontSize: '11px', textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.5px' }}>Depolama Kap.</div>
+                  <div style={{ fontSize: '14px', fontWeight: 700, textAlign: 'right', color: 'var(--cyan)' }}>{num((site.energyGWh ? site.energyGWh * 1000 : (site.capacityMW ?? 0) * 7))} MWh</div>
+                  
+                  <div style={{ color: 'var(--muted)', fontSize: '11px', textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.5px' }}>Brüt Düşü</div>
+                  <div style={{ fontSize: '14px', fontWeight: 700, textAlign: 'right' }}>{num(site.headM)} m</div>
+                  
+                  <div style={{ color: 'var(--muted)', fontSize: '11px', textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.5px' }}>Su Yolu Uzun.</div>
+                  <div style={{ fontSize: '14px', fontWeight: 700, textAlign: 'right' }}>{site.tunnelLengthKm ? `${num(site.tunnelLengthKm, 1)} km` : (site.penstockLengthM ? `${num(site.penstockLengthM)} m` : 'Bilinmiyor')}</div>
+                  
+                  <div style={{ color: 'var(--muted)', fontSize: '11px', textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.5px' }}>Yatırım (CAPEX)</div>
+                  <div style={{ fontSize: '14px', fontWeight: 700, textAlign: 'right', color: 'var(--yellow)' }}>{moneyBn(site.capexUsdBn)}</div>
+                  
+                  <div style={{ color: 'var(--muted)', fontSize: '11px', textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.5px' }}>Amortisman</div>
+                  <div style={{ fontSize: '14px', fontWeight: 700, textAlign: 'right', color: 'var(--yellow)' }}>{site.paybackYear ? `${site.paybackYear} yıl` : 'Bilinmiyor'}</div>
+                </div>
               </div>
               <ElevationProfile site={site} />
             </>
