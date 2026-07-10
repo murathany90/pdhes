@@ -41,7 +41,7 @@ export default function PdhesPage({ sectionId }: PdhesPageProps) {
       if (panel && panelIsScrollable && typeof panel.scrollTo === 'function') {
         window.scrollTo({ top: 0, behavior: 'auto' });
         panel.scrollTo({
-          top: Math.max(0, target.offsetTop - 16),
+          top: Math.max(0, target.offsetTop - 80),
           behavior: 'auto',
         });
       } else if (typeof target.scrollIntoView === 'function') {

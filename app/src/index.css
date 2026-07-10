@@ -459,15 +459,15 @@ html[data-theme="light"] .layer-btn.active {
 html[data-theme="light"] .kbd { color: #0f1c18; }
 
 /* ── PDHES Encyclopedia ── */
-.encyclopedia-layout { display: grid; grid-template-columns: 192px minmax(0, 1fr); gap: 40px; align-items: start; max-width: 1200px; margin: 0 auto; }
+.encyclopedia-layout { display: grid; grid-template-columns: 170px minmax(0, 1fr); gap: 32px; align-items: start; max-width: 1200px; margin: 0 auto; }
 .encyclopedia-sidebar { position: sticky; top: 30px; max-height: calc(100vh - 40px); overflow-y: auto; scrollbar-width: thin; }
-.section-nav-title { margin: 0 0 16px; color: var(--text); font-weight: 700; font-size: 16px; }
+.section-nav-title { margin: 0 0 12px; color: var(--text); font-weight: 700; font-size: 15px; }
 .section-nav-list {
-  list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 2px;
+  list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0;
 }
 .section-nav a {
-  color: var(--muted); display: block; padding: 3px 0; text-decoration: none;
-  transition: color .15s ease; font-weight: 500;
+  color: var(--muted); display: block; padding: 2.5px 0; text-decoration: none;
+  transition: color .15s ease; font-weight: 500; font-size: 14px;
 }
 .section-nav a:hover, .section-nav a.active { color: var(--green); }
 .section-nav a.active { font-weight: 700; }
@@ -572,6 +572,20 @@ html[data-theme="light"] .kbd { color: #0f1c18; }
   .map-stage { min-height: 560px; }
   .threed-page, .threed-layout { height: auto; overflow: visible; }
   .threed-right { overflow: visible; }
+  .encyclopedia-sidebar {
+    position: sticky; top: 0; z-index: 4; margin: -12px -12px 8px; padding: 10px 12px;
+    background: color-mix(in srgb, var(--bg) 92%, transparent);
+    border-bottom: 1px solid var(--line); backdrop-filter: blur(12px);
+  }
+  .section-nav-title { display: none; }
+  .section-nav { overflow-x: auto; scrollbar-width: thin; }
+  .section-nav-list { flex-direction: row; width: max-content; gap: 6px; }
+  .section-nav a {
+    padding: 8px 11px; border: 1px solid var(--line); border-radius: 999px;
+    background: var(--panel); white-space: nowrap;
+  }
+  .section-nav a.sub { padding-left: 11px; font-size: 14px; opacity: 1; }
+  .section-nav a.active { border-color: var(--green); background: rgba(var(--focus-rgb),.1); }
 }
 @media (max-width: 700px) {
   html, body, #root, .app, .topbar, .tabs, main, .panel {
@@ -630,20 +644,6 @@ html[data-theme="light"] .kbd { color: #0f1c18; }
   .encyclopedia h2 { font-size: 22px; }
   .content-split { grid-template-columns: 1fr; }
   .encyclopedia-layout { gap: 18px; }
-  .encyclopedia-sidebar {
-    position: sticky; top: 0; z-index: 4; margin: -12px -12px 8px; padding: 10px 12px;
-    background: color-mix(in srgb, var(--bg) 92%, transparent);
-    border-bottom: 1px solid var(--line); backdrop-filter: blur(12px);
-  }
-  .section-nav-title { display: none; }
-  .section-nav { overflow-x: auto; scrollbar-width: thin; }
-  .section-nav-list { flex-direction: row; width: max-content; gap: 6px; }
-  .section-nav a {
-    padding: 8px 11px; border: 1px solid var(--line); border-radius: 999px;
-    background: var(--panel); white-space: nowrap;
-  }
-  .section-nav a.sub { padding-left: 11px; font-size: 14px; opacity: 1; }
-  .section-nav a.active { border-color: var(--green); background: rgba(var(--focus-rgb),.1); }
   .threed-left { min-height: 380px; border-right: none; border-bottom: 1px solid var(--line); }
 }
 
@@ -838,7 +838,7 @@ html[data-theme="light"] .pdhes-rich-shell .toc { background: rgba(255,255,255,.
 .pdhes-rich-shell .toc-tools button, .pdhes-rich-shell .toc-tools a.download { width:100%; border:1px solid rgba(57,213,255,.28); background: rgba(57,213,255,.08); color:var(--text); border-radius:14px; padding:10px 12px; cursor:pointer; font-weight:700; text-align:center; text-decoration:none; }
 html[data-theme="light"] .pdhes-rich-shell .toc-tools button { border-color: var(--line); background: var(--panel2); }
 .pdhes-rich-shell .content { display:grid; gap: 22px; }
-.pdhes-rich-shell .info-card { border:1px solid var(--line); border-radius: var(--radius); background: linear-gradient(180deg, rgba(13, 31, 55, .92), rgba(8, 22, 42, .88)); box-shadow: var(--shadow); padding: 22px; scroll-margin-top: 24px; }
+.pdhes-rich-shell .info-card { border:1px solid var(--line); border-radius: var(--radius); background: linear-gradient(180deg, rgba(13, 31, 55, .92), rgba(8, 22, 42, .88)); box-shadow: var(--shadow); padding: 22px; scroll-margin-top: 80px; }
 html[data-theme="light"] .pdhes-rich-shell .info-card { background: var(--panel); }
 .pdhes-rich-shell .card-head { display:flex; gap: 14px; align-items:flex-start; margin-bottom: 18px; }
 .pdhes-rich-shell .number-pill { width: 54px; height:54px; border-radius:18px; display:grid; place-items:center; background: linear-gradient(135deg, var(--cyan), var(--green)); color:#04101f; font-size: 22px; font-weight: 900; box-shadow: 0 12px 30px rgba(57,213,255,.25); }
@@ -890,8 +890,8 @@ html[data-theme="light"] .pdhes-rich-shell .source-footer { background: var(--pa
 .modal-title { font-weight:800; } .modal-actions { display:flex; gap:8px; } .modal-actions button { border:1px solid rgba(255,255,255,.24); background:rgba(255,255,255,.08); color:white; border-radius:12px; padding:9px 12px; cursor:pointer; font-weight:800; }
 .modal-body { overflow:auto; display:grid; place-items:center; padding:24px; } .modal-body img { max-width: min(1600px, 96vw); width:100%; height:auto; transform-origin:center center; transition: transform .15s ease; box-shadow:0 24px 90px rgba(0,0,0,.65); }
 
-@media (max-width: 1050px) { .pdhes-rich-shell .hero, .pdhes-rich-shell .layout { grid-template-columns: 1fr; } .pdhes-rich-shell .toc { position:relative; top:auto; max-height:none; } .pdhes-rich-shell .hero-stats, .pdhes-rich-shell .note-grid.four, .pdhes-rich-shell .check-flow { grid-template-columns: repeat(2,1fr); } .pdhes-rich-shell .rich-list.compact, .pdhes-rich-shell .type-grid { grid-template-columns:1fr; } }
-@media (max-width: 700px) { .pdhes-rich-shell { padding: 14px; } .pdhes-rich-shell .hero-card, .pdhes-rich-shell .info-card { padding:18px; border-radius:22px; } .pdhes-rich-shell .hero-stats, .pdhes-rich-shell .note-grid, .pdhes-rich-shell .note-grid.four, .pdhes-rich-shell .split-box, .pdhes-rich-shell .comparison-mini, .pdhes-rich-shell .check-flow { grid-template-columns:1fr; } .pdhes-rich-shell .fullscreen-btn { position:static; display:block; width:calc(100% - 24px); margin:12px; } }
+@media (max-width: 1050px) { .pdhes-rich-shell .hero, .pdhes-rich-shell .layout { grid-template-columns: 1fr; } .pdhes-rich-shell .toc { position:relative; top:auto; max-height:none; } .pdhes-rich-shell .hero-stats, .pdhes-rich-shell .note-grid, .pdhes-rich-shell .note-grid.four, .pdhes-rich-shell .split-box, .pdhes-rich-shell .comparison-mini, .pdhes-rich-shell .check-flow { grid-template-columns: 1fr; } .pdhes-rich-shell .rich-list.compact, .pdhes-rich-shell .type-grid { grid-template-columns:1fr; } .pdhes-rich-shell .fullscreen-btn { position:static; display:block; width:calc(100% - 24px); margin:12px; } }
+@media (max-width: 700px) { .pdhes-rich-shell { padding: 14px; } .pdhes-rich-shell .hero-card, .pdhes-rich-shell .info-card { padding:18px; border-radius:22px; } }
 
 .section-nav-list a.sub { padding-left: 1.5rem; font-size: 0.85rem; opacity: 0.85; font-weight: 400; }
 
