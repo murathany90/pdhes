@@ -1145,9 +1145,80 @@ html[data-theme="light"] .pdhes-rich-shell .source-footer { background: var(--pa
 
 .section-nav-list a.sub { padding-left: 1.5rem; font-size: 0.85rem; opacity: 0.85; font-weight: 400; }
 
-@media (max-width: 700px) {
-  .candidate-table { min-width: 600px; font-size: 13px; }
-  .candidate-table-wrap { border-radius: 12px; }
+@media (max-width: 850px) {
+  /* Convert the table wrapper into a vertical stack */
+  .candidate-table-wrap { overflow: visible !important; border: none !important; background: transparent !important; }
+  
+  /* Reset table display */
+  .candidate-table, .candidate-table tbody { display: block; width: 100%; min-width: 0 !important; }
+  
+  /* Hide the headers and column group */
+  .candidate-table thead, .candidate-table colgroup { display: none; }
+  
+  /* Style each row as a distinct card */
+  .candidate-table tr.main-row { 
+    display: flex; flex-direction: column; 
+    margin-bottom: 16px; border: 1px solid var(--line); 
+    border-radius: 16px; background: var(--panel2); 
+    padding: 16px; gap: 8px; position: relative; z-index: 1;
+  }
+  
+  /* Each cell becomes a flex row */
+  .candidate-table tr.main-row td { 
+    display: flex; justify-content: space-between; align-items: center; 
+    padding: 6px 0; border: none; font-size: 14px; 
+    border-bottom: 1px solid rgba(255,255,255,0.05); text-align: right;
+  }
+  html[data-theme="light"] .candidate-table tr.main-row td { border-bottom-color: rgba(0,0,0,0.05); }
+  .candidate-table tr.main-row td:last-child { border: none; padding-bottom: 0; }
+  
+  /* Label generation using nth-child for DataPage (13 columns) */
+  .excel-candidate-table td:nth-child(1)::before { content: "No"; font-weight: 600; color: var(--muted); font-size: 13px; margin-right: 16px; }
+  .excel-candidate-table td:nth-child(2)::before { content: "Aday Adı"; font-weight: 600; color: var(--muted); font-size: 13px; margin-right: 16px; }
+  .excel-candidate-table td:nth-child(3)::before { content: "Tip"; font-weight: 600; color: var(--muted); font-size: 13px; margin-right: 16px; }
+  .excel-candidate-table td:nth-child(4)::before { content: "Kapasite (MW)"; font-weight: 600; color: var(--muted); font-size: 13px; margin-right: 16px; }
+  .excel-candidate-table td:nth-child(5)::before { content: "Depolama Süresi"; font-weight: 600; color: var(--muted); font-size: 13px; margin-right: 16px; }
+  .excel-candidate-table td:nth-child(6)::before { content: "Enerji (MWh)"; font-weight: 600; color: var(--muted); font-size: 13px; margin-right: 16px; }
+  .excel-candidate-table td:nth-child(7)::before { content: "Alt Kot (m)"; font-weight: 600; color: var(--muted); font-size: 13px; margin-right: 16px; }
+  .excel-candidate-table td:nth-child(8)::before { content: "Üst Kot (m)"; font-weight: 600; color: var(--muted); font-size: 13px; margin-right: 16px; }
+  .excel-candidate-table td:nth-child(9)::before { content: "Brüt Düşü (m)"; font-weight: 600; color: var(--muted); font-size: 13px; margin-right: 16px; }
+  .excel-candidate-table td:nth-child(10)::before { content: "Net Düşü (m)"; font-weight: 600; color: var(--muted); font-size: 13px; margin-right: 16px; }
+  .excel-candidate-table td:nth-child(11)::before { content: "Toplam Skor"; font-weight: 600; color: var(--muted); font-size: 13px; margin-right: 16px; }
+  .excel-candidate-table td:nth-child(12)::before { content: "Geri Ödeme"; font-weight: 600; color: var(--muted); font-size: 13px; margin-right: 16px; }
+  .excel-candidate-table td:nth-child(13)::before { content: "Konum"; font-weight: 600; color: var(--muted); font-size: 13px; margin-right: 16px; }
+
+  /* Label generation using nth-child for WorldExamplesPage (15 columns) */
+  .world-candidate-table td:nth-child(1)::before { content: "Adı"; font-weight: 600; color: var(--muted); font-size: 13px; margin-right: 16px; }
+  .world-candidate-table td:nth-child(2)::before { content: "Ülke"; font-weight: 600; color: var(--muted); font-size: 13px; margin-right: 16px; }
+  .world-candidate-table td:nth-child(3)::before { content: "Tipi"; font-weight: 600; color: var(--muted); font-size: 13px; margin-right: 16px; }
+  .world-candidate-table td:nth-child(4)::before { content: "İşletme"; font-weight: 600; color: var(--muted); font-size: 13px; margin-right: 16px; }
+  .world-candidate-table td:nth-child(5)::before { content: "Yapım"; font-weight: 600; color: var(--muted); font-size: 13px; margin-right: 16px; }
+  .world-candidate-table td:nth-child(6)::before { content: "Güç(MW)"; font-weight: 600; color: var(--muted); font-size: 13px; margin-right: 16px; }
+  .world-candidate-table td:nth-child(7)::before { content: "Enerji(MWh)"; font-weight: 600; color: var(--muted); font-size: 13px; margin-right: 16px; }
+  .world-candidate-table td:nth-child(8)::before { content: "Verim"; font-weight: 600; color: var(--muted); font-size: 13px; margin-right: 16px; }
+  .world-candidate-table td:nth-child(9)::before { content: "Süre(sa)"; font-weight: 600; color: var(--muted); font-size: 13px; margin-right: 16px; }
+  .world-candidate-table td:nth-child(10)::before { content: "Düşü(m)"; font-weight: 600; color: var(--muted); font-size: 13px; margin-right: 16px; }
+  .world-candidate-table td:nth-child(11)::before { content: "Alt Hacim"; font-weight: 600; color: var(--muted); font-size: 13px; margin-right: 16px; }
+  .world-candidate-table td:nth-child(12)::before { content: "Üst Hacim"; font-weight: 600; color: var(--muted); font-size: 13px; margin-right: 16px; }
+  .world-candidate-table td:nth-child(13)::before { content: "Yatırım"; font-weight: 600; color: var(--muted); font-size: 13px; margin-right: 16px; }
+  .world-candidate-table td:nth-child(14)::before { content: "$/kWh"; font-weight: 600; color: var(--muted); font-size: 13px; margin-right: 16px; }
+  .world-candidate-table td:nth-child(15)::before { content: "Konum"; font-weight: 600; color: var(--muted); font-size: 13px; margin-right: 16px; }
+
+  /* Expanded Details Handling */
+  .candidate-table tr.expanded-details-row { display: block; border: 1px solid var(--green); border-radius: 16px; margin-top: -24px; margin-bottom: 16px; border-top: none; border-top-left-radius: 0; border-top-right-radius: 0; background: var(--panel); position: relative; z-index: 0; }
+  .candidate-table tr.expanded-details-row td { display: block; padding: 16px; border: none; text-align: left; }
+  .candidate-table tr.expanded-details-row td::before { content: none !important; }
+  
+  /* Empty State Handling */
+  .candidate-table tr:has(.empty-table-cell) { display: block; }
+  .candidate-table td.empty-table-cell { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; border: 1px dashed var(--line); border-radius: 16px; padding: 32px 16px; gap: 8px; }
+  .candidate-table td.empty-table-cell::before { content: none !important; }
+
+  /* Adjustments for specific elements */
+  .candidate-table .site-row-button { align-items: flex-end; text-align: right; }
+  .candidate-table .score-badge { font-size: 12px; padding: 2px 8px; }
+  
+  .candidate-summary-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 24px; }
   .expanded-details-content { padding: 14px; }
 }
 
