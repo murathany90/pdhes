@@ -610,11 +610,11 @@ html[data-theme="light"] .kbd { color: #0f1c18; }
     border-bottom: 1px solid var(--line); backdrop-filter: blur(12px);
   }
   .section-nav-title { display: none; }
-  .section-nav { overflow-x: auto; scrollbar-width: thin; }
-  .section-nav-list { flex-direction: row; width: max-content; gap: 6px; }
+  .section-nav { overflow-x: hidden; }
+  .section-nav-list { flex-direction: row; flex-wrap: wrap; width: 100%; gap: 6px; }
   .section-nav a {
     padding: 8px 11px; border: 1px solid var(--line); border-radius: 999px;
-    background: var(--panel); white-space: nowrap;
+    background: var(--panel); white-space: nowrap; flex: 1 1 auto; text-align: center;
   }
   .section-nav a.sub { padding-left: 11px; font-size: 14px; opacity: 1; }
   .section-nav a.active { border-color: var(--green); background: rgba(var(--focus-rgb),.1); }
