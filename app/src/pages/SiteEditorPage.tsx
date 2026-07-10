@@ -336,6 +336,14 @@ export default function SiteEditorPage({ mode, templateSite, onDone }: SiteEdito
         </div>
 
         <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 16 }}>
+          <button className="btn outline" onClick={() => {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(draft, null, 2));
+            const dlAnchorElem = document.createElement('a');
+            dlAnchorElem.setAttribute("href", dataStr);
+            dlAnchorElem.setAttribute("download", `${draft.id}_duzenleme.json`);
+            dlAnchorElem.click();
+            setMessage('Veri JSON olarak indirildi.');
+          }}>⬇️ İndir (JSON)</button>
           <button className="btn primary" onClick={save}>Kaydet</button>
           <button className="btn" onClick={() => setRecordText(JSON.stringify({ ...draft, risks: risksText.split('\n').map((risk) => risk.trim()).filter(Boolean), assumptions: assumptionsText.split('\n').map((item) => item.trim()).filter(Boolean) }, null, 2))}>
             Ham kaydı yenile

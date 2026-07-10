@@ -96,25 +96,35 @@ export default function ThreeDEditorPage({ site, onDone }: ThreeDEditorPageProps
         if (drawingTemplate !== 'point') {
           let generatedCoords: [number, number][] = [];
           try {
+            const vol = previewSite?.components_detail?.upper_reservoir?.active_volume_mcm || previewSite?.activeVolumeHm3 || 5;
+            const areaM2 = vol * 1000000 / 25; // using 25m depth assumption
+
             if (drawingTemplate === 'square') {
-              generatedCoords = turf.circle([lng, lat], 400, { steps: 4, units: 'meters' }).geometry.coordinates[0] as [number, number][];
+              const radius = Math.sqrt(areaM2 / 2);
+              generatedCoords = turf.circle([lng, lat], radius, { steps: 4, units: 'meters' }).geometry.coordinates[0] as [number, number][];
               generatedCoords = turf.transformRotate(turf.polygon([generatedCoords]), 45).geometry.coordinates[0] as [number, number][];
             } else if (drawingTemplate === 'rectangle') {
-              const buf = turf.buffer(turf.lineString([[lng - 0.004, lat], [lng + 0.004, lat]]), 200, { units: 'meters' });
-              if (buf) {
-                const bbox = turf.bbox(buf);
-                generatedCoords = turf.bboxPolygon(bbox).geometry.coordinates[0] as [number, number][];
-              }
+              const width = Math.sqrt(areaM2 / 1.3);
+              const length = width * 1.3;
+              const pt = turf.point([lng, lat]);
+              const n = turf.destination(pt, length / 2, 0, {units: 'meters'}).geometry.coordinates[1];
+              const s = turf.destination(pt, length / 2, 180, {units: 'meters'}).geometry.coordinates[1];
+              const e = turf.destination(pt, width / 2, 90, {units: 'meters'}).geometry.coordinates[0];
+              const w = turf.destination(pt, width / 2, -90, {units: 'meters'}).geometry.coordinates[0];
+              generatedCoords = [[w, s], [e, s], [e, n], [w, n], [w, s]];
             } else if (drawingTemplate === 'oval') {
+              const ySemiAxis = Math.sqrt(areaM2 / (1.5 * Math.PI));
+              const xSemiAxis = ySemiAxis * 1.5;
               if (turf.ellipse) {
-                generatedCoords = turf.ellipse([lng, lat], 500, 300, { units: 'meters' }).geometry.coordinates[0] as [number, number][];
+                generatedCoords = turf.ellipse([lng, lat], xSemiAxis, ySemiAxis, { units: 'meters' }).geometry.coordinates[0] as [number, number][];
               } else {
-                generatedCoords = turf.circle([lng, lat], 400, { steps: 36, units: 'meters' }).geometry.coordinates[0] as [number, number][];
+                generatedCoords = turf.circle([lng, lat], Math.sqrt(areaM2 / Math.PI), { steps: 36, units: 'meters' }).geometry.coordinates[0] as [number, number][];
               }
             } else if (drawingTemplate === 'rounded') {
-              const bbox = turf.bbox(turf.circle([lng, lat], 350, { steps: 4, units: 'meters' }));
+              const r = Math.sqrt(areaM2 / Math.PI) * 0.9;
+              const bbox = turf.bbox(turf.circle([lng, lat], r, { steps: 4, units: 'meters' }));
               const sq = turf.bboxPolygon(bbox);
-              const buf = turf.buffer(sq, 50, { units: 'meters' });
+              const buf = turf.buffer(sq, r * 0.2, { units: 'meters' });
               if (buf && buf.geometry && buf.geometry.type === 'Polygon') {
                 generatedCoords = buf.geometry.coordinates[0] as [number, number][];
               } else if (buf && buf.geometry && buf.geometry.type === 'MultiPolygon') {
@@ -436,6 +446,15 @@ export default function ThreeDEditorPage({ site, onDone }: ThreeDEditorPageProps
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 16 }}>
+            <button className="btn outline" onClick={() => {
+              if (!previewSite) return;
+              const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(previewSite, null, 2));
+              const dlAnchorElem = document.createElement('a');
+              dlAnchorElem.setAttribute("href", dataStr);
+              dlAnchorElem.setAttribute("download", `${previewSite.id}_yerlesim.json`);
+              dlAnchorElem.click();
+              setMessage('Yerleşim JSON olarak indirildi.');
+            }}>⬇️ İndir (JSON)</button>
             <button className="btn" style={{ background: 'var(--yellow)', color: 'var(--bg)', border: 'none' }} onClick={handleAutoDraw}>✨ Kalanları Otomatik Çiz</button>
             <button className="btn primary" onClick={handleSave}>💾 Kaydet</button>
             <div style={{ display: 'flex', gap: 8 }}>
