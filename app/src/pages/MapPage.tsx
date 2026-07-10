@@ -65,6 +65,7 @@ export default function MapPage() {
     site,
     sites,
     selectedId,
+    worldExampleFocusId,
     mapStyle,
     heightScale,
     gridAssets,
@@ -81,10 +82,10 @@ export default function MapPage() {
       if (example) {
         mapRef.current.flyTo({
           center: [example.lon || 0, example.lat || 0],
-          zoom: 8,
-          pitch: 0,
+          zoom: 13.5,
+          pitch: 50,
           bearing: 0,
-          duration: 1500,
+          duration: 2500,
         });
         
         // Wait for flyTo to start and then trigger the click event on the marker to open the popup
@@ -281,7 +282,7 @@ export default function MapPage() {
               <div className="metric" style={{ padding: '12px 16px', marginBottom: '16px' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', rowGap: '8px', columnGap: '12px', alignItems: 'center' }}>
                   <div style={{ color: 'var(--muted)', fontSize: '11px', textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.5px' }}>Saha Adı</div>
-                  <div style={{ fontSize: '14px', fontWeight: 700, textAlign: 'right', color: 'var(--green)' }}>{site.id.toUpperCase().replace(/^KAMU_/, '').replace(/_PSPP$/, '').replace(/_/g, ' ')}</div>
+                  <div style={{ fontSize: '14px', fontWeight: 700, textAlign: 'right', color: 'var(--green)' }}>{site.name.replace(/^KAMU[-\s_]?/i, '').replace(/PSPP/ig, 'PDHES')}</div>
                   
                   <div style={{ color: 'var(--muted)', fontSize: '11px', textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.5px' }}>Tesis Türü</div>
                   <div style={{ fontSize: '14px', fontWeight: 700, textAlign: 'right' }}>{site.pdhesType === 'OPEN_LOOP' ? 'Açık Çevrim' : (site.pdhesType === 'CLOSED_LOOP' ? 'Kapalı Çevrim' : 'Deniz')}</div>

@@ -85,7 +85,7 @@ export function getSiteCenter(site: Site): [number, number] {
 export function getSiteView(site: Site): SiteView {
   return site.view ?? {
     center: getSiteCenter(site),
-    zoom: site.pdhesType === 'SEA_WATER' ? 8 : 9,
+    zoom: site.pdhesType === 'SEA_WATER' ? 12 : 13.5,
     pitch: 55,
     bearing: 0,
   };

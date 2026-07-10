@@ -105,7 +105,7 @@ export function FabPopover({
                           selectSite(site.id);
                         }}
                       >
-                        <td>{site.name.replace(/PSPP/g, 'PDHES')}</td>
+                        <td>{site.name.replace(/^KAMU[-\s_]?/i, '').replace(/PSPP/g, 'PDHES')}</td>
                         <td><div>{num(site.capacityMW)} MW</div><div style={{fontSize: '0.85em', color: 'var(--muted)'}}>{site.energyGWh ?? 'Belirtilmedi'} GWh</div></td>
                         <td><div>{num(site.headM, 1)} m</div><div style={{fontSize: '0.85em', color: 'var(--muted)'}}>{num(site.tunnelLengthKm, 1)} km</div></td>
                         <td>{metrics.scenarioScore.toFixed(1)}</td>
@@ -182,7 +182,7 @@ export function FabPopover({
                     <div className="quality-options" role="group" aria-label="3D arazi kalitesi">
                       {[
                         { label: 'Düşük', val: 1.0 },
-                        { label: 'Orta', val: 1.3 },
+                        { label: 'Orta', val: 1.1 },
                         { label: 'Yüksek', val: 2.2 },
                         { label: 'Ekstrem', val: 3.0 }
                       ].map(opt => (

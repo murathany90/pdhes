@@ -75,7 +75,7 @@ export const useSettingsStore = create<SettingsStore>()(
     (set, get) => ({
       theme: legacyTheme(),
       mapStyle: 'satellite',
-      heightScale: 1.3,
+      heightScale: 1.1,
       weights: DEFAULT_SCORE_WEIGHTS,
       showPowerGrid: false,
       powerGridConfig: DEFAULT_POWER_GRID_CONFIG,

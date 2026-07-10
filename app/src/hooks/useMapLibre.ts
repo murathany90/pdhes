@@ -47,6 +47,7 @@ interface UseMapLibreOptions {
   site?: Site;
   sites: Site[];
   selectedId: string;
+  worldExampleFocusId?: string | null;
   mapStyle: MapStyleKind;
   heightScale: number;
   gridAssets: FeatureCollection | null;
@@ -83,6 +84,7 @@ export function useMapLibre({
   site,
   sites,
   selectedId,
+  worldExampleFocusId,
   mapStyle,
   heightScale,
   gridAssets,
@@ -405,6 +407,7 @@ export function useMapLibre({
           const markerColor = candidate.id === selectedId ? '#ff2a55' : getSiteColor(candidate);
           const center = getSiteCenter(candidate);
           el.innerHTML = getMarkerIconHtml(isSeaLowerReservoir(candidate) ? 'sea' : 'classic', markerColor, candidate.id === selectedId);
+          if (candidate.id === selectedId) el.classList.add('active-marker');
           const marker = new maplibregl.Marker({ element: el })
             .setLngLat(center)
             .addTo(map);
@@ -453,12 +456,14 @@ export function useMapLibre({
           markersRef.current.push(marker);
         });
       }
-
       // Add World Examples
       WORLD_EXAMPLES_DETAILED.forEach((example) => {
+        const isWorldSelected = example.id === worldExampleFocusId;
         const el = document.createElement('div');
-        el.innerHTML = getMarkerIconHtml('classic', '#00a8ff', false); // Focus ID state not easily available here without adding it to hook props, so defaulting to standard size
+        el.innerHTML = getMarkerIconHtml('classic', isWorldSelected ? '#ff2a55' : '#00a8ff', isWorldSelected);
+        if (isWorldSelected) el.classList.add('active-marker');
         el.style.cursor = 'pointer';
+        el.style.zIndex = isWorldSelected ? '10' : '1';
         
         const marker = new maplibregl.Marker({ element: el })
           .setLngLat([example.lon || 0, example.lat || 0])
@@ -594,9 +599,9 @@ export function useMapLibre({
       zoom: view.zoom,
       pitch: view.pitch,
       bearing: view.bearing,
-      duration: 900,
+      duration: 2500,
     });
-  }, [selectedId, site]);
+  }, [selectedId, site, worldExampleFocusId]);
 
   return { mapRef };
 }
