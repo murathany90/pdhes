@@ -93,7 +93,14 @@ export default function DataPage({ site }: { site?: Site }) {
                 </tr>
               </thead>
               <tbody>
-                {filteredSites.map((candidate) => {
+                {filteredSites.length === 0 ? (
+                  <tr>
+                    <td colSpan={10} className="empty-table-cell" data-empty-state="candidate-filter">
+                      <b>Bu filtreyle eşleşen aday bulunamadı.</b>
+                      <span>Filtreyi değiştirerek diğer PDHES türlerini görüntüleyebilirsiniz.</span>
+                    </td>
+                  </tr>
+                ) : filteredSites.map((candidate) => {
                   const metrics = getSiteTableMetrics(candidate);
                   return (
                     <React.Fragment key={candidate.id}>

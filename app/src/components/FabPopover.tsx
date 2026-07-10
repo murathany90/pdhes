@@ -48,9 +48,12 @@ export function FabPopover({
 
   return (
     <div className="fab-container" ref={popoverRef}>
-      <button 
+      <button
+        type="button"
         className={`fab-main ${isOpen ? 'open' : ''}`}
         onClick={() => setIsOpen(!isOpen)}
+        aria-label={isOpen ? 'Menüyü Kapat' : 'Menüyü Aç'}
+        aria-expanded={isOpen}
         title="Menüyü Aç"
       >
         {isOpen ? <X size={24} /> : <Zap size={24} />}

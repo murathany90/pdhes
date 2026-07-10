@@ -55,4 +55,21 @@ describe('DataPage', () => {
     expect(screen.getByRole('option', { name: 'Açık Çevrim PDHES' })).toBeTruthy();
     expect(screen.getByRole('option', { name: 'Deniz Suyu PDHES' })).toBeTruthy();
   });
+
+  it('shows a helpful empty state when the selected filter has no matches', () => {
+    render(
+      <MemoryRouter>
+        <DataPage site={site} />
+      </MemoryRouter>
+    );
+
+    fireEvent.change(screen.getByRole('combobox'), {
+      target: { value: 'CLOSED_LOOP' },
+    });
+
+    const emptyCell = document.querySelector('[data-empty-state="candidate-filter"]');
+    expect(emptyCell).toBeTruthy();
+    expect(emptyCell?.textContent).toContain('filtreyle');
+    expect(emptyCell?.getAttribute('colspan')).toBe('10');
+  });
 });
