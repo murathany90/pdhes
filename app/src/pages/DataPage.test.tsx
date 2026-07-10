@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { useSiteStore } from '../stores/useSiteStore';
 import { makeTestSite } from '../test-utils/makeTestSite';
@@ -16,7 +17,11 @@ describe('DataPage', () => {
   afterEach(cleanup);
 
   it('makes filters and site selection keyboard accessible', () => {
-    render(<DataPage site={site} />);
+    render(
+      <MemoryRouter>
+        <DataPage site={site} />
+      </MemoryRouter>
+    );
 
     expect((screen.getByRole('option', { name: 'Tümü' }) as HTMLOptionElement).selected).toBe(true);
     const siteButton = screen.getByRole('button', { name: /test pdhes/i });
@@ -28,7 +33,11 @@ describe('DataPage', () => {
   });
 
   it('uses compact 16+4 table columns without province or coordinate filters', () => {
-    render(<DataPage site={site} />);
+    render(
+      <MemoryRouter>
+        <DataPage site={site} />
+      </MemoryRouter>
+    );
 
     expect(screen.getByRole('columnheader', { name: 'Güç / Enerji' })).toBeTruthy();
     expect(screen.getByRole('columnheader', { name: 'Düşü (head) / Su Yolu' })).toBeTruthy();
