@@ -29,7 +29,7 @@ Bu proje, modern web geliştirme standartlarına uygun olarak inşa edilmiş ve 
 - **react-map-gl:** Mapbox GL'in React sarmalayıcısıdır. Harita katmanlarını (Layers), kaynakları (Sources) ve kamera açılarını React hook'larıyla deklaratif olarak yönetir.
 
 ### 1.4. Validasyon ve Testler
-- **Zod:** Çalışma zamanında (runtime) veri şema doğrulaması (Schema Validation) yapar. JSON formatındaki santral verileri uygulamaya girmeden önce `siteSchema.ts` tarafından denetlenir ve eksik/hatalı veri varsa engellenir.
+- **Özel Şema Doğrulaması:** Çalışma zamanında (runtime) veri şema doğrulaması (Schema Validation) yapar. JSON formatındaki santral verileri uygulamaya girmeden önce `siteSchema.ts` tarafından denetlenir ve eksik/hatalı veri varsa engellenir.
 - **Vitest:** Vite üzerine kurulu süper hızlı Unit Test aracı. Projede 60'tan fazla birim test ve entegrasyon testi vardır.
 
 ---

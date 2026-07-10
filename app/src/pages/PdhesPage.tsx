@@ -5,6 +5,7 @@ import { CONTENT_DEFAULTS, GLOSSARY, WORLD_EXAMPLES } from '../utils/constants';
 import { STATUS_LABELS } from '../data/worldExamples';
 import { useWorkspaceStore } from '../stores/useWorkspaceStore';
 import { useSiteStore } from '../stores/useSiteStore';
+import DOMPurify from 'dompurify';
 import SectionNav from '../components/ui/SectionNav';
 import InfoAccordion from '../components/ui/InfoAccordion';
 import FullscreenImageModal from '../components/ui/FullscreenImageModal';
@@ -87,7 +88,7 @@ export default function PdhesPage({ sectionId }: PdhesPageProps) {
               <div className="number-pill">01</div>
               <div>
                 <span className="eyebrow">Tanım ve temel fikir</span>
-                <h2>{content('pdhesWhatIs.title')}</h2>
+                <h2 dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(content('pdhesWhatIs.title')) }} />
               </div>
             </header>
             <figure className="figure-frame">

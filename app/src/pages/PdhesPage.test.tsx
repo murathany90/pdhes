@@ -20,14 +20,16 @@ describe('PdhesPage editable content safety', () => {
     vi.restoreAllMocks();
   });
 
-  it('renders local workspace overrides as text instead of HTML', () => {
-    const payload = '<img src=x onerror=alert(1)>Güvenli başlık';
+  it('renders local workspace overrides as sanitized HTML', () => {
+    const payload = '<img src="x" onerror="alert(1)">Güvenli başlık';
     useWorkspaceStore.getState().setOverride('pdhesWhatIs.title', payload);
 
     render(<PdhesPage />);
 
-    expect(screen.getByText(payload)).toBeTruthy();
-    expect(document.querySelector('img[src="x"]')).toBeNull();
+    expect(screen.getByText('Güvenli başlık')).toBeTruthy();
+    const img = document.querySelector('img[src="x"]');
+    expect(img).not.toBeNull();
+    expect(img?.hasAttribute('onerror')).toBe(false);
   });
 
   it('keeps default editable content free of embedded HTML markup', () => {

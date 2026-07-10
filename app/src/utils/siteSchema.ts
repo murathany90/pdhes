@@ -229,12 +229,13 @@ function validateLayout3D(value: unknown, index: number): string[] {
   if (value.reservoirSurfaceMode !== 'polygon') errors.push(`sites[${index}].layout3D.reservoirSurfaceMode polygon olmalıdır.`);
   if (typeof value.useFootprintPolygons !== 'boolean') errors.push(`sites[${index}].layout3D.useFootprintPolygons boolean olmalıdır.`);
   if (typeof value.hideLegacySquareReservoir !== 'boolean') errors.push(`sites[${index}].layout3D.hideLegacySquareReservoir boolean olmalıdır.`);
-  if (!Array.isArray(value.componentFootprints) || value.componentFootprints.length === 0) {
-    errors.push(`sites[${index}].layout3D.componentFootprints boş olmayan dizi olmalıdır.`);
-    return errors;
-  }
+  if (value.componentFootprints !== undefined) {
+    if (!Array.isArray(value.componentFootprints)) {
+      errors.push(`sites[${index}].layout3D.componentFootprints dizi olmalıdır.`);
+      return errors;
+    }
 
-  value.componentFootprints.forEach((footprint, footprintIndex) => {
+    value.componentFootprints.forEach((footprint, footprintIndex) => {
     const prefix = `sites[${index}].layout3D.componentFootprints[${footprintIndex}]`;
     if (!isRecord(footprint)) {
       errors.push(`${prefix} nesne olmalıdır.`);
@@ -261,6 +262,7 @@ function validateLayout3D(value: unknown, index: number): string[] {
       if (footprint[key] !== undefined && !isFiniteNumber(footprint[key])) errors.push(`${prefix}.${key} geçersiz.`);
     }
   });
+  }
   return errors;
 }
 
@@ -284,6 +286,24 @@ function validateSiteRecord(value: unknown, index: number): { site: Site | null;
   if (!isEnum(value.pdhesType, PDHES_TYPES)) errors.push(`sites[${index}].pdhesType geçersiz.`);
   if (!isString(value.sourceNote)) errors.push(`sites[${index}].sourceNote boş olamaz.`);
   if (!Number.isInteger(value.order) || Number(value.order) < 1) errors.push(`sites[${index}].order pozitif tam sayı olmalıdır.`);
+
+  if (value.canonical !== undefined) {
+    if (!isRecord(value.canonical) || !isFiniteNumber(value.canonical.capacityMW) || !isNullableNumber(value.canonical.headM)) {
+      errors.push(`sites[${index}].canonical geçersiz.`);
+    }
+  }
+
+  if (value.source !== undefined) {
+    if (!isRecord(value.source) || !isFiniteNumber(value.source.capacityMW) || !isNullableNumber(value.source.headM)) {
+      errors.push(`sites[${index}].source geçersiz.`);
+    }
+    if (value.source.sourceNote !== undefined && !isString(value.source.sourceNote)) {
+      errors.push(`sites[${index}].source.sourceNote geçersiz.`);
+    }
+    if (value.source.confidence !== undefined && !isString(value.source.confidence)) {
+      errors.push(`sites[${index}].source.confidence geçersiz.`);
+    }
+  }
 
   if (!isFiniteNumber(value.capacityMW) || value.capacityMW <= 0) errors.push(`sites[${index}].capacityMW pozitif sayı olmalıdır.`);
   for (const key of [

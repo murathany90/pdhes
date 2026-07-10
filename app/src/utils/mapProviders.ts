@@ -29,7 +29,7 @@ export const MAP_PROVIDERS: Record<MapStyleKind, {
   },
   'maptiler-hybrid': {
     name: 'Uydu - MapTiler Hybrid',
-    tileUrl: 'https://api.maptiler.com/maps/hybrid/256/{z}/{x}/{y}.jpg?key=HqygBOR91R4AKyJW4UF0',
+    tileUrl: 'https://api.maptiler.com/maps/hybrid/256/{z}/{x}/{y}.jpg?key=VhUFDSnUbhsGOvBDqrtE', // pdhes.tr domain kısıtı vardır
     attribution: '© <a href="https://www.maptiler.com/copyright/" target="_blank">MapTiler</a> © <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap contributors</a>',
   },
   topo: {
@@ -43,7 +43,7 @@ export const MAP_PROVIDERS: Record<MapStyleKind, {
   },
   'maptiler-topo': {
     name: 'MapTiler Topo',
-    tileUrl: 'https://api.maptiler.com/maps/topo-v2/256/{z}/{x}/{y}.png?key=HqygBOR91R4AKyJW4UF0',
+    tileUrl: 'https://api.maptiler.com/maps/topo-v2/256/{z}/{x}/{y}.png?key=VhUFDSnUbhsGOvBDqrtE',
     attribution: '© <a href="https://www.maptiler.com/copyright/" target="_blank">MapTiler</a> © <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap contributors</a>',
   },
   light: {
@@ -63,12 +63,12 @@ export const MAP_PROVIDERS: Record<MapStyleKind, {
   },
   'maptiler-backdrop': {
     name: 'MapTiler Backdrop',
-    tileUrl: 'https://api.maptiler.com/maps/backdrop/256/{z}/{x}/{y}.png?key=HqygBOR91R4AKyJW4UF0',
+    tileUrl: 'https://api.maptiler.com/maps/backdrop/256/{z}/{x}/{y}.png?key=VhUFDSnUbhsGOvBDqrtE',
     attribution: '© <a href="https://www.maptiler.com/copyright/" target="_blank">MapTiler</a> © <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap contributors</a>',
   },
   'maptiler-basic': {
     name: 'MapTiler Basic',
-    tileUrl: 'https://api.maptiler.com/maps/basic-v2/256/{z}/{x}/{y}.png?key=HqygBOR91R4AKyJW4UF0',
+    tileUrl: 'https://api.maptiler.com/maps/basic-v2/256/{z}/{x}/{y}.png?key=VhUFDSnUbhsGOvBDqrtE',
     attribution: '© <a href="https://www.maptiler.com/copyright/" target="_blank">MapTiler</a> © <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap contributors</a>',
   },
 };

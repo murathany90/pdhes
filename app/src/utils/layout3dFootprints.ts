@@ -127,7 +127,7 @@ function projectFootprint(
 
 export function buildLayout3DFootprintPlan(site: Site): Layout3DFootprintPlan {
   const layout3D = site.layout3D;
-  if (!layout3D?.useFootprintPolygons || layout3D.componentFootprints.length === 0) {
+  if (!layout3D?.useFootprintPolygons || !layout3D.componentFootprints || layout3D.componentFootprints.length === 0) {
     return { enabled: false, hideLegacySquareReservoir: false, items: [] };
   }
 

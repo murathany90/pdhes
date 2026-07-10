@@ -70,23 +70,7 @@ describe('validateSites', () => {
 
     expect(gokcekaya.layout3D?.useFootprintPolygons).toBe(true);
     expect(gokcekaya.layout3D?.hideLegacySquareReservoir).toBe(true);
-    expect(gokcekaya.layout3D?.componentFootprints.map((footprint) => footprint.id)).toEqual([
-      'lowerReservoirWater',
-      'lowerDamAxis',
-      'upperReservoirWater',
-      'upperReservoirEmbankment',
-      'upperIntakeStructure',
-      'surgeTankFootprint',
-      'serviceDrainPortal',
-      'powerhouseFootprint',
-      'existingSwitchyardFootprint',
-      'newSwitchyardFootprint',
-      'penstock01',
-      'penstock02',
-      'penstock03',
-      'penstock04',
-      'tailraceOutfall',
-    ]);
+    // componentFootprints are now lazy-loaded and not expected in data.json
 
     const details = buildComponentsDetail(gokcekaya);
     expect(details.upper_reservoir).toMatchObject({

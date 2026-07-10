@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import { cleanup, render, screen, waitFor } from '@testing-library/react';
-import { HashRouter, MemoryRouter } from 'react-router-dom';
+import { HashRouter } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { useSettingsStore } from './stores/useSettingsStore';
 import App from './App';
@@ -25,18 +25,19 @@ describe('application navigation', () => {
   });
 
   it('exposes top-level destinations as route links with the current page state', () => {
+    window.location.hash = '#/pdhes';
     render(
-      <MemoryRouter initialEntries={['/pdhes']}>
+      <HashRouter>
         <App />
-      </MemoryRouter>,
+      </HashRouter>,
     );
 
     expect(screen.getByRole('link', { name: 'PDHES Nedir' }).getAttribute('aria-current'))
       .toBe('page');
     expect(screen.getByRole('link', { name: 'PDHES Adayları' }).getAttribute('href'))
-      .toBe('/data');
+      .toBe('#/data');
     expect(screen.getByRole('link', { name: 'Ayarlar' }).getAttribute('href'))
-      .toBe('/settings');
+      .toBe('#/settings');
     expect(screen.getByRole('link', { name: 'Ana içeriğe geç' }).getAttribute('href'))
       .toBe('#main-content');
   });
@@ -72,10 +73,11 @@ describe('application navigation', () => {
   it('keeps the browser theme color aligned with the selected theme', async () => {
     useSettingsStore.setState({ theme: 'dark' });
 
+    window.location.hash = '#/pdhes';
     render(
-      <MemoryRouter initialEntries={['/pdhes']}>
+      <HashRouter>
         <App />
-      </MemoryRouter>,
+      </HashRouter>,
     );
 
     await waitFor(() => {

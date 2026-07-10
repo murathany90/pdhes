@@ -506,6 +506,16 @@ export function useMapLibre({
       }
     });
 
+    map.on('error', (e) => {
+      if (e && e.error && (e.error as any).status === 403 || (e.error as any).status === 401 || (e.error?.message || '').includes('403')) {
+        const currentStyle = useSettingsStore.getState().mapStyle;
+        if (currentStyle.includes('maptiler')) {
+          console.warn('MapTiler kota aşımı / yetki hatası tespit edildi. Açık kaynaklı sağlayıcıya geçiliyor...');
+          useSettingsStore.getState().setMapStyle(currentStyle.includes('hybrid') || currentStyle.includes('satellite') ? 'satellite' : 'osm');
+        }
+      }
+    });
+
     map.on('click', (e) => {
       const { mode, addMeasurementPoint } = useMapToolsStore.getState();
       if (mode === 'measure') {

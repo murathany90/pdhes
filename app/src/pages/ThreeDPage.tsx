@@ -8,6 +8,7 @@ import ScenarioSlider from '../components/ui/ScenarioSlider';
 import ThreeDModel from '../components/ui/ThreeDModel';
 import WarningBanner from '../components/ui/WarningBanner';
 import { buildComponentsDetail, COORDINATE_CONFIDENCE_LABELS } from '../utils/siteDerived';
+import { publicAssetUrl } from '../utils/publicUrl';
 
 export default function ThreeDPage({ site: propSite }: { site?: Site }) {
   const { sites, selectedId } = useSiteStore();
@@ -18,6 +19,30 @@ export default function ThreeDPage({ site: propSite }: { site?: Site }) {
   }, []);
 
   const [layers, setLayers] = useState<Record<string, boolean>>(initialLayers);
+  const [footprints, setFootprints] = useState<any[] | null>(null);
+
+  // Lazy load footprints
+  useEffect(() => {
+    if (site?.layout3D?.useFootprintPolygons) {
+      if (site.layout3D.componentFootprints && site.layout3D.componentFootprints.length > 0) {
+        setFootprints(site.layout3D.componentFootprints);
+      } else {
+        setFootprints(null); // loading
+        fetch(publicAssetUrl(`/footprints/${site.id}.json`))
+          .then((res) => {
+            if (!res.ok) throw new Error('Footprint not found');
+            return res.json();
+          })
+          .then((data) => setFootprints(data))
+          .catch((err) => {
+            console.error('Failed to load footprints:', err);
+            setFootprints([]); // empty fallback
+          });
+      }
+    } else {
+      setFootprints([]); // disable
+    }
+  }, [site?.id, site?.layout3D?.useFootprintPolygons, site?.layout3D?.componentFootprints]);
 
   const [activeComponent, setActiveComponent] = useState('upper_reservoir');
   const [mode, setMode] = useState<'generate' | 'pump'>('generate');
@@ -41,9 +66,20 @@ export default function ThreeDPage({ site: propSite }: { site?: Site }) {
   const [showLabels, setShowLabels] = useState(true);
   const [terrainOpacity, setTerrainOpacity] = useState(70);
 
-  if (!site) return <section className="panel active"><p className="muted">Veri yükleniyor...</p></section>;
+  if (!site || (site.layout3D?.useFootprintPolygons && footprints === null)) {
+    return <section className="panel active"><p className="muted">Veri yükleniyor...</p></section>;
+  }
 
   const detail = componentsDetail ?? buildComponentsDetail(site);
+
+  // Inject fetched footprints into site object temporarily for ThreeDModel
+  const siteWithFootprints = {
+    ...site,
+    layout3D: site.layout3D ? {
+      ...site.layout3D,
+      componentFootprints: footprints || []
+    } : undefined
+  };
 
   return (
     <section className="panel active no-pad threed-page">
@@ -57,7 +93,7 @@ export default function ThreeDPage({ site: propSite }: { site?: Site }) {
             layers={layers}
             mode={mode}
             componentsDetail={detail}
-            site={site}
+            site={siteWithFootprints}
             isPlaying={isPlaying}
             activeUnits={activeUnits}
             maxUnits={maxUnits}

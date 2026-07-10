@@ -17,8 +17,8 @@ export function buildLayout(site: Site, hScale: number): LayoutBundle {
   const bearing = layout.bearing;
   const blocks: Feature<Polygon>[] = [];
   const sea = isSeaLowerReservoir(site);
-  const footprintMode = Boolean(site.layout3D?.useFootprintPolygons && site.layout3D.componentFootprints.length > 0);
-  const footprintById = new Map(site.layout3D?.componentFootprints.map((footprint) => [footprint.id, footprint]) ?? []);
+  const footprintMode = Boolean(site.layout3D?.useFootprintPolygons && (site.layout3D.componentFootprints ?? []).length > 0);
+  const footprintById = new Map((site.layout3D?.componentFootprints ?? []).map((footprint) => [footprint.id, footprint]));
   const materialColor: Record<string, string> = {
     water: '#4aa3ff',
     embankment: '#7c858c',

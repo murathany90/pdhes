@@ -3,7 +3,12 @@ import sites from '../../public/data.json';
 import type { Site } from '../types/site';
 import { buildLayout3DFootprintPlan, projectLngLatToScene } from './layout3dFootprints';
 
-const gokcekaya = (sites as Site[]).find((site) => site.id === 'kamu-gokcekaya-pspp');
+import fs from 'fs';
+import path from 'path';
+
+const rawGokcekaya = (sites as Site[]).find((site) => site.id === 'kamu-gokcekaya-pspp');
+const footprints = JSON.parse(fs.readFileSync(path.join(__dirname, '../../public/footprints/kamu-gokcekaya-pspp.json'), 'utf-8'));
+const gokcekaya = rawGokcekaya ? { ...rawGokcekaya, layout3D: { ...rawGokcekaya.layout3D!, componentFootprints: footprints } } : undefined;
 
 describe('layout3D footprint planning', () => {
   it('projects lon/lat coordinates around the bbox center into local scene space', () => {

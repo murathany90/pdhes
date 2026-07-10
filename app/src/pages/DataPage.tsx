@@ -135,9 +135,9 @@ export default function DataPage({ site }: { site?: Site }) {
                         </td>
                         <td>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <b style={{ minWidth: '24px' }}>{metrics.scenarioScore}</b>
+                            <b style={{ minWidth: '24px' }}>{metrics.scenarioScore || 0}</b>
                             <div style={{ flex: 1, height: '6px', background: 'var(--line)', borderRadius: '3px', overflow: 'hidden' }}>
-                              <div style={{ height: '100%', width: `${metrics.scenarioScore}%`, background: 'var(--green)' }} />
+                              <div style={{ height: '100%', width: `${Math.max(0, Math.min(100, metrics.scenarioScore || 0))}%`, background: 'var(--green)' }} />
                             </div>
                           </div>
                         </td>

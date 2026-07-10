@@ -1,0 +1,505 @@
+[
+  {
+    "id": "upperReservoirWater",
+    "component": "upper_reservoir",
+    "kind": "polygon",
+    "material": "water",
+    "closed": true,
+    "coords": [
+      [
+        35.6938,
+        41.3512
+      ],
+      [
+        35.695,
+        41.352
+      ],
+      [
+        35.6972,
+        41.3526
+      ],
+      [
+        35.7002,
+        41.3526
+      ],
+      [
+        35.7028,
+        41.3518
+      ],
+      [
+        35.704,
+        41.3505
+      ],
+      [
+        35.7042,
+        41.3489
+      ],
+      [
+        35.7033,
+        41.3476
+      ],
+      [
+        35.7013,
+        41.3468
+      ],
+      [
+        35.6983,
+        41.3466
+      ],
+      [
+        35.6959,
+        41.3469
+      ],
+      [
+        35.6942,
+        41.3478
+      ],
+      [
+        35.6934,
+        41.3492
+      ],
+      [
+        35.6935,
+        41.3504
+      ],
+      [
+        35.6938,
+        41.3512
+      ]
+    ],
+    "baseElevationM": 782,
+    "topElevationM": 782,
+    "extrudeM": 0
+  },
+  {
+    "id": "upperReservoirDamEmbankment",
+    "component": "upper_reservoir",
+    "kind": "polygon",
+    "material": "embankment",
+    "closed": true,
+    "coords": [
+      [
+        35.6927,
+        41.352
+      ],
+      [
+        35.6944,
+        41.3532
+      ],
+      [
+        35.6971,
+        41.3538
+      ],
+      [
+        35.7008,
+        41.3538
+      ],
+      [
+        35.704,
+        41.3528
+      ],
+      [
+        35.7055,
+        41.351
+      ],
+      [
+        35.7058,
+        41.3487
+      ],
+      [
+        35.7047,
+        41.3468
+      ],
+      [
+        35.7021,
+        41.3457
+      ],
+      [
+        35.6984,
+        41.3453
+      ],
+      [
+        35.6952,
+        41.3456
+      ],
+      [
+        35.6932,
+        41.3466
+      ],
+      [
+        35.6922,
+        41.3484
+      ],
+      [
+        35.6922,
+        41.3504
+      ],
+      [
+        35.6927,
+        41.352
+      ]
+    ],
+    "baseElevationM": 703,
+    "topElevationM": 782,
+    "extrudeM": 79
+  },
+  {
+    "id": "upperDamCrestRoad",
+    "component": "upper_reservoir",
+    "kind": "polyline",
+    "material": "crest_road",
+    "closed": true,
+    "coords": [
+      [
+        35.6931,
+        41.3517
+      ],
+      [
+        35.6948,
+        41.3528
+      ],
+      [
+        35.6972,
+        41.3533
+      ],
+      [
+        35.7005,
+        41.3533
+      ],
+      [
+        35.7034,
+        41.3524
+      ],
+      [
+        35.7049,
+        41.3508
+      ],
+      [
+        35.7052,
+        41.3488
+      ],
+      [
+        35.7042,
+        41.3471
+      ],
+      [
+        35.7019,
+        41.3461
+      ],
+      [
+        35.6984,
+        41.3458
+      ],
+      [
+        35.6954,
+        41.3461
+      ],
+      [
+        35.6936,
+        41.3471
+      ],
+      [
+        35.6928,
+        41.3487
+      ],
+      [
+        35.6928,
+        41.3503
+      ],
+      [
+        35.6931,
+        41.3517
+      ]
+    ],
+    "elevationM": 782
+  },
+  {
+    "id": "upperIntake",
+    "component": "intake",
+    "kind": "polygon",
+    "material": "concrete",
+    "closed": true,
+    "coords": [
+      [
+        35.7035,
+        41.3497
+      ],
+      [
+        35.7041,
+        41.3497
+      ],
+      [
+        35.7041,
+        41.3492
+      ],
+      [
+        35.7035,
+        41.3492
+      ],
+      [
+        35.7035,
+        41.3497
+      ]
+    ],
+    "baseElevationM": 779,
+    "topElevationM": 782,
+    "extrudeM": 3
+  },
+  {
+    "id": "headraceAlignment",
+    "component": "headrace_tunnel",
+    "kind": "polyline",
+    "material": "tunnel_axis",
+    "coords": [
+      [
+        35.7038,
+        41.3495
+      ],
+      [
+        35.7048,
+        41.3586
+      ]
+    ],
+    "profileElevationM": [
+      782,
+      690
+    ]
+  },
+  {
+    "id": "surgeTankFootprint",
+    "component": "surge_tank",
+    "kind": "polygon",
+    "material": "shaft",
+    "closed": true,
+    "coords": [
+      [
+        35.7048,
+        41.359
+      ],
+      [
+        35.7051,
+        41.3589
+      ],
+      [
+        35.7052,
+        41.3586
+      ],
+      [
+        35.7051,
+        41.3583
+      ],
+      [
+        35.7048,
+        41.3582
+      ],
+      [
+        35.7045,
+        41.3583
+      ],
+      [
+        35.7044,
+        41.3586
+      ],
+      [
+        35.7045,
+        41.3589
+      ],
+      [
+        35.7048,
+        41.359
+      ]
+    ],
+    "baseElevationM": 690,
+    "topElevationM": 735,
+    "extrudeM": 45
+  },
+  {
+    "id": "penstockAlignment",
+    "component": "penstock",
+    "kind": "polyline",
+    "material": "tunnel_axis",
+    "coords": [
+      [
+        35.7048,
+        41.3586
+      ],
+      [
+        35.7099,
+        41.3549
+      ]
+    ],
+    "profileElevationM": [
+      690,
+      250
+    ]
+  },
+  {
+    "id": "servicePortal",
+    "component": "portal",
+    "kind": "polygon",
+    "material": "portal",
+    "closed": true,
+    "coords": [
+      [
+        35.7072,
+        41.3561
+      ],
+      [
+        35.708,
+        41.3561
+      ],
+      [
+        35.708,
+        41.3555
+      ],
+      [
+        35.7072,
+        41.3555
+      ],
+      [
+        35.7072,
+        41.3561
+      ]
+    ],
+    "baseElevationM": 285,
+    "topElevationM": 291,
+    "extrudeM": 6
+  },
+  {
+    "id": "powerhouseFootprint",
+    "component": "powerhouse",
+    "kind": "polygon",
+    "material": "industrial",
+    "closed": true,
+    "coords": [
+      [
+        35.7089,
+        41.3554
+      ],
+      [
+        35.7111,
+        41.3554
+      ],
+      [
+        35.7111,
+        41.3543
+      ],
+      [
+        35.7089,
+        41.3543
+      ],
+      [
+        35.7089,
+        41.3554
+      ]
+    ],
+    "baseElevationM": 170,
+    "topElevationM": 186,
+    "extrudeM": 16
+  },
+  {
+    "id": "tailraceSurgeTankFootprint",
+    "component": "tailrace_surge_tank",
+    "kind": "polygon",
+    "material": "shaft",
+    "closed": true,
+    "coords": [
+      [
+        35.7146,
+        41.3573
+      ],
+      [
+        35.7149,
+        41.3572
+      ],
+      [
+        35.715,
+        41.3569
+      ],
+      [
+        35.7149,
+        41.3566
+      ],
+      [
+        35.7146,
+        41.3565
+      ],
+      [
+        35.7143,
+        41.3566
+      ],
+      [
+        35.7142,
+        41.3569
+      ],
+      [
+        35.7143,
+        41.3572
+      ],
+      [
+        35.7146,
+        41.3573
+      ]
+    ],
+    "baseElevationM": 170,
+    "topElevationM": 230,
+    "extrudeM": 60
+  },
+  {
+    "id": "tailraceAlignment",
+    "component": "tailrace_tunnel",
+    "kind": "polyline",
+    "material": "tailrace_channel",
+    "coords": [
+      [
+        35.7099,
+        41.3549
+      ],
+      [
+        35.7146,
+        41.3569
+      ],
+      [
+        35.7218,
+        41.3622
+      ]
+    ],
+    "profileElevationM": [
+      170,
+      155,
+      145
+    ]
+  },
+  {
+    "id": "switchyardFootprint",
+    "component": "switchyard",
+    "kind": "polygon",
+    "material": "switchyard",
+    "closed": true,
+    "coords": [
+      [
+        35.7152,
+        41.3562
+      ],
+      [
+        35.7171,
+        41.3562
+      ],
+      [
+        35.7171,
+        41.3552
+      ],
+      [
+        35.7152,
+        41.3552
+      ],
+      [
+        35.7152,
+        41.3562
+      ]
+    ],
+    "baseElevationM": 182,
+    "topElevationM": 190,
+    "extrudeM": 8
+  }
+]

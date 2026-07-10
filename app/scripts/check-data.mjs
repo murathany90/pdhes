@@ -10,9 +10,22 @@ function assert(condition, message) {
 const datasets = [
   {
     name: 'data.json',
-    validate: (value) => {
+    validate: async (value) => {
       assert(Array.isArray(value), 'data.json dizi olmalıdır.');
       assert(value.length === 15, `data.json tam 15 Türkiye adayı içermelidir; bulunan: ${value.length}`);
+
+      // Check README.md
+      try {
+        const readmeContent = await readFile(resolve('..', 'README.md'), 'utf8');
+        const readmeCandidateMatch = readmeContent.match(/(\d+)\s+aday/);
+        if (readmeCandidateMatch) {
+          const readmeCount = parseInt(readmeCandidateMatch[1], 10);
+          assert(readmeCount === value.length, `README'deki aday sayısı (${readmeCount}) data.json uzunluğu (${value.length}) ile eşleşmiyor.`);
+        }
+      } catch (err) {
+        console.warn('README.md okunamadı veya eşleşme bulunamadı, atlanıyor.', err.message);
+      }
+
       const counts = value.reduce((acc, site) => {
         acc[site.pdhesType] = (acc[site.pdhesType] || 0) + 1;
         return acc;
@@ -46,7 +59,8 @@ for (const dataset of datasets) {
   const raw = await readFile(resolve('public', dataset.name), 'utf8');
   const parsed = JSON.parse(raw);
 
-  if (!dataset.validate(parsed)) {
+  const isValid = await dataset.validate(parsed);
+  if (!isValid) {
     throw new Error(`${dataset.name}: beklenen veri yapısıyla eşleşmiyor.`);
   }
 

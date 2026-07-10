@@ -3,7 +3,12 @@ import sites from '../../public/data.json';
 import type { Site } from '../types/site';
 import { buildLayout } from './layout';
 
-const gokcekaya = (sites as Site[]).find((site) => site.id === 'kamu-gokcekaya-pspp');
+import fs from 'fs';
+import path from 'path';
+
+const rawGokcekaya = (sites as Site[]).find((site) => site.id === 'kamu-gokcekaya-pspp');
+const footprints = JSON.parse(fs.readFileSync(path.join(__dirname, '../../public/footprints/kamu-gokcekaya-pspp.json'), 'utf-8'));
+const gokcekaya = rawGokcekaya ? { ...rawGokcekaya, layout3D: { ...rawGokcekaya.layout3D!, componentFootprints: footprints } } : undefined;
 
 describe('buildLayout footprint geometry', () => {
   it('uses Gokcekaya polygon footprints instead of the legacy upper reservoir rectangle', () => {

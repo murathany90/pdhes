@@ -171,6 +171,16 @@ export interface Site {
   sourceNote: string;
   order: number;
 
+  canonical?: {
+    capacityMW: number;
+    headM: number | null;
+  };
+  source?: {
+    capacityMW: number;
+    headM: number | null;
+    sourceNote?: string;
+    confidence?: string;
+  };
   capacityMW: number;
   projectFlowCms: number | null;
   headM: number | null;
@@ -261,13 +271,16 @@ export interface Layout3DFootprint {
 }
 
 export interface Layout3DSpec {
-  scale: 'macro';
+  scale: 'macro' | 'local';
   preferredBearing: number;
   terrainExaggeration: number;
-  reservoirSurfaceMode: 'polygon';
+  reservoirSurfaceMode: 'polygon' | 'circle';
   useFootprintPolygons: boolean;
   hideLegacySquareReservoir: boolean;
-  componentFootprints: Layout3DFootprint[];
+  renderLowerReservoirAsPolygon?: boolean;
+  renderUpperReservoirAsPolygon?: boolean;
+  renderPenstocksAsParallelArray?: boolean;
+  componentFootprints?: Layout3DFootprint[];
 }
 
 export type { WorldExample } from '../data/worldExamples';
