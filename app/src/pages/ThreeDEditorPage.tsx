@@ -92,41 +92,51 @@ export default function ThreeDEditorPage({ site, onDone }: ThreeDEditorPageProps
     
     map.on('click', onClick);
 
-    // Sync draftCoords to the draft layer
-    if (!map.getSource(draftSourceId)) {
-      map.addSource(draftSourceId, { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
-      map.addLayer({
-        id: 'draft-line-layer',
-        type: 'line',
-        source: draftSourceId,
-        paint: { 'line-color': '#ff0000', 'line-width': 3, 'line-dasharray': [2, 2] }
-      });
-      map.addLayer({
-        id: 'draft-point-layer',
-        type: 'circle',
-        source: draftSourceId,
-        paint: { 'circle-radius': 4, 'circle-color': '#ff0000' }
-      });
-    }
+    // Sync draftCoords to the draft layer safely
+    const syncDraftLayer = () => {
+      if (!map.isStyleLoaded()) return;
 
-    const source = map.getSource(draftSourceId) as maplibregl.GeoJSONSource;
-    if (source) {
-      if (draftCoords.length > 0) {
-        const isPolygon = drawingMode === 'upperReservoir' || drawingMode === 'lowerReservoir';
-        const coords = [...draftCoords];
-        if (isPolygon && coords.length > 2) {
-          coords.push(coords[0]); // Close polygon visually
-        }
-        source.setData({
-          type: 'FeatureCollection',
-          features: [
-            { type: 'Feature', geometry: { type: 'LineString', coordinates: coords }, properties: {} },
-            ...draftCoords.map(pt => ({ type: 'Feature' as const, geometry: { type: 'Point' as const, coordinates: pt }, properties: {} }))
-          ]
+      if (!map.getSource(draftSourceId)) {
+        map.addSource(draftSourceId, { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
+        map.addLayer({
+          id: 'draft-line-layer',
+          type: 'line',
+          source: draftSourceId,
+          paint: { 'line-color': '#ff0000', 'line-width': 3, 'line-dasharray': [2, 2] }
         });
-      } else {
-        source.setData({ type: 'FeatureCollection', features: [] });
+        map.addLayer({
+          id: 'draft-point-layer',
+          type: 'circle',
+          source: draftSourceId,
+          paint: { 'circle-radius': 4, 'circle-color': '#ff0000' }
+        });
       }
+
+      const source = map.getSource(draftSourceId) as maplibregl.GeoJSONSource;
+      if (source) {
+        if (draftCoords.length > 0) {
+          const isPolygon = drawingMode === 'upperReservoir' || drawingMode === 'lowerReservoir';
+          const coords = [...draftCoords];
+          if (isPolygon && coords.length > 2) {
+            coords.push(coords[0]); // Close polygon visually
+          }
+          source.setData({
+            type: 'FeatureCollection',
+            features: [
+              { type: 'Feature', geometry: { type: 'LineString', coordinates: coords }, properties: {} },
+              ...draftCoords.map(pt => ({ type: 'Feature' as const, geometry: { type: 'Point' as const, coordinates: pt }, properties: {} }))
+            ]
+          });
+        } else {
+          source.setData({ type: 'FeatureCollection', features: [] });
+        }
+      }
+    };
+
+    if (map.isStyleLoaded()) {
+      syncDraftLayer();
+    } else {
+      map.once('styledata', syncDraftLayer);
     }
 
     return () => {
