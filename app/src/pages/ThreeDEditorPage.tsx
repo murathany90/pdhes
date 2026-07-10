@@ -46,6 +46,15 @@ export default function ThreeDEditorPage({ site, onDone }: ThreeDEditorPageProps
     }
   }, [site?.id]);
 
+  const dynamicLayers: MapLayerVisibility = {
+    ...EDITOR_LAYERS,
+    upperReservoir: drawingMode !== 'upperReservoir',
+    lowerReservoir: drawingMode !== 'lowerReservoir',
+    powerhouse: drawingMode !== 'powerhouse',
+    switchyard3d: drawingMode !== 'switchyard',
+    waterPath: drawingMode !== 'penstockRoute',
+  };
+
   const { mapRef } = useMapLibre({
     containerRef: mapContainer,
     site: previewSite,
@@ -54,7 +63,7 @@ export default function ThreeDEditorPage({ site, onDone }: ThreeDEditorPageProps
     mapStyle,
     heightScale,
     gridAssets,
-    layers: EDITOR_LAYERS,
+    layers: dynamicLayers,
     interactiveCandidates: false,
   });
 
@@ -228,6 +237,33 @@ export default function ThreeDEditorPage({ site, onDone }: ThreeDEditorPageProps
     }
   };
 
+  const calculatePolyStats = (polygonCoords: [number, number][] | undefined, baseVolume: number | null, elevation: number | null) => {
+    let area_m2 = 0;
+    if (polygonCoords && polygonCoords.length > 2) {
+      const closed = [...polygonCoords];
+      if (closed[0][0] !== closed[closed.length - 1][0] || closed[0][1] !== closed[closed.length - 1][1]) {
+        closed.push(closed[0]);
+      }
+      try {
+        area_m2 = turf.area(turf.polygon([closed]));
+      } catch (e) {
+        // ignore invalid poly
+      }
+    }
+    
+    // Varsayılan derinlik ~25m kabul edilerek hacim tahmini (eğer sıfırdan çizildiyse)
+    const volume_m3 = area_m2 > 0 ? area_m2 * 25 : (baseVolume ? baseVolume * 1000000 : 0);
+    return { area: area_m2, volume: volume_m3, elevation: elevation || 0 };
+  };
+
+  const currentUpperPoly = drawingMode === 'upperReservoir' ? draftCoords : previewSite?.coordinates.upperReservoirPolygon;
+  const currentLowerPoly = drawingMode === 'lowerReservoir' ? draftCoords : previewSite?.coordinates.lowerReservoirPolygon;
+
+  const upperStats = calculatePolyStats(currentUpperPoly, previewSite?.activeVolumeHm3 || 0, previewSite?.components_detail?.upper_reservoir?.elevation_m || previewSite?.headM || 0);
+  const lowerStats = calculatePolyStats(currentLowerPoly, previewSite?.activeVolumeHm3 || 0, previewSite?.components_detail?.lower_reservoir?.elevation_m || 0);
+
+  const formatNum = (num: number) => num.toLocaleString('tr-TR', { maximumFractionDigits: 0 });
+
   const renderComponentCard = (title: string, modeLine: DrawingMode, modePoint?: DrawingMode) => {
     const isDrawing = drawingMode === modeLine || drawingMode === modePoint;
     return (
@@ -251,31 +287,52 @@ export default function ThreeDEditorPage({ site, onDone }: ThreeDEditorPageProps
   return (
     <section className="panel active" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <div className="map-layout" style={{ flex: 1, overflow: 'hidden' }}>
-        <aside className="map-left" style={{ width: '420px', display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
+        <div className="map-stage">
+          <div ref={mapContainer} style={{ position: 'absolute', inset: 0, cursor: drawingMode !== 'none' ? 'crosshair' : 'grab' }} />
+        </div>
+        
+        <aside className="map-right" style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
           <h2>3D Yerleşim Editörü (Etkileşimli)</h2>
           <p className="muted small" style={{ marginBottom: 12 }}>{site.name}</p>
           
-          <div style={{ flex: 1 }}>
+          <div style={{ flex: 1, overflowY: 'auto', paddingRight: '4px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
             {renderComponentCard('Üst Rezervuar', 'upperReservoir')}
             {renderComponentCard('Alt Rezervuar', 'lowerReservoir')}
             {renderComponentCard('Türbin Odası', 'none', 'powerhouse')}
             {renderComponentCard('Şalt Sahası (3D)', 'none', 'switchyard')}
             {renderComponentCard('Enerji Nakil Hattı / Su Yolu', 'penstockRoute')}
+            
+            <div style={{ marginTop: 8, display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div className="card" style={{ padding: 12, background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+                <h4 style={{ margin: '0 0 8px 0', fontSize: '13px', color: 'var(--muted)' }}>Üst Rezervuar Bilgisi</h4>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: '12px' }}>
+                  <div><b>Alan:</b> {formatNum(upperStats.area)} m²</div>
+                  <div><b>Hacim:</b> {formatNum(upperStats.volume)} m³</div>
+                  <div><b>Kot:</b> {formatNum(upperStats.elevation)} m</div>
+                </div>
+              </div>
+              <div className="card" style={{ padding: 12, background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+                <h4 style={{ margin: '0 0 8px 0', fontSize: '13px', color: 'var(--muted)' }}>Alt Rezervuar Bilgisi</h4>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: '12px' }}>
+                  <div><b>Alan:</b> {formatNum(lowerStats.area)} m²</div>
+                  <div><b>Hacim:</b> {formatNum(lowerStats.volume)} m³</div>
+                  <div><b>Kot:</b> {formatNum(lowerStats.elevation)} m</div>
+                </div>
+              </div>
+            </div>
+
+            {message && <div className="notice" style={{ marginTop: 12 }}>{message}</div>}
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 12 }}>
-            <button className="btn" style={{ background: 'var(--yellow)', color: 'var(--bg)' }} onClick={handleAutoDraw}>✨ Kalanları Otomatik Çiz</button>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 16 }}>
+            <button className="btn" style={{ background: 'var(--yellow)', color: 'var(--bg)', border: 'none' }} onClick={handleAutoDraw}>✨ Kalanları Otomatik Çiz</button>
             <button className="btn primary" onClick={handleSave}>💾 Kaydet</button>
-            <button className="btn ghost" onClick={handleReset}>Sıfırla</button>
-            <button className="btn ghost" onClick={onDone}>Çıkış</button>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button className="btn outline" style={{ flex: 1 }} onClick={handleReset}>Sıfırla</button>
+              <button className="btn outline" style={{ flex: 1 }} onClick={onDone}>Çıkış</button>
+            </div>
           </div>
-          
-          {message && <div className="notice" style={{ marginTop: 12 }}>{message}</div>}
         </aside>
-
-        <div className="map-stage">
-          <div ref={mapContainer} style={{ position: 'absolute', inset: 0, cursor: drawingMode !== 'none' ? 'crosshair' : 'grab' }} />
-        </div>
       </div>
     </section>
   );

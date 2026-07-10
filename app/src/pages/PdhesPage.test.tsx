@@ -50,8 +50,8 @@ describe('PdhesPage editable content safety', () => {
   it('uses the updated single-card contents for the PDHES primer', () => {
     render(<PdhesPage />);
 
-    expect(screen.getByRole('link', { name: 'Türkiye PDHES Adayları Nasıl Okunmalı?' })).toBeTruthy();
-    expect(screen.getByRole('heading', { name: /Türkiye PDHES Adayları Nasıl Okunmalı\?/i })).toBeTruthy();
+    expect(screen.getByRole('link', { name: 'Türkiye PDHES Adayları' })).toBeTruthy();
+    expect(screen.getByRole('heading', { name: /Türkiye PDHES Adayları/i })).toBeTruthy();
     expect(screen.getByRole('heading', { name: 'Sık Sorulan Sorular' })).toBeTruthy();
     expect(document.querySelectorAll('.encyclopedia .content-split .card')).toHaveLength(0);
     expect(document.querySelectorAll('.pdhes-rich-shell > .content > article.info-card').length).toBeGreaterThanOrEqual(13);
