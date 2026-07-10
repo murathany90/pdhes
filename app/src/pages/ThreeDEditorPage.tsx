@@ -97,7 +97,7 @@ export default function ThreeDEditorPage({ site, onDone }: ThreeDEditorPageProps
           let generatedCoords: [number, number][] = [];
           try {
             if (drawingTemplate === 'square') {
-              generatedCoords = turf.circle([lng, lat], 400, { steps: 4 }).geometry.coordinates[0] as [number, number][];
+              generatedCoords = turf.circle([lng, lat], 400, { steps: 4, units: 'meters' }).geometry.coordinates[0] as [number, number][];
               generatedCoords = turf.transformRotate(turf.polygon([generatedCoords]), 45).geometry.coordinates[0] as [number, number][];
             } else if (drawingTemplate === 'rectangle') {
               const buf = turf.buffer(turf.lineString([[lng - 0.004, lat], [lng + 0.004, lat]]), 200, { units: 'meters' });
@@ -109,10 +109,10 @@ export default function ThreeDEditorPage({ site, onDone }: ThreeDEditorPageProps
               if (turf.ellipse) {
                 generatedCoords = turf.ellipse([lng, lat], 500, 300, { units: 'meters' }).geometry.coordinates[0] as [number, number][];
               } else {
-                generatedCoords = turf.circle([lng, lat], 400, { steps: 36 }).geometry.coordinates[0] as [number, number][];
+                generatedCoords = turf.circle([lng, lat], 400, { steps: 36, units: 'meters' }).geometry.coordinates[0] as [number, number][];
               }
             } else if (drawingTemplate === 'rounded') {
-              const bbox = turf.bbox(turf.circle([lng, lat], 350, { steps: 4 }));
+              const bbox = turf.bbox(turf.circle([lng, lat], 350, { steps: 4, units: 'meters' }));
               const sq = turf.bboxPolygon(bbox);
               const buf = turf.buffer(sq, 50, { units: 'meters' });
               if (buf && buf.geometry && buf.geometry.type === 'Polygon') {
