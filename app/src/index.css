@@ -944,18 +944,14 @@ html[data-theme="light"] .pdhes-rich-shell .source-footer { background: var(--pa
 .section-nav-list a.sub { padding-left: 1.5rem; font-size: 0.85rem; opacity: 0.85; font-weight: 400; }
 
 @media (max-width: 700px) {
-  table td, table th { white-space: nowrap; padding: 10px; }
-  .candidate-table { min-width: 1040px; font-size: 13px; }
+  .candidate-table { min-width: 600px; font-size: 13px; }
   .candidate-table-wrap { border-radius: 12px; }
   .expanded-details-content { padding: 14px; }
 }
 
 @media (max-width: 480px) {
   .utility-label { display: none; }
-  .global-controls { grid-template-columns: minmax(0, 1fr) 44px 44px; }
   .global-controls .btn { padding-inline: 10px; }
-  table { min-width: 100%; font-size: 14px; }
-  .card:has(table) { overflow-x: auto; }
   .panel { padding: 10px; }
   .topbar { padding: 9px 10px; }
 }
