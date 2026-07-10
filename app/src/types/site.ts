@@ -59,6 +59,7 @@ export interface PdhCoordinateSet {
   lowerReservoir: { name: string; point: [number, number] };
   upperReservoir: { description: string; point: [number, number] };
   upperReservoirPolygon?: [number, number][];
+  lowerReservoirPolygon?: [number, number][];
   powerhouse: { point: [number, number]; preferred3dType: string };
   surgeTank: { point: [number, number] };
   servicePortal?: { point: [number, number] };
