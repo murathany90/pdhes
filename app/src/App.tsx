@@ -3,6 +3,7 @@ import {
   BookOpen,
   FileText,
   Database,
+  Globe2,
   MapPinned,
   Moon,
   Mountain,
@@ -40,12 +41,14 @@ const WorkspacePage = lazy(loadWorkspacePage);
 const SettingsPage = lazy(loadSettingsPage);
 const SiteEditorPage = lazy(loadSiteEditorPage);
 const ThreeDEditorPage = lazy(loadThreeDEditorPage);
+const WorldExamplesPage = lazy(() => import('./pages/WorldExamplesPage'));
 
 // Removed ROUTE_PRELOADERS
 
 const TABS = [
   { id: 'pdhes', path: '/pdhes', label: 'PDHES Nedir', Icon: BookOpen },
   { id: 'data', path: '/data', label: 'PDHES Adayları', Icon: Database },
+  { id: 'world-examples', path: '/world-examples', label: 'Dünya Örnekleri', Icon: Globe2 },
   { id: 'map', path: '/map', label: 'Harita Gösterim', Icon: MapPinned },
   { id: 'threeD', path: '/3d', label: '3D Yerleşim', Icon: Mountain },
   { id: 'reports', path: '/reports', label: 'Raporlar ve Haberler', Icon: FileText },
@@ -180,6 +183,7 @@ export default function App() {
           <Route path="/pdhes" element={<PdhesRoute />} />
           <Route path="/pdhes/:sectionId" element={<PdhesRoute />} />
           <Route path="/data" element={<DataPage site={selectedSite} />} />
+          <Route path="/world-examples" element={<WorldExamplesPage />} />
           <Route path="/map" element={<MapPage />} />
           <Route path="/3d" element={<ThreeDPage site={selectedSite} />} />
           <Route path="/reports" element={<ReportsPage />} />

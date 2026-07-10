@@ -1,10 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { MapPin, ExternalLink, } from 'lucide-react';
-import { CONTENT_DEFAULTS, GLOSSARY, WORLD_EXAMPLES } from '../utils/constants';
-import { STATUS_LABELS } from '../data/worldExamples';
+import { CONTENT_DEFAULTS, GLOSSARY } from '../utils/constants';
 import { useWorkspaceStore } from '../stores/useWorkspaceStore';
-import { useSiteStore } from '../stores/useSiteStore';
 import DOMPurify from 'dompurify';
 import SectionNav from '../components/ui/SectionNav';
 import InfoAccordion from '../components/ui/InfoAccordion';
@@ -16,8 +12,6 @@ interface PdhesPageProps {
 
 export default function PdhesPage({ sectionId }: PdhesPageProps) {
   const getContent = useWorkspaceStore((state) => state.getContent);
-  const setWorldExampleFocus = useSiteStore((state) => state.setWorldExampleFocus);
-  const navigate = useNavigate();
 
   const [query, setQuery] = useState('');
   const [modalImage, setModalImage] = useState<{ src: string; title: string } | null>(null);
@@ -75,7 +69,6 @@ export default function PdhesPage({ sectionId }: PdhesPageProps) {
             { id: 'sec-maliyet', title: 'Gelir Modeli' },
             { id: 'sec-riskler', title: 'Riskler' },
             { id: 'sec-veri', title: 'Türkiye Aday Veri Kurgusu' },
-            { id: 'sec-ornekler', title: 'Dünya Örnekleri' },
             { id: 'sec-sozluk', title: 'Teknik Sözlük' },
             { id: 'sec-sss', title: 'Sık Sorulan Sorular' },
           ]} />
@@ -374,63 +367,6 @@ export default function PdhesPage({ sectionId }: PdhesPageProps) {
             </div>
           </article>
 
-          <article className="info-card" id="sec-ornekler">
-            <header className="card-head">
-              <div className="number-pill">12</div>
-              <div>
-                <span className="eyebrow">Küresel bağlam</span>
-                <h2>Dünya örnekleri neden referans alınır?</h2>
-              </div>
-            </header>
-            <div className="card-body">
-              <p>Dünya örnekleri, PDHES teknolojisinin ölçek, düşü, depolama süresi, piyasa değeri ve sistem işletmesi açısından nasıl konumlandığını karşılaştırmak için kullanılır. Bu örnekler Türkiye adaylarının yapılabilir olduğunu kanıtlamaz; yalnızca hangi teknik ve finansal soruların sorulması gerektiğini görünür kılar.</p>
-            </div>
-            <div className="grid auto-fit">
-              {WORLD_EXAMPLES.map((example) => (
-                <div className="world-example-card" key={example.id}>
-                  <div className="we-header">
-                    <h3>
-                      <span className="we-flag" aria-hidden="true">{example.flag}</span>
-                      {example.name}
-                    </h3>
-                    <span className={`we-status we-status-${example.status}`}>
-                      {STATUS_LABELS[example.status]}
-                    </span>
-                  </div>
-                  <div className="specs">
-                    <span><b>{example.country}</b></span>
-                    <span><b style={{ fontSize: '14px' }}>{example.capacityMw.toLocaleString('tr-TR')} MW</b></span>
-                    {example.headM && <span><b>{example.headM} m</b> düşü</span>}
-                    {example.storageMwh && <span><b>{example.storageMwh.toLocaleString('tr-TR')} MWh</b> depolama</span>}
-                    {example.commissioningYear && <span>{example.commissioningYear}</span>}
-                  </div>
-                  <p className="we-desc">{example.shortDescription}</p>
-                  {example.wikiNote && <p className="we-note"><b>Not:</b> {example.wikiNote}</p>}
-                  <div className="we-actions">
-                    <button
-                      type="button"
-                      className="btn primary flex-1"
-                      onClick={() => {
-                        setWorldExampleFocus(example.id);
-                        navigate('/map');
-                      }}
-                    >
-                      <MapPin size={14} />
-                      Konum
-                    </button>
-                    {example.wikiUrl ? (
-                      <a href={example.wikiUrl} target="_blank" rel="noopener noreferrer" className="btn ghost flex-1">
-                        <ExternalLink size={14} />
-                        Wiki
-                      </a>
-                    ) : (
-                      <span className="btn ghost flex-1" aria-disabled="true">Bağlantı yok</span>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </article>
 
           <article className="info-card" id="sec-sozluk">
             <header className="card-head">
