@@ -396,9 +396,8 @@ export function useMapLibre({
             marker.getElement().addEventListener('click', (e) => {
               e.stopPropagation();
               onSelectSiteRef.current?.(candidate.id);
-              new maplibregl.Popup({ closeButton: false, offset: 25 })
-                .setLngLat(center)
-                .setHTML(`
+              const popupContent = document.createElement('div');
+              popupContent.innerHTML = `
                   <b>${escapeHtml(candidate.name)}</b><br>
                   <span style="font-size:12px">${escapeHtml(PDHES_TYPE_LABELS[candidate.pdhesType])}</span>
                   <div style="font-size:12px;margin-top:6px">
@@ -410,10 +409,21 @@ export function useMapLibre({
                     <div><b>Koordinat:</b> ${escapeHtml(COORDINATE_CONFIDENCE_LABELS[candidate.coordinates.coordinateConfidence])}</div>
                     <div style="display:flex; gap:8px; margin-top:10px;">
                       <a href="#/3d" style="flex:1; padding:6px 12px; background:#3b82f6; color:white; border-radius:4px; text-decoration:none; font-weight:bold; font-size:12px; text-align:center;">3D Çizimi Gör</a>
-                      <button onclick="window.dispatchEvent(new CustomEvent('show-3d-image', { detail: '${candidate.id}' }))" style="flex:1; padding:6px 12px; background:#10b981; color:white; border:none; border-radius:4px; cursor:pointer; font-weight:bold; font-size:12px; text-align:center;">3D Görsel</button>
+                      <button class="show-3d-btn" style="flex:1; padding:6px 12px; background:#10b981; color:white; border:none; border-radius:4px; cursor:pointer; font-weight:bold; font-size:12px; text-align:center;">3D Görsel</button>
                     </div>
                   </div>
-                `)
+              `;
+
+              const btn = popupContent.querySelector('.show-3d-btn');
+              if (btn) {
+                btn.addEventListener('click', () => {
+                  window.dispatchEvent(new CustomEvent('show-3d-image', { detail: candidate.id }));
+                });
+              }
+
+              new maplibregl.Popup({ closeButton: false, offset: 25 })
+                .setLngLat(center)
+                .setDOMContent(popupContent)
                 .addTo(map);
             });
           }
