@@ -119,7 +119,7 @@ export default function WorldExamplesPage() {
                       onClick={() => setExpandedId(expandedId === example.id ? null : example.id)}
                     >
                       <td><b style={{ fontSize: '13px' }}>{example.name}</b></td>
-                      <td>{example.flag} {example.country}</td>
+                      <td>{example.country}</td>
                       <td><span className="muted small">{example.type.split('/')[0]?.trim() || example.type}</span></td>
                       <td>{example.commissioningYear}</td>
                       <td><span className="muted small">{example.constructionPeriod}</span></td>

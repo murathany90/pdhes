@@ -9,7 +9,7 @@ import MeasurementUI from '../components/MeasurementUI';
 import ManualGeometryLayer from '../components/ManualGeometryLayer';
 import { useSiteStore } from '../stores/useSiteStore';
 import { useSettingsStore } from '../stores/useSettingsStore';
-import { WORLD_EXAMPLES } from '../data/worldExamples';
+import { WORLD_EXAMPLES_DETAILED } from '../data/worldExamplesDetailed';
 import { num, moneyBn, moneyM } from '../utils/format';
 
 const DEFAULT_LAYERS: MapLayerVisibility = {
@@ -45,7 +45,7 @@ export default function MapPage() {
   const [imageModalSiteId, setImageModalSiteId] = useState<string | null>(null);
   const [imageLoadError, setImageLoadError] = useState(false);
   const site = sites.find((item) => item.id === selectedId) || sites[0];
-  const worldExample = worldExampleFocusId ? WORLD_EXAMPLES.find((e) => e.id === worldExampleFocusId) : null;
+  const worldExample = worldExampleFocusId ? WORLD_EXAMPLES_DETAILED.find((e) => e.id === worldExampleFocusId) : null;
 
   useEffect(() => {
     const handleShowImage = (e: any) => {
@@ -77,10 +77,10 @@ export default function MapPage() {
 
   useEffect(() => {
     if (worldExampleFocusId && mapRef.current) {
-      const example = WORLD_EXAMPLES.find((e) => e.id === worldExampleFocusId);
+      const example = WORLD_EXAMPLES_DETAILED.find((e) => e.id === worldExampleFocusId);
       if (example) {
         mapRef.current.flyTo({
-          center: [example.lon, example.lat],
+          center: [example.lon || 0, example.lat || 0],
           zoom: 8,
           pitch: 0,
           bearing: 0,
@@ -218,14 +218,34 @@ export default function MapPage() {
           >
             ›
           </button>
-          <h2 style={{ marginTop: 0 }}>Kavramsal Özet</h2>
+          <h2 style={{ marginTop: 0 }}>{worldExample ? 'PDHES Bilgileri' : 'Kavramsal Özet'}</h2>
           {worldExample ? (
             <div className="grid" style={{ gap: 6, marginBottom: 16 }}>
-              <div className="metric good"><span>Tesis</span><b style={{fontSize: 14}}>{worldExample.name}</b></div>
-              <div className="metric info"><span>Kapasite</span><b>{worldExample.capacityMw.toLocaleString('tr-TR')} MW</b></div>
-              {worldExample.headM && <div className="metric warn"><span>Düşü</span><b>{worldExample.headM} m</b></div>}
-              {worldExample.storageMwh && <div className="metric"><span>Depolama</span><b>{worldExample.storageMwh.toLocaleString('tr-TR')} MWh</b></div>}
-              {worldExample.commissioningYear && <div className="metric"><span>Devreye Alınma</span><b>{worldExample.commissioningYear}</b></div>}
+              <div className="metric good"><span>Tesis Adı</span><b style={{fontSize: 13}}>{worldExample.name}</b></div>
+              <div className="metric info"><span>Ülke</span><b>{worldExample.country}</b></div>
+              <div className="metric"><span>Tipi</span><b>{worldExample.type}</b></div>
+              <div className="metric"><span>İşletme / Yapım</span><b>{worldExample.commissioningYear} / {worldExample.constructionPeriod}</b></div>
+              <div className="metric warn"><span>Durumu</span><b>{worldExample.status}</b></div>
+              
+              <div className="metric info"><span>Güç / Enerji</span><b>{worldExample.capacityMw} MW / {worldExample.storageMwh} MWh</b></div>
+              <div className="metric"><span>Düşü / Tam Yük Süresi</span><b>{worldExample.headM} m / {worldExample.fullLoadHours} saat</b></div>
+              <div className="metric"><span>Verim</span><b>{worldExample.efficiency}</b></div>
+              
+              <div className="metric"><span>Alt Hacim</span><b>{worldExample.lowerResVolume}</b></div>
+              <div className="metric"><span>Üst Hacim</span><b>{worldExample.upperResVolume}</b></div>
+              <div className="metric"><span>Alt Rezervuar Tipi</span><b>{worldExample.lowerResNameType}</b></div>
+              <div className="metric"><span>Üst Rezervuar Tipi</span><b>{worldExample.upperResNameType}</b></div>
+              
+              <div className="metric"><span>Pompa-Türbin Tipi</span><b>{worldExample.pumpTurbineType}</b></div>
+              <div className="metric"><span>Pompa-Türbin Gücü</span><b>{worldExample.pumpTurbinePower}</b></div>
+              
+              <div className="metric good"><span>Yatırım Maliyeti</span><b>{worldExample.investmentCostUsd}</b></div>
+              <div className="metric"><span>Birim Maliyet</span><b>{worldExample.costPerKwh} $/kWh</b></div>
+              
+              <div className="metric" style={{ gridColumn: '1 / -1' }}>
+                <span>Kısa Analiz</span>
+                <p className="muted" style={{ marginTop: 4, lineHeight: 1.4, fontSize: 12 }}>{worldExample.shortAnalysis}</p>
+              </div>
             </div>
           ) : (
             <>

@@ -6,7 +6,7 @@ import { escapeHtml } from '../utils/format';
 import { buildLayout } from '../utils/layout';
 import { getMapStyleSpecification, getMarkerIconHtml, type MapStyleKind } from '../utils/mapProviders';
 import { useSiteStore } from '../stores/useSiteStore';
-import { WORLD_EXAMPLES } from '../data/worldExamples';
+import { WORLD_EXAMPLES_DETAILED } from '../data/worldExamplesDetailed';
 import {
   COORDINATE_CONFIDENCE_LABELS,
   CYCLE_TYPE_LABELS,
@@ -432,32 +432,32 @@ export function useMapLibre({
       }
 
       // Add World Examples
-      WORLD_EXAMPLES.forEach((example) => {
+      WORLD_EXAMPLES_DETAILED.forEach((example) => {
         const el = document.createElement('div');
         el.innerHTML = getMarkerIconHtml('classic', '#00a8ff', false); // Focus ID state not easily available here without adding it to hook props, so defaulting to standard size
         el.style.cursor = 'pointer';
         
         const marker = new maplibregl.Marker({ element: el })
-          .setLngLat([example.lon, example.lat])
+          .setLngLat([example.lon || 0, example.lat || 0])
           .addTo(map);
 
         const popupHtml = `
           <div class="we-popup-content">
-            <div style="font-weight:bold;font-size:14px;margin-bottom:4px;color:var(--text);">${example.flag} ${escapeHtml(example.name)}</div>
-            <div style="font-size:12px;color:var(--muted);margin-bottom:8px;">${escapeHtml(example.country)} &middot; ${example.status === 'operational' ? 'İşletmede' : 'İşletmede değil'}</div>
+            <div style="font-weight:bold;font-size:14px;margin-bottom:4px;color:var(--text);">${escapeHtml(example.name)}</div>
+            <div style="font-size:12px;color:var(--muted);margin-bottom:8px;">${escapeHtml(example.country)} &middot; ${escapeHtml(example.status)}</div>
             <div style="font-size:13px;border-top:1px solid var(--line);padding-top:6px;margin-bottom:6px;">
-              <div><b>Kurulu güç:</b> ${example.capacityMw.toLocaleString('tr-TR')} MW</div>
-              ${example.headM ? `<div><b>Düşü:</b> ${example.headM} m</div>` : ''}
-              ${example.storageMwh ? `<div><b>Depolama:</b> ${example.storageMwh.toLocaleString('tr-TR')} MWh</div>` : ''}
-              ${example.commissioningYear ? `<div><b>Yıl:</b> ${example.commissioningYear}</div>` : ''}
+              <div><b>Kurulu güç:</b> ${example.capacityMw} MW</div>
+              <div><b>Depolama:</b> ${example.storageMwh} MWh</div>
+              <div><b>Düşü:</b> ${example.headM} m</div>
+              <div><b>Yıl:</b> ${example.commissioningYear}</div>
             </div>
-            ${example.wikiNote ? `<div style="font-size:12px;color:var(--soft);margin-bottom:6px;"><b>Not:</b> ${escapeHtml(example.wikiNote)}</div>` : ''}
+            <div style="font-size:12px;color:var(--soft);margin-bottom:6px;"><b>Tipi:</b> ${escapeHtml(example.type)}</div>
             ${example.wikiUrl ? `<a href="${example.wikiUrl}" target="_blank" rel="noopener noreferrer" style="display:inline-block;font-size:12px;color:var(--blue);text-decoration:none;margin-top:4px;">Wikipedia &nearr;</a>` : ''}
           </div>
         `;
 
         const popup = new maplibregl.Popup({ offset: 15, maxWidth: '260px' })
-          .setLngLat([example.lon, example.lat])
+          .setLngLat([example.lon || 0, example.lat || 0])
           .setHTML(popupHtml);
           
         popup.on('open', () => {
@@ -497,7 +497,7 @@ export function useMapLibre({
       attributionControl: false,
       maxZoom: 22,
     });
-    map.addControl(new maplibregl.AttributionControl({ compact: true }), 'bottom-right');
+    map.addControl(new maplibregl.AttributionControl({ compact: true, customAttribution: 'Şebeke verileri: OSM Grid' }), 'bottom-right');
     map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'bottom-right');
     mapRef.current = map;
     mapStyleRef.current = mapStyle;
