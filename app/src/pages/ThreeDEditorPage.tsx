@@ -195,7 +195,13 @@ export default function ThreeDEditorPage({ site, onDone }: ThreeDEditorPageProps
           if (isPolygon && coords.length > 3) {
             try {
               const area = turf.area(turf.polygon([coords]));
-              measurementText = `Alan: ${(area/1000000).toFixed(2)} km²`;
+              const volume = area * 25; // 25m default depth
+              const formatNum = (n: number) => n.toLocaleString('tr-TR', { maximumFractionDigits: 0 });
+              measurementText = drawingMode === 'upperReservoir'
+                ? `Üst Rezervuar\n(${formatNum(area)} m²)\n(${formatNum(volume)} m³)`
+                : drawingMode === 'lowerReservoir'
+                  ? `Alt Rezervuar (${previewSite?.lowerReservoirName || site?.lowerReservoirName || 'Mevcut Göl/Deniz'})`
+                  : `Alan: ${formatNum(area)} m²`;
             } catch(e) {}
           } else if (!isPolygon && coords.length > 1) {
             try {
@@ -318,7 +324,7 @@ export default function ThreeDEditorPage({ site, onDone }: ThreeDEditorPageProps
     }
   };
 
-  const calculatePolyStats = (polygonCoords: [number, number][] | undefined, baseVolume: number | null, fallbackElevation: number | null) => {
+  const calculatePolyStats = (polygonCoords: [number, number][] | undefined, baseVolume: number | null, fallbackElevation: number | null, queryTerrain: boolean = true) => {
     let area_m2 = 0;
     let centroid: [number, number] | null = null;
     if (polygonCoords && polygonCoords.length > 2) {
@@ -339,10 +345,10 @@ export default function ThreeDEditorPage({ site, onDone }: ThreeDEditorPageProps
     const volume_m3 = area_m2 > 0 ? area_m2 * 25 : (baseVolume ? baseVolume * 1000000 : 0);
 
     let actualElevation = fallbackElevation || 0;
-    if (centroid && mapRef.current && mapRef.current.getTerrain()) {
+    if (queryTerrain && centroid && mapRef.current && mapRef.current.getTerrain()) {
       const ele = mapRef.current.queryTerrainElevation(centroid);
       if (ele !== null) {
-        actualElevation = Math.round(ele / (heightScale * 1.3));
+        actualElevation = Math.round(ele);
       }
     }
 
@@ -350,30 +356,34 @@ export default function ThreeDEditorPage({ site, onDone }: ThreeDEditorPageProps
   };
 
   const currentUpperPoly = drawingMode === 'upperReservoir' ? draftCoords : previewSite?.coordinates.upperReservoirPolygon;
-  const upperOldStats = calculatePolyStats(site.coordinates.upperReservoirPolygon, site.activeVolumeHm3 || 0, site.components_detail?.upper_reservoir?.elevation_m || site.headM || 0);
-  const upperNewStats = calculatePolyStats(currentUpperPoly, previewSite?.activeVolumeHm3 || 0, previewSite?.components_detail?.upper_reservoir?.elevation_m || previewSite?.headM || 0);
+  const rawOldStats = calculatePolyStats(site.coordinates.upperReservoirPolygon, site.activeVolumeHm3 || 0, site.components_detail?.upper_reservoir?.elevation_m || site.headM || 0, false);
+  const upperOldStats = {
+    area: rawOldStats.area,
+    volume: site.components_detail?.upper_reservoir?.active_volume_mcm ? site.components_detail.upper_reservoir.active_volume_mcm * 1000000 : rawOldStats.volume,
+    elevation: rawOldStats.elevation
+  };
+  const upperNewStats = calculatePolyStats(currentUpperPoly, previewSite?.activeVolumeHm3 || 0, previewSite?.components_detail?.upper_reservoir?.elevation_m || previewSite?.headM || 0, true);
 
   const formatNum = (num: number) => num.toLocaleString('tr-TR', { maximumFractionDigits: 0 });
 
   const renderComponentCard = (title: string, modeLine: DrawingMode, modePoint?: DrawingMode) => {
-    const isDrawing = drawingMode === modeLine || drawingMode === modePoint;
+    const isDrawing = (modeLine !== 'none' && drawingMode === modeLine) || (modePoint !== 'none' && drawingMode === modePoint);
     return (
-      <div className={`card ${isDrawing ? 'active' : ''}`} style={{ marginBottom: 12, padding: 12, background: isDrawing ? 'rgba(0, 150, 255, 0.1)' : 'var(--bg-card)', border: isDrawing ? '1px solid var(--blue)' : '1px solid var(--border)' }}>
-        <h3 style={{ margin: '0 0 8px 0', fontSize: '13px' }}>{title}</h3>
-        {isDrawing ? (
-          <div style={{ display: 'flex', gap: 8 }}>
-            <p className="muted small" style={{ flex: 1, margin: 0 }}>Haritaya tıklayarak çiziminizi yapın (çift tıklayarak bitirin)...</p>
+      <div className={`card ${isDrawing ? 'active' : ''}`} style={{ marginBottom: 12, padding: 12, background: isDrawing ? 'rgba(0, 150, 255, 0.08)' : 'var(--bg-card)', border: isDrawing ? '1px solid var(--blue)' : '1px solid var(--border)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: isDrawing ? 8 : 0 }}>
+          <h3 style={{ margin: 0, fontSize: '13px' }}>{title}</h3>
+          {isDrawing && (
             <button id="finish-drawing-btn" className="btn primary small" onClick={handleFinishDrawing}>✅ Bitir</button>
-          </div>
-        ) : (
-          <div style={{ display: 'flex', gap: 8 }}>
+          )}
+        </div>
+        
+        {!isDrawing ? (
+          <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
             {modeLine && modeLine !== 'none' && <button className="btn outline small" onClick={() => { setDrawingMode(modeLine); setDrawingTemplate('point'); setDraftCoords([]); }}>{modeLine === 'penstockRoute' ? '〽️ Rota Çiz' : '📐 3D Şekil Çiz'}</button>}
             {modePoint && modePoint !== 'none' && <button className="btn outline small" onClick={() => { setDrawingMode(modePoint); setDraftCoords([]); }}>📍 Konum Seç</button>}
           </div>
-        )}
-        
-        {modeLine === 'upperReservoir' && isDrawing && (
-          <div style={{ marginTop: 8, display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+        ) : modeLine === 'upperReservoir' && (
+          <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
              <button className={`btn small ${drawingTemplate === 'point' ? 'primary' : 'outline'}`} onClick={() => { setDrawingTemplate('point'); setDraftCoords([]); }}>✏️ Serbest</button>
              <button className={`btn small ${drawingTemplate === 'square' ? 'primary' : 'outline'}`} onClick={() => { setDrawingTemplate('square'); setDraftCoords([]); }}>⬛ Kare</button>
              <button className={`btn small ${drawingTemplate === 'rectangle' ? 'primary' : 'outline'}`} onClick={() => { setDrawingTemplate('rectangle'); setDraftCoords([]); }}>▭ Dikdrt.</button>

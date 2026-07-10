@@ -79,7 +79,7 @@ export function getSiteColor(site: Site): string {
 }
 
 export function getSiteCenter(site: Site): [number, number] {
-  return site.coordinates.mapAnchor;
+  return site.coordinates.powerhouse?.point ?? site.coordinates.mapAnchor;
 }
 
 export function getSiteView(site: Site): SiteView {

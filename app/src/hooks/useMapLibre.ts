@@ -130,15 +130,13 @@ export function useMapLibre({
         'risk-line',
         'project-grid-line',
         'water-line',
-        'blocks-extrusion',
-        'block-labels',
         'candidate-circles',
         'candidate-labels',
         'hillshade-layer',
         'osm-power-lines',
         'osm-power-points',
       ];
-      const oldSources = ['grid400', 'grid154', 'substations', 'risk', 'projectGrid', 'water', 'blocks', 'blockLabels', 'candidates', 'osm-power-grid'];
+      const oldSources = ['grid400', 'grid154', 'substations', 'risk', 'projectGrid', 'water', 'candidates', 'osm-power-grid'];
       if (map.getLayer('candidate-circles')) {
         map.off('click', 'candidate-circles', handleCandidateClick);
       }
@@ -248,36 +246,70 @@ export function useMapLibre({
           features: layout.labels.features.filter(f => activeBlocks.includes(f.properties?.key))
         } as any;
 
-        map.addSource('blocks', { type: 'geojson', data: filteredBlocks });
-        map.addLayer({
-          id: 'blocks-extrusion',
-          type: 'fill-extrusion',
-          source: 'blocks',
-          paint: {
-            'fill-extrusion-color': draftingMode ? [
+        if (map.getSource('blocks')) {
+          (map.getSource('blocks') as maplibregl.GeoJSONSource).setData(filteredBlocks);
+          if (map.getLayer('blocks-extrusion')) {
+            map.setPaintProperty('blocks-extrusion', 'fill-extrusion-color', draftingMode ? [
               'case',
               ['==', ['get', 'component'], draftingMode],
               '#aaaaaa',
               ['get', 'color']
-            ] : ['get', 'color'],
-            'fill-extrusion-height': ['get', 'height'],
-            'fill-extrusion-base': ['get', 'base'],
-            'fill-extrusion-opacity': draftingMode ? [
+            ] : ['get', 'color']);
+            map.setPaintProperty('blocks-extrusion', 'fill-extrusion-opacity', draftingMode ? [
               'case',
               ['==', ['get', 'component'], draftingMode],
               0.4,
               0.85
-            ] : 0.85,
-          },
-        });
-        map.addSource('blockLabels', { type: 'geojson', data: filteredLabels });
-        map.addLayer({
-          id: 'block-labels',
-          type: 'symbol',
-          source: 'blockLabels',
-          layout: { 'text-field': ['get', 'label'], 'text-size': 12, 'text-font': ['Noto Sans Bold'], 'text-variable-anchor': ['top', 'bottom', 'left', 'right'] },
-          paint: { 'text-color': '#d9fff0', 'text-halo-color': '#06100d', 'text-halo-width': 1.5 },
-        });
+            ] : 0.85);
+          }
+        } else {
+          map.addSource('blocks', { type: 'geojson', data: filteredBlocks });
+          setTimeout(() => {
+            if (map.getLayer('blocks-extrusion')) return;
+            map.addLayer({
+              id: 'blocks-extrusion',
+              type: 'fill-extrusion',
+              source: 'blocks',
+              paint: {
+                'fill-extrusion-color': draftingMode ? [
+                  'case',
+                  ['==', ['get', 'component'], draftingMode],
+                  '#aaaaaa',
+                  ['get', 'color']
+                ] : ['get', 'color'],
+                'fill-extrusion-height': ['get', 'height'],
+                'fill-extrusion-base': ['get', 'base'],
+                'fill-extrusion-opacity': draftingMode ? [
+                  'case',
+                  ['==', ['get', 'component'], draftingMode],
+                  0.4,
+                  0.85
+                ] : 0.85,
+              },
+            });
+          }, 50);
+        }
+
+        if (map.getSource('blockLabels')) {
+          (map.getSource('blockLabels') as maplibregl.GeoJSONSource).setData(filteredLabels);
+        } else {
+          map.addSource('blockLabels', { type: 'geojson', data: filteredLabels });
+          setTimeout(() => {
+            if (map.getLayer('block-labels')) return;
+            map.addLayer({
+              id: 'block-labels',
+              type: 'symbol',
+              source: 'blockLabels',
+              layout: { 'text-field': ['get', 'label'], 'text-size': 12, 'text-font': ['Noto Sans Bold'], 'text-variable-anchor': ['top', 'bottom', 'left', 'right'] },
+              paint: { 'text-color': '#d9fff0', 'text-halo-color': '#06100d', 'text-halo-width': 1.5 },
+            });
+          }, 50);
+        }
+      } else {
+        if (map.getLayer('blocks-extrusion')) map.removeLayer('blocks-extrusion');
+        if (map.getSource('blocks')) map.removeSource('blocks');
+        if (map.getLayer('block-labels')) map.removeLayer('block-labels');
+        if (map.getSource('blockLabels')) map.removeSource('blockLabels');
       }
 
       if (showPowerGrid) {
@@ -442,7 +474,7 @@ export function useMapLibre({
                     <div><b>Koordinat:</b> ${escapeHtml(COORDINATE_CONFIDENCE_LABELS[candidate.coordinates.coordinateConfidence])}</div>
                     <div style="display:flex; gap:8px; margin-top:10px;">
                       <a href="#/3d" style="flex:1; padding:6px 12px; background:#3b82f6; color:white; border-radius:4px; text-decoration:none; font-weight:bold; font-size:12px; text-align:center;">3D Çizimi Gör</a>
-                      ${candidate.id === 'kamu-gokcekaya-pspp' 
+                      ${['kamu-gokcekaya-pspp', 'kamu-sariyar-pspp'].includes(candidate.id)
                         ? `<button class="show-3d-btn" style="flex:1; padding:6px 12px; background:#10b981; color:white; border:none; border-radius:4px; cursor:pointer; font-weight:bold; font-size:12px; text-align:center;">3D Görsel</button>`
                         : `<button class="show-3d-btn" disabled style="flex:1; padding:6px 12px; background:#64748b; color:#94a3b8; border:none; border-radius:4px; cursor:not-allowed; font-weight:bold; font-size:12px; text-align:center;">3D Görsel Yok</button>`
                       }
@@ -450,7 +482,7 @@ export function useMapLibre({
                   </div>
               `;
 
-              if (candidate.id === 'kamu-gokcekaya-pspp') {
+              if (['kamu-gokcekaya-pspp', 'kamu-sariyar-pspp'].includes(candidate.id)) {
                 const btn = popupContent.querySelector('.show-3d-btn');
                 if (btn) {
                   btn.addEventListener('click', () => {
@@ -523,7 +555,7 @@ export function useMapLibre({
 
     };
     run();
-  }, [gridAssets, handleCandidateClick, heightScale, interactiveCandidates, layers, selectedId, site, sites, showPowerGrid, powerGridConfig]);
+  }, [gridAssets, handleCandidateClick, heightScale, interactiveCandidates, layers, selectedId, site, sites, showPowerGrid, powerGridConfig, draftingMode]);
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current || !site) return;

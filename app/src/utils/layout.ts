@@ -1,5 +1,6 @@
 import type { Feature, FeatureCollection, LineString, Point, Polygon } from 'geojson';
 import type { Site } from '../types/site';
+import * as turf from '@turf/turf';
 import { circlePolygon, centroid, mid, offset, rotatedRectangle, scalePolygon } from './geo';
 import { getSiteLayout, isSeaLowerReservoir } from './siteDerived';
 import { COMPONENTS } from './constants';
@@ -19,6 +20,27 @@ export function buildLayout(site: Site, hScale: number): LayoutBundle {
   const sea = isSeaLowerReservoir(site);
   const footprintMode = Boolean(site.layout3D?.useFootprintPolygons && (site.layout3D.componentFootprints ?? []).length > 0);
   const footprintById = new Map((site.layout3D?.componentFootprints ?? []).map((footprint) => [footprint.id, footprint]));
+
+  const formatNum = (num: number) => num.toLocaleString('tr-TR', { maximumFractionDigits: 0 });
+  const getUpperLabel = (coords?: [number, number][]) => {
+    let area = site.components_detail?.upper_reservoir?.active_volume_mcm ? site.components_detail.upper_reservoir.active_volume_mcm * 1000000 / 25 : 0;
+    if (area === 0 && coords && coords.length > 2) {
+      try {
+        const closed = [...coords];
+        if (closed[0][0] !== closed[closed.length - 1][0] || closed[0][1] !== closed[closed.length - 1][1]) {
+          closed.push(closed[0]);
+        }
+        area = turf.area(turf.polygon([closed]));
+      } catch(e) {}
+    }
+    const volume = site.components_detail?.upper_reservoir?.active_volume_mcm ? site.components_detail.upper_reservoir.active_volume_mcm * 1000000 : area * 25;
+    
+    if (area > 0) {
+      return `Üst Rezervuar\n(${formatNum(area)} m²)\n(${formatNum(volume)} m³)`;
+    }
+    return 'Üst Rezervuar';
+  };
+
   const materialColor: Record<string, string> = {
     water: '#4aa3ff',
     embankment: '#7c858c',
@@ -30,13 +52,15 @@ export function buildLayout(site: Site, hScale: number): LayoutBundle {
     switchyard: '#48f49a',
   };
   const footprintLabels: Record<string, string> = {
-    upperReservoirWater: site.upperReservoirDescription,
-    upperReservoirEmbankment: '\u00dcst rezervuar set g\u00f6vdesi',
-    upperIntake: '\u00dcst rezervuar intake yap\u0131s\u0131',
-    surgeTankFootprint: 'Denge bacas\u0131',
-    serviceDrainPortal: 'Servis + drenaj t\u00fcneli portal\u0131',
-    powerhouseFootprint: 'T\u00fcrbin odas\u0131',
-    switchyardFootprint: '\u015ealt / trafo sahas\u0131',
+    upperReservoirWater: getUpperLabel(footprintById.get('upperReservoirWater')?.coords),
+    upperReservoirEmbankment: 'Üst Rezervuar Gövdesi',
+    upperIntake: 'İntake Yapısı',
+    lowerReservoirWater: `Alt Rezervuar (${site.lowerReservoirName})`,
+    lowerReservoirFootprint: `Alt Rezervuar (${site.lowerReservoirName})`,
+    surgeTankFootprint: 'Denge Bacası',
+    serviceDrainPortal: 'Servis Portalı',
+    powerhouseFootprint: 'Türbin Odası',
+    switchyardFootprint: 'Şalt Sahası',
   };
 
   function addRect(
@@ -102,46 +126,48 @@ export function buildLayout(site: Site, hScale: number): LayoutBundle {
   if (footprintMode) {
     addFootprintBlocks();
     if (!footprintById.has('lowerReservoirFootprint')) {
-      addRect('lower_reservoir', site.lowerReservoirName, layout.lower, 900, 500, 16, '#1fb6ff', bearing - 10);
+      addRect('lower_reservoir', `Alt Rezervuar (${site.lowerReservoirName})`, layout.lower, 900, 500, 16, '#1fb6ff', bearing - 10);
     }
-  } else if (sea) {
-    addRect('upper_reservoir', 'Kaplamalı üst rezervuar', layout.upper, 980, 760, 42, '#4aa3ff', bearing + 8);
-    addRect('lower_reservoir', 'Deniz alım/deşarj yapısı', layout.lower, 140, 90, 18, '#8a9597', bearing - 18);
-    addRect('powerhouse', 'Türbin Odası', layout.power, 260, 150, 70, '#b277ff', bearing + 2);
-    addCircle('surge_tank', 'Denge bacası', layout.surge, 70, 115, '#ffd75a');
-    addRect('switchyard', '154/380 kV şalt sahası', layout.switchyard, 340, 240, 28, '#48f49a', bearing - 12);
-    addRect('portal', 'Tünel portalı / servis alanı', mid(layout.upper, layout.power, 0.55), 220, 120, 24, '#ff944d', bearing + 16);
   } else {
-    if (site.coordinates.upperReservoirPolygon && site.coordinates.upperReservoirPolygon.length > 2) {
-      const coords = site.coordinates.upperReservoirPolygon;
-      const embankmentCoords = scalePolygon(coords, 1.05);
-      blocks.push({
-        type: 'Feature',
-        geometry: { type: 'Polygon', coordinates: [embankmentCoords] },
-        properties: { key: 'upper_reservoir_embankment', component: 'upper_reservoir', label: 'Üst Rezervuar Gövdesi', width: 0, length: 0, height: 38 * hScale, base: 2, color: '#9aa3ad' },
-      });
-      blocks.push({
-        type: 'Feature',
-        geometry: { type: 'Polygon', coordinates: [coords] },
-        properties: { key: 'upper_reservoir', component: 'upper_reservoir', label: site.upperReservoirDescription, width: 0, length: 0, height: 36 * hScale, base: 4, color: '#4aa3ff' },
-      });
+    if (sea) {
+      addRect('upper_reservoir', getUpperLabel(), layout.upper, 980, 760, 42, '#4aa3ff', bearing + 8);
+      addRect('lower_reservoir', `Alt Rezervuar (${site.lowerReservoirName || 'Deniz'})`, layout.lower, 140, 90, 18, '#8a9597', bearing - 18);
+      addRect('powerhouse', 'Türbin Odası', layout.power, 260, 150, 70, '#b277ff', bearing + 2);
+      addCircle('surge_tank', 'Denge Bacası', layout.surge, 70, 115, '#ffd75a');
+      addRect('switchyard', 'Şalt Sahası', layout.switchyard, 340, 240, 28, '#48f49a', bearing - 12);
+      addRect('portal', 'Tünel Portalı', mid(layout.upper, layout.power, 0.55), 220, 120, 24, '#ff944d', bearing + 16);
     } else {
-      addRect('upper_reservoir', site.upperReservoirDescription, layout.upper, 1100, 850, 36, '#4aa3ff', bearing + 4);
-    }
+      if (site.coordinates.upperReservoirPolygon && site.coordinates.upperReservoirPolygon.length > 2) {
+        const coords = site.coordinates.upperReservoirPolygon;
+        const embankmentCoords = scalePolygon(coords, 1.05);
+        blocks.push({
+          type: 'Feature',
+          geometry: { type: 'Polygon', coordinates: [embankmentCoords] },
+          properties: { key: 'upper_reservoir_embankment', component: 'upper_reservoir', label: 'Üst Rezervuar Gövdesi', width: 0, length: 0, height: 38 * hScale, base: 2, color: '#9aa3ad' },
+        });
+        blocks.push({
+          type: 'Feature',
+          geometry: { type: 'Polygon', coordinates: [coords] },
+          properties: { key: 'upper_reservoir', component: 'upper_reservoir', label: getUpperLabel(coords), width: 0, length: 0, height: 36 * hScale, base: 4, color: '#4aa3ff' },
+        });
+      } else {
+        addRect('upper_reservoir', getUpperLabel(), layout.upper, 1100, 850, 36, '#4aa3ff', bearing + 4);
+      }
 
-    if (site.coordinates.lowerReservoirPolygon && site.coordinates.lowerReservoirPolygon.length > 2) {
-      blocks.push({
-        type: 'Feature',
-        geometry: { type: 'Polygon', coordinates: [site.coordinates.lowerReservoirPolygon] },
-        properties: { key: 'lower_reservoir', component: 'lower_reservoir', label: site.lowerReservoirName, width: 0, length: 0, height: 16 * hScale, base: 2, color: '#1fb6ff' },
-      });
-    } else {
-      addRect('lower_reservoir', site.lowerReservoirName, layout.lower, 900, 500, 16, '#1fb6ff', bearing - 10);
+      if (site.coordinates.lowerReservoirPolygon && site.coordinates.lowerReservoirPolygon.length > 2) {
+        blocks.push({
+          type: 'Feature',
+          geometry: { type: 'Polygon', coordinates: [site.coordinates.lowerReservoirPolygon] },
+          properties: { key: 'lower_reservoir', component: 'lower_reservoir', label: `Alt Rezervuar (${site.lowerReservoirName})`, width: 0, length: 0, height: 16 * hScale, base: 2, color: '#1fb6ff' },
+        });
+      } else {
+        addRect('lower_reservoir', `Alt Rezervuar (${site.lowerReservoirName})`, layout.lower, 900, 500, 16, '#1fb6ff', bearing - 10);
+      }
+      addRect('powerhouse', 'Türbin Odası', layout.power, 320, 170, 78, '#b277ff', bearing + 1);
+      addCircle('surge_tank', 'Denge Bacası', layout.surge, 82, 120, '#ffd75a');
+      addRect('switchyard', 'Şalt Sahası', layout.switchyard, 390, 260, 32, '#48f49a', bearing - 7);
+      addRect('portal', 'Servis Portalı', mid(layout.upper, layout.power, 0.58), 240, 125, 22, '#ff944d', bearing + 12);
     }
-    addRect('powerhouse', 'Türbin Odası', layout.power, 320, 170, 78, '#b277ff', bearing + 1);
-    addCircle('surge_tank', 'Denge bacası', layout.surge, 82, 120, '#ffd75a');
-    addRect('switchyard', 'Şalt / trafo sahası', layout.switchyard, 390, 260, 32, '#48f49a', bearing - 7);
-    addRect('portal', 'Servis + drenaj tüneli portalı', mid(layout.upper, layout.power, 0.58), 240, 125, 22, '#ff944d', bearing + 12);
   }
 
   const waterFeatures: Feature<LineString>[] = [];
