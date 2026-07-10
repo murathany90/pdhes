@@ -64,7 +64,7 @@ export const useSiteStore = create<SiteStore>((set, get) => ({
   selectedId: 'gokcekaya',
   worldExampleFocusId: null,
   loading: true,
-  selectSite: (id) => set({ selectedId: id }),
+  selectSite: (id) => set({ selectedId: id, worldExampleFocusId: null }),
   setSites: (sites) => set((state) => ({ sites, selectedId: ensureSelected(sites, state.selectedId) })),
   setBaseSites: (sites) => set({ baseSites: sites }),
   setGridAssets: (g) => set({ gridAssets: g }),

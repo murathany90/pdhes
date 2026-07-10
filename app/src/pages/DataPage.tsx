@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { MapPin } from 'lucide-react';
 import type { CandidateFilters } from '../utils/pdhesFilters';
 import type { Site } from '../types/site';
 import { useSiteStore } from '../stores/useSiteStore';
@@ -32,6 +34,7 @@ export default function DataPage({ site }: { site?: Site }) {
   const { sites, selectedId, selectSite } = useSiteStore();
   const [filters, setFilters] = useState<CandidateFilters>(DEFAULT_DATA_FILTERS);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   if (!site) return <div className="panel active"><p className="muted">Veri yükleniyor...</p></div>;
 
@@ -153,6 +156,20 @@ export default function DataPage({ site }: { site?: Site }) {
                                   <span>Yaklaşık depolama kapasitesi</span>
                                   <b>{candidate.activeVolumeHm3 ? `${candidate.activeVolumeHm3} hm³` : (candidate.projectFlowCms ? `~${(candidate.projectFlowCms * 7 * 3600 / 1000000).toFixed(1)} hm³` : '-')}</b>
                                 </div>
+                              </div>
+                              <div style={{ marginTop: '16px' }}>
+                                <button
+                                  type="button"
+                                  className="btn primary"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    selectSite(candidate.id);
+                                    navigate('/map');
+                                  }}
+                                >
+                                  <MapPin size={16} />
+                                  Konum Göster
+                                </button>
                               </div>
                             </div>
                           </td>
