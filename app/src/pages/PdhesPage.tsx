@@ -68,7 +68,7 @@ export default function PdhesPage({ sectionId }: PdhesPageProps) {
             { id: 'sec-turkiye', title: 'Türkiye Potansiyeli' },
             { id: 'sec-maliyet', title: 'Gelir Modeli' },
             { id: 'sec-riskler', title: 'Riskler' },
-            { id: 'sec-veri', title: 'Türkiye Aday Veri Kurgusu' },
+            { id: 'sec-veri', title: 'Türkiye PDHES Adayları Nasıl Okunmalı?' },
             { id: 'sec-sozluk', title: 'Teknik Sözlük' },
             { id: 'sec-sss', title: 'Sık Sorulan Sorular' },
           ]} />
