@@ -102,16 +102,16 @@ export default function ReportsPage() {
 
               {/* Share Buttons */}
               <div style={{ display: 'flex', gap: 12, marginBottom: 32, paddingBottom: 24, borderBottom: '1px solid var(--line)', flexWrap: 'wrap' }}>
-                <button className="btn outline" onClick={handleCopyLink} title="Bağlantıyı Kopyala" style={{ padding: '8px 16px', borderRadius: 20 }}>
+                <button className="btn outline" onClick={handleCopyLink} title="Bağlantıyı Kopyala" style={{ padding: '8px 16px', borderRadius: 20, flex: 'none', whiteSpace: 'nowrap' }}>
                   <Link size={14} /> <span>Bağlantıyı Kopyala</span>
                 </button>
-                <button className="btn outline" onClick={handleShareTwitter} title="X'te Paylaş" style={{ padding: '8px 16px', borderRadius: 20 }}>
+                <button className="btn outline" onClick={handleShareTwitter} title="X'te Paylaş" style={{ padding: '8px 16px', borderRadius: 20, flex: 'none', whiteSpace: 'nowrap' }}>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                     <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
                   </svg>
                   <span>X'te Paylaş</span>
                 </button>
-                <button className="btn outline" onClick={handleShareLinkedIn} title="LinkedIn'de Paylaş" style={{ padding: '8px 16px', borderRadius: 20 }}>
+                <button className="btn outline" onClick={handleShareLinkedIn} title="LinkedIn'de Paylaş" style={{ padding: '8px 16px', borderRadius: 20, flex: 'none', whiteSpace: 'nowrap' }}>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                     <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
                   </svg>
@@ -119,7 +119,7 @@ export default function ReportsPage() {
                 </button>
               </div>
 
-              <div className="markdown-body">
+              <div className="markdown-body" style={{ overflowWrap: 'anywhere', wordBreak: 'break-word', minWidth: 0 }}>
                 <ReactMarkdown 
                   remarkPlugins={[remarkGfm, remarkMath]} 
                   rehypePlugins={[rehypeKatex]}
@@ -146,7 +146,7 @@ export default function ReportsPage() {
                     className="card interactive" 
                     role="button"
                     tabIndex={0}
-                    style={{ padding: 16, cursor: 'pointer', display: 'flex', flexDirection: 'column' }} 
+                    style={{ padding: 16, cursor: 'pointer', display: 'flex', flexDirection: 'column', minWidth: 0 }} 
                     onClick={() => navigate(`/reports/${report.id}`)}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' || e.key === ' ') {
@@ -155,7 +155,7 @@ export default function ReportsPage() {
                       }
                     }}
                   >
-                    <h4 style={{ fontSize: '1rem', marginBottom: 8, lineHeight: 1.4 }}>{report.title}</h4>
+                    <h4 style={{ fontSize: '1rem', marginBottom: 8, lineHeight: 1.4, overflowWrap: 'anywhere', wordBreak: 'break-word' }}>{report.title}</h4>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.8rem', color: 'var(--muted)', marginTop: 'auto' }}>
                       <Clock size={12} /> {getReadTime(report)} dk
                     </div>
@@ -201,7 +201,7 @@ export default function ReportsPage() {
               className="card interactive" 
               role="button"
               tabIndex={0}
-              style={{ display: 'flex', flexDirection: 'column', cursor: 'pointer', padding: 0, overflow: 'hidden' }} 
+              style={{ display: 'flex', flexDirection: 'column', cursor: 'pointer', padding: 0, overflow: 'hidden', minWidth: 0 }} 
               onClick={() => navigate(`/reports/${report.id}`)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
@@ -218,11 +218,11 @@ export default function ReportsPage() {
                   style={{ width: '100%', height: '140px', objectFit: 'cover', display: 'block', borderBottom: '1px solid var(--line)' }}
                 />
               )}
-              <div style={{ padding: 20, display: 'flex', flexDirection: 'column', flex: 1 }}>
+              <div style={{ padding: 20, display: 'flex', flexDirection: 'column', flex: 1, minWidth: 0 }}>
                 <div style={{ marginBottom: 12 }}>
                   <span className="tag info">{CATEGORY_LABELS[report.category]}</span>
                 </div>
-                <h3 style={{ marginBottom: 8, fontSize: '1.1rem', lineHeight: 1.4 }}>{report.title}</h3>
+                <h3 style={{ marginBottom: 8, fontSize: '1.1rem', lineHeight: 1.4, overflowWrap: 'anywhere', wordBreak: 'break-word' }}>{report.title}</h3>
                 <p className="muted small" style={{ marginBottom: 16, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                   {report.summary}
                 </p>

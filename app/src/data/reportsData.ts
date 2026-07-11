@@ -20,21 +20,19 @@ export const REPORTS_DATA: ReportItem[] = [
     readTime: 8,
     coverImage: '/pdhes-nedir/kapak1.png',
     summary: 'Türkiye\'nin enerji depolama politikalarındaki zafiyetler, lobi faaliyetlerinin etkileri ve küresel PDHES stratejileriyle karşılaştırmalı analizi.',
-    content: `# Türkiye'nin Enerji Depolama Politikalarında Stratejik Zafiyet: Batarya İllüzyonu ve Pompaj Depolamalı HES (PDHES) Gerçeği
-
-**Giriş ve Mevzuatın Mevcut Durumu (EDT/EDÜ)**
+    content: `## Giriş ve Mevzuatın Mevcut Durumu (EDT/EDÜ)
 Türkiye’nin enerji dönüşüm stratejisi, ne yazık ki teknolojik tarafsızlıktan uzaklaşarak spesifik bir "kimyasal depolama" fetişizmine hapsolmuş durumdadır. Enerji Piyasası Düzenleme Kurumu (EPDK) tarafından şekillendirilen Elektrik Depolama Tesisi (EDT) ve Elektrik Depolama Ünitesi (EDÜ) mevzuatları, kâğıt üzerinde teknoloji bağımsız bir illüzyon yaratsa da fiiliyatta yalnızca lityum-iyon batarya sistemlerini destekleyecek şekilde kurgulanmıştır. Dünyada uzun süreli enerji depolamanın ve şebeke esnekliğinin omurgasını oluşturan, uluslararası ölçekte %90'ın üzerinde pazar payına sahip Pompaj Depolamalı Hidroelektrik Santralleri (PDHES) ise bu düzenlemelerin kasıtlı ya da vizyonsuz bir biçimde tamamen dışında bırakılmıştır. Mevzuatın bu denli kısa süreli batarya depolamasına odaklanması, Türkiye'nin kendi eşsiz topografik ve hidrolojik avantajlarını elinin tersiyle itmesi anlamına gelmekte; artan rüzgâr ve güneş kapasitesinin yaratacağı şebeke dalgalanmalarına karşı ülkeyi derin ve tehlikeli bir enerji politikası zafiyetiyle baş başa bırakmaktadır.
 
-**Küresel Pompaj Depolama Stratejileri (Çin, Japonya, ABD, İtalya Örnekleri)**
+## Küresel Pompaj Depolama Stratejileri (Çin, Japonya, ABD, İtalya Örnekleri)
 Türkiye'nin düştüğü bu stratejik körlüğün aksine, değişken yenilenebilir enerji üretimindeki agresif büyümeyi yönetmek zorunda olan küresel güçler, rotayı çoktan yeniden "su bataryalarına" çevirmiştir. Bugün Çin, planlı ekonomi, kapasite ödemeleri ve iletim tarifesine yansıtılan maliyet geri kazanım modelleriyle 600 GW'ı aşan bir PDHES geliştirme hattının tartışmasız lokomotifidir. Japonya, coğrafi kısıtlarına rağmen nükleer ve yenilenebilir enerjisini dengelemek için on yıllardır devasa PDHES kapasitesini şebekenin ana sigortası olarak kullanmaktadır. ABD, federal vergi kredileri ve piyasa erişimi (enerji arbitrajı ve yan hizmetler) yoluyla eski tesisleri modernize edip yenilerini teşvik ederken; İtalya ve genel olarak Avrupa Birliği, enerji arz güvenliğini ithal lityum tedarik zincirine mahkûm etmenin risklerini görerek sınır ötesi devasa su bataryası projelerini stratejik altyapı kabul etmektedir. Bu ülkeler, hidroelektrik potansiyellerini şebeke esnekliği için kalkan yaparken, Türkiye'nin elindeki potansiyeli spesifik regülasyon eksikliği nedeniyle atıl bırakması kabul edilemez bir yönetim zaafiyetidir.
 
-**Türkiye'deki Lobi Faaliyetleri ve Teknoloji Tercihleri**
+## Türkiye'deki Lobi Faaliyetleri ve Teknoloji Tercihleri
 Bu stratejik sapmanın temelinde yalnızca bürokratik atalet değil, enerji piyasasını domine eden dar görüşlü ticari çıkarlar yatmaktadır. Türkiye'de depolama mevzuatının ve teşvik mimarisinin "batarya lobisi" olarak adlandırılabilecek pil üreticileri, invertör tedarikçileri ve kısa vadeli kâr marjlarına odaklanan EPC (Mühendislik, Tedarik ve Kurulum) firmaları tarafından tahakküm altına alındığı açık bir gerçektir. Bu lobinin oluşturduğu rüzgârla, faydalı ömrü 10-15 yılla sınırlı, hammadde bakımından dışa bağımlı ve yangın/geri dönüşüm riskleri taşıyan kimyasal bataryalara yasal zemin ve kapasite tahsisi "jet hızıyla" sağlanırken; ömrü 50 ila 80 yıl arasında değişen, yüksek yerlilik oranına sahip ve şebekeye devasa bir mekanik atalet sağlayan PDHES'ler hantal bürokrasinin dehlizlerinde boğulmaktadır. Devletin uzun vadeli enerji politikası ve arz güvenliği, ithal teknoloji mümessillerinin ticari ajandalarına teslim edilemez.
 
-**Gökçekaya Projesi ve Teşvik (YEKDEM) Çelişkileri**
+## Gökçekaya Projesi ve Teşvik (YEKDEM) Çelişkileri
 Sistemdeki bu akıl tutulmasının en somut ve acı kanıtı, EÜAŞ tarafından 2020 yılında büyük bir vizyonla duyurulan 1 milyar dolarlık Gökçekaya PDHES projesinin akıbetidir. Şebekenin şiddetle ihtiyaç duyduğu bu devasa kapasite, yıllardır yatırım kararı alınamadan kâğıt üzerinde bekletilirken; batarya entegreli rüzgâr ve güneş santrallerine önlisans süreçlerinde öncelik tanınması ve kapasite tahsislerinin hızla yapılması devasa bir çelişkidir. Şebekeye milisaniyelik tepki verecek kimyasal bataryaların gerekliliği elbette yadsınamaz; ancak koca bir ülkenin baz yük esnekliğini ve uzun süreli (saatler/günler boyu) dengeleme ihtiyacını Gökçekaya, Altınkaya gibi dev projeleri rafa kaldırıp yalnızca ithal batarya konteynerleriyle çözmeye çalışmak mühendislik bilimine aykırıdır. Batarya yatırımlarına sağlanan regülatif kolaylıklar ve entegre YEKDEM teşvikleri, neden yerli müteahhitlik ve elektromekanik gücüyle inşa edilecek stratejik PDHES yatırımlarından esirgenmektedir?
 
-**Sonuç ve Politika Önerileri**
+## Sonuç ve Politika Önerileri
 Sonuç itibarıyla Türkiye, 2035 yılı için belirlediği net sıfır ve yüksek yenilenebilir enerji hedeflerine salt kimyasal bataryalara bel bağlayarak ulaşamaz. Mevcut EDT/EDÜ mevzuatlarının yarattığı teknolojik asimetri ve ithalat bağımlılığı derhal kırılmalıdır. PDHES'ler mevzuatta sadece "klasik hidroelektrik" veya "genel depolama" başlığı altında bir kenara atılmamalı; acilen **"uzun süreli stratejik sistem esnekliği altyapısı"** statüsünde, kendine has kural setiyle yeniden tanımlanmalıdır. Karar alıcılar; kapasite ödeme mekanizmalarını, uzun vadeli yan hizmetler sözleşmelerini ve iletim tarifelerini PDHES projelerini bankalar nezdinde finanse edilebilir kılacak şekilde hızla dizayn etmelidir. Türkiye'nin enerji bağımsızlığı ve şebeke güvenliği, batarya lobisinin kısa vadeli kâr hırslarına kurban edilemeyecek kadar hayati bir meseledir; şebekemizin sigortası olacak su bataryaları için milli bir yatırım seferberliği başlatılması artık bir seçenek değil, ertelenemez bir zorunluluktur.`
   },
   {
@@ -46,15 +44,13 @@ Sonuç itibarıyla Türkiye, 2035 yılı için belirlediği net sıfır ve yüks
     readTime: 6,
     coverImage: '/pdhes-nedir/img-ezber-bozan.png',
     summary: 'Yenilenebilir enerjinin depolama paradoksu, lityum-iyon bataryalar ile Pompaj Depolamalı Hidroelektrik Santraller (PDHES) arasındaki ölçek farkı ve Gökçekaya projesinin stratejik önemi.',
-    content: `Enerji Depolamada Ezber Bozan Gerçekler: Neden Sadece Bataryalar Yetmeyecek?
-
-Yenilenebilir Enerjinin "Depolama Paradoksu"
+    content: `## Yenilenebilir Enerjinin "Depolama Paradoksu"
 
 28 Nisan 2025 tarihinde İber Yarımadası’nda ışıklar ansızın söndü. İspanya’nın güneyinde başlayan ve saniyeler içinde Portekiz’e yayılan bu zincirleme arıza, Avrupa’nın son yirmi yılda gördüğü en şiddetli şebeke krizlerinden biri olarak tarihe geçti. Trenlerin durduğu, hastanelerin sarsıldığı bu karanlık saatler, modern enerji stratejimizin kalbindeki o can alıcı soruyu sormamıza neden oldu: Değişken yenilenebilir kaynaklar üzerine bir sistem inşa edip "depolama" ihtiyacını bir yan unsur olarak görürseniz ne olur?
 
 Küresel enerji talebinin 2018'de %2,3 artması ve buna bağlı olarak CO2 emisyonlarının %1,7 yükselmesi, dünyayı kritik bir eşiğe getirdi. Küresel ısınmayı 2°C'nin altında tutmak için 2030'a kadar emisyonları %25 azaltmak zorundayız. Türkiye, bu vizyonla 20 GW rüzgar enerjisi hedefi koymuş durumda. Ancak rüzgarın belirsiz doğası, depolamayı bir "tercih" olmaktan çıkarıp, şebeke güvenilirliği için teknik bir zorunluluk haline getiriyor.
 
-Ölçek Farkı: Dinorwig vs. BESS (Devasa Kapasite Gerçeği)
+## Ölçek Farkı: Dinorwig vs. BESS (Devasa Kapasite Gerçeği)
 
 Enerji dünyasında "batarya" terimi genellikle tek bir teknolojiyi simgeliyor gibi kullanılsa da, bu büyük bir yanılgıdır. Lityum iyon batarya sistemleri (BESS) ile Pompaj Depolamalı Hidroelektrik Santraller (PDHES) farklı liglerde oynar. Kuzey Galler’deki Elidir Fawr dağının içine oyulmuş olan Dinorwig Santrali, bu ölçek farkının en çarpıcı kanıtıdır.
 
@@ -62,7 +58,7 @@ Dinorwig, 1.728 MW güç ve tam 9,1 GWh depolama kapasitesine sahiptir. 2025 yı
 
 Birleşik Krallık'ta uzun süredir durma noktasında olan depolama yatırımları, Ofgem'in "cap-and-floor" (tavan ve taban fiyat) mekanizmasının devreye girmesiyle yeniden canlandı. Bu model, yatırımcılara gelir tabanı garantisi sağlayarak riskleri minimize etmiş ve İskoçya’da 8 GW’lık yeni bir PDHES projesi hattının oluşmasını tetiklemiştir.
 
-Gökçekaya: Türkiye’nin Uyuyan Devi
+## Gökçekaya: Türkiye’nin Uyuyan Devi
 
 Türkiye, Avrupa'nın en yüksek PDHES potansiyeline sahip olmasına rağmen henüz bu alanda çalışan bir tesise sahip değil. Japonya Uluslararası İşbirliği Ajansı (JICA) tarafından fizibilite çalışmaları tamamlanan Gökçekaya PDHES projesi, stratejik bir öneme sahip. Karışık Tam Sayılı Doğrusal Programlama (MILP) yöntemiyle gerçekleştirilen optimizasyon analizleri, bu projenin teknik ve finansal verimliliği hakkında ezber bozan sonuçlar sunuyor:
 
@@ -72,7 +68,7 @@ Türkiye, Avrupa'nın en yüksek PDHES potansiyeline sahip olmasına rağmen hen
 
 Analizlerin en şaşırtıcı bulgusu ise "Ocak Ayı Sürprizi"dir. MILP optimizasyonu sonuçlarına göre, Gökçekaya modelinde Ocak ayı operasyonları, Ağustos ayına göre daha karlıdır. Bu durum soğuk havalardan ziyade, kış aylarındaki elektrik piyasası fiyatlarının (market clearing price) sergilediği yüksek volatiliteden kaynaklanır. PDHES, fiyat dalgalanmalarını arbitraj yeteneğiyle kâra dönüştürme konusunda bataryalardan çok daha derin bir kapasite sunar.
 
-Rakip Değil, Ortak: PDHES ve Bataryaların Simbiyotik İlişkisi
+## Rakip Değil, Ortak: PDHES ve Bataryaların Simbiyotik İlişkisi
 
 İberya’daki kesinti, sadece depolamanın değil, depolama çeşitliliğinin önemini kanıtladı. Kesinti anında PDHES üniteleri sistemi tek başına kurtaramadı; çünkü suyun türbinlere ulaşması ve sistemin tepki vermesi saniyeler sürer. Oysa şebekenin o kritik saniyede "milisaniyelik" bir müdahaleye ihtiyacı vardı.
 
@@ -80,15 +76,17 @@ Burada bir "vücut" benzetmesi yapmak mümkündür: BESS şebekenin sinir sistem
 
 APREN Başkanı'nın Portekiz Enerji Depolama Forumu'nda vurguladığı gibi: "Ülke belirleyici bir momenttedir ve depolama, ulusal enerji önceliklerinin merkezi olan tek noktadır."
 
-Asıl Engel Teknoloji Değil, Piyasa Tasarımı
+## Asıl Engel Teknoloji Değil, Piyasa Tasarımı
 
 Ember verilerine göre, şebeke ölçeğindeki (utility-scale) BESS maliyetlerinin 125 \$/kWh seviyelerine gerilemesi, teknolojinin "pahalı" olduğu mitini yıktı. Ancak bir enerji stratejisti için asıl mesele ekipman maliyeti değil, sermaye maliyetidir.
 
-Teknoloji Hazır, Mevzuat Tutuk Lityum iyon fiyatları düşse de, Portekiz gibi ülkelerde bankalanabilir bir gelir çerçevesinin (revenue framework) eksikliği yatırımları frenliyor. Teknik olarak mümkün olan bir projenin finanse edilebilir olması için piyasa tasarımının netleşmesi şarttır.
+### Teknoloji Hazır, Mevzuat Tutuk
+ Lityum iyon fiyatları düşse de, Portekiz gibi ülkelerde bankalanabilir bir gelir çerçevesinin (revenue framework) eksikliği yatırımları frenliyor. Teknik olarak mümkün olan bir projenin finanse edilebilir olması için piyasa tasarımının netleşmesi şarttır.
 
-Finansmanın Görünmez Engeli: WACC Yatırım kararlarındaki asıl belirleyici faktör, Ağırlıklı Ortalama Sermaye Maliyeti'dir (WACC). Portekiz’de bu oran %8-9 seviyelerindeyken, İngiltere’deki "cap-and-floor" gibi mekanizmalar sayesinde oran %5,5-6,5 bandına çekilebilmiştir. Bu fark, milyar dolarlık enerji projelerinde "başarı" ile "iflas" arasındaki çizgiyi belirler. Türkiye’nin sadece mühendislik çözümlerine değil, riskleri yöneten finansal modellere odaklanması gerekmektedir.
+### Finansmanın Görünmez Engeli: WACC
+ Yatırım kararlarındaki asıl belirleyici faktör, Ağırlıklı Ortalama Sermaye Maliyeti'dir (WACC). Portekiz’de bu oran %8-9 seviyelerindeyken, İngiltere’deki "cap-and-floor" gibi mekanizmalar sayesinde oran %5,5-6,5 bandına çekilebilmiştir. Bu fark, milyar dolarlık enerji projelerinde "başarı" ile "iflas" arasındaki çizgiyi belirler. Türkiye’nin sadece mühendislik çözümlerine değil, riskleri yöneten finansal modellere odaklanması gerekmektedir.
 
-Sonuç: Geleceğin Şebekesini Kim Yönetecek?
+## Sonuç: Geleceğin Şebekesini Kim Yönetecek?
 
 Türkiye, Avrupa'nın en büyük pompaj depolama potansiyeline sahip olup da henüz kurulu bir tesisi bulunmayan tek büyük ekonomi. Gökçekaya gibi projeler sadece rüzgarın değişkenliğini dengelemekle kalmayacak, aynı zamanda enerji ithalatına olan bağımlılığımızı yapısal olarak azaltacaktır.
 
@@ -104,9 +102,7 @@ Geleceğin şebekesini, sadece en çok yenilenebilir enerji kaynağına sahip ol
     readTime: 15,
     coverImage: '/pdhes-nedir/img-13.webp',
     summary: 'Pompaj depolamalı HES projelerinin yüksek başlangıç maliyetleri, gelir mekanizmaları, risk faktörleri ve kamu/özel sektör finansman modellerinin detaylı analizi.',
-    content: `# Dünyada ve Türkiye'de PDHES Yatırımlarının Politik, Ekonomik ve Stratejik Analizi
-
-## Yönetici özeti
+    content: `## Yönetici özeti
 
 Pompaj depolamalı hidroelektrik santraller bunun ardından kısaca **PDHES** olarak anılacaktır. Dünyada PDHES yatırımlarının yeniden hızlanmasının ana nedeni, rüzgâr ve güneşin çok hızlı büyümesine karşı uzun süreli esneklik, sistem dengesi, atalet, frekans kontrolü ve pik talep yönetimi ihtiyacının aynı hızda büyümesidir. Uluslararası Hidroelektrik Birliği verilerine göre küresel pompaj depolama kurulu gücü 2025 itibarıyla 200 GW eşiğini aşmış, küresel geliştirme hattı 600 GW’ı geçmiş ve Çin bu büyümenin açık ara lokomotifi olmuştur. IEA, JRC ve IHA kaynakları da PDHES’in bugün hâlâ büyük ölçekli ve uzun süreli elektrik depolamanın baskın teknolojisi olduğunu vurgulamaktadır. 
 
