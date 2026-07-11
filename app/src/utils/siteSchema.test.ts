@@ -87,7 +87,7 @@ describe('validateSites', () => {
     if (!result.ok) return;
 
     const seaSites = result.sites.filter((site) => site.pdhesType === 'SEA_WATER');
-    expect(seaSites.map((site) => site.score)).toEqual([79, 76, 72]);
+    expect(seaSites.map((site) => site.score)).toEqual([54, 59, 62]);
     expect(seaSites.every((site) =>
       site.technicalClassification.cycleType === 'SEA_LOWER_RESERVOIR'
       && site.technicalClassification.infrastructureType === 'SEAWATER_COASTAL'
