@@ -41,7 +41,7 @@ describe('PDHES candidate filters', () => {
       ...DEFAULT_DATA_FILTERS,
       pdhesType: 'SEA_WATER',
       minCapacityMW: 50,
-      minHeadM: 700,
+      minHeadM: 500,
     })).toBe(true);
 
     expect(matchesCandidateFilters(gokcekaya, {
