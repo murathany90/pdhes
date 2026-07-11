@@ -1442,8 +1442,7 @@ function FootprintSceneLayer({ items, layers, activeComponent, onSelectComponent
   );
 }
 
-function Scene({ siteId, activeComponent, onSelectComponent, layers, mode, componentsDetail, isPlaying, activeUnits, maxUnits, showTerrain, showLabels, terrainOpacity, theme }: ThreeDModelProps & { theme?: string }) {
-  const site = useSiteStore(state => state.sites.find(s => s.id === siteId));
+function Scene({ site, activeComponent, onSelectComponent, layers, mode, componentsDetail, isPlaying, activeUnits, maxUnits, showTerrain, showLabels, terrainOpacity, theme }: ThreeDModelProps & { theme?: string }) {
   const worldExampleFocusId = useSiteStore(state => state.worldExampleFocusId);
   const isPresenzano = worldExampleFocusId === 'presenzano';
   const isSeaWater = site ? isSeaLowerReservoir(site) : false;

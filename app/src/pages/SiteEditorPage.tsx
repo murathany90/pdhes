@@ -21,6 +21,7 @@ import {
   PRIMARY_PURPOSE_LABELS,
   PDHES_TYPE_LABELS,
 } from '../utils/siteDerived';
+import { validateSites } from '../utils/siteSchema';
 
 interface SiteEditorPageProps {
   mode: 'new' | 'edit';
@@ -115,7 +116,12 @@ export default function SiteEditorPage({ mode, templateSite, onDone }: SiteEdito
     setDraft((current) => {
       if (!current) return current;
       const field = NUMERIC_FIELDS.find((item) => item.key === key);
-      const value = raw === '' && field?.nullable ? null : Number(raw);
+      const parsed = Number(raw);
+      const value = raw === '' && field?.nullable
+        ? null
+        : Number.isFinite(parsed)
+          ? parsed
+          : current[key];
       return { ...current, [key]: value };
     });
   };
@@ -154,6 +160,7 @@ export default function SiteEditorPage({ mode, templateSite, onDone }: SiteEdito
     const assumptions = assumptionsText.split('\n').map((assumption) => assumption.trim()).filter(Boolean);
     const site: Site = {
       ...draft,
+      id: mode === 'edit' && templateSite ? templateSite.id : draft.id,
       risks,
       assumptions,
       coordinates: {
@@ -166,9 +173,16 @@ export default function SiteEditorPage({ mode, templateSite, onDone }: SiteEdito
       setMessage('ID ve saha adı zorunludur.');
       return;
     }
-    if (mode === 'new') addSite(site);
-    else updateSite(site.id, site);
-    setRecordText(JSON.stringify(site, null, 2));
+    const validation = validateSites([site]);
+    if (!validation.ok) {
+      setMessage(`Saha kaydı geçersiz: ${validation.errors[0]}`);
+      return;
+    }
+    const validatedSite = validation.sites[0];
+    if (mode === 'new') addSite(validatedSite);
+    else updateSite(templateSite?.id ?? validatedSite.id, validatedSite);
+    setDraft(validatedSite);
+    setRecordText(JSON.stringify(validatedSite, null, 2));
     setMessage('Saha kaydedildi.');
   };
 
@@ -353,9 +367,19 @@ export default function SiteEditorPage({ mode, templateSite, onDone }: SiteEdito
             onClick={() => {
               try {
                 const parsed = JSON.parse(recordText) as Site;
-                setDraft(parsed);
-                setRisksText(parsed.risks?.join('\n') || '');
-                setAssumptionsText(parsed.assumptions?.join('\n') || '');
+                const candidate = mode === 'edit' && templateSite
+                  ? { ...parsed, id: templateSite.id }
+                  : parsed;
+                const validation = validateSites([candidate]);
+                if (!validation.ok) {
+                  setMessage(`Ham kayıt geçersiz: ${validation.errors[0]}`);
+                  return;
+                }
+                const nextDraft = validation.sites[0];
+                setDraft(nextDraft);
+                setRisksText(nextDraft.risks.join('\n'));
+                setAssumptionsText(nextDraft.assumptions.join('\n'));
+                setRecordText(JSON.stringify(nextDraft, null, 2));
                 setMessage('Ham kayıt taslağa aktarıldı.');
               } catch {
                 setMessage('Ham kayıt geçersiz.');

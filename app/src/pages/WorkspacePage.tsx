@@ -28,7 +28,7 @@ function downloadText(filename: string, text: string) {
 }
 
 export default function WorkspacePage({ onCreateSite, onEditSite, onEditLayout }: WorkspacePageProps) {
-  const { getContent, setOverride, resetOverrides, exportOverrides, importOverrides } = useWorkspaceStore();
+  const { contentOverrides, getContent, setOverride, resetOverrides, exportOverrides, importOverrides } = useWorkspaceStore();
   const { sites, selectedId, selectSite, deleteSite, importSites, exportSites } = useSiteStore();
   const [contentKey, setContentKey] = useState('');
   const [contentValue, setContentValue] = useState('');
@@ -44,7 +44,7 @@ export default function WorkspacePage({ onCreateSite, onEditSite, onEditLayout }
 
   useEffect(() => {
     if (contentKey) setContentValue(getContent(contentKey, CONTENT_DEFAULTS));
-  }, [contentKey, getContent]);
+  }, [contentKey, contentOverrides, getContent]);
 
   return (
     <section className="panel active">

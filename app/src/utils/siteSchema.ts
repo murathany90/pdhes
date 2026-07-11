@@ -155,6 +155,9 @@ function validateCoordinates(value: unknown, index: number): string[] {
   if (value.upperReservoirPolygon !== undefined && !isCoordinateRing(value.upperReservoirPolygon)) {
     errors.push(`sites[${index}].coordinates.upperReservoirPolygon kapalı koordinat poligonu olmalıdır.`);
   }
+  if (value.lowerReservoirPolygon !== undefined && !isCoordinateRing(value.lowerReservoirPolygon)) {
+    errors.push(`sites[${index}].coordinates.lowerReservoirPolygon kapalı koordinat poligonu olmalıdır.`);
+  }
   if (!isRecord(value.powerhouse) || !isCoordinate(value.powerhouse.point) || !isString(value.powerhouse.preferred3dType)) {
     errors.push(`sites[${index}].coordinates.powerhouse geçersiz.`);
   }

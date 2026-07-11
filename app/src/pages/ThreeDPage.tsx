@@ -88,20 +88,23 @@ export default function ThreeDPage({ site: propSite }: { site?: Site }) {
   const [showLabels, setShowLabels] = useState(true);
   const [terrainOpacity, setTerrainOpacity] = useState(70);
 
+  // Inject fetched footprints into site object temporarily for ThreeDModel.
+  const siteWithFootprints = useMemo(() => {
+    if (!site) return undefined;
+    return {
+      ...site,
+      layout3D: site.layout3D ? {
+        ...site.layout3D,
+        componentFootprints: footprints || []
+      } : undefined
+    };
+  }, [site, footprints]);
+
   if (!site || (site.layout3D?.useFootprintPolygons && footprints === null)) {
     return <section className="panel active"><p className="muted">Veri yükleniyor...</p></section>;
   }
 
   const detail = componentsDetail ?? buildComponentsDetail(site);
-
-  // Inject fetched footprints into site object temporarily for ThreeDModel
-  const siteWithFootprints = {
-    ...site,
-    layout3D: site.layout3D ? {
-      ...site.layout3D,
-      componentFootprints: footprints || []
-    } : undefined
-  };
 
   return (
     <section className="panel active no-pad threed-page">
@@ -115,7 +118,7 @@ export default function ThreeDPage({ site: propSite }: { site?: Site }) {
             layers={layers}
             mode={mode}
             componentsDetail={detail}
-            site={siteWithFootprints}
+            site={siteWithFootprints ?? site}
             isPlaying={isPlaying}
             activeUnits={activeUnits}
             maxUnits={maxUnits}

@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { cleanup, render, screen, fireEvent } from '@testing-library/react';
+import { cleanup, render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { makeTestSite } from '../test-utils/makeTestSite';
 import ThreeDPage from './ThreeDPage';
@@ -17,7 +17,10 @@ const site = makeTestSite({
 });
 
 describe('ThreeDPage controls', () => {
-  afterEach(cleanup);
+  afterEach(() => {
+    cleanup();
+    vi.unstubAllGlobals();
+  });
 
   it('uses consistent icons and exposes toggle states', () => {
     render(<ThreeDPage site={site} />);
@@ -61,6 +64,29 @@ describe('ThreeDPage controls', () => {
         openAllBtn.click();
       }
     }).not.toThrow();
+  });
+
+  it('renders after lazy footprint data loads without changing hook order', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => [],
+    }));
+    const lazyFootprintSite = makeTestSite({
+      layout3D: {
+        scale: 'macro',
+        preferredBearing: 0,
+        terrainExaggeration: 1,
+        reservoirSurfaceMode: 'polygon',
+        useFootprintPolygons: true,
+        hideLegacySquareReservoir: true,
+      },
+    });
+
+    render(<ThreeDPage site={lazyFootprintSite} />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('three-d-model')).toBeTruthy();
+    });
   });
 });
 

@@ -3,6 +3,7 @@ import { useMapLibre, type MapLayerVisibility } from '../hooks/useMapLibre';
 import { useSettingsStore } from '../stores/useSettingsStore';
 import { useSiteStore } from '../stores/useSiteStore';
 import type { Site } from '../types/site';
+import { applyEditorDerivedLayout, ensureClosedRing } from '../utils/layout3dEditor';
 import * as turf from '@turf/turf';
 
 interface ThreeDEditorPageProps {
@@ -39,6 +40,7 @@ export default function ThreeDEditorPage({ site, onDone }: ThreeDEditorPageProps
   const [drawingTemplate, setDrawingTemplate] = useState<DrawingTemplate>('point');
   const [draftCoords, setDraftCoords] = useState<[number, number][]>([]);
   const [message, setMessage] = useState('');
+  const [hasEditorChanges, setHasEditorChanges] = useState(false);
 
   // Draft drawing source setup
   const draftSourceId = 'draft-drawing-source';
@@ -46,6 +48,7 @@ export default function ThreeDEditorPage({ site, onDone }: ThreeDEditorPageProps
   useEffect(() => {
     if (site) {
       setPreviewSite(site);
+      setHasEditorChanges(false);
     }
   }, [site?.id]);
 
@@ -88,9 +91,10 @@ export default function ThreeDEditorPage({ site, onDone }: ThreeDEditorPageProps
           } else if (drawingMode === 'switchyard') {
             newSite.coordinates.switchyard = { ...newSite.coordinates.switchyard, point: [lng, lat] };
           }
-          return newSite;
+          return applyEditorDerivedLayout(newSite);
         });
         setMessage(`${drawingMode === 'powerhouse' ? 'Türbin Odası' : 'Şalt Sahası'} konumu ayarlandı.`);
+        setHasEditorChanges(true);
         setDrawingMode('none');
       } else {
         if (drawingTemplate !== 'point') {
@@ -131,7 +135,7 @@ export default function ThreeDEditorPage({ site, onDone }: ThreeDEditorPageProps
                 generatedCoords = buf.geometry.coordinates[0][0] as [number, number][];
               }
             }
-            setDraftCoords(generatedCoords);
+            setDraftCoords(ensureClosedRing(generatedCoords));
           } catch (err) {
             console.error("Template error", err);
           }
@@ -171,8 +175,17 @@ export default function ThreeDEditorPage({ site, onDone }: ThreeDEditorPageProps
       }
     };
 
+    let componentClickBound = false;
+    const bindComponentClick = () => {
+      if (componentClickBound || !map.getLayer('blocks-extrusion')) return;
+      map.on('click', 'blocks-extrusion', onComponentClick);
+      componentClickBound = true;
+    };
+    const componentBindTimer = window.setTimeout(bindComponentClick, 120);
+
     map.on('click', onClick);
-    map.on('click', 'blocks-extrusion', onComponentClick);
+    bindComponentClick();
+    map.on('styledata', bindComponentClick);
     map.on('dblclick', onDblClick);
 
     // Sync draftCoords to the draft layer safely
@@ -181,18 +194,24 @@ export default function ThreeDEditorPage({ site, onDone }: ThreeDEditorPageProps
 
       if (!map.getSource(draftSourceId)) {
         map.addSource(draftSourceId, { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
+      }
+      if (!map.getLayer('draft-line-layer')) {
         map.addLayer({
           id: 'draft-line-layer',
           type: 'line',
           source: draftSourceId,
           paint: { 'line-color': '#ff0000', 'line-width': 3, 'line-dasharray': [2, 2] }
         });
+      }
+      if (!map.getLayer('draft-point-layer')) {
         map.addLayer({
           id: 'draft-point-layer',
           type: 'circle',
           source: draftSourceId,
           paint: { 'circle-radius': 4, 'circle-color': '#ff0000' }
         });
+      }
+      if (!map.getLayer('draft-text-layer')) {
         map.addLayer({
           id: 'draft-text-layer',
           type: 'symbol',
@@ -218,10 +237,9 @@ export default function ThreeDEditorPage({ site, onDone }: ThreeDEditorPageProps
       if (source) {
         if (draftCoords.length > 0) {
           const isPolygon = drawingMode === 'upperReservoir' || drawingMode === 'lowerReservoir';
-          const coords = [...draftCoords];
-          if (isPolygon && coords.length > 2) {
-            coords.push(coords[0]); // Close polygon visually
-          }
+          const coords = isPolygon && draftCoords.length > 2
+            ? ensureClosedRing(draftCoords)
+            : [...draftCoords];
 
           let measurementText = '';
           if (isPolygon && coords.length > 3) {
@@ -268,9 +286,18 @@ export default function ThreeDEditorPage({ site, onDone }: ThreeDEditorPageProps
 
     return () => {
       map.off('click', onClick);
+      window.clearTimeout(componentBindTimer);
+      map.off('styledata', bindComponentClick);
+      try {
+        if (componentClickBound) {
+          map.off('click', 'blocks-extrusion', onComponentClick);
+        }
+      } catch {
+        // The layer can disappear during style reloads; the map-level handlers are still cleaned above.
+      }
       map.off('dblclick', onDblClick);
     };
-  }, [mapRef.current, drawingMode, draftCoords]);
+  }, [mapRef.current, drawingMode, drawingTemplate, draftCoords, previewSite?.activeVolumeHm3, previewSite?.lowerReservoirName]);
 
   if (!site || !previewSite) {
     return <section className="panel active"><p className="muted">Düzenlenecek 3D yerleşim bulunamadı.</p></section>;
@@ -281,6 +308,14 @@ export default function ThreeDEditorPage({ site, onDone }: ThreeDEditorPageProps
       setDrawingMode('none');
       return;
     }
+    if ((drawingMode === 'upperReservoir' || drawingMode === 'lowerReservoir') && draftCoords.length < 3) {
+      setMessage('Rezervuar poligonu için en az 3 nokta seçilmelidir.');
+      return;
+    }
+    if (drawingMode === 'penstockRoute' && draftCoords.length < 2) {
+      setMessage('Su yolu rotası için en az 2 nokta seçilmelidir.');
+      return;
+    }
 
     setPreviewSite((prev) => {
       if (!prev) return prev;
@@ -288,18 +323,21 @@ export default function ThreeDEditorPage({ site, onDone }: ThreeDEditorPageProps
       newSite.coordinates = { ...newSite.coordinates };
 
       if (drawingMode === 'upperReservoir') {
-        newSite.coordinates.upperReservoirPolygon = draftCoords;
+        const ring = ensureClosedRing(draftCoords);
+        newSite.coordinates.upperReservoirPolygon = ring;
         newSite.coordinates.upperReservoir = { ...newSite.coordinates.upperReservoir, point: draftCoords[0] };
       } else if (drawingMode === 'lowerReservoir') {
-        newSite.coordinates.lowerReservoirPolygon = draftCoords;
+        const ring = ensureClosedRing(draftCoords);
+        newSite.coordinates.lowerReservoirPolygon = ring;
         newSite.coordinates.lowerReservoir = { ...newSite.coordinates.lowerReservoir, point: draftCoords[0] };
       } else if (drawingMode === 'penstockRoute') {
         newSite.coordinates.penstockRoute = draftCoords;
       }
-      return newSite;
+      return applyEditorDerivedLayout(newSite);
     });
 
     setDraftCoords([]);
+    setHasEditorChanges(true);
     setDrawingMode('none');
     setMessage('Çizim başarıyla tamamlandı.');
   };
@@ -332,10 +370,11 @@ export default function ThreeDEditorPage({ site, onDone }: ThreeDEditorPageProps
     
     // Su yolu: Üst Rezervuar -> Denge Bacası -> Türbin Odası -> Alt Rezervuar
     const penstock = [upper, surgeTankPt, powerhousePt, lower];
+    setHasEditorChanges(true);
 
     setPreviewSite((prev) => {
       if (!prev) return prev;
-      return {
+      return applyEditorDerivedLayout({
         ...prev,
         coordinates: {
           ...prev.coordinates,
@@ -344,14 +383,17 @@ export default function ThreeDEditorPage({ site, onDone }: ThreeDEditorPageProps
           switchyard: { ...prev.coordinates.switchyard, point: switchyardPt },
           penstockRoute: penstock,
         }
-      };
+      });
     });
     setMessage("Kalan bileşenler eksikse otomatik yerleştirildi, su yolu çizildi!");
   };
 
   const handleSave = () => {
     if (previewSite) {
-      updateSite(site.id, previewSite);
+      const siteToSave = hasEditorChanges ? applyEditorDerivedLayout(previewSite) : previewSite;
+      updateSite(site.id, siteToSave);
+      setPreviewSite(siteToSave);
+      setHasEditorChanges(false);
       setMessage('Yerleşim yerel çalışma alanına başarıyla kaydedildi.');
     }
   };
@@ -361,6 +403,7 @@ export default function ThreeDEditorPage({ site, onDone }: ThreeDEditorPageProps
     if (base) {
       setPreviewSite(base);
       setDraftCoords([]);
+      setHasEditorChanges(false);
       setDrawingMode('none');
       setMessage('Varsayılan veriler yüklendi.');
     }
@@ -480,10 +523,11 @@ export default function ThreeDEditorPage({ site, onDone }: ThreeDEditorPageProps
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 16 }}>
             <button className="btn outline" onClick={() => {
               if (!previewSite) return;
-              const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(previewSite, null, 2));
+              const exportSite = hasEditorChanges ? applyEditorDerivedLayout(previewSite) : previewSite;
+              const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportSite, null, 2));
               const dlAnchorElem = document.createElement('a');
               dlAnchorElem.setAttribute("href", dataStr);
-              dlAnchorElem.setAttribute("download", `${previewSite.id}_yerlesim.json`);
+              dlAnchorElem.setAttribute("download", `${exportSite.id}_yerlesim.json`);
               dlAnchorElem.click();
               setMessage('Yerleşim JSON olarak indirildi.');
             }}>⬇️ İndir (JSON)</button>
