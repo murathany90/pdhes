@@ -76,11 +76,15 @@ Uygulamanın navigasyonu ekranın sol (veya mobil cihazlarda alt) kısmındaki `
   - Gerçek dünya uydu haritası üzerine Mapbox'ın "Digital Elevation Model (DEM)" yükseklik verisi eklenir. Kamera (Pitch/Bearing araçlarıyla) yatırılarak dağlar, vadiler ve eğimler 3 Boyutlu olarak görülür.
 - **3D Footprint Poligonları (Bileşenler):**
   - Alt menüdeki Toggle (Aç/Kapat) düğmeleri ile farklı yapısal katmanlar görünür/görünmez yapılabilir:
-  1. **Rezervuarlar (Su):** Üst rezervuar (`concrete-lined-pool`) ve alt rezervuar (`existing-dam-lake` veya `sea`) su kütleleri şeffaf mavi poligonlarla (Extrusion) yükseltilir.
+  1. **Rezervuarlar (Su):** Üst rezervuar (`concrete-lined-pool`) ve alt rezervuar (`existing-dam-lake` veya `sea`) su kütleleri şeffaf mavi poligonlarla (Extrusion) yükseltilir. *Not: Çizim editöründeki şablonlar ve 3D yapılar, projenin aktif hacmine (`activeVolumeHm3`) göre dinamik ve orantılı olarak otomatik ölçeklenir.*
   2. **Dolgu/Baraj Seddesi (Embankment):** Suyu tutan setler toprak renginde modellenir.
   3. **Tünel Ekseni (Su Yolu):** Üst rezervuardan aşağıya düşen su yolu hattı (Penstock/Tunnel) topoğrafyanın altında kalacak biçimde `baseElevationM` parametreleriyle kırmızı eksen şeklinde çizilir. Eğim görselleştirilir.
   4. **Santral Binası (Powerhouse):** Yeraltı boşluğu (underground-cavern) olarak gösterilir. Yüzeyden santrale inen şaft portalları da modelde yer alır.
 - **Kamera Navigasyonu:** Serbest (Free-look) veya adaya kilitli (Locked) navigasyon modları bulunur.
+- **Etkileşimli 3D Düzenleyici (Interactive Editor):** Harita üzerinde doğrudan 3D nesne tasarlamanızı sağlar.
+  - **Tıklayarak Düzenleme & Hover Etiketleri:** 3D nesnelerin üzerine fare ile gelindiğinde Türkçe bilgi etiketleri (Tooltip) belirir. Haritada herhangi bir yapıya tıklandığında sol taraftaki panel otomatik olarak o yapının inceleme/düzenleme moduna geçer.
+  - **Akıllı Otomatik Çizim:** Otomatik oluştur (Auto-Draw) aracı kullanıldığında, eğer sahada sizin tarafınızdan önceden konumlandırılmış yapılar varsa (Şalt Sahası, Türbin Odası vb.), bu yapılar silinmez veya ezilmez; sistem mevcut yapılara adapte olarak eksik olanları tamamlar.
+  - **JSON Çıktısı (Export):** Özelleştirdiğiniz PDHES alanlarını veya çizdiğiniz 3D harita yerleşimlerini "İndir (JSON)" butonuyla doğrudan bilgisayarınıza kaydedebilirsiniz. Yeni Deniz PDHES projelerindeki özel çizimler de sisteme ve dışa aktarıma (export) tamamen entegredir.
 
 ### Sekme 5: Raporlar ve Haberler (ReportsPage)
 - **Bileşen Yolu:** `src/pages/ReportsPage.tsx`
@@ -474,7 +478,9 @@ Bu uygulama, standart 2D haritalama yerine Mapbox GL altyapısının 3D (Pitch &
 5. **`shaft_portal` (Denge Bacası / Şaft Girişi):** Dağların zirvelerine yakın konumlandırılmış erişim ve havalandırma (Surge Tank) bacalarını temsil eder.
 
 ### 7.2. Performans Optimizasyonu
-Binlerce koordinat içeren poligonların performansı düşürmemesi için, `ThreeDPage.tsx` içerisinde Mapbox'ın `useMemo` tabanlı Layer & Source optimizasyonları kullanılmıştır. Yalnızca kamera görüş alanına (Viewport) giren poligonlar (Frustum culling mantığıyla Mapbox tarafından) çizilir.
+- Binlerce koordinat içeren poligonların performansı düşürmemesi için, `ThreeDPage.tsx` içerisinde Mapbox'ın `useMemo` tabanlı Layer & Source optimizasyonları kullanılmıştır. Yalnızca kamera görüş alanına (Viewport) giren poligonlar çizilir.
+- **WebGL Memory Leak (Bellek Sızıntısı) Koruması:** Katmanların (layers) çok hızlı veya art arda açılıp kapatılması durumunda eski 3D geometrilerin bellekte asılı kalmasını önlemek için, React bileşenlerinde temizleme kancaları (Cleanup Hooks) kullanılarak WebGL nesneleri `.dispose()` metoduyla tamamen temizlenmektedir.
+- **Akıllı Katman Yönetimi:** `footprintLayerKey` mimarisiyle özel veya yabancı isimle eklenen parçalar otomatik olarak standart katmanlarla eşleştirilir. Strict (`=== true`) görünürlük mantığı kullanılarak performansı düşürecek tanımsız nesnelerin render olması engellenir. Aktif yapıların (activeComponent) katmanları kapatıldığında, bağlı oldukları bilgi kartları da otomatik olarak kapatılarak arayüz kilitlenmeleri ve zombi (ghost) UI durumları ortadan kaldırılmıştır.
 
 ---
 
