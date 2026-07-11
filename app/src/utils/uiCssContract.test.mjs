@@ -29,4 +29,12 @@ describe('UI stylesheet compatibility contract', () => {
     expect(css).toContain('.table-card');
     expect(css).toContain('-webkit-overflow-scrolling: touch');
   });
+
+  it('keeps the app chrome above 3D canvas and HTML overlays', () => {
+    expect(css).toContain('.topbar, .tabs { position: relative; z-index: 40;');
+    expect(css).toContain('border-bottom: 1px solid var(--line); background: var(--bg); z-index: 40;');
+    expect(css).toContain('.threed-page { height: 100%; overflow: hidden; isolation: isolate;');
+    expect(css).toContain('.app { height: 100vh; display: grid; grid-template-rows: min-content 52px 1fr; gap: 0; min-width: 0; position: fixed; inset: 0; width: 100%; overflow: hidden; }');
+    expect(css).toContain('.app { position: static; height: auto; min-height: 100vh; overflow: visible;');
+  });
 });

@@ -9,14 +9,21 @@ import ThreeDModel from '../components/ui/ThreeDModel';
 import WarningBanner from '../components/ui/WarningBanner';
 import { buildComponentsDetail, COORDINATE_CONFIDENCE_LABELS } from '../utils/siteDerived';
 import { publicAssetUrl } from '../utils/publicUrl';
-import { footprintLayerKey } from '../utils/layout3dFootprints';
+import { shouldClearActiveFootprintComponent } from '../utils/layout3dFootprints';
+
+function createLayerVisibilityState(visible: boolean): Record<string, boolean> {
+  return COMPONENTS.reduce<Record<string, boolean>>((acc, component) => {
+    acc[component.key] = visible;
+    return acc;
+  }, {});
+}
 
 export default function ThreeDPage({ site: propSite }: { site?: Site }) {
   const { sites, selectedId } = useSiteStore();
   const site = propSite || sites.find((item) => item.id === selectedId);
 
   const initialLayers = useMemo(() => {
-    return COMPONENTS.reduce((acc, c) => ({ ...acc, [c.key]: true }), {});
+    return createLayerVisibilityState(true);
   }, []);
 
   const [layers, setLayers] = useState<Record<string, boolean>>(initialLayers);
@@ -53,6 +60,20 @@ export default function ThreeDPage({ site: propSite }: { site?: Site }) {
   const maxUnits = componentsDetail?.powerhouse?.units || 4;
   const [activeUnits, setActiveUnits] = useState(maxUnits);
 
+  const setAllLayerVisibility = (visible: boolean) => {
+    setLayers(createLayerVisibilityState(visible));
+    if (!visible) {
+      setActiveComponent('');
+    }
+  };
+
+  const setComponentLayerVisibility = (key: string, visible: boolean) => {
+    setLayers((prev) => ({ ...prev, [key]: visible }));
+    setActiveComponent((current) => (
+      shouldClearActiveFootprintComponent(current, key, visible) ? '' : current
+    ));
+  };
+
   // Reset state when site changes
   useEffect(() => {
     if (site) {
@@ -62,17 +83,6 @@ export default function ThreeDPage({ site: propSite }: { site?: Site }) {
       setActiveUnits(buildComponentsDetail(site).powerhouse.units || 4);
     }
   }, [site?.id]);
-
-  // Clear active component if its layer is toggled off
-  useEffect(() => {
-    if (activeComponent) {
-      const mappedLayer = footprintLayerKey(activeComponent);
-      if (layers[mappedLayer] === false) {
-        setActiveComponent('');
-      }
-    }
-  }, [layers, activeComponent]);
-
 
   const [showTerrain, setShowTerrain] = useState(true);
   const [showLabels, setShowLabels] = useState(true);
@@ -175,10 +185,10 @@ export default function ThreeDPage({ site: propSite }: { site?: Site }) {
 
           <h3 style={{ marginBottom: 12 }}>Katman Görünürlüğü</h3>
           <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
-            <button type="button" className="btn ghost" style={{ flex: 1, padding: '4px', fontSize: 12 }} onClick={() => setLayers(COMPONENTS.reduce((acc, c) => ({ ...acc, [c.key]: true }), {}))}>
+            <button type="button" className="btn ghost" style={{ flex: 1, padding: '4px', fontSize: 12 }} onClick={() => setAllLayerVisibility(true)}>
               Tümünü Aç
             </button>
-            <button type="button" className="btn ghost" style={{ flex: 1, padding: '4px', fontSize: 12 }} onClick={() => setLayers(COMPONENTS.reduce((acc, c) => ({ ...acc, [c.key]: false }), {}))}>
+            <button type="button" className="btn ghost" style={{ flex: 1, padding: '4px', fontSize: 12 }} onClick={() => setAllLayerVisibility(false)}>
               Tümünü Kapat
             </button>
           </div>
@@ -202,7 +212,7 @@ export default function ThreeDPage({ site: propSite }: { site?: Site }) {
                 label={c.label} 
                 color={c.color}
                 active={!!layers[c.key]} 
-                onChange={(v) => setLayers(prev => ({...prev, [c.key]: v}))} 
+                onChange={(v) => setComponentLayerVisibility(c.key, v)}
               />
             ))}
           </div>

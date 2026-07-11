@@ -48,7 +48,7 @@ html[data-theme="light"] body {
 }
 
 /* ── App Layout ── */
-.app { height: 100vh; display: grid; grid-template-rows: min-content 52px 1fr; gap: 0; min-width: 0; }
+.app { height: 100vh; display: grid; grid-template-rows: min-content 52px 1fr; gap: 0; min-width: 0; position: fixed; inset: 0; width: 100%; overflow: hidden; }
 
 /* ── TopBar ── */
 .topbar {
@@ -75,11 +75,12 @@ html[data-theme="light"] .logo {
 .brand p { margin: 2px 0 0; color: var(--muted); font-size: 12px; }
 .global-controls { display: flex; align-items: center; gap: 6px; flex-wrap: nowrap; justify-content: flex-end; }
 .global-controls .select { max-width: 250px; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; }
+.topbar, .tabs { position: relative; z-index: 40; flex-shrink: 0; }
 
 /* ── Tabs ── */
 .tabs {
   display: flex; align-items: center; gap: 6px; padding: 10px 24px;
-  border-bottom: 1px solid var(--line); background: var(--bg); z-index: 4;
+  border-bottom: 1px solid var(--line); background: var(--bg); z-index: 40;
   overflow-x: auto;
   overflow-y: hidden;
 }
@@ -541,7 +542,7 @@ html[data-theme="light"] .map-right { background: rgba(255,255,255,.95); color: 
 }
 /* ── ThreeD Layout ── */
 .threed-layout { display: grid; grid-template-columns: minmax(0, 1fr) 360px; height: 100%; }
-.threed-page { height: 100%; overflow: hidden; }
+.threed-page { height: 100%; overflow: hidden; isolation: isolate; }
 .threed-left { position: relative; background: #030504; border-right: 1px solid var(--line); display: flex; align-items: center; justify-content: center; flex-direction: column; min-height: 560px; }
 .threed-right { padding: 24px; overflow: auto; background: var(--panel); }
 .panel-toggle {
@@ -771,7 +772,7 @@ html[data-theme="light"] .kbd { color: #0f1c18; }
 /* ── Responsive ── */
 @media (max-width: 1180px) {
   body { overflow: auto; }
-  .app { height: auto; min-height: 100vh; grid-template-rows: auto auto 1fr; }
+  .app { position: static; height: auto; min-height: 100vh; overflow: visible; grid-template-rows: auto auto 1fr; }
   .topbar { align-items: flex-start; gap: 10px; flex-direction: column; }
   .tabs { overflow: auto; }
   main { height: auto; overflow: visible; }

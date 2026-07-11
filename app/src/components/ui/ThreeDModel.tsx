@@ -1,4 +1,4 @@
-import { useRef, useMemo, useEffect } from 'react';
+import { memo, useRef, useMemo, useEffect } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Html, Line, Sky, MeshDistortMaterial } from '@react-three/drei';
 import { BatteryCharging, Zap } from 'lucide-react';
@@ -12,7 +12,8 @@ import {
   buildLayout3DFootprintPlan,
   LAYOUT_3D_MATERIAL_COLORS,
   type Layout3DProjectedFootprint,
-  footprintLayerKey,
+  groupFootprintsByLayer,
+  isLayerVisible,
 } from '../../utils/layout3dFootprints';
 import { useManualGeometryStore } from '../../stores/useManualGeometryStore';
 import { overrideSiteWithManualGeometries } from '../../utils/manualGeometryConverter';
@@ -1338,10 +1339,11 @@ function createFootprintPolygonGeometry(item: Layout3DProjectedFootprint): THREE
   return geometry;
 }
 
-function FootprintPolygon({ item, active, onClick, showLabels }: {
+const FootprintPolygon = memo(function FootprintPolygon({ item, layerKey, active, onSelectComponent, showLabels }: {
   item: Layout3DProjectedFootprint;
+  layerKey: string;
   active: boolean;
-  onClick: () => void;
+  onSelectComponent: (component: string) => void;
   showLabels: boolean;
 }) {
   const geometry = useMemo(() => createFootprintPolygonGeometry(item), [item]);
@@ -1357,7 +1359,7 @@ function FootprintPolygon({ item, active, onClick, showLabels }: {
   const labelPosition = footprintCenter(item);
 
   return (
-    <group onClick={(event) => { event.stopPropagation(); onClick(); }}>
+    <group onClick={(event) => { event.stopPropagation(); onSelectComponent(layerKey); }}>
       <mesh geometry={geometry} castShadow receiveShadow>
         <meshStandardMaterial
           color={color}
@@ -1373,12 +1375,13 @@ function FootprintPolygon({ item, active, onClick, showLabels }: {
       </Html>
     </group>
   );
-}
+});
 
-function FootprintPolyline({ item, active, onClick, showLabels }: {
+const FootprintPolyline = memo(function FootprintPolyline({ item, layerKey, active, onSelectComponent, showLabels }: {
   item: Layout3DProjectedFootprint;
+  layerKey: string;
   active: boolean;
-  onClick: () => void;
+  onSelectComponent: (component: string) => void;
   showLabels: boolean;
 }) {
   const color = LAYOUT_3D_MATERIAL_COLORS[item.material] ?? '#36d6ff';
@@ -1386,14 +1389,14 @@ function FootprintPolyline({ item, active, onClick, showLabels }: {
   const labelPosition = footprintCenter(item);
 
   return (
-    <group onClick={(event) => { event.stopPropagation(); onClick(); }}>
+    <group onClick={(event) => { event.stopPropagation(); onSelectComponent(layerKey); }}>
       <Line points={points} color={color} lineWidth={item.material === 'crest_road' ? 3 : 4} />
       <Html position={labelPosition} center style={{ display: showLabels ? 'block' : 'none' }} zIndexRange={[100, 0]}>
         <div style={labelStyle(active, color)} title={footprintTooltip(item)}>{footprintLabel(item)}</div>
       </Html>
     </group>
   );
-}
+});
 
 function FootprintSceneLayer({ items, layers, activeComponent, onSelectComponent, showLabels }: {
   items: Layout3DProjectedFootprint[];
@@ -1402,34 +1405,39 @@ function FootprintSceneLayer({ items, layers, activeComponent, onSelectComponent
   onSelectComponent: (component: string) => void;
   showLabels: boolean;
 }) {
+  const groupedItems = useMemo(() => groupFootprintsByLayer(items), [items]);
+
   return (
     <group>
-      {items
-        .filter((item) => layers[footprintLayerKey(item.component)] === true)
-        .map((item) => {
-          const layerKey = footprintLayerKey(item.component);
-          const active = activeComponent === item.component || activeComponent === layerKey;
-          if (item.kind === 'polygon') {
+      {groupedItems.map(({ layerKey, items: layerItems }) => (
+        <group key={layerKey} visible={isLayerVisible(layerKey, layers)}>
+          {layerItems.map((item) => {
+            const active = activeComponent === item.component || activeComponent === layerKey;
+            if (item.kind === 'polygon') {
+              return (
+                <FootprintPolygon
+                  key={item.id}
+                  item={item}
+                  layerKey={layerKey}
+                  active={active}
+                  onSelectComponent={onSelectComponent}
+                  showLabels={showLabels}
+                />
+              );
+            }
             return (
-              <FootprintPolygon
+              <FootprintPolyline
                 key={item.id}
                 item={item}
+                layerKey={layerKey}
                 active={active}
-                onClick={() => onSelectComponent(layerKey)}
+                onSelectComponent={onSelectComponent}
                 showLabels={showLabels}
               />
             );
-          }
-          return (
-            <FootprintPolyline
-              key={item.id}
-              item={item}
-              active={active}
-              onClick={() => onSelectComponent(layerKey)}
-              showLabels={showLabels}
-            />
-          );
-        })}
+          })}
+        </group>
+      ))}
     </group>
   );
 }
@@ -1754,7 +1762,13 @@ export default function ThreeDModel(props: ThreeDModelProps) {
   
   return (
     <div style={{ width: '100%', height: '100%', minHeight: '50vh', borderRadius: 16, overflow: 'hidden', background: theme === 'dark' ? '#0a0c10' : '#d2e4f0' }}>
-      <Canvas shadows="basic" camera={{ position: [150, 120, 180], fov: 45 }}>
+      <Canvas
+        shadows="basic"
+        dpr={[1, 1.5]}
+        frameloop={props.isPlaying ? 'always' : 'demand'}
+        gl={{ antialias: false, powerPreference: 'high-performance' }}
+        camera={{ position: [150, 120, 180], fov: 45 }}
+      >
         <Scene {...props} theme={theme} />
       </Canvas>
     </div>

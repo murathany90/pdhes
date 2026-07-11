@@ -38,8 +38,10 @@ describe('application navigation', () => {
       .toBe('#/data');
     expect(screen.getByRole('link', { name: 'Ayarlar' }).getAttribute('href'))
       .toBe('#/settings');
-    expect(screen.getByRole('link', { name: 'Ana içeriğe geç' }).getAttribute('href'))
+    const skipLink = screen.getByRole('link', { name: 'Ana içeriğe geç' });
+    expect(skipLink.getAttribute('href'))
       .toBe('#main-content');
+    expect(skipLink.closest('.app')).toBeNull();
   });
 
   it('keeps legacy section links compatible with the canonical PDHES route', async () => {

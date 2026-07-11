@@ -151,3 +151,45 @@ export function footprintLayerKey(component: string): string {
   };
   return map[component] || component;
 }
+
+export interface FootprintLayerGroup<T extends Pick<Layout3DProjectedFootprint, 'component'>> {
+  layerKey: string;
+  items: T[];
+}
+
+export function groupFootprintsByLayer<T extends Pick<Layout3DProjectedFootprint, 'component'>>(
+  items: T[],
+): FootprintLayerGroup<T>[] {
+  const groups = new Map<string, T[]>();
+  for (const item of items) {
+    const layerKey = footprintLayerKey(item.component);
+    const group = groups.get(layerKey);
+    if (group) {
+      group.push(item);
+    } else {
+      groups.set(layerKey, [item]);
+    }
+  }
+
+  return Array.from(groups, ([layerKey, groupItems]) => ({ layerKey, items: groupItems }));
+}
+
+export function isLayerVisible(layerKey: string, layers: Record<string, boolean>): boolean {
+  return layers[layerKey] !== false;
+}
+
+export function isFootprintLayerVisible(
+  item: Pick<Layout3DProjectedFootprint, 'component'>,
+  layers: Record<string, boolean>,
+): boolean {
+  return isLayerVisible(footprintLayerKey(item.component), layers);
+}
+
+export function shouldClearActiveFootprintComponent(
+  activeComponent: string,
+  changedLayerKey: string,
+  nextVisible: boolean,
+): boolean {
+  if (!activeComponent || nextVisible) return false;
+  return footprintLayerKey(activeComponent) === changedLayerKey;
+}
