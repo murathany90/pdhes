@@ -35,10 +35,10 @@ describe('layout3dEditor helpers', () => {
       'upperReservoirEmbankment',
       'lowerReservoirFootprint',
       'penstock01',
-      'tailraceOutfall',
       'powerhouseFootprint',
       'surgeTankFootprint',
       'switchyardFootprint',
+      'serviceDrainPortal',
     ]));
     expect(footprints.find((item) => item.id === 'penstock01')?.kind).toBe('polyline');
     const validation = validateSites([prepared]);
