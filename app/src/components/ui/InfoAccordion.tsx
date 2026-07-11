@@ -43,7 +43,7 @@ export default function InfoAccordion({ title, children, defaultOpen = false }: 
           textAlign: 'left'
         }}
       >
-        <span style={{ whiteSpace: 'normal', wordBreak: 'break-word', paddingRight: '12px' }}>{title}</span>
+        <span style={{ whiteSpace: 'normal', wordBreak: 'break-word', paddingRight: '12px', flex: '1 1 auto', minWidth: 0 }}>{title}</span>
         {isOpen
           ? <ChevronUp size={18} className="muted" aria-hidden="true" />
           : <ChevronDown size={18} className="muted" aria-hidden="true" />}
