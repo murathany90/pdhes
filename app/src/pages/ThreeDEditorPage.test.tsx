@@ -61,7 +61,9 @@ describe('ThreeDEditorPage basic UI requirements', () => {
     expect(screen.getByText('Türbin Odası')).toBeTruthy();
     expect(screen.getByText('Şalt Sahası (3D)')).toBeTruthy();
     expect(screen.getByText('Denge Bacası')).toBeTruthy();
-    expect(screen.getByText('Enerji Nakil Hattı / Su Yolu')).toBeTruthy();
+    expect(screen.getByText('Su Yolu')).toBeTruthy();
+    expect(screen.getByText('Enerji Nakil Hattı')).toBeTruthy();
+    expect(screen.getByText('Tünel Portalı')).toBeTruthy();
   });
 
   it('renders the FabPopover component', () => {

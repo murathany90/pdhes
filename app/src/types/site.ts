@@ -69,6 +69,7 @@ export interface PdhCoordinateSet {
   existingSwitchyard?: { point: [number, number] };
   newSwitchyard?: { point: [number, number] };
   gridConnection: { point: [number, number]; voltageClassHint: string };
+  transmissionLineRoute?: [number, number][];
   intakeOutfall?: { point: [number, number]; description: string } | null;
   bbox: [number, number, number, number];
 }

@@ -246,12 +246,16 @@ export function buildLayout(site: Site, hScale: number): LayoutBundle {
       })),
   };
 
+  const transmissionLineCoordinates = site.coordinates.transmissionLineRoute?.length
+    ? [layout.switchyard, ...site.coordinates.transmissionLineRoute]
+    : [layout.gridA, layout.switchyard, layout.gridB];
+
   const grid: FeatureCollection<LineString> = {
     type: 'FeatureCollection',
     features: [
       {
         type: 'Feature',
-        geometry: { type: 'LineString', coordinates: [layout.gridA, layout.switchyard, layout.gridB] },
+        geometry: { type: 'LineString', coordinates: transmissionLineCoordinates },
         properties: { label: 'şebeke bağlantısı', color: '#ffd75a', width: 3 },
       },
       {

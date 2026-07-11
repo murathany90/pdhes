@@ -27,7 +27,7 @@ const EDITOR_LAYERS: MapLayerVisibility = {
   portal: true,
 };
 
-type DrawingMode = 'none' | 'upperReservoir' | 'lowerReservoir' | 'powerhouse' | 'switchyard' | 'surgeTank' | 'penstockRoute';
+type DrawingMode = 'none' | 'upperReservoir' | 'lowerReservoir' | 'powerhouse' | 'switchyard' | 'surgeTank' | 'penstockRoute' | 'transmissionLineRoute' | 'portal';
 
 type DrawingTemplate = 'point' | 'square' | 'rounded' | 'rectangle' | 'oval';
 
@@ -349,6 +349,10 @@ export default function ThreeDEditorPage({ site, onDone }: ThreeDEditorPageProps
         newSite.coordinates.lowerReservoir = { ...newSite.coordinates.lowerReservoir, point: draftCoords[0] };
       } else if (drawingMode === 'penstockRoute') {
         newSite.coordinates.penstockRoute = draftCoords;
+      } else if (drawingMode === 'transmissionLineRoute') {
+        newSite.coordinates.transmissionLineRoute = draftCoords;
+      } else if (drawingMode === 'portal') {
+        newSite.coordinates.servicePortal = { point: draftCoords[0] };
       }
       return applyEditorDerivedLayout(newSite);
     });
@@ -385,8 +389,19 @@ export default function ThreeDEditorPage({ site, onDone }: ThreeDEditorPageProps
     // Şalt sahası (switchyard) varsa koru, yoksa santrale yakın bir yere koy
     const switchyardPt = existingSwitchyard || (turf.along(line, length * 0.85, { units: 'kilometers' }).geometry.coordinates as [number, number]);
     
-    // Su yolu: Üst Rezervuar -> Denge Bacası -> Türbin Odası -> Alt Rezervuar
-    const penstock = [upper, surgeTankPt, powerhousePt, lower];
+    // Tünel Portalı (portal)
+    const portalPt = previewSite.coordinates.servicePortal?.point || (turf.along(upperToPower, distUP * 0.55, { units: 'kilometers' }).geometry.coordinates as [number, number]);
+    
+    // Su yolu: Üst Rezervuar -> Denge Bacası -> Türbin Odası -> Portal -> Alt Rezervuar
+    const penstock = previewSite.coordinates.penstockRoute?.length >= 2 
+      ? previewSite.coordinates.penstockRoute 
+      : [upper, surgeTankPt, powerhousePt, portalPt, lower];
+    
+    // İletim Hattı: Şalt Sahası -> Şebeke
+    const transmission = previewSite.coordinates.transmissionLineRoute?.length >= 1
+      ? previewSite.coordinates.transmissionLineRoute
+      : [previewSite.coordinates.gridConnection?.point || [switchyardPt[0] + 0.02, switchyardPt[1] + 0.02]];
+      
     setHasEditorChanges(true);
 
     setPreviewSite((prev) => {
@@ -398,7 +413,9 @@ export default function ThreeDEditorPage({ site, onDone }: ThreeDEditorPageProps
           surgeTank: { ...prev.coordinates.surgeTank, point: surgeTankPt },
           powerhouse: { ...prev.coordinates.powerhouse, point: powerhousePt },
           switchyard: { ...prev.coordinates.switchyard, point: switchyardPt },
+          servicePortal: { point: portalPt },
           penstockRoute: penstock,
+          transmissionLineRoute: transmission,
         }
       });
     });
@@ -468,7 +485,28 @@ export default function ThreeDEditorPage({ site, onDone }: ThreeDEditorPageProps
 
   const formatNum = (num: number) => num.toLocaleString('tr-TR', { maximumFractionDigits: 0 });
 
-  const renderComponentCard = (title: string, modeLine: DrawingMode, modePoint?: DrawingMode) => {
+  const handleElevationChange = (componentKey: string, value: number) => {
+    if (!previewSite) return;
+    setPreviewSite((prev) => {
+      if (!prev) return prev;
+      const newSite = { ...prev };
+      if (!newSite.components_detail) return newSite;
+      
+      const newDetail = JSON.parse(JSON.stringify(newSite.components_detail));
+      
+      if (componentKey === 'upperReservoir') newDetail.upper_reservoir.elevation_m = value;
+      else if (componentKey === 'lowerReservoir') newDetail.lower_reservoir.elevation_m = value;
+      else if (componentKey === 'powerhouse') newDetail.powerhouse.cavern_height_m = value;
+      else if (componentKey === 'surgeTank') newDetail.surge_tank.height_m = value;
+      else if (componentKey === 'damHeight') newDetail.upper_reservoir.dam_height_m = value;
+
+      newSite.components_detail = newDetail;
+      setHasEditorChanges(true);
+      return applyEditorDerivedLayout(newSite);
+    });
+  };
+
+  const renderComponentCard = (title: string, modeLine: DrawingMode, modePoint?: DrawingMode, elevationKey?: string, currentElevation?: number, extraInput?: {label: string, key: string, value: number}) => {
     const isDrawing = (modeLine !== 'none' && drawingMode === modeLine) || (modePoint !== 'none' && drawingMode === modePoint);
     return (
       <div className={`card ${isDrawing ? 'active' : ''}`} style={{ marginBottom: 12, padding: 12, background: isDrawing ? 'rgba(0, 150, 255, 0.08)' : 'var(--bg-card)', border: isDrawing ? '1px solid var(--blue)' : '1px solid var(--border)' }}>
@@ -480,9 +518,33 @@ export default function ThreeDEditorPage({ site, onDone }: ThreeDEditorPageProps
         </div>
         
         {!isDrawing ? (
-          <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
-            {modeLine && modeLine !== 'none' && <button className="btn outline small" onClick={() => { setDrawingMode(modeLine); setDrawingTemplate('point'); setDraftCoords([]); }}>{modeLine === 'penstockRoute' ? '〽️ Rota Çiz' : '📐 3D Şekil Çiz'}</button>}
-            {modePoint && modePoint !== 'none' && <button className="btn outline small" onClick={() => { setDrawingMode(modePoint); setDraftCoords([]); }}>📍 Konum Seç</button>}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 8 }}>
+            <div style={{ display: 'flex', gap: 8 }}>
+              {modeLine && modeLine !== 'none' && <button className="btn outline small" onClick={() => { setDrawingMode(modeLine); setDrawingTemplate('point'); setDraftCoords([]); }}>{modeLine === 'penstockRoute' || modeLine === 'transmissionLineRoute' ? '〽️ Rota Çiz' : '📐 3D Şekil Çiz'}</button>}
+              {modePoint && modePoint !== 'none' && <button className="btn outline small" onClick={() => { setDrawingMode(modePoint); setDraftCoords([]); }}>📍 Konum Seç</button>}
+            </div>
+            {elevationKey && currentElevation !== undefined && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '12px' }}>
+                <label style={{ color: 'var(--muted)', width: '60px' }}>Kot (m):</label>
+                <input 
+                  type="number" 
+                  value={currentElevation} 
+                  onChange={(e) => handleElevationChange(elevationKey, Number(e.target.value))}
+                  style={{ width: '70px', padding: '2px 4px', fontSize: '12px' }}
+                />
+              </div>
+            )}
+            {extraInput && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '12px' }}>
+                <label style={{ color: 'var(--muted)', width: '60px' }}>{extraInput.label}:</label>
+                <input 
+                  type="number" 
+                  value={extraInput.value} 
+                  onChange={(e) => handleElevationChange(extraInput.key, Number(e.target.value))}
+                  style={{ width: '70px', padding: '2px 4px', fontSize: '12px' }}
+                />
+              </div>
+            )}
           </div>
         ) : modeLine === 'upperReservoir' && (
           <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
@@ -519,12 +581,14 @@ export default function ThreeDEditorPage({ site, onDone }: ThreeDEditorPageProps
           <p className="muted small" style={{ marginBottom: 12 }}>{site.name}</p>
           
           <div style={{ flex: 1, overflowY: 'auto', paddingRight: '4px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            {renderComponentCard('Üst Rezervuar', 'upperReservoir')}
-            {renderComponentCard('Alt Rezervuar', 'lowerReservoir')}
-            {renderComponentCard('Denge Bacası', 'none', 'surgeTank')}
-            {renderComponentCard('Türbin Odası', 'none', 'powerhouse')}
+            {renderComponentCard('Üst Rezervuar', 'upperReservoir', 'none', 'upperReservoir', previewSite?.components_detail?.upper_reservoir.elevation_m, { label: 'Derinlik', key: 'damHeight', value: previewSite?.components_detail?.upper_reservoir.dam_height_m || 20 })}
+            {renderComponentCard('Alt Rezervuar', 'lowerReservoir', 'none', 'lowerReservoir', previewSite?.components_detail?.lower_reservoir.elevation_m)}
+            {renderComponentCard('Denge Bacası', 'none', 'surgeTank', 'surgeTank', previewSite?.components_detail?.surge_tank.height_m)}
+            {renderComponentCard('Türbin Odası', 'none', 'powerhouse', 'powerhouse', previewSite?.components_detail?.powerhouse.cavern_height_m)}
             {renderComponentCard('Şalt Sahası (3D)', 'none', 'switchyard')}
-            {renderComponentCard('Enerji Nakil Hattı / Su Yolu', 'penstockRoute')}
+            {renderComponentCard('Tünel Portalı', 'none', 'portal')}
+            {renderComponentCard('Su Yolu', 'penstockRoute')}
+            {renderComponentCard('Enerji Nakil Hattı', 'transmissionLineRoute')}
             
             <div style={{ marginTop: 8, display: 'flex', flexDirection: 'column', gap: 8 }}>
               <div className="card" style={{ padding: 12, background: 'var(--bg-card)', border: '1px solid var(--border)' }}>

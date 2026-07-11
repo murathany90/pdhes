@@ -133,7 +133,9 @@ export function buildEditorComponentFootprints(site: Site): Layout3DFootprint[] 
   const lowerElevation = detail.lower_reservoir.elevation_m;
   const damHeight = detail.upper_reservoir.dam_height_m;
   const activeVolumeM3 = Math.max(1, detail.upper_reservoir.active_volume_mcm) * 1_000_000;
-  const upperDimensions = rectangleForArea(activeVolumeM3 / 25, sea ? 0.78 : 0.72);
+  // Use user-provided damHeight (assumed effective water depth = damHeight * 0.8) for area calculation
+  const effectiveDepth = Math.max(5, damHeight * 0.8);
+  const upperDimensions = rectangleForArea(activeVolumeM3 / effectiveDepth, sea ? 0.78 : 0.72);
 
   const upperWater = ringOrFallback(
     coordinates.upperReservoirPolygon,
@@ -165,19 +167,22 @@ export function buildEditorComponentFootprints(site: Site): Layout3DFootprint[] 
   const surgeTankFootprint = circlePolygon(layout.surge, sea ? 55 : 70, 32);
   const portalCenter = site.coordinates.servicePortal?.point ?? mid(layout.upper, layout.power, sea ? 0.55 : 0.58);
   const portalFootprint = rotatedRectangle(portalCenter, sea ? 180 : 220, sea ? 90 : 110, bearing + 12);
-  const penstockRoute = coordinates.penstockRoute.length >= 2
-    ? coordinates.penstockRoute
-    : [layout.upper, layout.surge, layout.power];
-  const tailraceRoute = [layout.power, coordinates.tailraceOutlet?.point ?? layout.lower, layout.lower];
+  
+  // Create a single waterway route. If manual points exist, use them. Otherwise auto-connect.
+  let waterwayRoute: [number, number][] = [];
+  if (coordinates.penstockRoute && coordinates.penstockRoute.length >= 2) {
+    waterwayRoute = coordinates.penstockRoute;
+  } else {
+    waterwayRoute = [layout.upper, layout.surge, layout.power, coordinates.tailraceOutlet?.point ?? layout.lower, layout.lower];
+  }
 
   return [
     footprintPolygon('upperReservoirEmbankment', 'upper_reservoir', 'embankment', scalePolygon(upperWater, 1.04), upperElevation - damHeight, upperElevation + 3),
     footprintPolygon('upperReservoirWater', 'upper_reservoir', 'water', upperWater, upperElevation, upperElevation + 1),
     footprintPolygon('lowerReservoirFootprint', 'lower_reservoir', 'water', lowerWater, lowerElevation, lowerElevation + 1),
-    footprintPolyline('penstock01', 'penstock', 'tunnel_axis', penstockRoute, upperElevation, lowerElevation),
-    footprintPolyline('tailraceOutfall', 'tailrace_tunnel', 'tailrace_channel', tailraceRoute, lowerElevation + 5, lowerElevation),
+    footprintPolyline('penstock01', 'penstock', 'tunnel_axis', waterwayRoute, upperElevation, lowerElevation),
     footprintPolygon('powerhouseFootprint', 'powerhouse', 'industrial', powerhouseFootprint, lowerElevation, lowerElevation + detail.powerhouse.cavern_height_m),
-    footprintPolygon('surgeTankFootprint', 'surge_tank', 'shaft', surgeTankFootprint, lowerElevation + 10, Math.max(upperElevation, lowerElevation + detail.surge_tank.height_m)),
+    footprintPolygon('surgeTankFootprint', 'surge_tank', 'shaft', surgeTankFootprint, lowerElevation + 10, lowerElevation + 10 + detail.surge_tank.height_m),
     footprintPolygon('switchyardFootprint', 'switchyard', 'switchyard', switchyardFootprint, lowerElevation + 2, lowerElevation + 2 + Math.max(10, detail.switchyard.transformer_count * 4)),
     footprintPolygon('serviceDrainPortal', 'portal', 'portal', portalFootprint, lowerElevation + 4, lowerElevation + 24),
   ];
