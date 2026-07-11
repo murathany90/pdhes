@@ -18,7 +18,7 @@ export const REPORTS_DATA: ReportItem[] = [
     author: 'Sistem Araştırma Modülü',
     publishDate: '2026-07-07',
     readTime: 8,
-    coverImage: '/pdhes-nedir/img-15.webp',
+    coverImage: '/pdhes-nedir/kapak2.png',
     summary: 'Türkiye\'nin enerji depolama politikalarındaki zafiyetler, lobi faaliyetlerinin etkileri ve küresel PDHES stratejileriyle karşılaştırmalı analizi.',
     content: `# Türkiye'nin Enerji Depolama Politikalarında Stratejik Zafiyet: Batarya İllüzyonu ve Pompaj Depolamalı HES (PDHES) Gerçeği
 

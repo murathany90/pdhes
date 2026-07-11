@@ -76,7 +76,7 @@ export default function ReportsPage() {
                 src={publicAssetUrl(activeReport.coverImage)} 
                 alt="" 
                 loading="lazy"
-                style={{ width: '100%', height: '240px', objectFit: 'cover', display: 'block', borderBottom: '1px solid var(--line)' }}
+                style={{ width: '100%', maxHeight: '400px', objectFit: 'contain', display: 'block', borderBottom: '1px solid var(--line)', backgroundColor: 'var(--bg-alt)' }}
               />
             )}
             <div style={{ padding: '32px 40px' }}>
