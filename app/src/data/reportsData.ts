@@ -203,9 +203,7 @@ Bu nedenle Türkiye için en rasyonel politika çerçevesi, PDHES’i yalnızca 
     readTime: 18,
     coverImage: '/pdhes-nedir/img-9.webp',
     summary: 'PDHES\'lerin şebeke ölçeğinde enerji depolama rolü, değişken devirli pompalar, bataryalarla (BESS) karşılaştırma ve şebeke entegrasyonuna detaylı bir bakış.',
-    content: `# Pompaj Depolamalı Hidroelektrik Santraller: Güç Sisteminin Uzun Süreli Esneklik Altyapısı
-
-## 1. PDHES neden yeniden stratejik önem kazandı?
+    content: `## 1. PDHES neden yeniden stratejik önem kazandı?
 
 Rüzgâr ve güneş enerjisinin elektrik üretimindeki payı arttıkça güç sisteminin ihtiyaç duyduğu esnekliğin niteliği değişmektedir. Geleneksel elektrik sistemlerinde üretim programı büyük ölçüde talebe göre ayarlanırken, yüksek yenilenebilir enerji payına sahip sistemlerde üretim ile tüketim arasındaki denge artık yalnızca santral yüklerinin artırılıp azaltılmasıyla sağlanamamaktadır.
 

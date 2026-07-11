@@ -1,5 +1,3 @@
-# Pompaj Depolamalı Hidroelektrik Santraller: Güç Sisteminin Uzun Süreli Esneklik Altyapısı
-
 ## 1. PDHES neden yeniden stratejik önem kazandı?
 
 Rüzgâr ve güneş enerjisinin elektrik üretimindeki payı arttıkça güç sisteminin ihtiyaç duyduğu esnekliğin niteliği değişmektedir. Geleneksel elektrik sistemlerinde üretim programı büyük ölçüde talebe göre ayarlanırken, yüksek yenilenebilir enerji payına sahip sistemlerde üretim ile tüketim arasındaki denge artık yalnızca santral yüklerinin artırılıp azaltılmasıyla sağlanamamaktadır.
