@@ -194,6 +194,7 @@ export default function App() {
           <Route path="/map" element={<MapPage />} />
           <Route path="/3d" element={<ThreeDPage site={selectedSite} />} />
           <Route path="/reports" element={<ReportsPage />} />
+          <Route path="/reports/:reportId" element={<ReportsPage />} />
           <Route
             path="/workspace"
             element={workspaceEnabled ? (

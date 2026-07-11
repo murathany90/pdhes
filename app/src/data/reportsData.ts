@@ -4,7 +4,7 @@ export interface ReportItem {
   category: 'report' | 'summary' | 'news';
   author: string;
   publishDate: string;
-  readTime: number;
+  readTime?: number;
   coverImage?: string;
   summary: string;
   content: string;

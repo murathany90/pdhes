@@ -1,10 +1,11 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useDeferredValue } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import 'katex/dist/katex.min.css';
-import { FileText, ArrowLeft, Clock, Calendar, User } from 'lucide-react';
+import { FileText, ArrowLeft, Clock, Calendar, User, Link, Share2 } from 'lucide-react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { REPORTS_DATA } from '../data/reportsData';
 import { publicAssetUrl } from '../utils/publicUrl';
 
@@ -14,28 +15,58 @@ const CATEGORY_LABELS: Record<string, string> = {
   news: 'Haber',
 };
 
+function getReadTime(report: typeof REPORTS_DATA[0]) {
+  if (report.readTime) return report.readTime;
+  const words = report.content.split(/\s+/).length;
+  return Math.max(1, Math.ceil(words / 200));
+}
+
 export default function ReportsPage() {
-  const [activeReportId, setActiveReportId] = useState<string | null>(null);
+  const { reportId: activeReportId } = useParams();
+  const navigate = useNavigate();
+
   const [filter, setFilter] = useState<string>('all');
   const [search, setSearch] = useState('');
+  const deferredSearch = useDeferredValue(search);
 
   const activeReport = useMemo(() => {
     return REPORTS_DATA.find(r => r.id === activeReportId) || null;
   }, [activeReportId]);
 
+  const relatedReports = useMemo(() => {
+    if (!activeReport) return [];
+    return REPORTS_DATA.filter(r => r.category === activeReport.category && r.id !== activeReport.id).slice(0, 3);
+  }, [activeReport]);
+
   const filteredReports = useMemo(() => {
     return REPORTS_DATA.filter(r => {
       const matchFilter = filter === 'all' || r.category === filter;
-      const matchSearch = r.title.toLowerCase().includes(search.toLowerCase()) || r.summary.toLowerCase().includes(search.toLowerCase());
+      const matchSearch = r.title.toLowerCase().includes(deferredSearch.toLowerCase()) || r.summary.toLowerCase().includes(deferredSearch.toLowerCase());
       return matchFilter && matchSearch;
     });
-  }, [filter, search]);
+  }, [filter, deferredSearch]);
+
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(window.location.href);
+    alert('Bağlantı kopyalandı!');
+  };
+
+  const handleShareTwitter = () => {
+    const text = encodeURIComponent(`Şu raporu okumalısınız: ${activeReport?.title}`);
+    const url = encodeURIComponent(window.location.href);
+    window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank');
+  };
+
+  const handleShareLinkedIn = () => {
+    const url = encodeURIComponent(window.location.href);
+    window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}`, '_blank');
+  };
 
   if (activeReport) {
     return (
       <section className="panel active">
         <div className="report-detail-layout" style={{ maxWidth: 800, margin: '0 auto', paddingBottom: 60 }}>
-          <button className="btn" style={{ marginBottom: 24 }} onClick={() => setActiveReportId(null)}>
+          <button className="btn" style={{ marginBottom: 24 }} onClick={() => navigate('/reports')}>
             <ArrowLeft size={16} /> Raporlara Dön
           </button>
           
@@ -44,6 +75,7 @@ export default function ReportsPage() {
               <img 
                 src={publicAssetUrl(activeReport.coverImage)} 
                 alt="" 
+                loading="lazy"
                 style={{ width: '100%', height: '240px', objectFit: 'cover', display: 'block', borderBottom: '1px solid var(--line)' }}
               />
             )}
@@ -53,7 +85,7 @@ export default function ReportsPage() {
               </div>
               <h1 style={{ marginBottom: 16 }}>{activeReport.title}</h1>
               
-              <div className="metric-row" style={{ marginBottom: 32, flexWrap: 'wrap', gap: 16 }}>
+              <div className="metric-row" style={{ marginBottom: 24, flexWrap: 'wrap', gap: 16 }}>
                 <div className="metric" style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flex: 'none' }}>
                   <User size={16} className="muted" />
                   <span>{activeReport.author}</span>
@@ -64,8 +96,21 @@ export default function ReportsPage() {
                 </div>
                 <div className="metric" style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flex: 'none' }}>
                   <Clock size={16} className="muted" />
-                  <span>{activeReport.readTime} dk okuma</span>
+                  <span>{getReadTime(activeReport)} dk okuma</span>
                 </div>
+              </div>
+
+              {/* Share Buttons */}
+              <div style={{ display: 'flex', gap: 8, marginBottom: 32, paddingBottom: 24, borderBottom: '1px solid var(--line)' }}>
+                <button className="btn ghost" onClick={handleCopyLink} title="Bağlantıyı Kopyala" aria-label="Bağlantıyı Kopyala">
+                  <Link size={16} /> <span className="sr-only">Bağlantıyı Kopyala</span>
+                </button>
+                <button className="btn ghost" onClick={handleShareTwitter} title="X'te (Twitter) Paylaş" aria-label="X'te Paylaş">
+                  <Share2 size={16} /> <span className="sr-only">X'te Paylaş</span>
+                </button>
+                <button className="btn ghost" onClick={handleShareLinkedIn} title="LinkedIn'de Paylaş" aria-label="LinkedIn'de Paylaş">
+                  <Share2 size={16} /> <span className="sr-only">LinkedIn'de Paylaş</span>
+                </button>
               </div>
 
               <div className="markdown-body">
@@ -73,7 +118,7 @@ export default function ReportsPage() {
                   remarkPlugins={[remarkGfm, remarkMath]} 
                   rehypePlugins={[rehypeKatex]}
                   components={{
-                    img: ({node, ...props}) => <img {...props} src={publicAssetUrl(props.src || '')} style={{maxWidth: '100%', height: 'auto', borderRadius: 8}} />
+                    img: ({node, ...props}) => <img {...props} src={publicAssetUrl(props.src || '')} loading="lazy" style={{maxWidth: '100%', height: 'auto', borderRadius: 8}} />
                   }}
                 >
                   {activeReport.content}
@@ -81,6 +126,36 @@ export default function ReportsPage() {
               </div>
             </div>
           </div>
+
+          {/* Related Reports */}
+          {relatedReports.length > 0 && (
+            <div style={{ marginTop: 40 }}>
+              <h3 style={{ marginBottom: 16 }}>Bunlar da İlginizi Çekebilir</h3>
+              <div className="grid cols-3" style={{ gap: 16 }}>
+                {relatedReports.map(report => (
+                  <div 
+                    key={report.id} 
+                    className="card interactive" 
+                    role="button"
+                    tabIndex={0}
+                    style={{ padding: 16, cursor: 'pointer', display: 'flex', flexDirection: 'column' }} 
+                    onClick={() => navigate(`/reports/${report.id}`)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        navigate(`/reports/${report.id}`);
+                      }
+                    }}
+                  >
+                    <h4 style={{ fontSize: '1rem', marginBottom: 8, lineHeight: 1.4 }}>{report.title}</h4>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.8rem', color: 'var(--muted)', marginTop: 'auto' }}>
+                      <Clock size={12} /> {getReadTime(report)} dk
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </section>
     );
@@ -113,11 +188,25 @@ export default function ReportsPage() {
 
         <div className="grid cols-3" style={{ gap: 24 }}>
           {filteredReports.map(report => (
-            <div key={report.id} className="card interactive" style={{ display: 'flex', flexDirection: 'column', cursor: 'pointer', padding: 0, overflow: 'hidden' }} onClick={() => setActiveReportId(report.id)}>
+            <div 
+              key={report.id} 
+              className="card interactive" 
+              role="button"
+              tabIndex={0}
+              style={{ display: 'flex', flexDirection: 'column', cursor: 'pointer', padding: 0, overflow: 'hidden' }} 
+              onClick={() => navigate(`/reports/${report.id}`)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  navigate(`/reports/${report.id}`);
+                }
+              }}
+            >
               {report.coverImage && (
                 <img 
                   src={publicAssetUrl(report.coverImage)} 
                   alt="" 
+                  loading="lazy"
                   style={{ width: '100%', height: '140px', objectFit: 'cover', display: 'block', borderBottom: '1px solid var(--line)' }}
                 />
               )}
@@ -134,7 +223,7 @@ export default function ReportsPage() {
                     <Calendar size={14} /> {report.publishDate}
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.8rem', color: 'var(--muted)' }}>
-                    <Clock size={14} /> {report.readTime} dk
+                    <Clock size={14} /> {getReadTime(report)} dk
                   </div>
                 </div>
               </div>
