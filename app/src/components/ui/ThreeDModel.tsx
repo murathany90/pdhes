@@ -12,6 +12,7 @@ import {
   buildLayout3DFootprintPlan,
   LAYOUT_3D_MATERIAL_COLORS,
   type Layout3DProjectedFootprint,
+  footprintLayerKey,
 } from '../../utils/layout3dFootprints';
 import { useManualGeometryStore } from '../../stores/useManualGeometryStore';
 import { overrideSiteWithManualGeometries } from '../../utils/manualGeometryConverter';
@@ -1263,10 +1264,7 @@ function labelStyle(active: boolean, color: string): React.CSSProperties {
 /* ─────────────────────────────────────────────
    Main Scene Assembly
    ───────────────────────────────────────────── */
-function footprintLayerKey(component: string): string {
-  if (component === 'intake') return 'upper_reservoir';
-  return component;
-}
+
 
 function footprintLabel(item: Layout3DProjectedFootprint): string {
   if (item.id.startsWith('penstock')) {
@@ -1347,6 +1345,13 @@ function FootprintPolygon({ item, active, onClick, showLabels }: {
   showLabels: boolean;
 }) {
   const geometry = useMemo(() => createFootprintPolygonGeometry(item), [item]);
+  
+  useEffect(() => {
+    return () => {
+      geometry.dispose();
+    };
+  }, [geometry]);
+
   const color = LAYOUT_3D_MATERIAL_COLORS[item.material] ?? '#9aa3ad';
   const opacity = item.material === 'water' ? 0.82 : item.material === 'embankment' ? 0.74 : 0.9;
   const labelPosition = footprintCenter(item);
@@ -1400,7 +1405,7 @@ function FootprintSceneLayer({ items, layers, activeComponent, onSelectComponent
   return (
     <group>
       {items
-        .filter((item) => layers[footprintLayerKey(item.component)] !== false)
+        .filter((item) => layers[footprintLayerKey(item.component)] === true)
         .map((item) => {
           const layerKey = footprintLayerKey(item.component);
           const active = activeComponent === item.component || activeComponent === layerKey;

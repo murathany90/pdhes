@@ -139,3 +139,15 @@ export function buildLayout3DFootprintPlan(site: Site): Layout3DFootprintPlan {
     items: layout3D.componentFootprints.map((footprint) => projectFootprint(footprint, site, baseElevation, bbox)),
   };
 }
+
+export function footprintLayerKey(component: string): string {
+  const map: Record<string, string> = {
+    'intake': 'upper_reservoir',
+    'headrace_tunnel': 'tunnel',
+    'tailrace_tunnel': 'tailrace',
+    'tailrace_surge_tank': 'surge_tank',
+    'existing_switchyard': 'switchyard',
+    'new_switchyard': 'switchyard',
+  };
+  return map[component] || component;
+}

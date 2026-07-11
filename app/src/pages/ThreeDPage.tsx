@@ -9,6 +9,7 @@ import ThreeDModel from '../components/ui/ThreeDModel';
 import WarningBanner from '../components/ui/WarningBanner';
 import { buildComponentsDetail, COORDINATE_CONFIDENCE_LABELS } from '../utils/siteDerived';
 import { publicAssetUrl } from '../utils/publicUrl';
+import { footprintLayerKey } from '../utils/layout3dFootprints';
 
 export default function ThreeDPage({ site: propSite }: { site?: Site }) {
   const { sites, selectedId } = useSiteStore();
@@ -61,6 +62,17 @@ export default function ThreeDPage({ site: propSite }: { site?: Site }) {
       setActiveUnits(buildComponentsDetail(site).powerhouse.units || 4);
     }
   }, [site?.id]);
+
+  // Clear active component if its layer is toggled off
+  useEffect(() => {
+    if (activeComponent) {
+      const mappedLayer = footprintLayerKey(activeComponent);
+      if (layers[mappedLayer] === false) {
+        setActiveComponent('');
+      }
+    }
+  }, [layers, activeComponent]);
+
 
   const [showTerrain, setShowTerrain] = useState(true);
   const [showLabels, setShowLabels] = useState(true);
