@@ -55,6 +55,7 @@ interface UseMapLibreOptions {
   onSelectSite?: (id: string) => void;
   interactiveCandidates?: boolean;
   draftingMode?: string;
+  disableAutoFlyTo?: boolean;
 }
 
 function featureCollection(features: GeoJSON.Feature<Geometry>[]): FeatureCollection {
@@ -93,6 +94,7 @@ export function useMapLibre({
   onSelectSite,
   interactiveCandidates = true,
   draftingMode,
+  disableAutoFlyTo = false,
 }: UseMapLibreOptions) {
   const { showPowerGrid, powerGridConfig } = useSettingsStore();
   const mapRef = useRef<maplibregl.Map | null>(null);
@@ -676,7 +678,7 @@ export function useMapLibre({
 
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || !site) return;
+    if (!map || !site || disableAutoFlyTo) return;
     const view = getSiteView(site);
     map.flyTo({
       center: view.center,

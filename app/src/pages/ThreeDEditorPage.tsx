@@ -4,6 +4,7 @@ import { useSettingsStore } from '../stores/useSettingsStore';
 import { useSiteStore } from '../stores/useSiteStore';
 import type { Site } from '../types/site';
 import { applyEditorDerivedLayout, ensureClosedRing } from '../utils/layout3dEditor';
+import { FabPopover } from '../components/FabPopover';
 import * as turf from '@turf/turf';
 
 interface ThreeDEditorPageProps {
@@ -26,14 +27,14 @@ const EDITOR_LAYERS: MapLayerVisibility = {
   portal: true,
 };
 
-type DrawingMode = 'none' | 'upperReservoir' | 'lowerReservoir' | 'powerhouse' | 'switchyard' | 'penstockRoute';
+type DrawingMode = 'none' | 'upperReservoir' | 'lowerReservoir' | 'powerhouse' | 'switchyard' | 'surgeTank' | 'penstockRoute';
 
 type DrawingTemplate = 'point' | 'square' | 'rounded' | 'rectangle' | 'oval';
 
 export default function ThreeDEditorPage({ site, onDone }: ThreeDEditorPageProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
-  const { updateSite, baseSites, gridAssets } = useSiteStore();
-  const { mapStyle, heightScale } = useSettingsStore();
+  const { updateSite, baseSites, gridAssets, selectSite } = useSiteStore();
+  const { mapStyle, setMapStyle, heightScale, setHeightScale } = useSettingsStore();
 
   const [previewSite, setPreviewSite] = useState<Site | undefined>(site);
   const [drawingMode, setDrawingMode] = useState<DrawingMode>('none');
@@ -41,6 +42,7 @@ export default function ThreeDEditorPage({ site, onDone }: ThreeDEditorPageProps
   const [draftCoords, setDraftCoords] = useState<[number, number][]>([]);
   const [message, setMessage] = useState('');
   const [hasEditorChanges, setHasEditorChanges] = useState(false);
+  const [editorLayers, setEditorLayers] = useState<MapLayerVisibility>({ ...EDITOR_LAYERS });
 
   // Draft drawing source setup
   const draftSourceId = 'draft-drawing-source';
@@ -52,10 +54,6 @@ export default function ThreeDEditorPage({ site, onDone }: ThreeDEditorPageProps
     }
   }, [site?.id]);
 
-  const dynamicLayers: MapLayerVisibility = {
-    ...EDITOR_LAYERS,
-  };
-
   const { mapRef } = useMapLibre({
     containerRef: mapContainer,
     site: previewSite,
@@ -64,8 +62,9 @@ export default function ThreeDEditorPage({ site, onDone }: ThreeDEditorPageProps
     mapStyle,
     heightScale,
     gridAssets,
-    layers: dynamicLayers,
+    layers: editorLayers,
     interactiveCandidates: false,
+    disableAutoFlyTo: true,
     draftingMode: drawingMode !== 'none' ? (drawingMode === 'upperReservoir' ? 'upper_reservoir' : drawingMode === 'lowerReservoir' ? 'lower_reservoir' : drawingMode) : undefined,
   });
 
@@ -80,7 +79,7 @@ export default function ThreeDEditorPage({ site, onDone }: ThreeDEditorPageProps
       const lng = Number(e.lngLat.lng.toFixed(6));
       const lat = Number(e.lngLat.lat.toFixed(6));
       
-      if (drawingMode === 'powerhouse' || drawingMode === 'switchyard') {
+      if (drawingMode === 'powerhouse' || drawingMode === 'switchyard' || drawingMode === 'surgeTank') {
         // Point modes: instant placement
         setPreviewSite((prev) => {
           if (!prev) return prev;
@@ -90,10 +89,12 @@ export default function ThreeDEditorPage({ site, onDone }: ThreeDEditorPageProps
             newSite.coordinates.powerhouse = { ...newSite.coordinates.powerhouse, point: [lng, lat] };
           } else if (drawingMode === 'switchyard') {
             newSite.coordinates.switchyard = { ...newSite.coordinates.switchyard, point: [lng, lat] };
+          } else if (drawingMode === 'surgeTank') {
+            newSite.coordinates.surgeTank = { ...newSite.coordinates.surgeTank, point: [lng, lat] };
           }
           return applyEditorDerivedLayout(newSite);
         });
-        setMessage(`${drawingMode === 'powerhouse' ? 'Türbin Odası' : 'Şalt Sahası'} konumu ayarlandı.`);
+        setMessage(`${drawingMode === 'powerhouse' ? 'Türbin Odası' : drawingMode === 'switchyard' ? 'Şalt Sahası' : 'Denge Bacası'} konumu ayarlandı.`);
         setHasEditorChanges(true);
         setDrawingMode('none');
       } else {
@@ -166,6 +167,7 @@ export default function ThreeDEditorPage({ site, onDone }: ThreeDEditorPageProps
         'lower_reservoir': 'lowerReservoir',
         'powerhouse': 'powerhouse',
         'switchyard': 'switchyard',
+        'surge_tank': 'surgeTank',
       };
       
       const newMode = modeMap[comp];
@@ -176,10 +178,22 @@ export default function ThreeDEditorPage({ site, onDone }: ThreeDEditorPageProps
     };
 
     let componentClickBound = false;
+    let waterLineBound = false;
+    const onWaterLineClick = () => {
+      if (drawingMode !== 'none') return;
+      setDrawingMode('penstockRoute');
+      setMessage('Su Yolu (Cebri Boru) seçildi. Haritaya sırayla tıklayarak yeni rotayı çizebilirsiniz.');
+    };
+    
     const bindComponentClick = () => {
-      if (componentClickBound || !map.getLayer('blocks-extrusion')) return;
-      map.on('click', 'blocks-extrusion', onComponentClick);
-      componentClickBound = true;
+      if (!componentClickBound && map.getLayer('blocks-extrusion')) {
+        map.on('click', 'blocks-extrusion', onComponentClick);
+        componentClickBound = true;
+      }
+      if (!waterLineBound && map.getLayer('water-line')) {
+        map.on('click', 'water-line', onWaterLineClick);
+        waterLineBound = true;
+      }
     };
     const componentBindTimer = window.setTimeout(bindComponentClick, 120);
 
@@ -291,6 +305,9 @@ export default function ThreeDEditorPage({ site, onDone }: ThreeDEditorPageProps
       try {
         if (componentClickBound) {
           map.off('click', 'blocks-extrusion', onComponentClick);
+        }
+        if (waterLineBound) {
+          map.off('click', 'water-line', onWaterLineClick);
         }
       } catch {
         // The layer can disappear during style reloads; the map-level handlers are still cleaned above.
@@ -485,6 +502,16 @@ export default function ThreeDEditorPage({ site, onDone }: ThreeDEditorPageProps
       <div className="map-layout" style={{ flex: 1, overflow: 'hidden' }}>
         <div className="map-stage">
           <div ref={mapContainer} style={{ position: 'absolute', inset: 0, cursor: drawingMode !== 'none' ? 'crosshair' : 'grab' }} />
+          <FabPopover 
+            mapStyle={mapStyle} 
+            setMapStyle={setMapStyle} 
+            terrain3d={editorLayers.terrain3d} 
+            setTerrain3d={(val) => setEditorLayers(c => ({...c, terrain3d: val}))} 
+            heightScale={heightScale} 
+            setHeightScale={setHeightScale} 
+            selectedSiteId={site.id} 
+            selectSite={selectSite} 
+          />
         </div>
         
         <aside className="map-right" style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
@@ -494,6 +521,7 @@ export default function ThreeDEditorPage({ site, onDone }: ThreeDEditorPageProps
           <div style={{ flex: 1, overflowY: 'auto', paddingRight: '4px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
             {renderComponentCard('Üst Rezervuar', 'upperReservoir')}
             {renderComponentCard('Alt Rezervuar', 'lowerReservoir')}
+            {renderComponentCard('Denge Bacası', 'none', 'surgeTank')}
             {renderComponentCard('Türbin Odası', 'none', 'powerhouse')}
             {renderComponentCard('Şalt Sahası (3D)', 'none', 'switchyard')}
             {renderComponentCard('Enerji Nakil Hattı / Su Yolu', 'penstockRoute')}
