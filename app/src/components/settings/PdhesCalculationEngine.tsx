@@ -1,7 +1,6 @@
 import type { Site } from "../../types/site";
 import { usePdhesCalculationEngine } from "../../hooks/usePdhesCalculationEngine";
 import {
-  EMPTY_VALUE,
   formatCurrencyMUsd,
   formatFlowCms,
   formatGwh,
@@ -68,7 +67,6 @@ export default function PdhesCalculationEngine({
 }) {
   const selectedSite = sites.find((candidate) => candidate.id === selectedId) || sites[0];
   const { inputs, outputs, setInput, resetInputs } = usePdhesCalculationEngine(selectedSite);
-  const excel = selectedSite?.excelCalculated;
 
   const setNumber = <K extends keyof PdhesCalculationInputs>(key: K) => (value: number) => {
     setInput(key, (Number.isFinite(value) ? value : 0) as PdhesCalculationInputs[K]);
@@ -87,7 +85,7 @@ export default function PdhesCalculationEngine({
             Varsayılanlar Excel hesap satırından gelir; değişiklikler anlık olarak merkezi formüllerle yeniden hesaplanır.
           </p>
         </div>
-        <button type="button" className="btn" onClick={resetInputs}>Excel varsayılanlarına dön</button>
+        <button type="button" className="btn" onClick={resetInputs}>Varsayılanlara Dön</button>
       </div>
 
       <div className="engine-selector-row">
@@ -105,10 +103,6 @@ export default function PdhesCalculationEngine({
               </option>
             ))}
           </select>
-        </div>
-        <div className="engine-source-note">
-          <span className="muted small">Excel kaynağı</span>
-          <b>{excel?.dataSource ?? EMPTY_VALUE}</b>
         </div>
       </div>
 
