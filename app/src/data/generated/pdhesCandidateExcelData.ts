@@ -1,6 +1,6 @@
 import type { PdhesCandidateExcelCalculatedData, PdhesExcelInputDefaults } from "../../utils/pdhes/types";
 
-// Bu dosya app/scripts/generate-pdhes-candidate-data.mjs tarafından üretilir.
+// Bu dosya app/scripts/generate-pdhes-candidate-data.mjs veya apply-3d-updates.ts tarafından üretilir.
 // Excel koordinat ve Google Earth/link kolonları bilinçli olarak export edilmez.
 export const PDHES_EXCEL_INPUT_DEFAULTS: PdhesExcelInputDefaults = {
   "waterDensityKgM3": 1000,
@@ -558,7 +558,7 @@ export const PDHES_CANDIDATE_EXCEL_DATA: PdhesCandidateExcelCalculatedData[] = [
     "scoreNote": "Skorlar formüllüdür: düşü/enerji/debi, geri ödeme, veri güven ve risk metni üzerinden hesaplanır.",
     "paybackYears": 14.842629056384895,
     "designFlowCms": 14.970011922416894,
-    "upperActiveVolumeHm3": 0.37724430044490576,
+    "upperActiveVolumeHm3": 2.51,
     "roundTripEfficiencyPct": 78,
     "pumpPowerMw": 128.2051282051282,
     "pumpingEnergyPerCycleMwh": 897.4358974358975,
@@ -601,7 +601,7 @@ export const PDHES_CANDIDATE_EXCEL_DATA: PdhesCandidateExcelCalculatedData[] = [
     "scoreNote": "Skorlar formüllüdür: düşü/enerji/debi, geri ödeme, veri güven ve risk metni üzerinden hesaplanır.",
     "paybackYears": 14.842629056384895,
     "designFlowCms": 12.97401033276131,
-    "upperActiveVolumeHm3": 0.326945060385585,
+    "upperActiveVolumeHm3": 2.54,
     "roundTripEfficiencyPct": 78,
     "pumpPowerMw": 128.2051282051282,
     "pumpingEnergyPerCycleMwh": 897.4358974358975,
@@ -644,7 +644,7 @@ export const PDHES_CANDIDATE_EXCEL_DATA: PdhesCandidateExcelCalculatedData[] = [
     "scoreNote": "Skorlar formüllüdür: düşü/enerji/debi, geri ödeme, veri güven ve risk metni üzerinden hesaplanır.",
     "paybackYears": 13.22561340514662,
     "designFlowCms": 18.833240805621255,
-    "upperActiveVolumeHm3": 0.47459766830165556,
+    "upperActiveVolumeHm3": 2.63,
     "roundTripEfficiencyPct": 78,
     "pumpPowerMw": 128.2051282051282,
     "pumpingEnergyPerCycleMwh": 897.4358974358975,
