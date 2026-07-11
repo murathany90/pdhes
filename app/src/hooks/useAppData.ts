@@ -14,7 +14,9 @@ export async function loadAppData(
   fetcher: FetchLike = fetch,
   base = import.meta.env.BASE_URL,
 ): Promise<LoadedAppData> {
-  const dataResponse = await fetcher(publicAssetUrl('data.json', base));
+  const dataResponse = await fetcher(publicAssetUrl(`data.json?v=${Date.now()}`, base), {
+    cache: "no-store",
+  });
 
   if (!dataResponse.ok) {
     throw new Error(

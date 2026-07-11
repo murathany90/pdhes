@@ -288,22 +288,22 @@ export default function MapPage() {
                   <div style={{ fontSize: '14px', fontWeight: 700, textAlign: 'right' }}>{site.pdhesType === 'OPEN_LOOP' ? 'Açık Çevrim' : (site.pdhesType === 'CLOSED_LOOP' ? 'Kapalı Çevrim' : 'Deniz')}</div>
                   
                   <div style={{ color: 'var(--muted)', fontSize: '11px', textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.5px' }}>Kurulu Güç</div>
-                  <div style={{ fontSize: '14px', fontWeight: 700, textAlign: 'right', color: 'var(--cyan)' }}>{num(site.capacityMW)} MW</div>
+                  <div style={{ fontSize: '14px', fontWeight: 700, textAlign: 'right', color: 'var(--cyan)' }}>{num(site.excelCalculated?.capacityMw ?? site.capacityMW)} MW</div>
                   
                   <div style={{ color: 'var(--muted)', fontSize: '11px', textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.5px' }}>Depolama Kap.</div>
-                  <div style={{ fontSize: '14px', fontWeight: 700, textAlign: 'right', color: 'var(--cyan)' }}>{num((site.energyGWh ? site.energyGWh * 1000 : (site.capacityMW ?? 0) * 7))} MWh</div>
+                  <div style={{ fontSize: '14px', fontWeight: 700, textAlign: 'right', color: 'var(--cyan)' }}>{num(site.excelCalculated?.energyMwh ?? (site.energyGWh ? site.energyGWh * 1000 : (site.capacityMW ?? 0) * 7))} MWh</div>
                   
                   <div style={{ color: 'var(--muted)', fontSize: '11px', textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.5px' }}>Brüt Düşü</div>
-                  <div style={{ fontSize: '14px', fontWeight: 700, textAlign: 'right' }}>{num(site.headM)} m</div>
+                  <div style={{ fontSize: '14px', fontWeight: 700, textAlign: 'right' }}>{num(site.excelCalculated?.grossHeadM ?? site.headM)} m</div>
                   
                   <div style={{ color: 'var(--muted)', fontSize: '11px', textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.5px' }}>Su Yolu Uzun.</div>
                   <div style={{ fontSize: '14px', fontWeight: 700, textAlign: 'right' }}>{site.tunnelLengthKm ? `${num(site.tunnelLengthKm, 1)} km` : (site.penstockLengthM ? `${num(site.penstockLengthM)} m` : 'Bilinmiyor')}</div>
                   
                   <div style={{ color: 'var(--muted)', fontSize: '11px', textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.5px' }}>Yatırım (CAPEX)</div>
-                  <div style={{ fontSize: '14px', fontWeight: 700, textAlign: 'right', color: 'var(--yellow)' }}>{moneyBn(site.capexUsdBn)}</div>
+                  <div style={{ fontSize: '14px', fontWeight: 700, textAlign: 'right', color: 'var(--yellow)' }}>{moneyBn(site.excelCalculated?.capexMUsd ? site.excelCalculated.capexMUsd / 1000 : site.capexUsdBn)}</div>
                   
                   <div style={{ color: 'var(--muted)', fontSize: '11px', textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.5px' }}>Amortisman</div>
-                  <div style={{ fontSize: '14px', fontWeight: 700, textAlign: 'right', color: 'var(--yellow)' }}>{site.paybackYear ? `${site.paybackYear} yıl` : 'Bilinmiyor'}</div>
+                  <div style={{ fontSize: '14px', fontWeight: 700, textAlign: 'right', color: 'var(--yellow)' }}>{site.excelCalculated?.paybackYears ? `${num(site.excelCalculated.paybackYears, 1)} yıl` : (site.paybackYear ? `${site.paybackYear} yıl` : 'Bilinmiyor')}</div>
                 </div>
               </div>
               <ElevationProfile site={site} />
