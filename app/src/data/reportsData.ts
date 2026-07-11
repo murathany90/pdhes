@@ -1639,7 +1639,7 @@ Geleceğin enerji şebekesi, PHES'in devasa kapasitesini milisaniyelik tepki ver
   },
   {
     id: 'substack-pdhes-nedir',
-    title: '# 01- Pompaj Depolamalı HES (PDHES) Nedir?',
+    title: 'Pompaj Depolamalı HES (PDHES) Nedir?',
     category: 'summary',
     author: 'Murathan Yeniceli',
     publishDate: '2026-07-07',
@@ -1716,7 +1716,7 @@ PDHES’i yalnızca “barajdan elektrik üretmek” gibi okumak eksik kalır. B
   },
   {
     id: 'substack-pdhes-yarisi',
-    title: '# 02-Küresel PDHES Yarışı: Su Bataryaları Yeni Enerji Jeopolitiği',
+    title: 'Küresel PDHES Yarışı: Su Bataryaları Yeni Enerji Jeopolitiği',
     category: 'summary',
     author: 'Murathan Yeniceli',
     publishDate: '2026-07-07',
@@ -1790,7 +1790,7 @@ PDHES küresel ölçekte eski bir teknolojinin yeniden keşfi değil; yeni enerj
   },
   {
     id: 'substack-pdhes-yol-haritasi',
-    title: '# 03-Türkiye’nin Su Bataryası Yol Haritası: 2035 İçin PDHES Stratejisi',
+    title: 'Türkiye’nin Su Bataryası Yol Haritası: 2035 İçin PDHES Stratejisi',
     category: 'summary',
     author: 'Murathan Yeniceli',
     publishDate: '2026-07-07',
