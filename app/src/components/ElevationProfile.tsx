@@ -20,7 +20,7 @@ export function ElevationProfile({ site }: ElevationProfileProps) {
   const head = site.excelCalculated?.netHeadM ?? site.headM ?? (upper - lower);
 
   // Fallbacks if data is missing
-  if (!upper || !lower) {
+  if (upper === undefined || lower === undefined) {
     return (
       <div className="elevation-profile-empty">
         <p className="muted small">Detaylı topoğrafik veri bulunamadı.</p>

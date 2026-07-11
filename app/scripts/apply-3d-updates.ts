@@ -27,39 +27,38 @@ for (const jsonFile of jsonFiles) {
   
   if (!siteId) continue;
   
-  // 1. Update data.json
-  const dataJsonIndex = dataJson.findIndex((s: any) => s.id === siteId);
-  if (dataJsonIndex !== -1) {
-    const target = dataJson[dataJsonIndex];
-    // Copy coordinates
-    target.coordinates = exportedSite.coordinates;
-    // Copy topographic data
-    if (exportedSite.headM !== undefined) target.headM = exportedSite.headM;
-    if (exportedSite.activeVolumeHm3 !== undefined) target.activeVolumeHm3 = exportedSite.activeVolumeHm3;
-    if (exportedSite.penstockLengthM !== undefined) target.penstockLengthM = exportedSite.penstockLengthM;
-    if (exportedSite.tunnelLengthKm !== undefined) target.tunnelLengthKm = exportedSite.tunnelLengthKm;
-    if (exportedSite.layout3D) target.layout3D = exportedSite.layout3D;
-    
-    // Copy components_detail if it exists (from layout3D or directly if the UI attached it)
-    if (exportedSite.components_detail) target.components_detail = exportedSite.components_detail;
-  }
-  
-  // 2. Update Excel Data and Recalculate
-  // The siteId usually matches normalizedName or we can find it by some id. 
-  // Let's find by normalizedName (tasucu -> tasucudenizsuyupspp, vb.)
-  // We'll match by checking if normalizedName starts with siteId without underscores
+  // Update Excel Data and Recalculate FIRST
   const cleanId = siteId.replace(/_/g, '');
   const excelIndex = excelData.findIndex(e => e.normalizedName.includes(cleanId));
   
   if (excelIndex !== -1) {
     const candidate = excelData[excelIndex];
     
+    // Apply new head and volume from 3D footprint
     if (exportedSite.headM !== undefined) {
       candidate.grossHeadM = exportedSite.headM;
       candidate.netHeadM = exportedSite.headM * 0.97; // Rough net head (3% loss)
     }
     if (exportedSite.activeVolumeHm3 !== undefined) {
       candidate.upperActiveVolumeHm3 = exportedSite.activeVolumeHm3;
+    }
+    
+    // CALCULATE NEW ENERGY based on Volume and Head (Keeping Capacity Constant)
+    const turbineRatio = (PDHES_EXCEL_INPUT_DEFAULTS.turbineGeneratorEfficiencyPct > 1 
+      ? PDHES_EXCEL_INPUT_DEFAULTS.turbineGeneratorEfficiencyPct / 100 
+      : PDHES_EXCEL_INPUT_DEFAULTS.turbineGeneratorEfficiencyPct) || 0.9;
+      
+    const volumeBasedEnergyMwh = PDHES_EXCEL_INPUT_DEFAULTS.waterDensityKgM3 
+                               * PDHES_EXCEL_INPUT_DEFAULTS.gravityMps2 
+                               * candidate.netHeadM 
+                               * (candidate.upperActiveVolumeHm3 * 1_000_000) 
+                               * turbineRatio 
+                               / 3_600_000_000;
+                               
+    // Overwrite the energy limit in the candidate so the calculation engine uses it
+    candidate.energyMwh = volumeBasedEnergyMwh;
+    if (candidate.capacityMw > 0) {
+      candidate.storageHours = volumeBasedEnergyMwh / candidate.capacityMw;
     }
     
     // Recalculate using CalculationEngine
@@ -83,7 +82,33 @@ for (const jsonFile of jsonFiles) {
     candidate.paybackYears = outputs.paybackYears;
     
     excelData[excelIndex] = candidate;
-    console.log(`Updated Excel Data for ${siteId}`);
+    console.log(`Updated Excel Data & Financials for ${siteId} -> New Payback: ${candidate.paybackYears} yrs`);
+    
+    // NOW update data.json
+    const dataJsonIndex = dataJson.findIndex((s: any) => s.id === siteId);
+    if (dataJsonIndex !== -1) {
+      const target = dataJson[dataJsonIndex];
+      // Copy coordinates
+      target.coordinates = exportedSite.coordinates;
+      // Copy topographic data
+      if (exportedSite.headM !== undefined) target.headM = exportedSite.headM;
+      if (exportedSite.activeVolumeHm3 !== undefined) target.activeVolumeHm3 = exportedSite.activeVolumeHm3;
+      if (exportedSite.penstockLengthM !== undefined) target.penstockLengthM = exportedSite.penstockLengthM;
+      if (exportedSite.tunnelLengthKm !== undefined) target.tunnelLengthKm = exportedSite.tunnelLengthKm;
+      if (exportedSite.layout3D) target.layout3D = exportedSite.layout3D;
+      if (exportedSite.components_detail) target.components_detail = exportedSite.components_detail;
+      
+      // SYNC FINANCIALS to Map Sidebar (data.json)
+      target.capacityMW = candidate.capacityMw;
+      if (candidate.annualGenerationGwh) target.energyGWh = candidate.annualGenerationGwh; 
+      // Note: MapPage expects site.energyGWh to be storage capacity or generation. Actually wait:
+      // In MapPage: `Depolama Kap. {site.energyGWh * 1000} MWh`. So site.energyGWh is STORAGE energy.
+      target.energyGWh = candidate.energyMwh / 1000;
+      
+      if (candidate.capexMUsd) target.capexUsdBn = candidate.capexMUsd / 1000;
+      if (candidate.annualTotalRevenueMUsd) target.annualRevenueUsdM = candidate.annualTotalRevenueMUsd;
+      if (candidate.paybackYears) target.paybackYear = Math.round(candidate.paybackYears * 10) / 10;
+    }
   }
 }
 
