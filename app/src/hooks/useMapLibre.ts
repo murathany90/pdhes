@@ -691,6 +691,14 @@ export function useMapLibre({
     map.on('load', () => {
       queueDrawLayers();
     });
+
+    let moveEndTimeout: any;
+    map.on('moveend', () => {
+      clearTimeout(moveEndTimeout);
+      moveEndTimeout = setTimeout(() => {
+        queueDrawLayers();
+      }, 400); // Wait for terrain to settle to avoid extrusion elevation issues
+    });
     
     map.on('contextmenu', (e) => {
       const { mode, isDrawing, setIsDrawing, openContextMenu } = useMapToolsStore.getState();
