@@ -125,7 +125,7 @@ export function FabPopover({
                   <tbody>
                     {WORLD_EXAMPLES_DETAILED.map(ex => (
                       <tr key={ex.id} onClick={() => setWorldExampleFocus(ex.id)} style={{ cursor: 'pointer' }} className="hoverable-row">
-                        <td>{ex.name}</td>
+                        <td>{ex.name} <span style={{color: 'var(--muted)', fontSize: '0.9em'}}>({ex.country})</span></td>
                         <td><div>{ex.capacityMw} MW</div><div style={{fontSize: '0.85em', color: 'var(--muted)'}}>{ex.storageMwh && ex.storageMwh !== '-' ? ex.storageMwh + ' MWh' : '-'}</div></td>
                         <td><div>{ex.headM && ex.headM !== '-' ? `${ex.headM} m` : '-'}</div><div style={{fontSize: '0.85em', color: 'var(--muted)'}}>{ex.efficiency || '-'}</div></td>
                       </tr>

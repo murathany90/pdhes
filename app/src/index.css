@@ -1332,14 +1332,15 @@ html[data-theme="light"] .pdhes-rich-shell .source-footer { background: var(--pa
 
 .fab-content {
   flex: 1;
-  overflow-y: auto;
-  padding: 16px;
+  display: flex;
+  flex-direction: column;
   min-height: 0;
+  overflow: hidden;
 }
 
 .fab-list-wrapper {
-  margin: -16px; /* Negate padding */
-  overflow-x: auto;
+  flex: 1;
+  overflow: auto;
   -webkit-overflow-scrolling: touch;
 }
 
@@ -1391,6 +1392,9 @@ html[data-theme="light"] .pdhes-rich-shell .source-footer { background: var(--pa
 }
 
 .fab-settings {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -1478,8 +1482,8 @@ html[data-theme="light"] .pdhes-rich-shell .source-footer { background: var(--pa
 
   .fab-tabs { min-width: 0; }
   .fab-tab { padding: 10px 4px; font-size: 12px; gap: 4px; }
-  .fab-content { padding: 12px; }
-  .fab-list-wrapper { margin: -12px; }
+  .fab-content { padding: 0; }
+  .fab-list-wrapper { margin: 0; }
   .fab-table { width: 100%; font-size: 12px; }
   .fab-table td:not(:first-child), .fab-table th:not(:first-child) {
     white-space: normal;
