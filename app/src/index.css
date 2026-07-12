@@ -1356,6 +1356,7 @@ html[data-theme="light"] .pdhes-rich-shell .source-footer { background: var(--pa
   background: var(--panel2);
   color: var(--muted);
   font-weight: 600;
+  position: -webkit-sticky;
   position: sticky;
   top: 0;
   border-bottom: 1px solid var(--line);
@@ -1368,12 +1369,13 @@ html[data-theme="light"] .pdhes-rich-shell .source-footer { background: var(--pa
   color: var(--text);
 }
 .fab-table td:first-child, .fab-table th:first-child {
-  width: 40%;
+  width: 55%;
   white-space: normal;
   line-height: 1.4;
 }
 .fab-table td:not(:first-child), .fab-table th:not(:first-child) {
   white-space: nowrap;
+  text-align: center;
 }
 
 .fab-table tbody tr {
