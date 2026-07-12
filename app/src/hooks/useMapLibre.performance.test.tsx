@@ -69,7 +69,9 @@ vi.mock('maplibre-gl', () => {
     setPaintProperty = vi.fn();
     setFilter = vi.fn();
     setTerrain = vi.fn();
-    setStyle = vi.fn();
+    setStyle = vi.fn(() => {
+      this.styleLoaded = false;
+    });
     flyTo = vi.fn();
     getCanvas = vi.fn(() => ({ style: {} }));
     getStyle = vi.fn(() => (this.removed ? undefined : { version: 8 }));
@@ -133,15 +135,25 @@ vi.mock('maplibre-gl', () => {
   }
 
   class FakePopup {
+    options: any;
+    html = '';
+    content: HTMLElement | null = null;
     remove = vi.fn();
     addTo = vi.fn(() => this);
     setLngLat = vi.fn(() => this);
-    setHTML = vi.fn(() => this);
-    setDOMContent = vi.fn(() => this);
+    setHTML = vi.fn((html: string) => {
+      this.html = html;
+      return this;
+    });
+    setDOMContent = vi.fn((content: HTMLElement) => {
+      this.content = content;
+      return this;
+    });
     on = vi.fn(() => this);
     isOpen = vi.fn(() => false);
 
-    constructor() {
+    constructor(options: any = {}) {
+      this.options = options;
       mapMockState.popups.push(this);
     }
   }
@@ -185,10 +197,12 @@ function Harness({
   layers,
   site,
   sites = [site],
+  mapStyle = 'satellite',
 }: {
   layers: MapLayerVisibility;
   site: Site;
   sites?: Site[];
+  mapStyle?: 'satellite' | 'light';
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   useMapLibre({
@@ -196,7 +210,7 @@ function Harness({
     site,
     sites,
     selectedId: site.id,
-    mapStyle: 'satellite',
+    mapStyle,
     heightScale: 1.1,
     gridAssets,
     layers,
@@ -222,6 +236,7 @@ describe('useMapLibre performance behavior', () => {
   });
 
   afterEach(() => {
+    vi.useRealTimers();
     cleanup();
     vi.clearAllMocks();
   });
@@ -277,6 +292,66 @@ describe('useMapLibre performance behavior', () => {
     expect(map.sourceAddCounts.get('osm-power-grid')).toBe(1);
     expect(map.setLayoutProperty).toHaveBeenCalledWith('osm-power-lines', 'visibility', 'none');
     expect(map.setLayoutProperty).toHaveBeenCalledWith('osm-power-lines', 'visibility', 'visible');
+  });
+
+  it('keeps 3D terrain enabled after moveend redraws from the initial 2D render', () => {
+    vi.useFakeTimers();
+    const site = makeTestSite();
+    const twoDimensionalLayers = { ...DEFAULT_LAYERS, terrain3d: false };
+    const threeDimensionalLayers = { ...DEFAULT_LAYERS, terrain3d: true };
+    const { rerender } = render(<Harness site={site} layers={twoDimensionalLayers} />);
+    const map = latestMap();
+
+    act(() => map.fire('load'));
+    expect(map.setTerrain).toHaveBeenLastCalledWith(null);
+
+    rerender(<Harness site={site} layers={threeDimensionalLayers} />);
+    expect(map.setTerrain).toHaveBeenLastCalledWith({ source: 'terrainSource', exaggeration: 1.1 * 1.3 });
+
+    act(() => {
+      map.fire('moveend');
+      vi.advanceTimersByTime(450);
+    });
+
+    expect(map.setTerrain).toHaveBeenLastCalledWith({ source: 'terrainSource', exaggeration: 1.1 * 1.3 });
+  });
+
+  it('re-applies 3D terrain after style reloads finish', () => {
+    const site = makeTestSite();
+    const { rerender } = render(<Harness site={site} layers={DEFAULT_LAYERS} mapStyle="satellite" />);
+    const map = latestMap();
+
+    act(() => map.fire('load'));
+    expect(map.setTerrain).toHaveBeenLastCalledWith({ source: 'terrainSource', exaggeration: 1.1 * 1.3 });
+
+    rerender(<Harness site={site} layers={DEFAULT_LAYERS} mapStyle="light" />);
+    expect(map.setStyle).toHaveBeenCalledTimes(1);
+
+    act(() => map.fire('styledata'));
+
+    expect(map.setTerrain).toHaveBeenLastCalledWith({ source: 'terrainSource', exaggeration: 1.1 * 1.3 });
+  });
+
+  it('uses responsive popup card markup for candidate and world example popups', () => {
+    const site = makeTestSite({ id: 'candidate-one', name: 'Candidate One PDHES' });
+    render(<Harness site={site} layers={DEFAULT_LAYERS} />);
+    const map = latestMap();
+
+    act(() => map.fire('load'));
+    const candidateMarker = mapMockState.markers.find((marker) => marker.element.id !== 'we-marker-world-one');
+    act(() => {
+      candidateMarker.element.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    });
+
+    const candidatePopup = mapMockState.popups.at(-1);
+    expect(candidatePopup.options.closeButton).toBe(true);
+    expect(candidatePopup.content?.querySelector('.map-popup-card')).toBeTruthy();
+    expect(candidatePopup.content?.querySelector('.map-popup-actions')).toBeTruthy();
+
+    const worldPopup = mapMockState.popups.find((popup) => popup.html.includes('World One'));
+    expect(worldPopup.options.closeButton).toBe(true);
+    expect(worldPopup.html).toContain('map-popup-card');
+    expect(worldPopup.html).toContain('map-popup-grid');
   });
 
   it('cleans map tools store and marker artifacts on unmount', () => {

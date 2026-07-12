@@ -54,5 +54,32 @@ describe('FabPopover UI contract', () => {
     const table = screen.getByRole('table');
     const columnWidths = Array.from(table.querySelectorAll('col')).map((col) => col.getAttribute('style'));
     expect(columnWidths).toEqual(['width: 60%;', 'width: 20%;', 'width: 20%;']);
+
+    const visibleHeader = document.querySelector('#fab-panel-candidates .fab-table-head');
+    const scrollArea = document.querySelector('#fab-panel-candidates .fab-table-scroll');
+    expect(visibleHeader?.getAttribute('aria-hidden')).toBe('true');
+    expect(scrollArea?.querySelector('.fab-table')).toBe(table);
+
+    const headerColumns = Array.from(visibleHeader?.querySelectorAll('.fab-table-head-cell') ?? []).map((cell) => cell.textContent);
+    expect(headerColumns).toEqual(['Aday Adı', 'Güç / Enerji', 'Düşü / Su Yolu']);
+  });
+
+  it('keeps the world examples header outside the scrolling table body', () => {
+    renderFabPopover();
+
+    fireEvent.click(screen.getByRole('button', { name: /Men/i }));
+    fireEvent.click(document.getElementById('fab-tab-world')!);
+
+    const panel = document.getElementById('fab-panel-world');
+    const visibleHeader = panel?.querySelector('.fab-table-head');
+    const scrollArea = panel?.querySelector('.fab-table-scroll');
+    const table = within(panel as HTMLElement).getByRole('table');
+
+    expect(visibleHeader?.getAttribute('aria-hidden')).toBe('true');
+    expect(scrollArea?.querySelector('.fab-table')).toBe(table);
+    expect(table.querySelector('thead')?.className).toContain('visually-hidden');
+
+    const headerColumns = Array.from(visibleHeader?.querySelectorAll('.fab-table-head-cell') ?? []).map((cell) => cell.textContent);
+    expect(headerColumns).toEqual(['Tesis Adı', 'Güç / Enerji', 'Düşü / Verim (%)']);
   });
 });

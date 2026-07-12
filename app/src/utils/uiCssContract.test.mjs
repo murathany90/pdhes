@@ -38,9 +38,24 @@ describe('UI stylesheet compatibility contract', () => {
     expect(fabCss).toContain('position: fixed');
     expect(fabCss).toContain('overscroll-behavior: contain');
     expect(fabCss).toContain('min-width: 0');
+    expect(fabCss).toContain('.fab-table-head');
+    expect(fabCss).toContain('.fab-table-scroll');
+    expect(fabCss).toContain('overflow: hidden');
     expect(fabCss).toContain('overflow-wrap: anywhere');
     expect(fabCss).toContain('.fab-table tbody tr:focus-visible');
     expect(fabCss).toContain('z-index: 12');
+  });
+
+  it('keeps map popups styled and mobile-safe in both themes', () => {
+    expect(css).toContain('.map-popup-card');
+    expect(css).toContain('.map-popup-title');
+    expect(css).toContain('.map-popup-chip');
+    expect(css).toContain('.map-popup-grid');
+    expect(css).toContain('.map-popup-actions');
+    expect(css).toContain('.map-popup-tooltip');
+    expect(css).toContain('max-width: min(340px, calc(100vw - 24px))');
+    expect(css).toContain('max-height: min(70vh, 460px)');
+    expect(css).toContain('html[data-theme="light"] .map-popup-card');
   });
 
   it('keeps the app chrome above 3D canvas and HTML overlays', () => {

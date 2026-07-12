@@ -18,6 +18,10 @@ interface FabPopoverProps {
   selectSite: (id: string) => void;
 }
 
+const CANDIDATE_COLUMNS = ['Aday Adı', 'Güç / Enerji', 'Düşü / Su Yolu'];
+const WORLD_COLUMNS = ['Tesis Adı', 'Güç / Enerji', 'Düşü / Verim (%)'];
+const TABLE_GRID_COLUMNS = '60% 20% 20%';
+
 export function FabPopover({
   mapStyle, setMapStyle,
   terrain3d, setTerrain3d,
@@ -105,73 +109,79 @@ export function FabPopover({
           <div className="fab-content">
             {activeTab === 'candidates' && (
               <div id="fab-panel-candidates" className="fab-list-wrapper" role="tabpanel" aria-labelledby="fab-tab-candidates">
-                <table className="fab-table" aria-label="PDHES adayları">
-                  <colgroup>
-                    <col style={{ width: '60%' }} />
-                    <col style={{ width: '20%' }} />
-                    <col style={{ width: '20%' }} />
-                  </colgroup>
-                  <thead>
-                    <tr>
-                      <th>Aday Adı</th>
-                      <th>Güç / Enerji</th>
-                      <th>Düşü / Su Yolu</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {[...sites].sort((a, b) => (a.order ?? 0) - (b.order ?? 0)).map(site => {
-                      return (
-                      <tr 
-                        key={site.id} 
-                        className={selectedSiteId === site.id ? 'active-row' : ''}
-                        tabIndex={0}
-                        aria-current={selectedSiteId === site.id ? 'true' : undefined}
-                        onClick={() => {
-                          selectSite(site.id);
-                        }}
-                        onKeyDown={(event) => handleRowKeyDown(event, () => selectSite(site.id))}
-                      >
-                        <td>{site.name.replace(/^KAMU[-\s_]?/i, '').replace(/PSPP/g, 'PDHES')}</td>
-                        <td><div>{num(site.excelCalculated?.capacityMw ?? site.capacityMW)} MW</div><div className="fab-subvalue">{site.excelCalculated?.energyMwh ? num(site.excelCalculated.energyMwh / 1000, 1) + ' GWh' : (site.energyGWh ? num(site.energyGWh, 1) + ' GWh' : 'Belirtilmedi')}</div></td>
-                        <td><div>{num(site.excelCalculated?.grossHeadM ?? site.headM, 1)} m</div><div className="fab-subvalue">{num(site.tunnelLengthKm, 1)} km</div></td>
+                <div className="fab-table-head" aria-hidden="true" style={{ gridTemplateColumns: TABLE_GRID_COLUMNS }}>
+                  {CANDIDATE_COLUMNS.map((column) => <span key={column} className="fab-table-head-cell">{column}</span>)}
+                </div>
+                <div className="fab-table-scroll">
+                  <table className="fab-table" aria-label="PDHES adayları">
+                    <colgroup>
+                      <col style={{ width: '60%' }} />
+                      <col style={{ width: '20%' }} />
+                      <col style={{ width: '20%' }} />
+                    </colgroup>
+                    <thead className="visually-hidden">
+                      <tr>
+                        {CANDIDATE_COLUMNS.map((column) => <th key={column}>{column}</th>)}
                       </tr>
-                    )})}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {[...sites].sort((a, b) => (a.order ?? 0) - (b.order ?? 0)).map(site => {
+                        return (
+                        <tr
+                          key={site.id}
+                          className={selectedSiteId === site.id ? 'active-row' : ''}
+                          tabIndex={0}
+                          aria-current={selectedSiteId === site.id ? 'true' : undefined}
+                          onClick={() => {
+                            selectSite(site.id);
+                          }}
+                          onKeyDown={(event) => handleRowKeyDown(event, () => selectSite(site.id))}
+                        >
+                          <td>{site.name.replace(/^KAMU[-\s_]?/i, '').replace(/PSPP/g, 'PDHES')}</td>
+                          <td><div>{num(site.excelCalculated?.capacityMw ?? site.capacityMW)} MW</div><div className="fab-subvalue">{site.excelCalculated?.energyMwh ? num(site.excelCalculated.energyMwh / 1000, 1) + ' GWh' : (site.energyGWh ? num(site.energyGWh, 1) + ' GWh' : 'Belirtilmedi')}</div></td>
+                          <td><div>{num(site.excelCalculated?.grossHeadM ?? site.headM, 1)} m</div><div className="fab-subvalue">{num(site.tunnelLengthKm, 1)} km</div></td>
+                        </tr>
+                      )})}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             )}
 
             {activeTab === 'world' && (
               <div id="fab-panel-world" className="fab-list-wrapper" role="tabpanel" aria-labelledby="fab-tab-world">
-                <table className="fab-table" aria-label="Dünya PDHES örnekleri">
-                  <colgroup>
-                    <col style={{ width: '60%' }} />
-                    <col style={{ width: '20%' }} />
-                    <col style={{ width: '20%' }} />
-                  </colgroup>
-                  <thead>
-                    <tr>
-                      <th>Tesis Adı</th>
-                      <th>Güç / Enerji</th>
-                      <th>Düşü / Verim (%)</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {WORLD_EXAMPLES_DETAILED.map(ex => (
-                      <tr
-                        key={ex.id}
-                        onClick={() => setWorldExampleFocus(ex.id)}
-                        onKeyDown={(event) => handleRowKeyDown(event, () => setWorldExampleFocus(ex.id))}
-                        tabIndex={0}
-                        className="hoverable-row"
-                      >
-                        <td>{ex.name} <span className="fab-country">({ex.country})</span></td>
-                        <td><div>{ex.capacityMw} MW</div><div className="fab-subvalue">{ex.storageMwh && ex.storageMwh !== '-' ? ex.storageMwh + ' MWh' : '-'}</div></td>
-                        <td><div>{ex.headM && ex.headM !== '-' ? `${ex.headM} m` : '-'}</div><div className="fab-subvalue">{ex.efficiency || '-'}</div></td>
+                <div className="fab-table-head" aria-hidden="true" style={{ gridTemplateColumns: TABLE_GRID_COLUMNS }}>
+                  {WORLD_COLUMNS.map((column) => <span key={column} className="fab-table-head-cell">{column}</span>)}
+                </div>
+                <div className="fab-table-scroll">
+                  <table className="fab-table" aria-label="Dünya PDHES örnekleri">
+                    <colgroup>
+                      <col style={{ width: '60%' }} />
+                      <col style={{ width: '20%' }} />
+                      <col style={{ width: '20%' }} />
+                    </colgroup>
+                    <thead className="visually-hidden">
+                      <tr>
+                        {WORLD_COLUMNS.map((column) => <th key={column}>{column}</th>)}
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {WORLD_EXAMPLES_DETAILED.map(ex => (
+                        <tr
+                          key={ex.id}
+                          onClick={() => setWorldExampleFocus(ex.id)}
+                          onKeyDown={(event) => handleRowKeyDown(event, () => setWorldExampleFocus(ex.id))}
+                          tabIndex={0}
+                          className="hoverable-row"
+                        >
+                          <td>{ex.name} <span className="fab-country">({ex.country})</span></td>
+                          <td><div>{ex.capacityMw} MW</div><div className="fab-subvalue">{ex.storageMwh && ex.storageMwh !== '-' ? ex.storageMwh + ' MWh' : '-'}</div></td>
+                          <td><div>{ex.headM && ex.headM !== '-' ? `${ex.headM} m` : '-'}</div><div className="fab-subvalue">{ex.efficiency || '-'}</div></td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             )}
 

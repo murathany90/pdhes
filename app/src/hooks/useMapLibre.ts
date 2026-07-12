@@ -27,6 +27,19 @@ function popupWaterwayText(site: Site): string {
   return 'Su yolu belirtilmedi';
 }
 
+function popupMetric(label: string, value: string): string {
+  return `<div class="map-popup-metric"><span>${escapeHtml(label)}</span><b>${value}</b></div>`;
+}
+
+function popupTooltip(title: string, rows: Array<[string, string]> = []): string {
+  return `
+    <div class="map-popup-tooltip">
+      <strong>${escapeHtml(title)}</strong>
+      ${rows.map(([label, value]) => `<div><span>${escapeHtml(label)}:</span> <b>${escapeHtml(value)}</b></div>`).join('')}
+    </div>
+  `;
+}
+
 export interface MapLayerVisibility {
   candidates: boolean;
   projectLayout: boolean;
@@ -95,6 +108,29 @@ function ensureLayer(map: maplibregl.Map, layer: maplibregl.AddLayerObject, befo
   map.addLayer(layer, beforeId);
 }
 
+function applyTerrainMode(map: maplibregl.Map, enabled: boolean, heightScale: number) {
+  if (enabled) {
+    map.setTerrain({ source: 'terrainSource', exaggeration: heightScale * 1.3 });
+    if (map.getSource('hillshadeSource')) {
+      ensureLayer(map, {
+        id: 'hillshade-layer',
+        type: 'hillshade',
+        source: 'hillshadeSource',
+        paint: {
+          'hillshade-shadow-color': '#0f172a',
+          'hillshade-illumination-direction': 315,
+          'hillshade-exaggeration': 0.85
+        }
+      }, 'base');
+      setLayerVisibility(map, 'hillshade-layer', true);
+    }
+    return;
+  }
+
+  map.setTerrain(null);
+  setLayerVisibility(map, 'hillshade-layer', false);
+}
+
 function safeOffLayer(
   map: maplibregl.Map,
   event: keyof maplibregl.MapLayerEventType,
@@ -135,6 +171,7 @@ export function useMapLibre({
   const mapStyleRef = useRef(mapStyle);
   const drawRequestRef = useRef(0);
   const waitingForStyleRef = useRef(false);
+  const queueDrawLayersRef = useRef<() => void>(() => {});
   const onSelectSiteRef = useRef(onSelectSite);
   const candidateMarkersRef = useRef<Map<string, CachedMarker>>(new Map());
   const worldMarkersRef = useRef<Map<string, CachedMarker>>(new Map());
@@ -172,32 +209,14 @@ export function useMapLibre({
           waitingForStyleRef.current = true;
           map.once('styledata', () => {
             waitingForStyleRef.current = false;
-            queueDrawLayers();
+            queueDrawLayersRef.current();
           });
         }
         return;
       }
       waitingForStyleRef.current = false;
 
-      if (layers.terrain3d) {
-        map.setTerrain({ source: 'terrainSource', exaggeration: heightScale * 1.3 });
-        if (map.getSource('hillshadeSource')) {
-          ensureLayer(map, {
-            id: 'hillshade-layer',
-            type: 'hillshade',
-            source: 'hillshadeSource',
-            paint: {
-              'hillshade-shadow-color': '#0f172a',
-              'hillshade-illumination-direction': 315,
-              'hillshade-exaggeration': 0.85
-            }
-          }, 'base');
-          setLayerVisibility(map, 'hillshade-layer', true);
-        }
-      } else {
-        map.setTerrain(null);
-        setLayerVisibility(map, 'hillshade-layer', false);
-      }
+      applyTerrainMode(map, layers.terrain3d, heightScale);
 
       const layout = buildLayout(site, heightScale);
 
@@ -331,11 +350,7 @@ export function useMapLibre({
                 };
                 
                 const label = props.label || labelMap[props.component] || labelMap[props.key] || props.component || 'Bilinmeyen Nesne';
-                const html = `
-                  <div style="font-family:sans-serif;font-size:12px;padding:4px">
-                    <strong style="display:block;font-size:13px">${label}</strong>
-                  </div>
-                `;
+                const html = popupTooltip(label);
                 
                 if (!(map as any)._blockPopup) {
                   (map as any)._blockPopup = new maplibregl.Popup({ closeButton: false, closeOnClick: false, offset: 10 });
@@ -472,13 +487,10 @@ export function useMapLibre({
             map.getCanvas().style.cursor = 'pointer';
             const feature = e.features[0];
             const props = feature.properties;
-            const html = `
-              <div style="font-family:sans-serif;font-size:12px;padding:2px">
-                <strong style="display:block;margin-bottom:4px;font-size:13px">${props.name || 'İsimsiz'}</strong>
-                <div style="color:#555">Tip: <b>${props.type || 'Bilinmiyor'}</b></div>
-                <div style="color:#555">Gerilim: <b>${props.voltage ? props.voltage + ' kV' : 'Bilinmiyor'}</b></div>
-              </div>
-            `;
+            const html = popupTooltip(props.name || 'İsimsiz', [
+              ['Tip', props.type || 'Bilinmiyor'],
+              ['Gerilim', props.voltage ? `${props.voltage} kV` : 'Bilinmiyor'],
+            ]);
             
             if (!(map as any)._pgPopup) {
               (map as any)._pgPopup = new maplibregl.Popup({ closeButton: false, closeOnClick: false, offset: 10 });
@@ -548,23 +560,26 @@ export function useMapLibre({
               onSelectSiteRef.current?.(candidate.id);
               const popupContent = document.createElement('div');
               popupContent.innerHTML = `
-                  <b>${escapeHtml(candidate.name)}</b><br>
-                  <span style="font-size:12px">${escapeHtml(PDHES_TYPE_LABELS[candidate.pdhesType])}</span>
-                  <div style="font-size:12px;margin-top:6px">
-                    <div><b>Güç / Enerji:</b> ${num(candidate.capacityMW)} MW${candidate.energyGWh ? ` / ${num(candidate.energyGWh)} GWh` : ''}</div>
-                    <div><b>Düşü (head) / Su Yolu:</b> ${num(candidate.headM)} m / ${escapeHtml(popupWaterwayText(candidate))}</div>
-                    <div><b>Teknik sınıf:</b> ${escapeHtml(CYCLE_TYPE_LABELS[candidate.technicalClassification.cycleType])}</div>
-                    <div><b>Alt rezervuar:</b> ${escapeHtml(candidate.lowerReservoirName)}</div>
-                    <div><b>Üst rezervuar:</b> ${escapeHtml(candidate.upperReservoirDescription)}</div>
-                    <div><b>Koordinat:</b> ${escapeHtml(COORDINATE_CONFIDENCE_LABELS[candidate.coordinates.coordinateConfidence])}</div>
-                    <div style="display:flex; gap:8px; margin-top:10px;">
-                      <a href="#/3d" style="flex:1; padding:6px 12px; background:#3b82f6; color:white; border-radius:4px; text-decoration:none; font-weight:bold; font-size:12px; text-align:center;">3D Çizimi Gör</a>
-                      ${['kamu-gokcekaya-pspp', 'kamu-sariyar-pspp'].includes(candidate.id)
-                        ? `<button class="show-3d-btn" style="flex:1; padding:6px 12px; background:#10b981; color:white; border:none; border-radius:4px; cursor:pointer; font-weight:bold; font-size:12px; text-align:center;">3D Görsel</button>`
-                        : `<button class="show-3d-btn" disabled style="flex:1; padding:6px 12px; background:#64748b; color:#94a3b8; border:none; border-radius:4px; cursor:not-allowed; font-weight:bold; font-size:12px; text-align:center;">3D Görsel Yok</button>`
-                      }
-                    </div>
+                <div class="map-popup-card map-popup-card--candidate">
+                  <div class="map-popup-kicker">PDHES Aday Sahası</div>
+                  <div class="map-popup-title">${escapeHtml(candidate.name)}</div>
+                  <div class="map-popup-chip">${escapeHtml(PDHES_TYPE_LABELS[candidate.pdhesType])}</div>
+                  <div class="map-popup-grid">
+                    ${popupMetric('Güç / Enerji', `${num(candidate.capacityMW)} MW${candidate.energyGWh ? ` / ${num(candidate.energyGWh)} GWh` : ''}`)}
+                    ${popupMetric('Düşü / Su Yolu', `${num(candidate.headM)} m / ${escapeHtml(popupWaterwayText(candidate))}`)}
+                    ${popupMetric('Teknik sınıf', escapeHtml(CYCLE_TYPE_LABELS[candidate.technicalClassification.cycleType]))}
+                    ${popupMetric('Alt rezervuar', escapeHtml(candidate.lowerReservoirName))}
+                    ${popupMetric('Üst rezervuar', escapeHtml(candidate.upperReservoirDescription))}
+                    ${popupMetric('Koordinat', escapeHtml(COORDINATE_CONFIDENCE_LABELS[candidate.coordinates.coordinateConfidence]))}
                   </div>
+                  <div class="map-popup-actions">
+                    <a class="map-popup-action primary" href="#/3d">3D Çizimi Gör</a>
+                    ${['kamu-gokcekaya-pspp', 'kamu-sariyar-pspp'].includes(candidate.id)
+                      ? `<button class="show-3d-btn map-popup-action secondary" type="button">3D Görsel</button>`
+                      : `<button class="show-3d-btn map-popup-action disabled" type="button" disabled>3D Görsel Yok</button>`
+                    }
+                  </div>
+                </div>
               `;
 
               if (['kamu-gokcekaya-pspp', 'kamu-sariyar-pspp'].includes(candidate.id)) {
@@ -577,7 +592,7 @@ export function useMapLibre({
               }
 
               activePopupRef.current?.remove();
-              activePopupRef.current = new maplibregl.Popup({ closeButton: false, offset: 25 })
+              activePopupRef.current = new maplibregl.Popup({ closeButton: true, offset: 25, maxWidth: '340px' })
                 .setLngLat(center)
                 .setDOMContent(popupContent)
                 .addTo(map);
@@ -624,22 +639,22 @@ export function useMapLibre({
         }
 
         const popupHtml = `
-          <div class="we-popup-content">
-            <div style="font-weight:bold;font-size:14px;margin-bottom:4px;color:var(--text);">${escapeHtml(example.name)}</div>
-            <div style="font-size:12px;color:var(--muted);margin-bottom:8px;">${escapeHtml(example.country)} &middot; ${escapeHtml(example.status)}</div>
-            <div style="font-size:13px;border-top:1px solid var(--line);padding-top:6px;margin-bottom:6px;">
-              <div><b>Kurulu güç:</b> ${example.capacityMw} MW</div>
-              <div><b>Depolama:</b> ${example.storageMwh} MWh</div>
-              <div><b>Düşü:</b> ${example.headM} m</div>
-              <div><b>Yıl:</b> ${example.commissioningYear}</div>
+          <div class="map-popup-card map-popup-card--world we-popup-content">
+            <div class="map-popup-kicker">${escapeHtml(example.country)} &middot; ${escapeHtml(example.status)}</div>
+            <div class="map-popup-title">${escapeHtml(example.name)}</div>
+            <div class="map-popup-chip">${escapeHtml(example.type)}</div>
+            <div class="map-popup-grid">
+              ${popupMetric('Kurulu güç', `${escapeHtml(String(example.capacityMw))} MW`)}
+              ${popupMetric('Depolama', `${escapeHtml(String(example.storageMwh))} MWh`)}
+              ${popupMetric('Düşü', `${escapeHtml(String(example.headM))} m`)}
+              ${popupMetric('Yıl', escapeHtml(String(example.commissioningYear)))}
             </div>
-            <div style="font-size:12px;color:var(--soft);margin-bottom:6px;"><b>Tipi:</b> ${escapeHtml(example.type)}</div>
-            ${example.wikiUrl ? `<a href="${example.wikiUrl}" target="_blank" rel="noopener noreferrer" style="display:inline-block;font-size:12px;color:var(--blue);text-decoration:none;margin-top:4px;">Wikipedia &nearr;</a>` : ''}
+            ${example.wikiUrl ? `<div class="map-popup-actions"><a class="map-popup-action primary" href="${escapeHtml(example.wikiUrl)}" target="_blank" rel="noopener noreferrer">Wikipedia ↗</a></div>` : ''}
           </div>
         `;
 
         if (!cached.popup) {
-          const popup = new maplibregl.Popup({ offset: 15, maxWidth: '260px' })
+          const popup = new maplibregl.Popup({ closeButton: true, offset: 15, maxWidth: '340px' })
             .setLngLat([example.lon || 0, example.lat || 0])
             .setHTML(popupHtml);
 
@@ -669,6 +684,10 @@ export function useMapLibre({
   }, [bindLayerEvent, draftingMode, gridAssets, heightScale, interactiveCandidates, layers, powerGridConfig, selectedId, site, sites, showPowerGrid, worldExampleFocusId]);
 
   useEffect(() => {
+    queueDrawLayersRef.current = queueDrawLayers;
+  }, [queueDrawLayers]);
+
+  useEffect(() => {
     if (!containerRef.current || mapRef.current || !site) return;
     const map = new maplibregl.Map({
       container: containerRef.current,
@@ -691,14 +710,14 @@ export function useMapLibre({
     useMapToolsStore.getState().setMap(map);
     
     map.on('load', () => {
-      queueDrawLayers();
+      queueDrawLayersRef.current();
     });
 
     let moveEndTimeout: any;
     map.on('moveend', () => {
       clearTimeout(moveEndTimeout);
       moveEndTimeout = setTimeout(() => {
-        queueDrawLayers();
+        queueDrawLayersRef.current();
       }, 400); // Wait for terrain to settle to avoid extrusion elevation issues
     });
     
