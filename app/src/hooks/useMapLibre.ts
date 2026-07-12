@@ -773,6 +773,7 @@ export function useMapLibre({
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !site || disableAutoFlyTo) return;
+    if (worldExampleFocusId) return; // Do not fly to site if a world example is currently focused
     const view = getSiteView(site);
     map.flyTo({
       center: view.center,

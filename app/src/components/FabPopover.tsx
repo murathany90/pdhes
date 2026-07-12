@@ -2,11 +2,10 @@ import { useState, useEffect, useRef } from 'react';
 import { Zap, X, Settings, Globe, List } from 'lucide-react';
 import { useSiteStore } from '../stores/useSiteStore';
 import { useSettingsStore, type VoltageGroup, type ElementGroup } from '../stores/useSettingsStore';
-import { WORLD_EXAMPLES } from '../data/worldExamples';
+import { WORLD_EXAMPLES_DETAILED } from '../data/worldExamplesDetailed';
 import { num } from '../utils/format';
 import type { MapStyleKind } from '../utils/mapProviders';
 import { MAP_PROVIDERS } from '../utils/mapProviders';
-import { getSiteTableMetrics } from '../utils/siteTableMetrics';
 
 interface FabPopoverProps {
   mapStyle: MapStyleKind;
@@ -91,12 +90,10 @@ export function FabPopover({
                       <th>Aday Adı</th>
                       <th>Güç / Enerji</th>
                       <th>Düşü / Su Yolu</th>
-                      <th>Puan</th>
                     </tr>
                   </thead>
                   <tbody>
                     {[...sites].sort((a, b) => (a.order ?? 0) - (b.order ?? 0)).map(site => {
-                      const metrics = getSiteTableMetrics(site);
                       return (
                       <tr 
                         key={site.id} 
@@ -106,9 +103,8 @@ export function FabPopover({
                         }}
                       >
                         <td>{site.name.replace(/^KAMU[-\s_]?/i, '').replace(/PSPP/g, 'PDHES')}</td>
-                        <td><div>{num(site.capacityMW)} MW</div><div style={{fontSize: '0.85em', color: 'var(--muted)'}}>{site.energyGWh ?? 'Belirtilmedi'} GWh</div></td>
-                        <td><div>{num(site.headM, 1)} m</div><div style={{fontSize: '0.85em', color: 'var(--muted)'}}>{num(site.tunnelLengthKm, 1)} km</div></td>
-                        <td>{metrics.scenarioScore.toFixed(1)}</td>
+                        <td><div>{num(site.excelCalculated?.capacityMw ?? site.capacityMW)} MW</div><div style={{fontSize: '0.85em', color: 'var(--muted)'}}>{site.excelCalculated?.energyMwh ? num(site.excelCalculated.energyMwh / 1000, 1) + ' GWh' : (site.energyGWh ? num(site.energyGWh, 1) + ' GWh' : 'Belirtilmedi')}</div></td>
+                        <td><div>{num(site.excelCalculated?.grossHeadM ?? site.headM, 1)} m</div><div style={{fontSize: '0.85em', color: 'var(--muted)'}}>{num(site.tunnelLengthKm, 1)} km</div></td>
                       </tr>
                     )})}
                   </tbody>
@@ -123,15 +119,15 @@ export function FabPopover({
                     <tr>
                       <th>Tesis Adı</th>
                       <th>Güç / Enerji</th>
-                      <th>Düşü / Su Yolu</th>
+                      <th>Düşü / Verim (%)</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {WORLD_EXAMPLES.map(ex => (
+                    {WORLD_EXAMPLES_DETAILED.map(ex => (
                       <tr key={ex.id} onClick={() => setWorldExampleFocus(ex.id)} style={{ cursor: 'pointer' }} className="hoverable-row">
                         <td>{ex.name}</td>
-                        <td><div>{num(ex.capacityMw)} MW</div><div style={{fontSize: '0.85em', color: 'var(--muted)'}}>{ex.storageMwh ? num(ex.storageMwh) + ' MWh' : '-'}</div></td>
-                        <td><div>{ex.headM ? `${num(ex.headM)} m` : '-'}</div><div style={{fontSize: '0.85em', color: 'var(--muted)'}}>-</div></td>
+                        <td><div>{ex.capacityMw} MW</div><div style={{fontSize: '0.85em', color: 'var(--muted)'}}>{ex.storageMwh && ex.storageMwh !== '-' ? ex.storageMwh + ' MWh' : '-'}</div></td>
+                        <td><div>{ex.headM && ex.headM !== '-' ? `${ex.headM} m` : '-'}</div><div style={{fontSize: '0.85em', color: 'var(--muted)'}}>{ex.efficiency || '-'}</div></td>
                       </tr>
                     ))}
                   </tbody>
