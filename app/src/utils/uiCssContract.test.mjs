@@ -22,10 +22,10 @@ describe('UI stylesheet compatibility contract', () => {
   });
 
   it('keeps mobile map popovers and wide tables inside the viewport', () => {
-    expect(css).toContain('width: min(400px, calc(100vw - 32px))');
+    expect(css).toContain('width: min(360px, calc(100vw - 32px))');
     expect(css).toContain('max-width: calc(100vw - 32px)');
-    expect(css).toContain('width: min(400px, calc(100vw - 48px))');
-    expect(css).toContain('width: min(400px, calc(100vw - 40px))');
+    expect(css).toContain('width: min(360px, calc(100vw - 48px))');
+    expect(css).toContain('width: min(360px, calc(100vw - 40px))');
     expect(css).toContain('.table-card');
     expect(css).toContain('-webkit-overflow-scrolling: touch');
   });

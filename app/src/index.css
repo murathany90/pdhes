@@ -1506,7 +1506,7 @@ html[data-theme="light"] .pdhes-rich-shell .source-footer { background: var(--pa
   }
 
   .fab-popover {
-    width: min(400px, calc(100vw - 40px));
+    width: min(360px, calc(100vw - 40px));
     max-width: calc(100vw - 40px);
   }
 
