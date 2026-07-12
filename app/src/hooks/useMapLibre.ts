@@ -649,10 +649,8 @@ export function useMapLibre({
           });
 
           popup.on('close', () => {
-            const { worldExampleFocusId, clearWorldExampleFocus } = useSiteStore.getState();
-            if (worldExampleFocusId === example.id) {
-              clearWorldExampleFocus();
-            }
+            // popup oto-kapanınca worldExampleFocusId temizlenmesini engelliyoruz ki
+            // kullanıcının haritası aniden Türkiye'ye dönmesin.
           });
 
           cached.popup = popup;
@@ -683,6 +681,10 @@ export function useMapLibre({
       maxZoom: 22,
     });
     map.addControl(new maplibregl.AttributionControl({ compact: true, customAttribution: 'Şebeke verileri: OSM Grid' }), 'bottom-right');
+    setTimeout(() => {
+      const details = document.querySelector('details.maplibregl-ctrl-attrib');
+      if (details) details.removeAttribute('open');
+    }, 200);
     map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'bottom-right');
     mapRef.current = map;
     mapStyleRef.current = mapStyle;

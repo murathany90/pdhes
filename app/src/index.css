@@ -1280,7 +1280,7 @@ html[data-theme="light"] .pdhes-rich-shell .source-footer { background: var(--pa
   background: var(--panel);
   border: 1px solid var(--line);
   border-radius: 12px;
-  width: min(400px, calc(100vw - 32px));
+  width: min(360px, calc(100vw - 32px));
   max-width: calc(100vw - 32px);
   height: 500px;
   max-height: calc(100vh - 240px);
@@ -1472,7 +1472,7 @@ html[data-theme="light"] .pdhes-rich-shell .source-footer { background: var(--pa
   }
 
   .fab-popover {
-    width: min(400px, calc(100vw - 48px));
+    width: min(360px, calc(100vw - 48px));
     max-width: calc(100vw - 48px);
   }
 
@@ -1481,6 +1481,9 @@ html[data-theme="light"] .pdhes-rich-shell .source-footer { background: var(--pa
   .fab-content { padding: 12px; }
   .fab-list-wrapper { margin: -12px; }
   .fab-table { width: 100%; font-size: 12px; }
+  .fab-table td:not(:first-child), .fab-table th:not(:first-child) {
+    white-space: normal;
+  }
 
   .map-overlay-controls {
     top: 12px;
@@ -1651,5 +1654,11 @@ html[data-theme="dark"] .info-card {
 
 /* Ensure map attribution is compact by default */
 .maplibregl-ctrl-attrib:not(.maplibregl-compact-show) .maplibregl-ctrl-attrib-inner {
+  display: none !important;
+}
+details.maplibregl-ctrl-attrib:not([open]) .maplibregl-ctrl-attrib-inner {
+  display: none !important;
+}
+.maplibregl-ctrl-attrib.maplibregl-compact .maplibregl-ctrl-attrib-inner {
   display: none !important;
 }
