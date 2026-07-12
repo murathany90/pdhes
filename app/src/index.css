@@ -1516,6 +1516,7 @@ html[data-theme="light"] .pdhes-rich-shell .source-footer { background: var(--pa
 
 @media (max-width: 700px) {
   .fab-container {
+    position: fixed;
     left: 16px;
     bottom: 16px;
     top: 16px;
@@ -1558,6 +1559,7 @@ html[data-theme="light"] .pdhes-rich-shell .source-footer { background: var(--pa
 
 @media (max-width: 480px) {
   .fab-container {
+    position: fixed;
     left: 12px;
     bottom: 12px;
     top: 12px;

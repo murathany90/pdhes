@@ -35,6 +35,7 @@ describe('UI stylesheet compatibility contract', () => {
 
     expect(fabCss).not.toContain('-webkit-overflow-scrolling: touch');
     expect(fabCss).toContain('height: min(560px, calc(100vh - 112px), calc(100% - 72px))');
+    expect(fabCss).toContain('position: fixed');
     expect(fabCss).toContain('overscroll-behavior: contain');
     expect(fabCss).toContain('min-width: 0');
     expect(fabCss).toContain('overflow-wrap: anywhere');
