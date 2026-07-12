@@ -902,21 +902,21 @@ html[data-theme="light"] .kbd { color: #0f1c18; }
 /* ── MapLibre overrides ── */
 .maplibregl-popup-content {
   background: #07110e !important; color: #eafff2 !important; border: 1px solid #265445 !important;
-  border-radius: 12px !important; box-shadow: 0 14px 30px rgba(0,0,0,.38) !important;
-  max-width: min(300px, calc(100vw - 20px)) !important;
+  border-radius: 10px !important; box-shadow: 0 12px 24px rgba(0,0,0,.34) !important;
+  max-width: min(240px, calc(100vw - 20px)) !important;
   padding: 0 !important;
   overflow: hidden !important;
 }
 .maplibregl-popup-tip { border-top-color: #07110e !important; border-bottom-color: #07110e !important; }
 .maplibregl-popup-close-button {
-  width: 24px !important;
-  height: 24px !important;
+  width: 22px !important;
+  height: 22px !important;
   border-radius: 999px !important;
   color: var(--text) !important;
-  font-size: 18px !important;
-  line-height: 22px !important;
-  right: 5px !important;
-  top: 5px !important;
+  font-size: 17px !important;
+  line-height: 20px !important;
+  right: 4px !important;
+  top: 4px !important;
   z-index: 2 !important;
 }
 .maplibregl-popup-close-button:hover {
@@ -931,34 +931,42 @@ html[data-theme="light"] .maplibregl-ctrl-group { background: #ffffff !important
 html[data-theme="light"] .maplibregl-ctrl-group button { filter: none !important; }
 
 .map-popup-card {
-  width: min(300px, calc(100vw - 20px));
-  max-width: min(300px, calc(100vw - 20px));
-  max-height: min(58vh, 340px);
+  max-height: min(54vh, 300px);
   overflow: auto;
-  padding: 11px 12px 12px;
+  padding: 8px 9px 9px;
   color: var(--text);
   background: linear-gradient(180deg, rgba(20,20,20,.98), rgba(10,10,10,.96));
-  border-radius: 12px;
+  border-radius: 10px;
   overflow-wrap: anywhere;
   scrollbar-width: thin;
 }
 
+.map-popup-card--candidate {
+  width: min(240px, calc(100vw - 20px));
+  max-width: min(240px, calc(100vw - 20px));
+}
+
+.map-popup-card--world {
+  width: min(210px, calc(100vw - 20px));
+  max-width: min(210px, calc(100vw - 20px));
+}
+
 .map-popup-kicker {
-  padding-right: 24px;
+  padding-right: 20px;
   color: var(--muted);
-  font-size: 10px;
+  font-size: 9.5px;
   font-weight: 700;
-  letter-spacing: .06em;
+  letter-spacing: .05em;
   text-transform: uppercase;
 }
 
 .map-popup-title {
-  padding-right: 24px;
-  margin-top: 2px;
+  padding-right: 20px;
+  margin-top: 1px;
   color: var(--text);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 800;
-  line-height: 1.16;
+  line-height: 1.14;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -968,13 +976,13 @@ html[data-theme="light"] .maplibregl-ctrl-group button { filter: none !important
 .map-popup-chip {
   display: inline-flex;
   max-width: 100%;
-  margin-top: 6px;
-  padding: 3px 7px;
+  margin-top: 5px;
+  padding: 2px 6px;
   border: 1px solid rgba(var(--focus-rgb), .28);
   border-radius: 999px;
   background: rgba(var(--focus-rgb), .12);
   color: var(--text);
-  font-size: 10.5px;
+  font-size: 10px;
   font-weight: 700;
   line-height: 1.25;
   white-space: nowrap;
@@ -984,19 +992,19 @@ html[data-theme="light"] .maplibregl-ctrl-group button { filter: none !important
 
 .map-popup-grid {
   display: grid;
-  gap: 4px;
-  margin-top: 8px;
-  padding-top: 8px;
+  gap: 3px;
+  margin-top: 6px;
+  padding-top: 6px;
   border-top: 1px solid var(--line);
 }
 
 .map-popup-metric {
   display: grid;
-  grid-template-columns: minmax(52px, auto) minmax(0, 1fr);
-  gap: 8px;
+  grid-template-columns: minmax(42px, auto) minmax(0, 1fr);
+  gap: 6px;
   align-items: start;
-  font-size: 11.25px;
-  line-height: 1.28;
+  font-size: 10.75px;
+  line-height: 1.24;
 }
 
 .map-popup-metric span {
@@ -1009,28 +1017,31 @@ html[data-theme="light"] .maplibregl-ctrl-group button { filter: none !important
   color: var(--text);
   font-weight: 700;
   text-align: right;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .map-popup-actions {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 6px;
-  margin-top: 10px;
+  gap: 5px;
+  margin-top: 8px;
 }
 
 .map-popup-card--world .map-popup-actions {
-  grid-template-columns: minmax(92px, 132px);
+  grid-template-columns: minmax(78px, 104px);
 }
 
 .map-popup-action {
   min-width: 0;
   border: 1px solid transparent;
-  border-radius: 7px;
-  padding: 7px 8px;
+  border-radius: 6px;
+  padding: 6px 7px;
   color: #fff;
   text-align: center;
   text-decoration: none;
-  font-size: 11.5px;
+  font-size: 11px;
   font-weight: 800;
   cursor: pointer;
 }

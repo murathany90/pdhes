@@ -8,7 +8,6 @@ import { getMapStyleSpecification, getMarkerIconHtml, type MapStyleKind } from '
 import { useSiteStore } from '../stores/useSiteStore';
 import { WORLD_EXAMPLES_DETAILED } from '../data/worldExamplesDetailed';
 import {
-  COORDINATE_CONFIDENCE_LABELS,
   CYCLE_TYPE_LABELS,
   PDHES_TYPE_LABELS,
   getSiteCenter,
@@ -27,15 +26,16 @@ function popupWaterwayText(site: Site): string {
   return 'Su yolu belirtilmedi';
 }
 
-const MAP_POPUP_MAX_WIDTH = '300px';
+const CANDIDATE_POPUP_MAX_WIDTH = '240px';
+const WORLD_POPUP_MAX_WIDTH = '210px';
 
-function compactPopupText(value: unknown, maxLength = 46): string {
+function compactPopupText(value: unknown, maxLength = 34): string {
   const normalized = String(value ?? '—').replace(/\s+/g, ' ').trim() || '—';
   if (normalized.length <= maxLength) return normalized;
   return `${normalized.slice(0, maxLength - 1).trimEnd()}…`;
 }
 
-function popupMetric(label: string, value: unknown, maxLength = 46): string {
+function popupMetric(label: string, value: unknown, maxLength = 34): string {
   const fullValue = String(value ?? '—') || '—';
   return `<div class="map-popup-metric"><span>${escapeHtml(label)}</span><b title="${escapeHtml(fullValue)}">${escapeHtml(compactPopupText(fullValue, maxLength))}</b></div>`;
 }
@@ -582,9 +582,6 @@ export function useMapLibre({
                     ${popupMetric('Güç', `${num(candidate.capacityMW)} MW${candidate.energyGWh ? ` / ${num(candidate.energyGWh)} GWh` : ''}`)}
                     ${popupMetric('Düşü', `${num(candidate.headM)} m / ${popupWaterwayText(candidate)}`)}
                     ${popupMetric('Sınıf', CYCLE_TYPE_LABELS[candidate.technicalClassification.cycleType])}
-                    ${popupMetric('Alt R.', candidate.lowerReservoirName)}
-                    ${popupMetric('Üst R.', candidate.upperReservoirDescription)}
-                    ${popupMetric('Konum', COORDINATE_CONFIDENCE_LABELS[candidate.coordinates.coordinateConfidence])}
                   </div>
                   <div class="map-popup-actions">
                     <a class="map-popup-action primary" href="#/3d">3D Çizim</a>
@@ -606,7 +603,7 @@ export function useMapLibre({
               }
 
               activePopupRef.current?.remove();
-              activePopupRef.current = new maplibregl.Popup({ closeButton: true, offset: 20, maxWidth: MAP_POPUP_MAX_WIDTH })
+              activePopupRef.current = new maplibregl.Popup({ closeButton: true, offset: 16, maxWidth: CANDIDATE_POPUP_MAX_WIDTH })
                 .setLngLat(center)
                 .setDOMContent(popupContent)
                 .addTo(map);
@@ -668,7 +665,7 @@ export function useMapLibre({
         `;
 
         if (!cached.popup) {
-          const popup = new maplibregl.Popup({ closeButton: true, offset: 14, maxWidth: MAP_POPUP_MAX_WIDTH })
+          const popup = new maplibregl.Popup({ closeButton: true, offset: 12, maxWidth: WORLD_POPUP_MAX_WIDTH })
             .setLngLat([example.lon || 0, example.lat || 0])
             .setHTML(popupHtml);
 

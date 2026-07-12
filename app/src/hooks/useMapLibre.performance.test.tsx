@@ -345,19 +345,22 @@ describe('useMapLibre performance behavior', () => {
 
     const candidatePopup = mapMockState.popups.at(-1);
     expect(candidatePopup.options.closeButton).toBe(true);
-    expect(candidatePopup.options.maxWidth).toBe('300px');
+    expect(candidatePopup.options.maxWidth).toBe('240px');
     expect(candidatePopup.content?.querySelector('.map-popup-card')).toBeTruthy();
     expect(candidatePopup.content?.querySelector('.map-popup-actions')).toBeTruthy();
     const candidateMetricLabels = [...candidatePopup.content!.querySelectorAll('.map-popup-metric span')]
       .map((element) => element.textContent);
     expect(candidateMetricLabels).toContain('Güç');
-    expect(candidateMetricLabels).toContain('Alt R.');
+    expect(candidateMetricLabels).toEqual(['Güç', 'Düşü', 'Sınıf']);
     expect(candidateMetricLabels).not.toContain('Güç / Enerji');
     expect(candidateMetricLabels).not.toContain('Alt rezervuar');
+    expect(candidateMetricLabels).not.toContain('Alt R.');
+    expect(candidateMetricLabels).not.toContain('Üst R.');
+    expect(candidateMetricLabels).not.toContain('Konum');
 
     const worldPopup = mapMockState.popups.find((popup) => popup.html.includes('World One'));
     expect(worldPopup.options.closeButton).toBe(true);
-    expect(worldPopup.options.maxWidth).toBe('300px');
+    expect(worldPopup.options.maxWidth).toBe('210px');
     expect(worldPopup.html).toContain('map-popup-card');
     expect(worldPopup.html).toContain('map-popup-grid');
     expect(worldPopup.html).toContain('>Güç<');
