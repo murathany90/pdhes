@@ -261,7 +261,16 @@ function validateLayout3D(value: unknown, index: number): string[] {
         errors.push(`${prefix}.profileElevationM koordinat sayısıyla uyumlu olmalıdır.`);
       }
     }
-    for (const key of ['baseElevationM', 'topElevationM', 'extrudeM', 'elevationM']) {
+    for (const key of [
+      'baseElevationM',
+      'topElevationM',
+      'extrudeM',
+      'elevationM',
+      'activeVolumeHm3',
+      'activeDepthM',
+      'surfaceAreaM2',
+      'volumeValidationDifferencePct',
+    ]) {
       if (footprint[key] !== undefined && !isFiniteNumber(footprint[key])) errors.push(`${prefix}.${key} geçersiz.`);
     }
   });

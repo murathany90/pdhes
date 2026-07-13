@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "generate:pdhes-data": "node scripts/generate-pdhes-candidate-data.mjs",
+    "import:3d-layouts": "node scripts/import-3d-layouts.mjs",
     "typecheck": "tsc --noEmit",
     "test": "vitest",
     "test:run": "vitest run",

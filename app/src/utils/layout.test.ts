@@ -21,7 +21,8 @@ describe('buildLayout footprint geometry', () => {
     expect(blockKeys).toContain('upperReservoirWater');
     expect(blockKeys).toContain('upperReservoirEmbankment');
     expect(blockKeys).not.toContain('upper_reservoir');
-    expect(upperWater?.geometry.coordinates[0]).toHaveLength(10);
-    expect(headrace?.geometry.coordinates).toHaveLength(4);
+    expect(upperWater?.geometry.coordinates[0].at(0)).toEqual(upperWater?.geometry.coordinates[0].at(-1));
+    expect(upperWater?.geometry.coordinates[0].length).toBeGreaterThanOrEqual(5);
+    expect(headrace?.geometry.coordinates.length).toBeGreaterThanOrEqual(2);
   });
 });

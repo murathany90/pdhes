@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect, useMemo } from 'react';
 import { MapPin, Mountain, Zap, Layers, Waves, Factory, Database, DoorOpen } from 'lucide-react';
 import { useMapLibre, type MapLayerVisibility } from '../hooks/useMapLibre';
 import { FabPopover } from '../components/FabPopover';
@@ -11,6 +11,8 @@ import { useSiteStore } from '../stores/useSiteStore';
 import { useSettingsStore } from '../stores/useSettingsStore';
 import { WORLD_EXAMPLES_DETAILED } from '../data/worldExamplesDetailed';
 import { num, moneyBn } from '../utils/format';
+import { publicAssetUrl } from '../utils/publicUrl';
+import type { Layout3DFootprint } from '../types/site';
 
 const DEFAULT_LAYERS: MapLayerVisibility = {
   candidates: true,
@@ -44,6 +46,7 @@ export default function MapPage() {
   const [layers, setLayers] = useState<MapLayerVisibility>(DEFAULT_LAYERS);
   const [imageModalSiteId, setImageModalSiteId] = useState<string | null>(null);
   const [imageLoadError, setImageLoadError] = useState(false);
+  const [selectedFootprints, setSelectedFootprints] = useState<Layout3DFootprint[] | null>(null);
   const site = sites.find((item) => item.id === selectedId) || sites[0];
   const worldExample = worldExampleFocusId ? WORLD_EXAMPLES_DETAILED.find((e) => e.id === worldExampleFocusId) : null;
 
@@ -60,10 +63,59 @@ export default function MapPage() {
     fetchGridAssets();
   }, [fetchGridAssets]);
 
+  useEffect(() => {
+    let cancelled = false;
+    if (!site?.layout3D?.useFootprintPolygons) {
+      setSelectedFootprints(null);
+      return () => {
+        cancelled = true;
+      };
+    }
+    if (site.layout3D.componentFootprints && site.layout3D.componentFootprints.length > 0) {
+      setSelectedFootprints(site.layout3D.componentFootprints);
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    setSelectedFootprints(null);
+    fetch(publicAssetUrl(`/footprints/${site.id}.json`))
+      .then((res) => (res.ok ? res.json() : []))
+      .then((data) => {
+        if (!cancelled) setSelectedFootprints(Array.isArray(data) ? data : []);
+      })
+      .catch(() => {
+        if (!cancelled) setSelectedFootprints([]);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [site?.id, site?.layout3D?.useFootprintPolygons, site?.layout3D?.componentFootprints]);
+
+  const siteWithFootprints = useMemo(() => {
+    if (!site?.layout3D?.useFootprintPolygons) return site;
+    const componentFootprints = site.layout3D.componentFootprints?.length
+      ? site.layout3D.componentFootprints
+      : (selectedFootprints ?? []);
+    return {
+      ...site,
+      layout3D: {
+        ...site.layout3D,
+        componentFootprints,
+      },
+    };
+  }, [site, selectedFootprints]);
+
+  const sitesWithSelectedFootprints = useMemo(() => {
+    if (!siteWithFootprints) return sites;
+    return sites.map((item) => (item.id === siteWithFootprints.id ? siteWithFootprints : item));
+  }, [siteWithFootprints, sites]);
+
   const { mapRef } = useMapLibre({
     containerRef: mapContainer,
-    site,
-    sites,
+    site: siteWithFootprints,
+    sites: sitesWithSelectedFootprints,
     selectedId,
     worldExampleFocusId,
     mapStyle,

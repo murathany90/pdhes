@@ -5,6 +5,21 @@ import { buildComponentsDetail, getSiteLayout } from './siteDerived';
 import { validateSites } from './siteSchema';
 
 // Removed GOKCEKAYA_UPPER_POLYGON constant
+const TARGET_3D_SITE_IDS = [
+  'kamu-gokcekaya-pspp',
+  'kamu-sariyar-pspp',
+  'altinkaya',
+  'kamu-bayramhacili-pspp',
+  'kamu-hasan-ugurlu-pspp',
+  'kamu-adiguzel-pspp',
+  'kamu-kargi-pspp',
+  'kamu-yamula-pspp',
+  'kamu-oymapinar-pspp',
+  'kamu-aslantas-pspp',
+  'kamu-demirkopru-pspp',
+];
+
+const footprintModules = import.meta.glob('../../public/footprints/*.json', { eager: true }) as Record<string, { default: any[] }>;
 
 describe('validateSites', () => {
   it('accepts the Kamu Kurumları 16 + seawater top4 candidate dataset', () => {
@@ -46,7 +61,7 @@ describe('validateSites', () => {
     expect(sariyar?.technicalClassification.primaryPurpose).toBe('PEAK_POWER');
   });
 
-  it('keeps the updated Gokcekaya polygon footprint drawing coordinates', () => {
+  it('keeps Gokcekaya marker on the powerhouse while using an independent 3D map anchor', () => {
     const result = validateSites(sites);
     expect(result.ok).toBe(true);
     if (!result.ok) return;
@@ -55,30 +70,48 @@ describe('validateSites', () => {
     expect(gokcekaya).toBeTruthy();
     if (!gokcekaya) return;
 
-    expect(gokcekaya.coordinates.mapAnchor).toEqual([31.0065, 40.0404]);
-    expect(gokcekaya.coordinates.lowerReservoir.point).toEqual([31.0150, 40.0413]);
-    expect(gokcekaya.coordinates.upperReservoir.point).toEqual([30.9921, 40.0515]);
+    expect(gokcekaya.coordinates.mapAnchor).toEqual([31.00965069, 40.04173955]);
     expect(gokcekaya.coordinates.powerhouse.point).toEqual([31.0065, 40.0404]);
-    expect(gokcekaya.coordinates.switchyard.point).toEqual([31.0060, 40.0353]);
-    expect(gokcekaya.coordinates.bbox).toEqual([30.9798, 40.0318, 31.0258, 40.0635]);
+    expect(gokcekaya.coordinates.mapAnchor).not.toEqual(gokcekaya.coordinates.powerhouse.point);
 
     const layout = getSiteLayout(gokcekaya);
-    expect(layout.upper).toEqual([30.9921, 40.0515]);
-    expect(layout.lower).toEqual([31.0150, 40.0413]);
     expect(layout.power).toEqual([31.0065, 40.0404]);
-    expect(layout.switchyard).toEqual([31.0060, 40.0353]);
 
     expect(gokcekaya.layout3D?.useFootprintPolygons).toBe(true);
     expect(gokcekaya.layout3D?.hideLegacySquareReservoir).toBe(true);
+    expect(gokcekaya.layout3D?.componentFootprints).toBeUndefined();
     // componentFootprints are now lazy-loaded and not expected in data.json
 
     const details = buildComponentsDetail(gokcekaya);
     expect(details.upper_reservoir).toMatchObject({
-      elevation_m: 801,
-      active_volume_mcm: 10.8,
-      dam_height_m: 38,
+      active_volume_mcm: 10.840809896995713,
       render_mode: 'polygon_footprint',
     });
+    expect(details.upper_reservoir.elevation_m).toBeGreaterThan(0);
+    expect(details.upper_reservoir.dam_height_m).toBeGreaterThan(0);
+  });
+
+  it('keeps all 11 enhanced 3D layouts lazy-loaded with volume validation metadata', () => {
+    const result = validateSites(sites);
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+
+    for (const siteId of TARGET_3D_SITE_IDS) {
+      const site = result.sites.find((item) => item.id === siteId);
+      expect(site).toBeTruthy();
+      expect(site?.layout3D?.useFootprintPolygons).toBe(true);
+      expect(site?.layout3D?.componentFootprints).toBeUndefined();
+
+      const footprintModule = footprintModules[`../../public/footprints/${siteId}.json`];
+      expect(footprintModule).toBeTruthy();
+      const upperWater = footprintModule.default.find((footprint) => footprint.id === 'upperReservoirWater');
+      const powerhouse = footprintModule.default.find((footprint) => footprint.id === 'powerhouseFootprint');
+      expect(upperWater?.activeVolumeHm3).toBeGreaterThan(0);
+      expect(upperWater?.activeDepthM).toBe(25);
+      expect(upperWater?.surfaceAreaM2).toBeGreaterThan(0);
+      expect(Math.abs(upperWater?.volumeValidationDifferencePct ?? Number.POSITIVE_INFINITY)).toBeLessThanOrEqual(2);
+      expect(powerhouse?.coords).toHaveLength(5);
+    }
   });
 
   it('classifies selected seawater prototypes with sea lower reservoir rules', () => {

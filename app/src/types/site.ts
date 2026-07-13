@@ -273,6 +273,10 @@ export interface Layout3DFootprint {
   extrudeM?: number;
   elevationM?: number;
   profileElevationM?: number[];
+  activeVolumeHm3?: number;
+  activeDepthM?: number;
+  surfaceAreaM2?: number;
+  volumeValidationDifferencePct?: number;
 }
 
 export interface Layout3DSpec {
