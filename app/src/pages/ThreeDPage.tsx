@@ -23,6 +23,14 @@ function createLayerVisibilityState(visible: boolean): Record<string, boolean> {
     return acc;
   }, {});
 }
+
+function firstVisibleComponentKey(layers: Record<string, boolean>): string {
+  return COMPONENTS.find((component) => layers[component.key] !== false)?.key ?? '';
+}
+
+function isKnownComponentKey(component: string): boolean {
+  return COMPONENTS.some((item) => item.key === component);
+}
 type FootprintLoadStatus =
   | 'idle'
   | 'loading'
@@ -141,17 +149,25 @@ export default function ThreeDPage({ site: propSite }: { site?: Site }) {
   const lowerSoc = reservoirSoc.lower;
 
   const setAllLayerVisibility = (visible: boolean) => {
-    setLayers(createLayerVisibilityState(visible));
-    if (!visible) {
-      setActiveComponent('');
-    }
+    const nextLayers = createLayerVisibilityState(visible);
+    setLayers(nextLayers);
+    setActiveComponent(visible ? firstVisibleComponentKey(nextLayers) : '');
   };
 
   const setComponentLayerVisibility = (key: string, visible: boolean) => {
-    setLayers((prev) => ({ ...prev, [key]: visible }));
-    setActiveComponent((current) => (
-      shouldClearActiveFootprintComponent(current, key, visible) ? '' : current
-    ));
+    setLayers((prev) => {
+      const nextLayers = { ...prev, [key]: visible };
+      setActiveComponent((current) => (
+        shouldClearActiveFootprintComponent(current, key, visible)
+          ? firstVisibleComponentKey(nextLayers)
+          : current
+      ));
+      return nextLayers;
+    });
+  };
+
+  const selectComponent = (component: string) => {
+    setActiveComponent(isKnownComponentKey(component) ? component : '');
   };
 
   // Reset state when site changes
@@ -204,7 +220,7 @@ export default function ThreeDPage({ site: propSite }: { site?: Site }) {
   ]);
 
   const [showTerrain, setShowTerrain] = useState(true);
-  const [showLabels, setShowLabels] = useState(true);
+  const [showLabels, setShowLabels] = useState(false);
   const [terrainOpacity, setTerrainOpacity] = useState(70);
 
   // Inject fetched footprints into site object temporarily for ThreeDModel.
@@ -231,6 +247,7 @@ export default function ThreeDPage({ site: propSite }: { site?: Site }) {
   const combinedWarning = [footprintWarning, representationalWarning].filter(Boolean).join(' ');
   const isFootprintMode = Boolean(site.layout3D?.useFootprintPolygons);
   const terrainLabel = isFootprintMode ? 'Temsili zemin' : '3D Arazi (Terrain)';
+  const selectedComponent = COMPONENTS.find(c => c.key === activeComponent);
   const toggleUnit = (id: string) => {
     setActiveUnitIds((current) => (
       current.includes(id) ? current.filter((item) => item !== id) : [...current, id].sort()
@@ -254,7 +271,7 @@ export default function ThreeDPage({ site: propSite }: { site?: Site }) {
           <ThreeDModel
             siteId={site.id}
             activeComponent={activeComponent}
-            onSelectComponent={setActiveComponent}
+            onSelectComponent={selectComponent}
             layers={layers}
             mode={mode}
             componentsDetail={detail}
@@ -387,12 +404,12 @@ export default function ThreeDPage({ site: propSite }: { site?: Site }) {
           </div>
 
           <h3 style={{ marginBottom: 12 }}>
-            Bileşen Detayları: {COMPONENTS.find(c => c.key === activeComponent)?.label || activeComponent}
+            Bileşen Detayları: {selectedComponent?.label || 'Katman seçilmedi'}
           </h3>
           <div className="card" style={{ padding: 16, marginBottom: 24 }}>
             {/* Generic description from constants */}
             <p style={{ fontSize: 13, color: 'var(--text)', marginBottom: 16, lineHeight: 1.5 }}>
-              {COMPONENTS.find(c => c.key === activeComponent)?.description || 'Kavramsal yerleşim bileşeni.'}
+              {selectedComponent?.description || 'Görünür bir katman seçildiğinde bileşen detayları burada gösterilir.'}
             </p>
 
             {/* Dynamic data from site details */}

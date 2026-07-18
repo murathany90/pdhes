@@ -1316,8 +1316,8 @@ function compactFootprintLabel(item: Layout3DProjectedFootprint): string {
     lowerReservoirDamEmbankment: 'Alt Rezervuar Seti'
   };
   const componentLabels: Record<string, string> = {
-    upper_reservoir: 'Üst Rez.',
-    lower_reservoir: 'Alt Rez.',
+    upper_reservoir: 'Üst Rezervuar',
+    lower_reservoir: 'Alt Rezervuar',
     intake: 'Su Alma',
     headrace_tunnel: 'İletim Tüneli',
     pressure_tunnel: 'Basınç Tüneli',
@@ -1378,6 +1378,56 @@ function labelPositionForFootprint(item: Layout3DProjectedFootprint): [number, n
       : undefined;
   const [dx, dy, dz] = idOffset ?? FOOTPRINT_LABEL_OFFSETS[item.component] ?? [10, 8, -10];
   return [center[0] + dx, center[1] + dy, center[2] + dz];
+}
+
+function closestPointOnSegment2D(
+  point: [number, number, number],
+  a: { x: number; y: number; z: number },
+  b: { x: number; y: number; z: number },
+): [number, number, number] {
+  const abx = b.x - a.x;
+  const abz = b.z - a.z;
+  const apx = point[0] - a.x;
+  const apz = point[2] - a.z;
+  const denom = abx * abx + abz * abz || 1;
+  const t = clamp((apx * abx + apz * abz) / denom, 0, 1);
+  return [a.x + abx * t, a.y + (b.y - a.y) * t, a.z + abz * t];
+}
+
+function nearestWaterwayAnchor(item: Layout3DProjectedFootprint, items: Layout3DProjectedFootprint[]): [number, number, number] | null {
+  const center = footprintCenter(item);
+  let best: [number, number, number] | null = null;
+  let bestDistance = Number.POSITIVE_INFINITY;
+  const waterwayComponents = new Set(['headrace_tunnel', 'pressure_tunnel', 'penstock', 'tailrace_tunnel']);
+
+  for (const candidate of items) {
+    if (!waterwayComponents.has(candidate.component) || candidate.points.length < 2) continue;
+    for (let index = 1; index < candidate.points.length; index += 1) {
+      const projected = closestPointOnSegment2D(center, candidate.points[index - 1], candidate.points[index]);
+      const distance = Math.hypot(projected[0] - center[0], projected[2] - center[2]);
+      if (distance < bestDistance) {
+        bestDistance = distance;
+        best = projected;
+      }
+    }
+  }
+
+  return best;
+}
+
+function alignFootprintsForDisplay(items: Layout3DProjectedFootprint[]): Layout3DProjectedFootprint[] {
+  return items.map((item) => {
+    if (!['surge_tank', 'portal'].includes(item.component)) return item;
+    const anchor = nearestWaterwayAnchor(item, items);
+    if (!anchor) return item;
+    const center = footprintCenter(item);
+    const dx = anchor[0] - center[0];
+    const dz = anchor[2] - center[2];
+    return {
+      ...item,
+      points: item.points.map((point) => ({ ...point, x: point.x + dx, z: point.z + dz })),
+    };
+  });
 }
 
 function createFootprintPolygonGeometry(item: Layout3DProjectedFootprint): THREE.BufferGeometry {
@@ -1475,7 +1525,8 @@ function FootprintSceneLayer({ items, layers, activeComponent, onSelectComponent
   onSelectComponent: (component: string) => void;
   showLabels: boolean;
 }) {
-  const groupedItems = useMemo(() => groupFootprintsByLayer(items), [items]);
+  const displayItems = useMemo(() => alignFootprintsForDisplay(items), [items]);
+  const groupedItems = useMemo(() => groupFootprintsByLayer(displayItems), [displayItems]);
 
   return (
     <group>
@@ -1542,20 +1593,6 @@ function simulationLabelPosition(plan: Layout3DFootprintPlan, anchor: 'hydraulic
   return [base[0] + 18, base[1] + 14, base[2] + 10];
 }
 
-function compactIdList(ids: string[], emptyText: string): string {
-  if (!ids.length) return emptyText;
-  const prefix = ids[0].replace(/\d+$/, '');
-  const numbers = ids.map((id) => Number(id.match(/\d+$/)?.[0])).filter(Number.isFinite);
-  if (numbers.length === ids.length && ids.every((id) => id.startsWith(prefix))) {
-    const sorted = [...numbers].sort((a, b) => a - b);
-    const contiguous = sorted.every((value, index) => index === 0 || value === sorted[index - 1] + 1);
-    if (contiguous && sorted.length > 2) {
-      return `${prefix}${sorted[0]}-${prefix}${sorted[sorted.length - 1]}`;
-    }
-  }
-  return ids.join(', ');
-}
-
 function formatPower(powerMW: number, mode: 'generate' | 'pump'): string {
   if (powerMW <= 0) return '0 MW';
   const sign = mode === 'generate' ? '+' : '-';
@@ -1571,6 +1608,84 @@ function activePenstockFootprintIds(topology: DerivedLayout3DTopology, activeUni
   );
 }
 
+function pathPointAt(points: [number, number, number][], progress: number): [number, number, number] {
+  if (points.length === 0) return [0, 0, 0];
+  if (points.length === 1) return points[0];
+  const segments = points.slice(1).map((point, index) => {
+    const prev = points[index];
+    return Math.hypot(point[0] - prev[0], point[1] - prev[1], point[2] - prev[2]);
+  });
+  const total = segments.reduce((sum, length) => sum + length, 0) || 1;
+  let remaining = ((progress % 1) + 1) % 1 * total;
+  for (let index = 0; index < segments.length; index += 1) {
+    const length = segments[index];
+    if (remaining <= length || index === segments.length - 1) {
+      const a = points[index];
+      const b = points[index + 1];
+      const t = length > 0 ? remaining / length : 0;
+      return [
+        a[0] + (b[0] - a[0]) * t,
+        a[1] + (b[1] - a[1]) * t,
+        a[2] + (b[2] - a[2]) * t,
+      ];
+    }
+    remaining -= length;
+  }
+  return points[points.length - 1];
+}
+
+function FlowParticles({ points, color, active, count = 5, speed = 0.18, radius = 1.25 }: {
+  points: [number, number, number][];
+  color: string;
+  active: boolean;
+  count?: number;
+  speed?: number;
+  radius?: number;
+}) {
+  const refs = useRef<Array<THREE.Mesh | null>>([]);
+  const offsets = useMemo(() => Array.from({ length: count }, (_, index) => index / count), [count]);
+
+  useFrame(({ clock }) => {
+    if (!active) return;
+    offsets.forEach((offset, index) => {
+      const position = pathPointAt(points, offset + clock.elapsedTime * speed);
+      refs.current[index]?.position.set(position[0], position[1], position[2]);
+    });
+  });
+
+  if (!active) return null;
+
+  return (
+    <group>
+      {offsets.map((offset, index) => {
+        const position = pathPointAt(points, offset);
+        return (
+          <mesh
+            key={`flow-particle-${index}`}
+            ref={(node) => { refs.current[index] = node; }}
+            position={position}
+          >
+            <sphereGeometry args={[radius, 10, 10]} />
+            <meshBasicMaterial color={color} transparent opacity={0.88} />
+          </mesh>
+        );
+      })}
+    </group>
+  );
+}
+
+function HiddenLayerMarker({ position, testId, attributes }: {
+  position: [number, number, number];
+  testId: string;
+  attributes?: Record<string, string>;
+}) {
+  return (
+    <Html position={position} center zIndexRange={[0, 0]}>
+      <div data-testid={testId} aria-hidden="true" style={{ display: 'none' }} {...attributes} />
+    </Html>
+  );
+}
+
 function HydraulicFlowLayer({ plan, topology, activeUnitIds, mode, isPlaying, quality, layers }: {
   plan: Layout3DFootprintPlan;
   topology: DerivedLayout3DTopology;
@@ -1580,65 +1695,50 @@ function HydraulicFlowLayer({ plan, topology, activeUnitIds, mode, isPlaying, qu
   quality: SimulationQuality;
   layers: Record<string, boolean>;
 }) {
-  {
-    const flowActive = isPlaying && activeUnitIds.length > 0;
-    const activePenstocks = activePenstockFootprintIds(topology, activeUnitIds);
-    const flowItems = componentsInPlan(plan, ['headrace_tunnel', 'pressure_tunnel', 'surge_tank', 'penstock', 'tailrace_tunnel'])
-      .filter((item) => item.component !== 'penstock' || activePenstocks.has(item.id));
-    const sharedVisible = isLayerVisible('tunnel', layers) || isLayerVisible('tailrace', layers) || isLayerVisible('penstock', layers);
-    const flowLabel = mode === 'generate' ? 'Üretim: Üst → Santral → Alt' : 'Pompa: Alt → Santral → Üst';
-    const particleFactor = quality === 'low' ? 'az' : quality === 'high' ? 'yoğun' : 'oto';
-
-    return (
-      <group visible={sharedVisible}>
-        <Html position={simulationLabelPosition(plan, 'hydraulic')} center zIndexRange={[110, 0]}>
-          <div
-            data-testid="hydraulic-flow-layer"
-            data-flow-active={String(flowActive)}
-            data-label-anchor="hydraulic"
-            style={labelStyle(flowActive, '#22d3ee')}
-          >
-            {flowLabel} · {particleFactor} parçacık
-          </div>
-        </Html>
-        {flowItems.map((item) => (
-          <Line
-            key={`hydraulic-${item.id}`}
-            points={mode === 'generate' ? scenePoints(item) : [...scenePoints(item)].reverse()}
-            color={flowActive ? '#22d3ee' : '#64748b'}
-            lineWidth={flowActive ? 5.5 : 1.4}
-          />
-        ))}
-      </group>
-    );
-  }
   const flowActive = isPlaying && activeUnitIds.length > 0;
   const activePenstocks = activePenstockFootprintIds(topology, activeUnitIds);
   const flowItems = componentsInPlan(plan, ['headrace_tunnel', 'pressure_tunnel', 'surge_tank', 'penstock', 'tailrace_tunnel'])
     .filter((item) => item.component !== 'penstock' || activePenstocks.has(item.id));
   const sharedVisible = isLayerVisible('tunnel', layers) || isLayerVisible('tailrace', layers) || isLayerVisible('penstock', layers);
-  const flowLabel = mode === 'generate' ? 'Üretim akışı: üst rezervuar → santral → alt rezervuar' : 'Pompa akışı: alt rezervuar → santral → üst rezervuar';
-  const particleFactor = quality === 'low' ? 'az' : quality === 'high' ? 'yogun' : 'otomatik';
+  const markerPosition = simulationLabelPosition(plan, 'hydraulic');
+  const particleCount = quality === 'low' ? 3 : quality === 'high' ? 8 : 5;
+  const direction = mode === 'generate' ? 'upper-to-lower' : 'lower-to-upper';
 
   return (
     <group visible={sharedVisible}>
-      <Html position={firstCenter(plan, ['penstock', 'headrace_tunnel'], [0, 20, 0])} center zIndexRange={[110, 0]}>
-        <div
-          data-testid="hydraulic-flow-layer"
-          data-flow-active={String(flowActive)}
-          style={labelStyle(flowActive, '#22d3ee')}
-        >
-          {flowLabel} · {particleFactor} parçacık
-        </div>
-      </Html>
-      {flowItems.map((item) => (
-        <Line
-          key={`hydraulic-${item.id}`}
-          points={mode === 'generate' ? scenePoints(item) : [...scenePoints(item)].reverse()}
-          color={flowActive ? '#22d3ee' : '#64748b'}
-          lineWidth={flowActive ? 6 : 2}
-        />
-      ))}
+      <HiddenLayerMarker
+        position={markerPosition}
+        testId="hydraulic-flow-layer"
+        attributes={{
+          'data-flow-active': String(flowActive),
+          'data-flow-direction': direction,
+        }}
+      />
+      {flowItems.map((item) => {
+        const points = mode === 'generate' ? scenePoints(item) : [...scenePoints(item)].reverse();
+        return (
+          <group key={`hydraulic-${item.id}`}>
+            <Line
+              points={points}
+              color={flowActive ? '#22d3ee' : '#64748b'}
+              lineWidth={flowActive ? 5.5 : 1.4}
+            />
+            <Line
+              points={points.map(([x, y, z]) => [x, y + 0.45, z] as [number, number, number])}
+              color={flowActive ? '#67e8f9' : '#475569'}
+              lineWidth={flowActive ? 2.4 : 0.8}
+            />
+            <FlowParticles
+              points={points}
+              color="#67e8f9"
+              active={flowActive}
+              count={particleCount}
+              speed={mode === 'generate' ? 0.2 : 0.16}
+              radius={1.05}
+            />
+          </group>
+        );
+      })}
     </group>
   );
 }
@@ -1652,49 +1752,35 @@ function ElectricalFlowLayer({ plan, topology, activeUnitIds, mode, isPlaying, p
   powerMW: number;
   layers: Record<string, boolean>;
 }) {
-  {
-    const flowActive = isPlaying && activeUnitIds.length > 0 && powerMW > 0;
-    const powerhouse = firstCenter(plan, ['powerhouse'], [20, 18, 0]);
-    const switchyard = firstCenter(plan, ['switchyard', 'new_switchyard', 'existing_switchyard'], [80, 16, -20]);
-    const grid: [number, number, number] = [switchyard[0] + 55, switchyard[1] + 8, switchyard[2] - 26];
-    const points = mode === 'generate' ? [powerhouse, switchyard, grid] : [grid, switchyard, powerhouse];
-    const label = mode === 'generate' ? `Şalt ${formatPower(powerMW, mode)}` : `Pompa ${formatPower(powerMW, mode)}`;
-
-    return (
-      <group visible={isLayerVisible('switchyard', layers) || isLayerVisible('transmission', layers)}>
-        <Line points={points} color={flowActive ? '#facc15' : '#64748b'} lineWidth={flowActive ? 4.5 : 1.5} />
-        <Html position={simulationLabelPosition(plan, 'switchyard')} center zIndexRange={[110, 0]}>
-          <div
-            data-testid="electrical-flow-layer"
-            data-flow-active={String(flowActive)}
-            data-label-anchor="switchyard"
-            style={labelStyle(flowActive, '#facc15')}
-          >
-            {label} · {topology.transformers.length} trafo
-          </div>
-        </Html>
-      </group>
-    );
-  }
   const flowActive = isPlaying && activeUnitIds.length > 0 && powerMW > 0;
   const powerhouse = firstCenter(plan, ['powerhouse'], [20, 18, 0]);
   const switchyard = firstCenter(plan, ['switchyard', 'new_switchyard', 'existing_switchyard'], [80, 16, -20]);
   const grid: [number, number, number] = [switchyard[0] + 55, switchyard[1] + 8, switchyard[2] - 26];
   const points = mode === 'generate' ? [powerhouse, switchyard, grid] : [grid, switchyard, powerhouse];
-  const label = mode === 'generate' ? `ÜRETİM ${formatPower(powerMW, mode)}` : `POMPA ${formatPower(powerMW, mode)}`;
+  const activeColor = mode === 'generate' ? '#22c55e' : '#ef4444';
+  const flowColor = flowActive ? activeColor : '#64748b';
+  const direction = mode === 'generate' ? 'powerhouse-to-grid' : 'grid-to-powerhouse';
 
   return (
     <group visible={isLayerVisible('switchyard', layers) || isLayerVisible('transmission', layers)}>
-      <Line points={points} color={flowActive ? '#facc15' : '#64748b'} lineWidth={flowActive ? 5 : 2} />
-      <Html position={switchyard} center zIndexRange={[110, 0]}>
-        <div
-          data-testid="electrical-flow-layer"
-          data-flow-active={String(flowActive)}
-          style={labelStyle(flowActive, '#facc15')}
-        >
-          {label} · {topology.transformers.length} trafo
-        </div>
-      </Html>
+      <Line points={points} color={flowColor} lineWidth={flowActive ? 5 : 1.6} />
+      <Line
+        points={points.map(([x, y, z]) => [x, y + 0.75, z] as [number, number, number])}
+        color={flowActive ? activeColor : '#475569'}
+        lineWidth={flowActive ? 2.5 : 0.8}
+      />
+      <FlowParticles points={points} color={activeColor} active={flowActive} count={5} speed={0.24} radius={1.2} />
+      <HiddenLayerMarker
+        position={simulationLabelPosition(plan, 'switchyard')}
+        testId="electrical-flow-layer"
+        attributes={{
+          'data-flow-active': String(flowActive),
+          'data-flow-color': activeColor,
+          'data-flow-direction': direction,
+          'data-label-anchor': 'switchyard',
+          'data-transformer-count': String(topology.transformers.length),
+        }}
+      />
     </group>
   );
 }
@@ -1705,36 +1791,19 @@ function ReservoirLevelLayer({ plan, upperSoc, lowerSoc, showLabels }: {
   lowerSoc: number;
   showLabels: boolean;
 }) {
-  {
-    const upper = simulationLabelPosition(plan, 'reservoir');
-    const lower = firstCenter(plan, ['lower_reservoir'], [80, 16, 30]);
-    return (
-      <group>
-        <Html position={upper} center style={{ display: showLabels ? 'block' : 'none' }} zIndexRange={[120, 0]}>
-          <div data-testid="reservoir-level-layer" style={labelStyle(true, '#38bdf8')}>
-            SOC Üst %{Math.round(upperSoc * 100)} · Alt %{Math.round(lowerSoc * 100)} · temsili
-          </div>
-        </Html>
-        <mesh position={[upper[0], upper[1] - 6 + upperSoc * 5, upper[2]]} rotation={[-Math.PI / 2, 0, 0]}>
-          <circleGeometry args={[8, 32]} />
-          <meshStandardMaterial color="#38bdf8" transparent opacity={0.28} />
-        </mesh>
-        <mesh position={[lower[0], lower[1] - 6 + lowerSoc * 5, lower[2]]} rotation={[-Math.PI / 2, 0, 0]}>
-          <circleGeometry args={[8, 32]} />
-          <meshStandardMaterial color="#0ea5e9" transparent opacity={0.22} />
-        </mesh>
-      </group>
-    );
-  }
-  const upper = firstCenter(plan, ['upper_reservoir'], [-80, 24, -20]);
+  void showLabels;
+  const upper = simulationLabelPosition(plan, 'reservoir');
   const lower = firstCenter(plan, ['lower_reservoir'], [80, 16, 30]);
   return (
     <group>
-      <Html position={upper} center style={{ display: showLabels ? 'block' : 'none' }} zIndexRange={[120, 0]}>
-        <div data-testid="reservoir-level-layer" style={labelStyle(true, '#38bdf8')}>
-          Üst SOC %{Math.round(upperSoc * 100)} · Alt SOC %{Math.round(lowerSoc * 100)} · temsili seviye
-        </div>
-      </Html>
+      <HiddenLayerMarker
+        position={upper}
+        testId="reservoir-level-layer"
+        attributes={{
+          'data-upper-soc': String(Math.round(upperSoc * 100)),
+          'data-lower-soc': String(Math.round(lowerSoc * 100)),
+        }}
+      />
       <mesh position={[upper[0], upper[1] - 6 + upperSoc * 5, upper[2]]} rotation={[-Math.PI / 2, 0, 0]}>
         <circleGeometry args={[8, 32]} />
         <meshStandardMaterial color="#38bdf8" transparent opacity={0.28} />
@@ -1754,38 +1823,29 @@ function EquipmentAnimationLayer({ plan, topology, activeUnitIds, isPlaying, sho
   isPlaying: boolean;
   showLabels: boolean;
 }) {
-  {
-    const powerhouse = simulationLabelPosition(plan, 'equipment');
-    const activeText = compactIdList(activeUnitIds, 'aktif grup yok');
-    const transformerIds = topology.transformers
-      .filter((transformer) => transformer.connectedUnitIds.some((unitId) => activeUnitIds.includes(unitId)))
-      .map((transformer) => transformer.id);
-    const transformerText = compactIdList(transformerIds, 'trafo pasif');
-
-    return (
-      <group>
-        <Html position={powerhouse} center style={{ display: showLabels ? 'block' : 'none' }} zIndexRange={[130, 0]}>
-          <div data-testid="equipment-animation-layer" style={labelStyle(isPlaying && activeUnitIds.length > 0, '#a78bfa')}>
-            {activeText} · {transformerText}
-          </div>
-        </Html>
-      </group>
-    );
-  }
+  void showLabels;
   const powerhouse = firstCenter(plan, ['powerhouse'], [0, 18, 0]);
-  const activeText = activeUnitIds.length > 0 ? activeUnitIds.join(', ') : 'aktif grup yok';
-  const transformers = topology.transformers
+  const transformerIds = topology.transformers
     .filter((transformer) => transformer.connectedUnitIds.some((unitId) => activeUnitIds.includes(unitId)))
-    .map((transformer) => transformer.id)
-    .join(', ') || 'trafo pasif';
+    .map((transformer) => transformer.id);
+  const active = isPlaying && activeUnitIds.length > 0;
 
   return (
     <group>
-      <Html position={[powerhouse[0], powerhouse[1] + 10, powerhouse[2]]} center style={{ display: showLabels ? 'block' : 'none' }} zIndexRange={[130, 0]}>
-        <div data-testid="equipment-animation-layer" style={labelStyle(isPlaying && activeUnitIds.length > 0, '#a78bfa')}>
-          {activeText} · {transformers}
-        </div>
-      </Html>
+      <HiddenLayerMarker
+        position={simulationLabelPosition(plan, 'equipment')}
+        testId="equipment-animation-layer"
+        attributes={{
+          'data-active-unit-count': String(activeUnitIds.length),
+          'data-active-transformer-count': String(transformerIds.length),
+        }}
+      />
+      {active && (
+        <mesh position={[powerhouse[0], powerhouse[1] + 5, powerhouse[2]]}>
+          <sphereGeometry args={[5, 16, 16]} />
+          <meshBasicMaterial color="#a78bfa" transparent opacity={0.24} />
+        </mesh>
+      )}
     </group>
   );
 }

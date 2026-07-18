@@ -14,6 +14,7 @@ vi.mock('../components/ui/ThreeDModel', () => ({
       data-active-unit-ids={JSON.stringify(props.activeUnitIds ?? [])}
       data-max-units={props.maxUnits}
       data-layers={JSON.stringify(props.layers)}
+      data-show-labels={String(props.showLabels)}
       data-simulation-state={props.simulationState}
       data-upper-soc={props.upperSoc}
       data-lower-soc={props.lowerSoc}
@@ -37,10 +38,12 @@ describe('ThreeDPage controls', () => {
 
   it('uses consistent icons and exposes toggle states', () => {
     render(<ThreeDPage site={site} />);
+    const model = screen.getByTestId('three-d-model');
 
     expect(screen.getByRole('button', { name: 'Üretim modu' }).getAttribute('aria-pressed')).toBe('true');
     expect(screen.getByRole('button', { name: 'Pompalama modu' }).getAttribute('aria-pressed')).toBe('false');
     expect(screen.getByRole('button', { name: 'Simülasyonu başlat' }).getAttribute('aria-pressed')).toBe('false');
+    expect(model.getAttribute('data-show-labels')).toBe('false');
     expect(document.body.textContent).not.toMatch(/[\u26a1\ud83d\udca7\u26f0\ufe0f\ud83c\udff7\ufe0f\u25b6\ufe0f\u23f9\u26a0\ufe0f]/u);
     expect(screen.getByRole('alert').textContent).toMatch(/3D konumlar temsilidir/i);
   });
@@ -231,6 +234,18 @@ describe('ThreeDPage controls', () => {
       expect(screen.getByRole('alert').textContent).toMatch(/footprint.*yüklenemedi|fallback/i);
     });
     expect(screen.getByTestId('three-d-model')).toBeTruthy();
+  });
+
+  it('moves selection to the next visible layer when the active layer is hidden', () => {
+    render(<ThreeDPage site={site} />);
+    const model = screen.getByTestId('three-d-model');
+
+    expect(model.getAttribute('data-active')).toBe('upper_reservoir');
+    fireEvent.click(screen.getByText('Üst Rezervuar').closest('label')!);
+
+    expect(model.getAttribute('data-active')).toBe('tunnel');
+    const layers = JSON.parse(model.getAttribute('data-layers') || '{}');
+    expect(layers.upper_reservoir).toBe(false);
   });
 });
 
