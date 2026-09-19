@@ -4,7 +4,7 @@ import { formatDataDate } from '../data/hydrology';
 import { fullnessRecordsByHes, preferredFullnessRecord, resolveHesFullness } from '../data/fullnessSources';
 import { useHydrologyStore } from '../store/useHydrologyStore';
 
-const basemapLabels = { dark: 'KaranlÄ±k', light: 'AÃ§Ä±k', neutral: 'NÃ¶tr', satellite: 'Uydu', streets: 'Sokak' };
+const basemapLabels = { dark: 'Karanlık', light: 'Açık', neutral: 'Nötr', satellite: 'Uydu', streets: 'Sokak' };
 
 export const HesToolbar: React.FC = () => {
   const basemap = useHydrologyStore((state) => state.basemap);
@@ -56,18 +56,18 @@ export const HesToolbar: React.FC = () => {
     };
   }, [basins.features.length, dataMode, epias?.records, fullnessPayload, hes177.features, manifest, relations?.cascadeEdges?.length, rivers.features.length]);
 
-  const statusLabel = dataStatus === 'ready' ? 'Veri hazÄ±r' : dataStatus === 'loading' ? 'YÃ¼kleniyor' : dataStatus === 'partial' ? 'KÄ±smi veri' : dataStatus === 'failed' ? 'Veri paketi yÃ¼klenemedi' : 'Veri bekleniyor';
+  const statusLabel = dataStatus === 'ready' ? 'Veri hazır' : dataStatus === 'loading' ? 'Yükleniyor' : dataStatus === 'partial' ? 'Kısmi veri' : dataStatus === 'failed' ? 'Veri paketi yüklenemedi' : 'Veri bekleniyor';
   const pipelineRunAt = fullnessPayload?.pipelineRunAt ?? lastRefreshAt;
 
   return (
-    <section className="hes-toolbar z-20 flex min-h-12 shrink-0 items-center gap-2 border-b px-3 py-1.5 sm:px-4" aria-label="HES araÃ§ Ã§ubuÄŸu">
-      <button type="button" onClick={toggleSidebar} className="rounded-lg border border-[var(--line)] p-1.5 text-[var(--muted)] transition hover:text-[var(--primary)]" title="Paneli aÃ§/kapa" aria-label="Paneli aÃ§/kapa">
+    <section className="hes-toolbar z-20 flex min-h-12 shrink-0 items-center gap-2 border-b px-3 py-1.5 sm:px-4" aria-label="HES araç çubuğu">
+      <button type="button" onClick={toggleSidebar} className="rounded-lg border border-[var(--line)] p-1.5 text-[var(--muted)] transition hover:text-[var(--primary)]" title="Paneli aç/kapa" aria-label="Paneli aç/kapa">
         {isSidebarOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
       </button>
       <div className="flex min-w-0 items-center gap-2 border-r border-[var(--line)] pr-2 sm:pr-3">
         <span className="text-xs font-semibold">HESLER</span>
         <span className="rounded-md bg-cyan-500/10 px-1.5 py-0.5 font-mono text-[9px] font-semibold text-[var(--primary)]">20 MW+</span>
-        <span className="hidden font-mono text-[9px] text-[var(--muted)] sm:inline" title={hydroDataError ?? (pipelineRunAt ? `Pipeline Ã§alÄ±ÅŸmasÄ±: ${formatDataDate(pipelineRunAt)}` : undefined)}>{statusLabel}{kpis.latestObservationAt ? ` Â· Son gÃ¶zlem ${formatDataDate(kpis.latestObservationAt)}` : ' Â· GÃ¶zlem yok'}</span>
+        <span className="hidden font-mono text-[9px] text-[var(--muted)] sm:inline" title={hydroDataError ?? (pipelineRunAt ? `Pipeline çalışması: ${formatDataDate(pipelineRunAt)}` : undefined)}>{statusLabel}{kpis.latestObservationAt ? ` · Son gözlem ${formatDataDate(kpis.latestObservationAt)}` : ' · Gözlem yok'}</span>
       </div>
 
       <div className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto whitespace-nowrap">
@@ -77,11 +77,11 @@ export const HesToolbar: React.FC = () => {
         <Kpi label="Akarsu" value={kpis.rivers.toLocaleString('tr-TR')} />
         <Kpi label="Kaskat" value={kpis.cascades.toLocaleString('tr-TR')} className="hidden md:flex" />
         <Kpi label="Konumlu" value={kpis.located.toLocaleString('tr-TR')} className="hidden lg:flex" />
-        <Kpi label="Doluluk" value={`${kpis.available}/${kpis.applicable}`} className="hidden xl:flex" title={`Mevcut ${kpis.available} Â· Uygulanabilir ${kpis.applicable} Â· Hesaplanan ${kpis.calculated} Â· EPÄ°AÅ ${kpis.epias} Â· Uydu ${kpis.satellite} Â· Eski ${kpis.stale} Â· Veri yok ${kpis.unavailable} Â· Uygulanamaz ${kpis.notApplicable}`} />
+        <Kpi label="Doluluk" value={`${kpis.available}/${kpis.applicable}`} className="hidden xl:flex" title={`Mevcut ${kpis.available} · Uygulanabilir ${kpis.applicable} · Hesaplanan ${kpis.calculated} · EPİAŞ ${kpis.epias} · Uydu ${kpis.satellite} · Eski ${kpis.stale} · Veri yok ${kpis.unavailable} · Uygulanamaz ${kpis.notApplicable}`} />
       </div>
 
       <div className="ml-auto flex shrink-0 items-center gap-1.5">
-        <span className="rounded-lg border border-cyan-500/25 bg-cyan-500/8 px-2 py-1.5 font-mono text-[9px] text-[var(--primary)]" title="Doluluk, kanonik resolver ve mevcut doÄŸrulanmÄ±ÅŸ kaynaklara gÃ¶re gÃ¶sterilir">GERÃ‡EK VERÄ°</span>
+        <span className="rounded-lg border border-cyan-500/25 bg-cyan-500/8 px-2 py-1.5 font-mono text-[9px] text-[var(--primary)]" title="Doluluk, kanonik resolver ve mevcut doğrulanmış kaynaklara göre gösterilir">GERÇEK VERİ</span>
         <button type="button" onClick={() => void refreshHydroData()} disabled={dataStatus === 'loading'} className="hidden items-center gap-1.5 rounded-lg border border-cyan-500/35 px-2 py-1.5 text-[10px] font-medium text-[var(--primary)] transition hover:bg-cyan-500/8 disabled:opacity-50 sm:flex"><RefreshCw className={`h-3.5 w-3.5 ${dataStatus === 'loading' ? 'animate-spin' : ''}`} />Yenile</button>
         <div className="relative">
           <button type="button" onClick={() => setBasemapMenuOpen((open) => !open)} className="flex items-center gap-1 rounded-lg border border-[var(--line)] px-2 py-1.5 text-[10px] text-[var(--muted)]"><MapIcon className="h-3.5 w-3.5 text-[var(--primary)]" /><span className="hidden sm:inline">{basemapLabels[basemap]}</span><ChevronDown className="h-3 w-3" /></button>

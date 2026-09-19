@@ -40,9 +40,9 @@ export function displayName(properties: Record<string, unknown>, kind: 'river' |
   const candidates = kind === 'river' ? [properties.name, properties.adi, properties.riverName] : kind === 'dam' ? [properties.name, properties.damName, properties.BarajAdi] : kind === 'lake' ? [properties.name, properties.IstAdi, properties.SuAdi] : kind === 'hes' ? [properties.name, properties.hesName, properties.IstAdi] : [properties.name, properties.HAVZA_ADI, properties.HavzaAdi];
   const value = candidates.find((candidate) => !isUnknownName(candidate));
   if (value !== undefined) return String(value);
-  const labels = { river: 'AdsÄ±z akarsu', dam: 'AdsÄ±z baraj', lake: 'AdsÄ±z gÃ¶l', basin: 'AdsÄ±z havza', hes: 'AdsÄ±z HES' };
+  const labels = { river: 'Adsız akarsu', dam: 'Adsız baraj', lake: 'Adsız göl', basin: 'Adsız havza', hes: 'Adsız HES' };
   const riverCode = kind === 'river' && !isUnknownName(properties.riverCode ?? properties.nehir_kod) ? String(properties.riverCode ?? properties.nehir_kod) : id;
-  return `${labels[kind]} Â· ${riverCode}`;
+  return `${labels[kind]} · ${riverCode}`;
 }
 
 function propertiesOf(feature: HydroFeature): Record<string, unknown> {
@@ -128,14 +128,14 @@ export function buildRiverNameMap(collection: FeatureCollection<Geometry, GeoJso
 type MajorRiverDefinition = { key: string; name: string; basinId: string; stationToken: string; minStrahler: number; maxDistanceKm: number };
 
 const MAJOR_RIVER_DEFINITIONS: MajorRiverDefinition[] = [
-  { key: 'FIRAT', name: 'FÄ±rat Nehri', basinId: '21', stationToken: 'FIRAT', minStrahler: 6, maxDistanceKm: 65 },
+  { key: 'FIRAT', name: 'Fırat Nehri', basinId: '21', stationToken: 'FIRAT', minStrahler: 6, maxDistanceKm: 65 },
   { key: 'DICLE', name: 'Dicle Nehri', basinId: '21', stationToken: 'DICLE', minStrahler: 6, maxDistanceKm: 65 },
-  { key: 'KIZILIRMAK', name: 'KÄ±zÄ±lÄ±rmak', basinId: '15', stationToken: 'KIZILIRMAK', minStrahler: 5, maxDistanceKm: 55 },
+  { key: 'KIZILIRMAK', name: 'Kızılırmak', basinId: '15', stationToken: 'KIZILIRMAK', minStrahler: 5, maxDistanceKm: 55 },
   { key: 'SAKARYA', name: 'Sakarya Nehri', basinId: '12', stationToken: 'SAKARYA', minStrahler: 5, maxDistanceKm: 55 },
-  { key: 'YESILIRMAK', name: 'YeÅŸilÄ±rmak', basinId: '14', stationToken: 'YESILIRMAK', minStrahler: 5, maxDistanceKm: 55 },
+  { key: 'YESILIRMAK', name: 'Yeşilırmak', basinId: '14', stationToken: 'YESILIRMAK', minStrahler: 5, maxDistanceKm: 55 },
   { key: 'SEYHAN', name: 'Seyhan Nehri', basinId: '18', stationToken: 'SEYHAN', minStrahler: 5, maxDistanceKm: 55 },
   { key: 'CEYHAN', name: 'Ceyhan Nehri', basinId: '20', stationToken: 'CEYHAN', minStrahler: 5, maxDistanceKm: 55 },
-  { key: 'CORUH', name: 'Ã‡oruh Nehri', basinId: '23', stationToken: 'CORUH', minStrahler: 5, maxDistanceKm: 55 },
+  { key: 'CORUH', name: 'Çoruh Nehri', basinId: '23', stationToken: 'CORUH', minStrahler: 5, maxDistanceKm: 55 },
 ];
 
 export type MajorRiverGroup = {
@@ -269,7 +269,7 @@ export function fullnessFromCurrentVolume(source: Record<string, unknown> | null
   return Math.min(100, Math.max(0, ((current - minimum) / (maximum - minimum)) * 100));
 }
 
-export type FullnessSource = 'E' | 'H' | 'M' | 'â€”';
+export type FullnessSource = 'E' | 'H' | 'M' | '—';
 export type HesFullness = { value: number | null; source: FullnessSource };
 
 function clampedPercent(value: unknown): number | null {
@@ -285,7 +285,7 @@ export function getHesFullnessMeta(
   canonicalProperties?: Record<string, unknown> | null,
 ): HesFullness {
   if (dataMode === 'epias' && epiasRecord) {
-    // EPÄ°AÅ's explicit fullness fields are already percentages. Never divide
+    // EPİAŞ's explicit fullness fields are already percentages. Never divide
     // activeFullnessAmount by a capacity a second time.
     for (const key of FULLNESS_PERCENT_KEYS) {
       const value = clampedPercent(epiasRecord[key]);
@@ -302,7 +302,7 @@ export function getHesFullnessMeta(
   if (activeVolumeFullness !== null) return { value: activeVolumeFullness, source: 'H' };
   const currentVolumeFullness = fullnessFromCurrentVolume(canonicalProperties);
   if (currentVolumeFullness !== null) return { value: currentVolumeFullness, source: 'H' };
-  return dataMode === 'mock' ? { value: mockFullness(hesId), source: 'M' } : { value: null, source: 'â€”' };
+  return dataMode === 'mock' ? { value: mockFullness(hesId), source: 'M' } : { value: null, source: '—' };
 }
 
 export function getHesFullness(

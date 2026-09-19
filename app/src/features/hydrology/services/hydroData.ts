@@ -22,6 +22,10 @@ function dataUrl(path: string): string {
   return `${base}${path.replace(/^\/+/, '')}`;
 }
 
+export function hydrologyDataUrl(path: string): string {
+  return dataUrl(path);
+}
+
 const STATIC_FILES = {
   basins: '/hes177/hes_basins.geojson',
   rivers: '/hes177/hes_rivers.geojson',

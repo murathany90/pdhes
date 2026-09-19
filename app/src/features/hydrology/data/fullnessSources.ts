@@ -182,12 +182,12 @@ export function resolveHesFullness(
 export function resolveHistoricalFullness(hesId: string, current: FullnessResult, history: FullnessHistoryPayload | null, requestedDate: string, maxAgeDays = 30): FullnessResult {
   const requested = dateOf(`${requestedDate}T23:59:59Z`);
   const points = history?.records?.find((record) => String(record.hesId) === hesId)?.points ?? [];
-  if (!requested) return { ...current, status: 'unavailable', fullnessPercent: null, reasonUnavailable: 'geÃ§ersiz tarih sorgusu', isHistoricalView: true, requestedDate };
+  if (!requested) return { ...current, status: 'unavailable', fullnessPercent: null, reasonUnavailable: 'geçersiz tarih sorgusu', isHistoricalView: true, requestedDate };
   if (requested.getTime() > Date.now() + 86400000) return { ...current, status: 'unavailable', fullnessPercent: null, reasonUnavailable: 'gelecek tarih sorgulanamaz', isHistoricalView: true, requestedDate };
   const valid = points.map((point) => ({ point, date: dateOf(point.date) })).filter((item): item is { point: NonNullable<typeof points[number]>; date: Date } => Boolean(item.date && Number.isFinite(item.point.value) && item.date.getTime() <= requested.getTime())).sort((left, right) => right.date.getTime() - left.date.getTime());
   const selected = valid[0];
   const age = selected ? Math.max(0, Math.floor((requested.getTime() - selected.date.getTime()) / 86400000)) : null;
-  if (!selected || age === null || age > maxAgeDays) return { ...current, status: 'unavailable', fullnessPercent: null, observedAt: selected?.point.observedAt ?? null, freshnessDays: age, reasonUnavailable: `${requestedDate} iÃ§in ${maxAgeDays} gÃ¼nlÃ¼k gÃ¶zlem penceresinde kayÄ±t yok`, isHistoricalView: true, requestedDate };
+  if (!selected || age === null || age > maxAgeDays) return { ...current, status: 'unavailable', fullnessPercent: null, observedAt: selected?.point.observedAt ?? null, freshnessDays: age, reasonUnavailable: `${requestedDate} için ${maxAgeDays} günlük gözlem penceresinde kayıt yok`, isHistoricalView: true, requestedDate };
   return { ...current, hesId, fullnessPercent: clamp(selected.point.value), status: selected.point.status === 'stale' ? 'stale' : 'available', sourceClass: selected.point.sourceClass ?? current.sourceClass, source: (selected.point.source ?? current.source) as FullnessResult['source'], method: selected.point.method ?? current.method, observedAt: selected.point.observedAt ?? selected.point.date, fetchedAt: selected.point.fetchedAt ?? null, freshnessDays: age, confidence: selected.point.confidence ?? current.confidence, isEstimated: selected.point.estimated ?? current.isEstimated, isHistoricalView: true, requestedDate };
 }
 
@@ -200,7 +200,7 @@ export function preferredFullnessRecord(primary: Record<string, unknown> | null 
 export function fullnessSourceLabel(result: FullnessResult): string {
   if (result.status === 'not_applicable') return 'Uygulanamaz';
   if (result.status === 'unavailable') return 'N/A';
-  const labels: Record<string, string> = { epias: 'EPÄ°AÅ', dsi: 'DSÄ°', dahiti: 'DAHITI', hydroweb: 'Hydroweb', copernicus: 'CLMS', swot: 'SWOT', g_realm: 'G-REALM', sentinel: 'Uydu', canonical: 'Hacim', mock: 'MOCK' };
+  const labels: Record<string, string> = { epias: 'EPİAŞ', dsi: 'DSİ', dahiti: 'DAHITI', hydroweb: 'Hydroweb', copernicus: 'CLMS', swot: 'SWOT', g_realm: 'G-REALM', sentinel: 'Uydu', canonical: 'Hacim', mock: 'MOCK' };
   return labels[result.source] ?? result.source;
 }
 
@@ -214,13 +214,13 @@ export function reasonDisplayText(result: FullnessResult): string | null {
   const code = typeof result.missingReason === 'string' ? result.missingReason : null;
   const map: Record<string, string> = {
     not_applicable: 'Doluluk uygulanamaz',
-    storage_type_unknown: 'Tesis tipi doÄŸrulanamadÄ±',
-    missing_inventory_volume: 'Doluluk hesabÄ± iÃ§in hacim verisi eksik',
-    matched_no_measurement: 'GÃ¼ncel Ã¶lÃ§Ã¼m bulunamadÄ±',
-    provider_not_configured: 'CanlÄ± veri kaynaÄŸÄ± yapÄ±landÄ±rÄ±lmamÄ±ÅŸ',
-    missing_hypsometry: 'Kot-hacim eÄŸrisi eksik',
-    reservoir_not_mapped: 'Rezervuar eÅŸleÅŸmesi bulunamadÄ±',
-    no_verified_source: 'DoÄŸrulanmÄ±ÅŸ veri yok',
+    storage_type_unknown: 'Tesis tipi doğrulanamadı',
+    missing_inventory_volume: 'Doluluk hesabı için hacim verisi eksik',
+    matched_no_measurement: 'Güncel ölçüm bulunamadı',
+    provider_not_configured: 'Canlı veri kaynağı yapılandırılmamış',
+    missing_hypsometry: 'Kot-hacim eğrisi eksik',
+    reservoir_not_mapped: 'Rezervuar eşleşmesi bulunamadı',
+    no_verified_source: 'Doğrulanmış veri yok',
   };
   if (code && map[code]) return map[code];
   const raw = typeof result.reasonUnavailable === 'string' ? result.reasonUnavailable : '';
@@ -231,31 +231,31 @@ function freshnessText(result: FullnessResult): string {
   const label = typeof result.freshnessLabel === 'string' ? result.freshnessLabel : null;
   if (label === 'fresh') return 'Taze';
   if (label === 'stale') return 'Eski';
-  if (label === 'old') return 'Ã‡ok eski';
+  if (label === 'old') return 'Çok eski';
   return 'Bilinmiyor';
 }
 
 /** Explicit human-readable fullness description (never a bare N/A). */
 export function describeFullness(result: FullnessResult): { cell: string; title: string } {
   const provider = providerName(result);
-  const observed = typeof result.observedAt === 'string' && result.observedAt ? result.observedAt : 'â€”';
-  const confidence = result.confidence === 'high' ? 'YÃ¼ksek' : result.confidence === 'medium' ? 'Orta' : 'DÃ¼ÅŸÃ¼k';
+  const observed = typeof result.observedAt === 'string' && result.observedAt ? result.observedAt : '—';
+  const confidence = result.confidence === 'high' ? 'Yüksek' : result.confidence === 'medium' ? 'Orta' : 'Düşük';
   if (result.status === 'not_applicable') {
-    return { cell: 'Uygulanamaz', title: 'Doluluk uygulanamaz Â· Nehir tipi tesis' };
+    return { cell: 'Uygulanamaz', title: 'Doluluk uygulanamaz · Nehir tipi tesis' };
   }
   if (result.status === 'unavailable' || result.fullnessPercent === null) {
     const reason = reasonDisplayText(result);
-    return { cell: 'Veri yok', title: reason ?? 'Doluluk verisi bulunamadÄ±' };
+    return { cell: 'Veri yok', title: reason ?? 'Doluluk verisi bulunamadı' };
   }
   const percent = `%${Math.round(result.fullnessPercent)}`;
   const freshness = freshnessText(result);
   if (result.sourceClass === 'official_live' || result.sourceClass === 'official' || result.sourceClass === 'official_published') {
-    return { cell: percent, title: `Doluluk: ${percent} Â· Kaynak: ${provider} Â· Ã–lÃ§Ã¼m: ${observed} Â· Tazelik: ${freshness}` };
+    return { cell: percent, title: `Doluluk: ${percent} · Kaynak: ${provider} · Ölçüm: ${observed} · Tazelik: ${freshness}` };
   }
   if (result.sourceClass === 'satellite_altimetry' || result.sourceClass === 'satellite_area') {
-    return { cell: percent, title: `Uydu tahmini: ${percent} Â· Kaynak: ${provider} Â· Ã–lÃ§Ã¼m: ${observed} Â· GÃ¼ven: ${confidence} Â· Tazelik: ${freshness}` };
+    return { cell: percent, title: `Uydu tahmini: ${percent} · Kaynak: ${provider} · Ölçüm: ${observed} · Güven: ${confidence} · Tazelik: ${freshness}` };
   }
-  return { cell: percent, title: `Tahmini doluluk: ${percent} Â· Kaynak: ${provider} Â· GÃ¼ven: ${confidence} Â· Tazelik: ${freshness}` };
+  return { cell: percent, title: `Tahmini doluluk: ${percent} · Kaynak: ${provider} · Güven: ${confidence} · Tazelik: ${freshness}` };
 }
 
 export function fullnessRecordsByHes(payload: FullnessPayload | null): Map<string, FullnessResult> {

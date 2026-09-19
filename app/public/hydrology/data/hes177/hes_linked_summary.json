@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "generatedAt": "2026-09-20",
+  "records": [
+    {
+      "hesId": "hes177-014",
+      "properties": {
+        "coordinateKind": "hes",
+        "basinName": "Kızılırmak",
+        "entityId": "hes177-014",
+        "reservoirSource": "GDW",
+        "reservoirName": "Altinkaya Baraji",
+        "reservoirMatchConfidence": "high",
+        "damName": "ALTINKAYA",
+        "coordinateStatus": "Doğrulanmış koordinat mevcut",
+        "id": "hes177-014",
+        "province": "SAMSUN",
+        "name": "ALTINKAYA HES"
+      }
+    },
+    {
+      "hesId": "hes177-073",
+      "properties": {
+        "coordinateKind": "hes",
+        "basinName": "Sakarya",
+        "entityId": "hes177-073",
+        "reservoirSource": "GDW",
+        "reservoirName": "Gokcekaya",
+        "reservoirMatchConfidence": "high",
+        "damName": "GÖKÇEKAYA",
+        "coordinateStatus": "Doğrulanmış koordinat mevcut",
+        "id": "hes177-073",
+        "province": "ESKİŞEHİR",
+        "name": "GÖKÇEKAYA HES"
+      }
+    },
+    {
+      "hesId": "hes177-140",
+      "properties": {
+        "coordinateKind": "transformer",
+        "basinName": "Sakarya",
+        "entityId": "hes177-140",
+        "reservoirSource": "GDW",
+        "reservoirName": "Sariyar",
+        "reservoirMatchConfidence": "medium",
+        "damName": "SARIYAR",
+        "coordinateStatus": "Trafo merkezi koordinatı ile tamamlandı",
+        "id": "hes177-140",
+        "province": "ESKİŞEHİR",
+        "name": "SARIYAR HES"
+      }
+    }
+  ]
+}

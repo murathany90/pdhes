@@ -4,9 +4,8 @@ import type { CandidateFilters } from "../utils/pdhesFilters";
 import type { Site } from "../types/site";
 import type { PdhesCandidateExcelCalculatedData } from "../utils/pdhes/types";
 import { useSiteStore } from "../stores/useSiteStore";
-import { useHydrologyStore } from "../features/hydrology/store/useHydrologyStore";
-import { loadPdhesHesLinks, type PdhesHesLink } from "../features/hydrology/services/pdhesHesLinks";
-import { fullnessSourceLabel, fullnessRecordsByHes } from "../features/hydrology/data/fullnessSources";
+import { loadLinkedHesSummary, type LinkedHesSummary } from "../features/hydrology/services/pdhesHesLinks";
+import { fullnessSourceLabel } from "../features/hydrology/data/fullnessSources";
 import {
   DEFAULT_DATA_FILTERS,
   matchesCandidateFilters,
@@ -148,11 +147,17 @@ function DetailMetric({ label, value }: { label: string; value: string }) {
 }
 
 function CandidateDetailPanel({ candidate }: { candidate: Site }) {
-  const [links, setLinks] = useState<PdhesHesLink[]>([]);
-  const loadHydroData = useHydrologyStore((state) => state.loadHydroData);
-  const hesFeatures = useHydrologyStore((state) => state.hes177.features);
-  const fullness = useHydrologyStore((state) => state.fullness);
-  useEffect(() => { void loadPdhesHesLinks().then(setLinks).catch(() => setLinks([])); void loadHydroData(); }, [loadHydroData]);
+  const [linkedHes, setLinkedHes] = useState<LinkedHesSummary | null>(null);
+  useEffect(() => {
+    let active = true;
+    setLinkedHes(null);
+    void loadLinkedHesSummary(candidate.id).then((summary) => {
+      if (active) setLinkedHes(summary);
+    }).catch(() => {
+      if (active) setLinkedHes(null);
+    });
+    return () => { active = false; };
+  }, [candidate.id]);
   const excel = excelFor(candidate);
   if (!excel) {
     return (
@@ -201,10 +206,9 @@ function CandidateDetailPanel({ candidate }: { candidate: Site }) {
     },
   ];
 
-  const link = links.find((item) => item.pdhesSiteId === candidate.id);
-  const hesFeature = link ? hesFeatures.find((feature) => String(feature.properties?.id ?? feature.id ?? '') === link.hesId) : undefined;
-  const fullnessResult = link ? fullnessRecordsByHes(fullness).get(link.hesId) : undefined;
-  const linkedName = String(hesFeature?.properties?.name ?? hesFeature?.properties?.damName ?? link?.hesId ?? '');
+  const link = linkedHes?.link;
+  const fullnessResult = linkedHes?.fullness;
+  const linkedName = String(linkedHes?.hes?.properties.name ?? linkedHes?.hes?.properties.damName ?? link?.hesId ?? '');
 
   return (
     <div className="excel-detail-panel">

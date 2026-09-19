@@ -1108,10 +1108,11 @@ def main() -> None:
     MD_PATH.write_text("# Fullness source audit\n\n" + f"Pipeline run: `{fetched_at}`\nLatest observation: `{latest_observation_at or '—'}`\nStatus: `{status}`\nNew observations: `{new_observations}`\n\nTotal HES: `{total}`\n\n" + "\n".join(coverage_lines) + "\n", encoding="utf-8")
     today = datetime.fromisoformat(fetched_at.replace("Z", "+00:00"))
     history_root = Path(os.getenv("HYDRO_HISTORY_ROOT", str(HISTORY_ROOT)))
-    history_path = history_root / f"{today:%Y}" / f"{today:%m}" / f"{today:%Y-%m-%d}.json"
-    history_path.parent.mkdir(parents=True, exist_ok=True)
-    daily_payload = merge_daily_snapshot(history_path, payload, fetched_at)
-    write_payload(history_path, daily_payload)
+    if os.getenv("HYDRO_HISTORY_SKIP_ARCHIVE_WRITE", "false").strip().lower() not in {"1", "true", "yes", "y"}:
+        history_path = history_root / f"{today:%Y}" / f"{today:%m}" / f"{today:%Y-%m-%d}.json"
+        history_path.parent.mkdir(parents=True, exist_ok=True)
+        daily_payload = merge_daily_snapshot(history_path, payload, fetched_at)
+        write_payload(history_path, daily_payload)
     series_summary = write_rolling_timeseries(history_root, fetched_at)
     HEALTH_PATH.parent.mkdir(parents=True, exist_ok=True)
     health = provider_health_snapshot(provider_obs, epias_payload)

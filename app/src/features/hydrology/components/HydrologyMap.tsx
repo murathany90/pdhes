@@ -78,11 +78,11 @@ function applyVectorBasemapPalette(map: MapLibreMap, variant: 'dark' | 'light'):
 }
 
 function escapePopup(value: unknown): string {
-  return String(value ?? 'â€”').replace(/[&<>"']/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character] ?? character);
+  return String(value ?? '—').replace(/[&<>"']/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character] ?? character);
 }
 
 function fullnessBadge(result: { fullnessPercent: number | null; status: string; sourceClass: string }): string {
-  if (result.fullnessPercent === null) return result.status === 'not_applicable' ? 'N/A' : 'â€”';
+  if (result.fullnessPercent === null) return result.status === 'not_applicable' ? 'N/A' : '—';
   if (result.sourceClass === 'mock') return 'M';
   if (result.sourceClass === 'official' || result.sourceClass === 'official_live') return 'E';
   if (result.sourceClass === 'official_published') return 'D';
@@ -95,30 +95,30 @@ export function shortSourceLabel(properties: Record<string, unknown>): string {
   if (String(properties.fullnessStatus ?? '') === 'not_applicable') return 'Uygulanamaz';
   if (properties.occupancy === null || properties.occupancy === undefined) return 'Veri yok';
   const sourceClass = String(properties.fullnessSourceClass ?? '');
-  if (sourceClass === 'official_live' || sourceClass === 'official') return 'EPÄ°AÅ resmÃ® canlÄ±';
-  if (sourceClass === 'official_published') return 'DSÄ° resmÃ® yayÄ±n';
+  if (sourceClass === 'official_live' || sourceClass === 'official') return 'EPİAŞ resmî canlı';
+  if (sourceClass === 'official_published') return 'DSİ resmî yayın';
   if (sourceClass === 'satellite_altimetry' || sourceClass === 'satellite_area') return 'Uydu tahmini';
   if (sourceClass === 'mock') return 'MOCK';
   return 'Hacim tahmini';
 }
 
 function formatObservedDate(value: unknown): string {
-  if (typeof value !== 'string' || !value) return 'â€”';
+  if (typeof value !== 'string' || !value) return '—';
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
   return date.toLocaleDateString('tr-TR');
 }
 
-/** Minimal HES popup: name, river Â· province, power + fullness, source label, observation + freshness, [Detay]. */
+/** Minimal HES popup: name, river · province, power + fullness, source label, observation + freshness, [Detay]. */
 export function hesPopupHtml(properties: Record<string, unknown>): string {
-  const producer = properties.isProducer === true ? '<span class="hydro-popup-producer">âš¡</span>' : '';
+  const producer = properties.isProducer === true ? '<span class="hydro-popup-producer">⚡</span>' : '';
   const hasValue = properties.occupancy !== null && properties.occupancy !== undefined;
   const fullness = hasValue ? `%${Math.round(Number(properties.occupancy))}` : 'Veri yok';
   const badge = fullnessBadge({ fullnessPercent: hasValue ? Number(properties.occupancy) : null, status: String(properties.fullnessStatus ?? ''), sourceClass: String(properties.fullnessSourceClass ?? '') });
-  const power = properties.installedPowerMw === null || properties.installedPowerMw === undefined ? 'â€”' : `${escapePopup(properties.installedPowerMw)} MW`;
+  const power = properties.installedPowerMw === null || properties.installedPowerMw === undefined ? '—' : `${escapePopup(properties.installedPowerMw)} MW`;
   const observed = formatObservedDate(properties.fullnessObservedAt);
-  const age = properties.fullnessFreshnessDays === null || properties.fullnessFreshnessDays === undefined ? '' : ` Â· ${properties.fullnessFreshnessDays} gÃ¼n`;
-  return `<div class="hydro-click-popup"><div class="hydro-popup-head"><strong>${producer}${escapePopup(properties.name)}</strong><button type="button" data-popup-close aria-label="Kapat">Ã—</button></div><div class="hydro-popup-sub">${escapePopup(properties.riverName ?? 'â€”')} Â· ${escapePopup(properties.province ?? 'â€”')}</div><div class="hydro-popup-main"><span class="hydro-popup-power">${power}</span><span class="hydro-popup-fullness">${fullness} <small>${badge}</small></span></div><div class="hydro-popup-source">${escapePopup(shortSourceLabel(properties))}</div><div class="hydro-popup-observed">${escapePopup(observed)}${escapePopup(age)}</div><button type="button" class="hydro-popup-detail" data-show-detail>Detay</button></div>`;
+  const age = properties.fullnessFreshnessDays === null || properties.fullnessFreshnessDays === undefined ? '' : ` · ${properties.fullnessFreshnessDays} gün`;
+  return `<div class="hydro-click-popup"><div class="hydro-popup-head"><strong>${producer}${escapePopup(properties.name)}</strong><button type="button" data-popup-close aria-label="Kapat">×</button></div><div class="hydro-popup-sub">${escapePopup(properties.riverName ?? '—')} · ${escapePopup(properties.province ?? '—')}</div><div class="hydro-popup-main"><span class="hydro-popup-power">${power}</span><span class="hydro-popup-fullness">${fullness} <small>${badge}</small></span></div><div class="hydro-popup-source">${escapePopup(shortSourceLabel(properties))}</div><div class="hydro-popup-observed">${escapePopup(observed)}${escapePopup(age)}</div><button type="button" class="hydro-popup-detail" data-show-detail>Detay</button></div>`;
 }
 
 function bindHesPopupActions(popup: maplibregl.Popup, hesId: string): void {
@@ -396,7 +396,7 @@ export function BaseMap() {
     map.on('styledata', onStyleData);
     map.on('error', onMapError);
     // Bounded first-paint bootstrap: retry overlay sync a few times until the
-    // key layers exist. No render-loop listener â€” a render->sync->repaint
+    // key layers exist. No render-loop listener — a render->sync->repaint
     // cycle would pin the main thread on slower production timing.
     let bootstrapAttempts = 0;
     const stopOverlayBootstrap = () => {
@@ -426,7 +426,7 @@ export function BaseMap() {
       }
     }, 6000);
     map.addControl(new maplibregl.NavigationControl({ showCompass: true }), 'top-right');
-    map.addControl(new maplibregl.AttributionControl({ compact: true, customAttribution: 'GDW rezervuar poligonlarÄ± Â· OpenFreeMap / OSM' }), 'bottom-right');
+    map.addControl(new maplibregl.AttributionControl({ compact: true, customAttribution: 'GDW rezervuar poligonları · OpenFreeMap / OSM' }), 'bottom-right');
     return () => {
       if (frameRef.current !== null) cancelAnimationFrame(frameRef.current);
       if (overlayRetryRef.current !== null) clearTimeout(overlayRetryRef.current);
@@ -578,7 +578,7 @@ export function BaseMap() {
       const layerId = feature.layer.id;
       const kind = layerId === 'basins-fill' ? 'basin' : layerId === 'rivers-core' ? 'river' : layerId === 'reservoirs-outline' ? 'lake' : layerId === 'hes177-points' || layerId === HES_PIE_LAYER_ID ? 'hes' : 'dam';
       const name = displayName(props, kind, String(props.id ?? feature.id ?? ''));
-      const detail = kind === 'hes' ? `${props.installedPowerMw ?? 'â€”'} MW Â· ${String(props.riverName ?? 'Akarsu doÄŸrulanamadÄ±')}\nDoluluk: ${props.occupancy === null || props.occupancy === undefined ? 'â€”' : `%${Math.round(Number(props.occupancy))} ${String(props.fullnessSource ?? 'â€”')}`}` : kind === 'river' ? `${props.hasForecast ? 'GEOGLOWS tahmini mevcut' : 'GEOGLOWS tahmini yok'}\nHavza: ${String(props.basinName ?? props.HavzaAdi ?? props.basinId ?? 'â€”')}` : kind === 'dam' ? `${props.occupancy !== null && props.occupancy !== undefined ? `Doluluk: %${Math.round(Number(props.occupancy))}` : 'Doluluk verisi yok'}${props.isProducer === true ? '\nâš¡ BaÄŸlÄ± HES tesisi' : ''}` : `Alan: ${props.areaKm2 ? `${Number(props.areaKm2).toLocaleString('tr-TR')} kmÂ²` : 'Ã¶zet veri yok'}`;
+      const detail = kind === 'hes' ? `${props.installedPowerMw ?? '—'} MW · ${String(props.riverName ?? 'Akarsu doğrulanamadı')}\nDoluluk: ${props.occupancy === null || props.occupancy === undefined ? '—' : `%${Math.round(Number(props.occupancy))} ${String(props.fullnessSource ?? '—')}`}` : kind === 'river' ? `${props.hasForecast ? 'GEOGLOWS tahmini mevcut' : 'GEOGLOWS tahmini yok'}\nHavza: ${String(props.basinName ?? props.HavzaAdi ?? props.basinId ?? '—')}` : kind === 'dam' ? `${props.occupancy !== null && props.occupancy !== undefined ? `Doluluk: %${Math.round(Number(props.occupancy))}` : 'Doluluk verisi yok'}${props.isProducer === true ? '\n⚡ Bağlı HES tesisi' : ''}` : `Alan: ${props.areaKm2 ? `${Number(props.areaKm2).toLocaleString('tr-TR')} km²` : 'özet veri yok'}`;
       popupRef.current?.remove();
       popupRef.current = new maplibregl.Popup({ closeButton: false, closeOnClick: false, offset: 10, className: themeRef.current === 'light' ? 'hydro-tooltip hydro-tooltip-light' : 'hydro-tooltip' })
         .setLngLat(event.lngLat)
@@ -601,6 +601,6 @@ export function BaseMap() {
   }, [collections, selectedEntity]);
 
   return (
-    <div ref={mapContainerRef} className="absolute inset-0" style={{ minHeight: 320 }} aria-label="TÃ¼rkiye hidroloji haritasÄ±" />
+    <div ref={mapContainerRef} className="absolute inset-0" style={{ minHeight: 320 }} aria-label="Türkiye hidroloji haritası" />
   );
 }
