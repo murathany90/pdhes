@@ -22,6 +22,7 @@ SUMMARY_PROPERTIES = (
     "reservoirMatchConfidence",
 )
 OBSERVATION_FIELDS = ("observedAt", "observationTimestamp", "fetchedAt")
+CONSISTENCY_FIELDS = ("hesId", "fullnessPercent", "source", "provider", "isEstimated", "observedAt", "observationTimestamp")
 
 
 def read_json(path: Path) -> dict[str, Any]:
@@ -39,6 +40,24 @@ def write_json_atomic(path: Path, payload: dict[str, Any]) -> None:
     temporary = path.with_suffix(f"{path.suffix}.tmp")
     temporary.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     os.replace(temporary, path)
+
+
+def validate_linked_fullness_consistency(canonical: dict[str, Any], linked: dict[str, Any]) -> None:
+    """Fail the pipeline if the linked runtime records diverge from canonical fullness."""
+    if canonical.get("dataVersion") != linked.get("dataVersion"):
+        raise ValueError(f"Linked fullness dataVersion mismatch: canonical={canonical.get('dataVersion')}, linked={linked.get('dataVersion')}")
+    if canonical.get("pipelineRunAt") != linked.get("pipelineRunAt"):
+        raise ValueError(f"Linked fullness pipelineRunAt mismatch: canonical={canonical.get('pipelineRunAt')}, linked={linked.get('pipelineRunAt')}")
+    canonical_records = {str(record.get("hesId")): record for record in canonical.get("records", []) if isinstance(record, dict) and record.get("hesId")}
+    linked_records = {str(record.get("hesId")): record for record in linked.get("records", []) if isinstance(record, dict) and record.get("hesId")}
+    if set(canonical_records) < set(linked_records):
+        missing = sorted(set(linked_records) - set(canonical_records))
+        raise ValueError(f"Linked fullness contains unknown canonical HES records: {missing}")
+    for hes_id, linked_record in linked_records.items():
+        canonical_record = canonical_records[hes_id]
+        for field in CONSISTENCY_FIELDS:
+            if canonical_record.get(field) != linked_record.get(field):
+                raise ValueError(f"Linked fullness mismatch for {hes_id}.{field}: canonical={canonical_record.get(field)!r}, linked={linked_record.get(field)!r}")
 
 
 def data_version(manifest: dict[str, Any], fullness: dict[str, Any]) -> str:
@@ -128,6 +147,7 @@ def build_payloads(
         "recordCount": len(linked_fullness),
         "records": sorted(linked_fullness, key=lambda record: record["hesId"]),
     })
+    validate_linked_fullness_consistency(fullness_payload, linked_fullness_payload)
     return summary_payload, linked_fullness_payload
 
 

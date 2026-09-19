@@ -141,7 +141,10 @@ jobs:
           HYDRO_HISTORY_PERSISTED: ${{ steps.persist_history.outputs.history_persisted }}
           HYDRO_HISTORY_SKIP_ARCHIVE_WRITE: 'true'
           HYDRO_DEPLOY_SUCCEEDED: 'false'
-        run: python tools/hydro/audit_fullness_sources.py
+        run: |
+          python tools/hydro/audit_fullness_sources.py
+          python tools/hydro/build_linked_hes.py
+          python tools/validate_hes177.py
 
       - name: Commit generated hydrology data
         shell: bash

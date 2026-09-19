@@ -13,6 +13,8 @@ export interface HydroSourceMeta {
 export interface HydroDataManifest {
   version?: string | number;
   generatedAt?: string;
+  pipelineRunAt?: string;
+  latestObservationAt?: string | null;
   dataVersion?: string;
   buildBaseCommit?: string | null;
   status?: string;

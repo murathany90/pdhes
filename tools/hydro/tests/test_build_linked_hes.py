@@ -6,7 +6,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from build_linked_hes import build_payloads
+from build_linked_hes import build_payloads, validate_linked_fullness_consistency
 
 
 class LinkedHesBuildTest(unittest.TestCase):
@@ -39,6 +39,12 @@ class LinkedHesBuildTest(unittest.TestCase):
             manifest.write_text(json.dumps({"dataVersion": "hes177-v-b"}), encoding="utf-8")
             with self.assertRaisesRegex(ValueError, "dataVersion mismatch"):
                 build_payloads(links, hes, manifest, fullness)
+
+    def test_consistency_mismatch_fails(self):
+        canonical = {"dataVersion": "hes177-v-test", "pipelineRunAt": "2026-09-16T00:00:00Z", "records": [{"hesId": "hes-1", "fullnessPercent": 71.2, "source": "dsi", "provider": "DSİ", "isEstimated": False, "observedAt": "2026-09-15", "observationTimestamp": "2026-09-15"}]}
+        linked = {"dataVersion": "hes177-v-test", "pipelineRunAt": "2026-09-16T00:00:00Z", "records": [{"hesId": "hes-1", "fullnessPercent": 70.0, "source": "dsi", "provider": "DSİ", "isEstimated": False, "observedAt": "2026-09-15", "observationTimestamp": "2026-09-15"}]}
+        with self.assertRaisesRegex(ValueError, "fullnessPercent"):
+            validate_linked_fullness_consistency(canonical, linked)
 
 
 if __name__ == "__main__":

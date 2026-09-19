@@ -89,6 +89,7 @@ export async function loadHydroData(): Promise<HydroDataBundle> {
   ]);
   const canonicalManifest = canonicalManifestResult[0].status === 'fulfilled' ? canonicalManifestResult[0].value : null;
   const assetVersion = canonicalManifest?.dataVersion ?? canonicalManifest?.version;
+  const liveVersion = canonicalManifest?.pipelineRunAt ?? canonicalManifest?.generatedAt ?? assetVersion;
   const entries = await Promise.allSettled(
     Object.entries(STATIC_FILES).map(async ([key, path]) => [key, path ? asFeatureCollection(await readJson(versionedPath(path, assetVersion)), path) : emptyFeatureCollection()] as const),
   );
@@ -108,7 +109,7 @@ export async function loadHydroData(): Promise<HydroDataBundle> {
     readJson<RiverMappingManifest>('/manifest/river_reach_map_manifest.json'),
     readJson<GeoglowsPayload>('/live/geoglows_latest.json'),
     readJson<EpiasPayload>('/live/epias_dams_latest.json'),
-    readJson<FullnessPayload>(versionedPath('/live/hes_fullness_latest.json', assetVersion)),
+    readJson<FullnessPayload>(versionedPath('/live/hes_fullness_latest.json', liveVersion)),
     readJson<Hes177Relations>(versionedPath('/hes177/hes_177_relations.json', assetVersion)),
   ]);
   if (optional[0].status === 'fulfilled') bundle.manifest = optional[0].value;
