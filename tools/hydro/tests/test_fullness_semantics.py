@@ -11,8 +11,10 @@ from audit_fullness_sources import (
     complete_fullness_record,
     hypsometry_percent,
     make_result,
+    merge_daily_snapshot,
     select_best_fullness_record,
     volume_percent_raw,
+    write_rolling_timeseries,
 )
 from providers import dedupe_key
 from storage_types import classify_storage
@@ -85,6 +87,23 @@ class CalculationTest(unittest.TestCase):
 
 
 class HistoryTest(unittest.TestCase):
+    def test_archive_rerun_and_rolling_windows_are_idempotent(self):
+        import json
+        import tempfile
+
+        payload = {"dataVersion": "hes177-v-test", "pipelineRunAt": "2026-09-16T00:00:00Z", "records": [record("calculated_storage", 52, observedAt="2026-09-15")]}
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory) / "history"
+            output = Path(directory) / "timeseries"
+            archive = root / "2026" / "09" / "2026-09-16.json"
+            archive.parent.mkdir(parents=True)
+            archive.write_text(json.dumps(merge_daily_snapshot(archive, payload, payload["pipelineRunAt"])), encoding="utf-8")
+            archive.write_text(json.dumps(merge_daily_snapshot(archive, payload, payload["pipelineRunAt"])), encoding="utf-8")
+            summary = write_rolling_timeseries(root, payload["pipelineRunAt"], output)
+            self.assertEqual(summary["observationCount"], 1)
+            for days in (7, 30, 90, 365):
+                self.assertEqual(json.loads((output / f"hes_fullness_{days}d.json").read_text(encoding="utf-8"))["observationCount"], 1)
+
     def test_dedupe_same_observation(self):
         key = lambda r: dedupe_key(r["hesId"], r.get("provider") or r.get("source"), r.get("observedAt"), r.get("sourceClass"))
         first = record("calculated_storage", 52)

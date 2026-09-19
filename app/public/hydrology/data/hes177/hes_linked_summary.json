@@ -1,53 +1,68 @@
 {
-  "version": 1,
-  "generatedAt": "2026-09-20",
+  "version": 2,
+  "dataVersion": "hes177-v8",
+  "generatedAt": "2026-09-16T22:00:53Z",
+  "pipelineRunAt": "2026-09-16T22:00:53Z",
+  "latestObservationAt": "2026-09-13T00:00:00Z",
   "records": [
     {
       "hesId": "hes177-014",
+      "dataVersion": "hes177-v8",
+      "observedAt": "2026-09-13",
+      "observationTimestamp": "2026-09-13",
+      "fetchedAt": "2026-09-16T22:00:53Z",
       "properties": {
-        "coordinateKind": "hes",
-        "basinName": "Kızılırmak",
-        "entityId": "hes177-014",
-        "reservoirSource": "GDW",
-        "reservoirName": "Altinkaya Baraji",
-        "reservoirMatchConfidence": "high",
-        "damName": "ALTINKAYA",
-        "coordinateStatus": "Doğrulanmış koordinat mevcut",
         "id": "hes177-014",
+        "entityId": "hes177-014",
+        "name": "ALTINKAYA HES",
+        "damName": "ALTINKAYA",
         "province": "SAMSUN",
-        "name": "ALTINKAYA HES"
+        "basinName": "Kızılırmak",
+        "coordinateStatus": "Doğrulanmış koordinat mevcut",
+        "coordinateKind": "hes",
+        "reservoirName": "Altinkaya Baraji",
+        "reservoirSource": "GDW",
+        "reservoirMatchConfidence": "high"
       }
     },
     {
       "hesId": "hes177-073",
+      "dataVersion": "hes177-v8",
+      "observedAt": "2026-09-13",
+      "observationTimestamp": "2026-09-13",
+      "fetchedAt": "2026-09-16T22:00:53Z",
       "properties": {
-        "coordinateKind": "hes",
-        "basinName": "Sakarya",
-        "entityId": "hes177-073",
-        "reservoirSource": "GDW",
-        "reservoirName": "Gokcekaya",
-        "reservoirMatchConfidence": "high",
-        "damName": "GÖKÇEKAYA",
-        "coordinateStatus": "Doğrulanmış koordinat mevcut",
         "id": "hes177-073",
+        "entityId": "hes177-073",
+        "name": "GÖKÇEKAYA HES",
+        "damName": "GÖKÇEKAYA",
         "province": "ESKİŞEHİR",
-        "name": "GÖKÇEKAYA HES"
+        "basinName": "Sakarya",
+        "coordinateStatus": "Doğrulanmış koordinat mevcut",
+        "coordinateKind": "hes",
+        "reservoirName": "Gokcekaya",
+        "reservoirSource": "GDW",
+        "reservoirMatchConfidence": "high"
       }
     },
     {
       "hesId": "hes177-140",
+      "dataVersion": "hes177-v8",
+      "observedAt": "2026-09-13",
+      "observationTimestamp": "2026-09-13",
+      "fetchedAt": "2026-09-16T22:00:53Z",
       "properties": {
-        "coordinateKind": "transformer",
-        "basinName": "Sakarya",
-        "entityId": "hes177-140",
-        "reservoirSource": "GDW",
-        "reservoirName": "Sariyar",
-        "reservoirMatchConfidence": "medium",
-        "damName": "SARIYAR",
-        "coordinateStatus": "Trafo merkezi koordinatı ile tamamlandı",
         "id": "hes177-140",
+        "entityId": "hes177-140",
+        "name": "SARIYAR HES",
+        "damName": "SARIYAR",
         "province": "ESKİŞEHİR",
-        "name": "SARIYAR HES"
+        "basinName": "Sakarya",
+        "coordinateStatus": "Trafo merkezi koordinatı ile tamamlandı",
+        "coordinateKind": "transformer",
+        "reservoirName": "Sariyar",
+        "reservoirSource": "GDW",
+        "reservoirMatchConfidence": "medium"
       }
     }
   ]

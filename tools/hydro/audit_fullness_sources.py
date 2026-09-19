@@ -867,7 +867,7 @@ def build_timeseries(history_root: Path, fetched_at: str) -> dict[str, Any]:
     return {"dataVersion": read_payload(MANIFEST_PATH).get("dataVersion"), "pipelineRunAt": fetched_at, "latestObservationAt": max((str(point["date"]) for point in all_points), default=None), "recordCount": len(records), "observationCount": len(all_points), "records": records}
 
 
-def write_rolling_timeseries(history_root: Path, fetched_at: str) -> dict[str, Any]:
+def write_rolling_timeseries(history_root: Path, fetched_at: str, timeseries_root: Path = TIMESERIES_ROOT) -> dict[str, Any]:
     full = build_timeseries(history_root, fetched_at)
     all_points = [point for record in full["records"] for point in record["points"]]
     reference = parse_datetime(fetched_at) or datetime.now(timezone.utc)
@@ -877,7 +877,7 @@ def write_rolling_timeseries(history_root: Path, fetched_at: str) -> dict[str, A
             points = [point for point in record["points"] if (observed := parse_datetime(point.get("date"))) is not None and 0 <= (reference.date() - observed.date()).days <= days]
             if points:
                 filtered_records.append({"hesId": record["hesId"], "points": points})
-        write_payload(TIMESERIES_ROOT / f"hes_fullness_{days}d.json", {**full, "rangeDays": days, "recordCount": len(filtered_records), "observationCount": sum(len(record["points"]) for record in filtered_records), "records": filtered_records})
+        write_payload(timeseries_root / f"hes_fullness_{days}d.json", {**full, "rangeDays": days, "recordCount": len(filtered_records), "observationCount": sum(len(record["points"]) for record in filtered_records), "records": filtered_records})
     return {"recordCount": len(full["records"]), "observationCount": len(all_points), "oldestObservationAt": min((str(point["date"] ) for point in all_points), default=None), "newestObservationAt": max((str(point["date"]) for point in all_points), default=None)}
 
 

@@ -236,6 +236,7 @@ function CandidateDetailPanel({ candidate }: { candidate: Site }) {
           <span>HES/baraj adı <b>{linkedName}</b></span>
           <span>Güncel doluluk <b>{fullnessResult?.fullnessPercent == null ? 'Veri yok' : `%${Math.round(fullnessResult.fullnessPercent)}`}</b></span>
           <span>Kaynak <b>{fullnessResult ? fullnessSourceLabel(fullnessResult) : 'Kanonik HES verisi'}</b></span>
+          <span>Durum <b>{fullnessResult?.isEstimated ? 'Tahmini' : fullnessResult?.status === 'available' ? 'Gözlem' : 'Veri yok'}</b></span>
           <span>Gözlem tarihi <b>{fullnessResult?.observedAt ? new Date(fullnessResult.observedAt).toLocaleDateString('tr-TR') : '—'}</b></span>
         </div>
         <a className="btn ghost location-btn" href={`/hes?hes=${encodeURIComponent(link.hesId)}`}>HES haritasında aç</a>

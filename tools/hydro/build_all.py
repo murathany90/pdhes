@@ -37,6 +37,7 @@ def main() -> None:
     run("tools/build_hes177.py")
     run("tools/hydro/build_reservoirs.py")
     run("tools/hydro/audit_fullness_sources.py")
+    run("tools/hydro/build_linked_hes.py")
     run("tools/validate_hes177.py")
 
 

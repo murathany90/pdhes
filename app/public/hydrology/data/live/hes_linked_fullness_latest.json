@@ -104,8 +104,10 @@
     "rejectedCount": 0,
     "rejectedPath": "public/data/quality/fullness_rejected.json"
   },
+  "recordCount": 3,
   "records": [
     {
+      "dataVersion": "hes177-v8",
       "hesId": "hes177-014",
       "fullnessPercent": 41.985822959889354,
       "status": "available",
@@ -154,6 +156,7 @@
       "observationTimestamp": "2026-09-13"
     },
     {
+      "dataVersion": "hes177-v8",
       "hesId": "hes177-073",
       "fullnessPercent": 55.17864402186188,
       "status": "available",
@@ -202,6 +205,7 @@
       "observationTimestamp": "2026-09-13"
     },
     {
+      "dataVersion": "hes177-v8",
       "hesId": "hes177-140",
       "fullnessPercent": 64.50805969420752,
       "status": "available",
@@ -249,6 +253,5 @@
       "sourceStationId": null,
       "observationTimestamp": "2026-09-13"
     }
-  ],
-  "recordCount": 3
+  ]
 }
