@@ -1,9 +1,12 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import type { CandidateFilters } from "../utils/pdhesFilters";
 import type { Site } from "../types/site";
 import type { PdhesCandidateExcelCalculatedData } from "../utils/pdhes/types";
 import { useSiteStore } from "../stores/useSiteStore";
+import { useHydrologyStore } from "../features/hydrology/store/useHydrologyStore";
+import { loadPdhesHesLinks, type PdhesHesLink } from "../features/hydrology/services/pdhesHesLinks";
+import { fullnessSourceLabel, fullnessRecordsByHes } from "../features/hydrology/data/fullnessSources";
 import {
   DEFAULT_DATA_FILTERS,
   matchesCandidateFilters,
@@ -145,6 +148,11 @@ function DetailMetric({ label, value }: { label: string; value: string }) {
 }
 
 function CandidateDetailPanel({ candidate }: { candidate: Site }) {
+  const [links, setLinks] = useState<PdhesHesLink[]>([]);
+  const loadHydroData = useHydrologyStore((state) => state.loadHydroData);
+  const hesFeatures = useHydrologyStore((state) => state.hes177.features);
+  const fullness = useHydrologyStore((state) => state.fullness);
+  useEffect(() => { void loadPdhesHesLinks().then(setLinks).catch(() => setLinks([])); void loadHydroData(); }, [loadHydroData]);
   const excel = excelFor(candidate);
   if (!excel) {
     return (
@@ -193,6 +201,11 @@ function CandidateDetailPanel({ candidate }: { candidate: Site }) {
     },
   ];
 
+  const link = links.find((item) => item.pdhesSiteId === candidate.id);
+  const hesFeature = link ? hesFeatures.find((feature) => String(feature.properties?.id ?? feature.id ?? '') === link.hesId) : undefined;
+  const fullnessResult = link ? fullnessRecordsByHes(fullness).get(link.hesId) : undefined;
+  const linkedName = String(hesFeature?.properties?.name ?? hesFeature?.properties?.damName ?? link?.hesId ?? '');
+
   return (
     <div className="excel-detail-panel">
       <div className="excel-detail-title">
@@ -213,6 +226,16 @@ function CandidateDetailPanel({ candidate }: { candidate: Site }) {
           </section>
         ))}
       </div>
+      {link && <section className="pdhes-hes-link" aria-label="Mevcut alt rezervuar">
+        <h3>Mevcut alt rezervuar</h3>
+        <div className="pdhes-hes-link-grid">
+          <span>HES/baraj adı <b>{linkedName}</b></span>
+          <span>Güncel doluluk <b>{fullnessResult?.fullnessPercent == null ? 'Veri yok' : `%${Math.round(fullnessResult.fullnessPercent)}`}</b></span>
+          <span>Kaynak <b>{fullnessResult ? fullnessSourceLabel(fullnessResult) : 'Kanonik HES verisi'}</b></span>
+          <span>Gözlem tarihi <b>{fullnessResult?.observedAt ? new Date(fullnessResult.observedAt).toLocaleDateString('tr-TR') : '—'}</b></span>
+        </div>
+        <a className="btn ghost location-btn" href={`/hes?hes=${encodeURIComponent(link.hesId)}`}>HES haritasında aç</a>
+      </section>}
     </div>
   );
 }

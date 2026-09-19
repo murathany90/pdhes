@@ -663,6 +663,17 @@ html[data-theme="light"] .layer-btn.active {
   position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
   overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
 }
+.pdhes-hes-link {
+  margin-top: 16px;
+  padding: 12px;
+  border: 1px solid color-mix(in srgb, var(--green) 40%, var(--line));
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--green) 8%, var(--panel));
+}
+.pdhes-hes-link h3 { margin-bottom: 8px; }
+.pdhes-hes-link-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; color: var(--muted); font-size: 11px; }
+.pdhes-hes-link-grid b { display: block; margin-top: 2px; color: var(--text); }
+.pdhes-hes-link .location-btn { margin-top: 10px; text-decoration: none; }
 .skip-link {
   position: fixed; top: 8px; left: 8px; z-index: 1000;
   padding: 10px 14px; border-radius: 8px; background: var(--action); color: #fff;

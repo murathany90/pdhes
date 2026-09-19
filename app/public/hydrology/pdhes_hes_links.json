@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "generatedAt": "2026-09-20",
+  "links": [
+    {
+      "pdhesSiteId": "kamu-gokcekaya-pspp",
+      "hesId": "hes177-073",
+      "reservoirId": "reservoir-gdw-1496",
+      "role": "lower_reservoir",
+      "confidence": "high",
+      "method": "canonical_reservoir_name_and_site_metadata"
+    },
+    {
+      "pdhesSiteId": "kamu-sariyar-pspp",
+      "hesId": "hes177-140",
+      "reservoirId": "reservoir-gdw-1495",
+      "role": "lower_reservoir",
+      "confidence": "high",
+      "method": "canonical_reservoir_name_and_site_metadata"
+    },
+    {
+      "pdhesSiteId": "kamu-altinkaya-pspp",
+      "hesId": "hes177-014",
+      "reservoirId": "reservoir-gdw-1457",
+      "role": "lower_reservoir",
+      "confidence": "high",
+      "method": "canonical_reservoir_name_and_site_metadata"
+    }
+  ]
+}

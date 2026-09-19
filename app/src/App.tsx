@@ -42,6 +42,7 @@ const SettingsPage = lazy(loadSettingsPage);
 const SiteEditorPage = lazy(loadSiteEditorPage);
 const ThreeDEditorPage = lazy(loadThreeDEditorPage);
 const WorldExamplesPage = lazy(() => import('./pages/WorldExamplesPage'));
+const HesPage = lazy(() => import('./pages/HesPage'));
 
 // Removed ROUTE_PRELOADERS
 
@@ -52,6 +53,7 @@ const TABS = [
   { id: 'map', path: '/map', label: 'Harita Gösterim', Icon: MapPinned },
   { id: 'threeD', path: '/3d', label: '3D Yerleşim', Icon: Mountain },
   { id: 'reports', path: '/reports', label: 'Raporlar ve Haberler', Icon: FileText },
+  { id: 'hes', path: '/hes', label: 'HESLER', Icon: MapPinned },
   { id: 'workspace', path: '/workspace', label: 'Yerel Çalışma Alanı', Icon: ShieldCheck },
 ];
 
@@ -96,13 +98,14 @@ export default function App() {
   }, [theme]);
 
   const selectedSite = sites.find((s) => s.id === selectedId) || sites[0];
+  const isHydrologyRoute = location.pathname === '/hes';
 
 
 
   const controls = (
     <>
-      <SiteSelector sites={sites} selectedId={selectedId} onChange={selectSite} />
-      <NavLink 
+      {!isHydrologyRoute && <SiteSelector sites={sites} selectedId={selectedId} onChange={selectSite} />}
+      {!isHydrologyRoute && <NavLink
         className="btn primary" 
         to="/map"
         onClick={() => {
@@ -112,7 +115,7 @@ export default function App() {
       >
         <MapPinned size={16} aria-hidden="true" />
         Haritada incele
-      </NavLink>
+      </NavLink>}
 
       <button
         className="btn ghost utility-link"
@@ -195,6 +198,7 @@ export default function App() {
           <Route path="/3d" element={<ThreeDPage site={selectedSite} />} />
           <Route path="/reports" element={<ReportsPage />} />
           <Route path="/reports/:reportId" element={<ReportsPage />} />
+          <Route path="/hes" element={<HesPage />} />
           <Route
             path="/workspace"
             element={workspaceEnabled ? (
