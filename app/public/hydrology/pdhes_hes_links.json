@@ -19,7 +19,7 @@
       "method": "canonical_reservoir_name_and_site_metadata"
     },
     {
-      "pdhesSiteId": "kamu-altinkaya-pspp",
+      "pdhesSiteId": "altinkaya",
       "hesId": "hes177-014",
       "reservoirId": "reservoir-gdw-1457",
       "role": "lower_reservoir",

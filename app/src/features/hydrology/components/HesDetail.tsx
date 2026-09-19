@@ -148,7 +148,7 @@ export function HesHistoryPanel({ hesId, isLight }: { hesId: string; isLight: bo
             <button key={days} type="button" onClick={() => setRange(days)} aria-pressed={range === days} className={`rounded px-1.5 py-0.5 font-mono text-[8px] ${range === days ? 'bg-cyan-500/15 text-cyan-400' : 'text-[var(--muted)]'}`}>{days === 365 ? '1Y' : `${days}G`}</button>
           ))}
         </div>
-        <button type="button" onClick={() => setCalendarOpen((open) => !open)} aria-expanded={calendarOpen} aria-label="Takvim" title="Tarih seç" className="rounded px-1.5 py-0.5 text-[10px] text-[var(--muted)]">ğŸ“…</button>
+        <button type="button" onClick={() => setCalendarOpen((open) => !open)} aria-expanded={calendarOpen} aria-label="Takvim" title="Tarih seç" className="rounded px-1.5 py-0.5 text-[10px] text-[var(--muted)]">📅</button>
       </div>
       {calendarOpen && (
         <div className="mt-1 flex items-center gap-1">

@@ -2,6 +2,12 @@ name: Hydrology data pipeline
 
 on:
   workflow_dispatch:
+    inputs:
+      validation_only:
+        description: Validate providers, history, canonical and linked outputs without pushing data
+        required: false
+        default: true
+        type: boolean
   schedule:
     - cron: '0 */6 * * *'
     - cron: '30 2 * * *'
@@ -26,6 +32,7 @@ jobs:
       HYDROWEB_API_KEY: ${{ secrets.HYDROWEB_API_KEY }}
       COPERNICUS_ACCESS_TOKEN: ${{ secrets.COPERNICUS_ACCESS_TOKEN }}
       EARTHDATA_TOKEN: ${{ secrets.EARTHDATA_TOKEN }}
+      HYDRO_VALIDATION_ONLY: ${{ github.event_name == 'workflow_dispatch' && (inputs.validation_only == true || github.ref_name != github.event.repository.default_branch) }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -36,7 +43,17 @@ jobs:
           python-version: '3.12'
       - run: pip install -r tools/hydro/requirements.txt
 
+      - name: Prepare validation history workspace
+        if: env.HYDRO_VALIDATION_ONLY == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          VALIDATION_HISTORY_ROOT="$RUNNER_TEMP/hydrology-validation-history"
+          mkdir -p "$VALIDATION_HISTORY_ROOT"
+          echo "HYDRO_HISTORY_ROOT=$VALIDATION_HISTORY_ROOT" >> "$GITHUB_ENV"
+
       - name: Prepare persistent history branch
+        if: env.HYDRO_VALIDATION_ONLY != 'true'
         shell: bash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -101,6 +118,7 @@ jobs:
           python tools/hydro/fetch_sentinel2.py
 
       - name: Refresh persistent history before write
+        if: env.HYDRO_VALIDATION_ONLY != 'true'
         shell: bash
         run: |
           set -euo pipefail
@@ -120,6 +138,7 @@ jobs:
 
       - name: Persist history branch
         id: persist_history
+        if: env.HYDRO_VALIDATION_ONLY != 'true'
         shell: bash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -135,11 +154,11 @@ jobs:
           echo 'history_persisted=true' >> "$GITHUB_OUTPUT"
 
       - name: Publish archive-backed health metadata
-        if: steps.persist_history.outputs.history_persisted == 'true'
+        if: steps.persist_history.outputs.history_persisted == 'true' || env.HYDRO_VALIDATION_ONLY == 'true'
         env:
           HYDRO_WORKFLOW_STATUS: ${{ github.event_name }}
-          HYDRO_HISTORY_PERSISTED: ${{ steps.persist_history.outputs.history_persisted }}
-          HYDRO_HISTORY_SKIP_ARCHIVE_WRITE: 'true'
+          HYDRO_HISTORY_PERSISTED: ${{ steps.persist_history.outputs.history_persisted || 'false' }}
+          HYDRO_HISTORY_SKIP_ARCHIVE_WRITE: ${{ env.HYDRO_VALIDATION_ONLY == 'true' && 'false' || 'true' }}
           HYDRO_DEPLOY_SUCCEEDED: 'false'
         run: |
           python tools/hydro/audit_fullness_sources.py
@@ -147,6 +166,7 @@ jobs:
           python tools/validate_hes177.py
 
       - name: Commit generated hydrology data
+        if: env.HYDRO_VALIDATION_ONLY != 'true'
         shell: bash
         run: |
           set -euo pipefail
