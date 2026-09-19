@@ -23,6 +23,8 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    outputs:
+      validation_only: ${{ steps.pipeline_mode.outputs.validation_only }}
     env:
       EPIAS_USERNAME: ${{ secrets.EPIAS_USERNAME }}
       EPIAS_PASSWORD: ${{ secrets.EPIAS_PASSWORD }}
@@ -42,6 +44,11 @@ jobs:
         with:
           python-version: '3.12'
       - run: pip install -r tools/hydro/requirements.txt
+
+      - name: Record pipeline mode
+        id: pipeline_mode
+        shell: bash
+        run: echo "validation_only=$HYDRO_VALIDATION_ONLY" >> "$GITHUB_OUTPUT"
 
       - name: Prepare validation history workspace
         if: env.HYDRO_VALIDATION_ONLY == 'true'
@@ -179,3 +186,12 @@ jobs:
             git commit -m 'data: refresh hydrology snapshot'
             git push origin "HEAD:${GITHUB_REF_NAME}"
           fi
+
+  deploy-production:
+    if: github.ref_name == github.event.repository.default_branch && needs.build.result == 'success' && needs.build.outputs.validation_only != 'true'
+    needs: build
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    uses: ./.github/workflows/deploy-pages.yml

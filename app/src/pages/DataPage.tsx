@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import type { CandidateFilters } from "../utils/pdhesFilters";
 import type { Site } from "../types/site";
 import type { PdhesCandidateExcelCalculatedData } from "../utils/pdhes/types";
@@ -239,7 +239,7 @@ function CandidateDetailPanel({ candidate }: { candidate: Site }) {
           <span>Durum <b>{fullnessResult?.isEstimated ? 'Tahmini' : fullnessResult?.status === 'available' ? 'Gözlem' : 'Veri yok'}</b></span>
           <span>Gözlem tarihi <b>{fullnessResult?.observedAt ? new Date(fullnessResult.observedAt).toLocaleDateString('tr-TR') : '—'}</b></span>
         </div>
-        <a className="btn ghost location-btn" href={`/hes?hes=${encodeURIComponent(link.hesId)}`}>HES haritasında aç</a>
+        <Link className="btn ghost location-btn" to={`/hes?hes=${encodeURIComponent(link.hesId)}`}>HES haritasında aç</Link>
       </section>}
     </div>
   );

@@ -54,7 +54,7 @@ function versionedPath(path: string, manifest: HydrologyCacheManifest): string {
 }
 
 export function loadPdhesHesLinks(): Promise<PdhesHesLink[]> {
-  cachedLinks ??= fetch(publicAssetUrl('hydrology/pdhes_hes_links.json'), { cache: 'force-cache' })
+  cachedLinks ??= fetch(publicAssetUrl('hydrology/pdhes_hes_links.json'), { cache: 'no-cache' })
     .then((response) => { if (!response.ok) throw new Error(`PDHES-HES mapping HTTP ${response.status}`); return response.json() as Promise<LinkPayload>; })
     .then((payload) => Array.isArray(payload.links) ? payload.links : []);
   return cachedLinks;
