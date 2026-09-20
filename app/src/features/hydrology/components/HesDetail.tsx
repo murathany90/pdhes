@@ -45,24 +45,24 @@ export function HesSummaryCard({ data, fullness, isLight, technicalOpen, onToggl
 }): React.ReactNode {
   const described = fullness ? describeFullness(fullness) : null;
   return (
-    <div className={`rounded-xl border p-2 ${isLight ? 'border-cyan-200 bg-cyan-50' : 'border-cyan-500/20 bg-cyan-500/5'}`}>
-      <div className="flex items-center justify-between gap-2">
-        <span className="truncate text-[11px] font-semibold text-cyan-400">⚡ {data.name}</span>
-        <span className="shrink-0 font-mono text-[11px] font-bold text-sky-300" title={described?.title ?? ''}>
+    <div className={`hydro-summary-card ${isLight ? 'border-cyan-200 bg-cyan-50' : 'border-cyan-500/20 bg-cyan-500/5'}`}>
+      <div className="hydro-summary-title-row">
+        <span className="hydro-summary-name">⚡ {data.name}</span>
+        <span className="hydro-summary-fullness" title={described?.title ?? ''}>
           {data.fullness === null ? '—' : `%${Math.round(data.fullness)}`} {data.source}
         </span>
       </div>
-      <div className="mt-0.5 text-[11px] font-semibold">{formatMw(data.power)}</div>
-      <div className="truncate text-[9px] text-slate-500">{data.river} · {data.basin}</div>
-      <div className="mt-1 text-[9px] text-slate-500" title={described?.title ?? ''}>
+      <div className="hydro-summary-power">{formatMw(data.power)}</div>
+      <div className="hydro-summary-location">{data.river} · {data.basin}</div>
+      <div className="hydro-summary-meta" title={described?.title ?? ''}>
         {fullness ? (
           <span>Kaynak: {String(fullness.provider ?? fullnessSourceLabel(fullness))} · </span>
         ) : null}
         <span>Gözlem: {fullness && typeof fullness.observedAt === 'string' && fullness.observedAt ? `${formatDate(fullness.observedAt)} · ${fullness.freshnessDays ?? '—'} gün` : '—'}</span>
       </div>
-      <div className="mt-1.5 grid grid-cols-2 gap-1">
-        <button type="button" onClick={onToggleHistory} aria-expanded={historyOpen} className={`rounded-lg px-1 py-1 text-[9px] transition ${historyOpen ? 'bg-cyan-500/15 text-cyan-300' : 'bg-[var(--panel2)] text-[var(--muted)]'}`}>Geçmiş</button>
-        <button type="button" onClick={onToggleTechnical} aria-expanded={technicalOpen} className={`rounded-lg px-1 py-1 text-[9px] transition ${technicalOpen ? 'bg-cyan-500/15 text-cyan-300' : 'bg-[var(--panel2)] text-[var(--muted)]'}`}>Teknik bilgiler</button>
+      <div className="hydro-summary-actions">
+        <button type="button" onClick={onToggleHistory} aria-expanded={historyOpen} className={`hydro-summary-action ${historyOpen ? 'active' : ''}`}>Geçmiş</button>
+        <button type="button" onClick={onToggleTechnical} aria-expanded={technicalOpen} className={`hydro-summary-action ${technicalOpen ? 'active' : ''}`}>Teknik bilgiler</button>
       </div>
     </div>
   );

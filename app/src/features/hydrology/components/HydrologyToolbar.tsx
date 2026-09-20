@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { ChevronDown, Map as MapIcon, Menu, RefreshCw, X } from 'lucide-react';
+import { ChevronDown, Info, Map as MapIcon, Menu, RefreshCw } from 'lucide-react';
 import { formatDataDate } from '../data/hydrology';
 import { fullnessRecordsByHes, preferredFullnessRecord, resolveHesFullness } from '../data/fullnessSources';
 import { useHydrologyStore } from '../store/useHydrologyStore';
@@ -61,9 +61,7 @@ export const HesToolbar: React.FC = () => {
 
   return (
     <section className="hes-toolbar" aria-label="HES araç çubuğu">
-      <button type="button" onClick={toggleSidebar} className="rounded-lg border border-[var(--line)] p-1.5 text-[var(--muted)] transition hover:text-[var(--primary)]" title="Paneli aç/kapa" aria-label="Paneli aç/kapa">
-        {isSidebarOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
-      </button>
+      {!isSidebarOpen && <button type="button" onClick={toggleSidebar} className="toolbar-sidebar-toggle" title="Paneli aç" aria-label="Paneli aç"><Menu className="h-4 w-4" /></button>}
       <div className="hes-toolbar-title">
         <span className="text-xs font-semibold">HESLER</span>
         <span className="rounded-md bg-cyan-500/10 px-1.5 py-0.5 font-mono text-[9px] font-semibold text-[var(--primary)]">20 MW+</span>
@@ -73,18 +71,15 @@ export const HesToolbar: React.FC = () => {
       <div className="hydro-kpis">
         <Kpi label="HES" value={kpis.hes.toLocaleString('tr-TR')} />
         <Kpi label="MW" value={Math.round(kpis.power).toLocaleString('tr-TR')} />
-        <Kpi label="Havza" value={kpis.basins.toLocaleString('tr-TR')} />
-        <Kpi label="Akarsu" value={kpis.rivers.toLocaleString('tr-TR')} />
-        <Kpi label="Kaskat" value={kpis.cascades.toLocaleString('tr-TR')} className="hidden md:flex" />
-        <Kpi label="Konumlu" value={kpis.located.toLocaleString('tr-TR')} className="hidden lg:flex" />
-        <Kpi label="Doluluk" value={`${kpis.available}/${kpis.applicable}`} className="hidden xl:flex" title={`Mevcut ${kpis.available} · Uygulanabilir ${kpis.applicable} · Hesaplanan ${kpis.calculated} · EPİAŞ ${kpis.epias} · Uydu ${kpis.satellite} · Eski ${kpis.stale} · Veri yok ${kpis.unavailable} · Uygulanamaz ${kpis.notApplicable}`} />
+        <Kpi label="Doluluk" value={`${kpis.available}/${kpis.applicable}`} title={`Mevcut ${kpis.available} · Uygulanabilir ${kpis.applicable} · Hesaplanan ${kpis.calculated} · EPİAŞ ${kpis.epias} · Uydu ${kpis.satellite} · Eski ${kpis.stale} · Veri yok ${kpis.unavailable} · Uygulanamaz ${kpis.notApplicable}`} />
+        <button type="button" className="hydro-kpi-info" title={`Havza ${kpis.basins} · Akarsu ${kpis.rivers} · Kaskat ${kpis.cascades} · Konumlu ${kpis.located}`} aria-label="Diğer HES göstergeleri"><Info className="h-3.5 w-3.5" /></button>
       </div>
 
       <div className="hes-toolbar-actions">
-        <span className="rounded-lg border border-cyan-500/25 bg-cyan-500/8 px-2 py-1.5 font-mono text-[9px] text-[var(--primary)]" title="Doluluk, kanonik resolver ve mevcut doğrulanmış kaynaklara göre gösterilir">GERÇEK VERİ</span>
+        <span className="hydro-status-badge" title={hydroDataError ?? 'Doluluk, kanonik resolver ve mevcut doğrulanmış kaynaklara göre gösterilir'}>{statusLabel}</span>
         <button type="button" onClick={() => void refreshHydroData()} disabled={dataStatus === 'loading'} className="hidden items-center gap-1.5 rounded-lg border border-cyan-500/35 px-2 py-1.5 text-[10px] font-medium text-[var(--primary)] transition hover:bg-cyan-500/8 disabled:opacity-50 sm:flex"><RefreshCw className={`h-3.5 w-3.5 ${dataStatus === 'loading' ? 'animate-spin' : ''}`} />Yenile</button>
         <div className="relative">
-          <button type="button" onClick={() => setBasemapMenuOpen((open) => !open)} className="flex items-center gap-1 rounded-lg border border-[var(--line)] px-2 py-1.5 text-[10px] text-[var(--muted)]"><MapIcon className="h-3.5 w-3.5 text-[var(--primary)]" /><span className="hidden sm:inline">{basemapLabels[basemap]}</span><ChevronDown className="h-3 w-3" /></button>
+          <button type="button" onClick={() => setBasemapMenuOpen((open) => !open)} className="hydro-basemap-button" title={`Altlık: ${basemapLabels[basemap]}`}><MapIcon className="h-3.5 w-3.5 text-[var(--primary)]" /><span>Altlık</span><ChevronDown className="h-3 w-3" /></button>
           {basemapMenuOpen && <div className="absolute right-0 top-9 z-50 w-28 rounded-lg border border-[var(--line)] bg-[var(--panel)] p-1 shadow-lg">{Object.entries(basemapLabels).map(([value, label]) => <button type="button" key={value} onClick={() => { setBasemap(value as typeof basemap); setBasemapMenuOpen(false); }} className={`block w-full rounded-md px-2 py-1.5 text-left text-[10px] ${basemap === value ? 'bg-cyan-500/10 text-[var(--primary)]' : 'text-[var(--muted)] hover:bg-[var(--panel2)]'}`}>{label}</button>)}</div>}
         </div>
       </div>
