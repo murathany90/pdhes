@@ -1,11 +1,11 @@
 {
-  "pipelineRunAt": "2026-09-20T13:35:59Z",
+  "pipelineRunAt": "2026-09-20T15:47:56Z",
   "missingCount": 74,
   "providersChecked": [
+    "dsi",
     "epias"
   ],
   "providersSkipped": {
-    "dsi": "dsi_fetch_never_ran",
     "hydroweb": "credentials_missing",
     "copernicus": "credentials_missing",
     "dahiti": "credentials_missing",
@@ -19,10 +19,10 @@
       "name": "ADIGÜZEL HES",
       "storageType": "storage",
       "providersChecked": [
+        "dsi",
         "epias"
       ],
       "providersSkipped": {
-        "dsi": "dsi_fetch_never_ran",
         "hydroweb": "credentials_missing",
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
@@ -37,10 +37,10 @@
       "name": "AKKÖY1 HES",
       "storageType": "storage",
       "providersChecked": [
+        "dsi",
         "epias"
       ],
       "providersSkipped": {
-        "dsi": "dsi_fetch_never_ran",
         "hydroweb": "credentials_missing",
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
@@ -55,10 +55,10 @@
       "name": "AKKÖY2 HES",
       "storageType": "unknown",
       "providersChecked": [
+        "dsi",
         "epias"
       ],
       "providersSkipped": {
-        "dsi": "dsi_fetch_never_ran",
         "hydroweb": "credentials_missing",
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
@@ -73,10 +73,10 @@
       "name": "AKŞAR NAZAR HES",
       "storageType": "unknown",
       "providersChecked": [
+        "dsi",
         "epias"
       ],
       "providersSkipped": {
-        "dsi": "dsi_fetch_never_ran",
         "hydroweb": "credentials_missing",
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
@@ -91,10 +91,10 @@
       "name": "ALKUMRU HES",
       "storageType": "unknown",
       "providersChecked": [
+        "dsi",
         "epias"
       ],
       "providersSkipped": {
-        "dsi": "dsi_fetch_never_ran",
         "hydroweb": "credentials_missing",
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
@@ -109,10 +109,10 @@
       "name": "ALPASLAN1 HES",
       "storageType": "unknown",
       "providersChecked": [
+        "dsi",
         "epias"
       ],
       "providersSkipped": {
-        "dsi": "dsi_fetch_never_ran",
         "hydroweb": "credentials_missing",
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
@@ -127,10 +127,10 @@
       "name": "ALPASLAN2 HES",
       "storageType": "unknown",
       "providersChecked": [
+        "dsi",
         "epias"
       ],
       "providersSkipped": {
-        "dsi": "dsi_fetch_never_ran",
         "hydroweb": "credentials_missing",
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
@@ -145,10 +145,10 @@
       "name": "ANDIRIN HES",
       "storageType": "unknown",
       "providersChecked": [
+        "dsi",
         "epias"
       ],
       "providersSkipped": {
-        "dsi": "dsi_fetch_never_ran",
         "hydroweb": "credentials_missing",
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
@@ -163,10 +163,10 @@
       "name": "ARDAHAN AKINCI HES",
       "storageType": "unknown",
       "providersChecked": [
+        "dsi",
         "epias"
       ],
       "providersSkipped": {
-        "dsi": "dsi_fetch_never_ran",
         "hydroweb": "credentials_missing",
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
@@ -181,10 +181,10 @@
       "name": "ARKUN HES",
       "storageType": "unknown",
       "providersChecked": [
+        "dsi",
         "epias"
       ],
       "providersSkipped": {
-        "dsi": "dsi_fetch_never_ran",
         "hydroweb": "credentials_missing",
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
@@ -199,10 +199,10 @@
       "name": "ARTVİN HES",
       "storageType": "unknown",
       "providersChecked": [
+        "dsi",
         "epias"
       ],
       "providersSkipped": {
-        "dsi": "dsi_fetch_never_ran",
         "hydroweb": "credentials_missing",
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
@@ -217,10 +217,10 @@
       "name": "ASLANCIK HES",
       "storageType": "unknown",
       "providersChecked": [
+        "dsi",
         "epias"
       ],
       "providersSkipped": {
-        "dsi": "dsi_fetch_never_ran",
         "hydroweb": "credentials_missing",
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
@@ -235,10 +235,10 @@
       "name": "AŞAĞI KALEKÖY HES",
       "storageType": "unknown",
       "providersChecked": [
+        "dsi",
         "epias"
       ],
       "providersSkipped": {
-        "dsi": "dsi_fetch_never_ran",
         "hydroweb": "credentials_missing",
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
@@ -253,10 +253,10 @@
       "name": "ATATÜRK HES",
       "storageType": "storage",
       "providersChecked": [
+        "dsi",
         "epias"
       ],
       "providersSkipped": {
-        "dsi": "dsi_fetch_never_ran",
         "hydroweb": "credentials_missing",
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
@@ -271,10 +271,10 @@
       "name": "AYVALI HES",
       "storageType": "unknown",
       "providersChecked": [
+        "dsi",
         "epias"
       ],
       "providersSkipped": {
-        "dsi": "dsi_fetch_never_ran",
         "hydroweb": "credentials_missing",
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
@@ -289,10 +289,10 @@
       "name": "BAĞIŞTAŞ1 HES",
       "storageType": "unknown",
       "providersChecked": [
+        "dsi",
         "epias"
       ],
       "providersSkipped": {
-        "dsi": "dsi_fetch_never_ran",
         "hydroweb": "credentials_missing",
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
@@ -307,10 +307,10 @@
       "name": "BAĞIŞTAŞ2 HES",
       "storageType": "unknown",
       "providersChecked": [
+        "dsi",
         "epias"
       ],
       "providersSkipped": {
-        "dsi": "dsi_fetch_never_ran",
         "hydroweb": "credentials_missing",
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
@@ -325,10 +325,10 @@
       "name": "BATMAN HES",
       "storageType": "storage",
       "providersChecked": [
+        "dsi",
         "epias"
       ],
       "providersSkipped": {
-        "dsi": "dsi_fetch_never_ran",
         "hydroweb": "credentials_missing",
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
@@ -343,10 +343,10 @@
       "name": "BEYHAN1 HES",
       "storageType": "unknown",
       "providersChecked": [
+        "dsi",
         "epias"
       ],
       "providersSkipped": {
-        "dsi": "dsi_fetch_never_ran",
         "hydroweb": "credentials_missing",
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
@@ -361,10 +361,10 @@
       "name": "BİRECİK-NİZİP HES",
       "storageType": "unknown",
       "providersChecked": [
+        "dsi",
         "epias"
       ],
       "providersSkipped": {
-        "dsi": "dsi_fetch_never_ran",
         "hydroweb": "credentials_missing",
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
@@ -379,10 +379,10 @@
       "name": "BORÇKA HES",
       "storageType": "storage",
       "providersChecked": [
+        "dsi",
         "epias"
       ],
       "providersSkipped": {
-        "dsi": "dsi_fetch_never_ran",
         "hydroweb": "credentials_missing",
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
@@ -397,10 +397,10 @@
       "name": "BURÇBENDİ HES",
       "storageType": "unknown",
       "providersChecked": [
+        "dsi",
         "epias"
       ],
       "providersSkipped": {
-        "dsi": "dsi_fetch_never_ran",
         "hydroweb": "credentials_missing",
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
@@ -415,10 +415,10 @@
       "name": "BÜYÜKDÜZ HES",
       "storageType": "unknown",
       "providersChecked": [
+        "dsi",
         "epias"
       ],
       "providersSkipped": {
-        "dsi": "dsi_fetch_never_ran",
         "hydroweb": "credentials_missing",
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
@@ -433,10 +433,10 @@
       "name": "ÇETİN HES",
       "storageType": "unknown",
       "providersChecked": [
+        "dsi",
         "epias"
       ],
       "providersSkipped": {
-        "dsi": "dsi_fetch_never_ran",
         "hydroweb": "credentials_missing",
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
@@ -451,10 +451,10 @@
       "name": "DARICA1 HES",
       "storageType": "unknown",
       "providersChecked": [
+        "dsi",
         "epias"
       ],
       "providersSkipped": {
-        "dsi": "dsi_fetch_never_ran",
         "hydroweb": "credentials_missing",
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
@@ -469,10 +469,10 @@
       "name": "DARICA2 HES",
       "storageType": "unknown",
       "providersChecked": [
+        "dsi",
         "epias"
       ],
       "providersSkipped": {
-        "dsi": "dsi_fetch_never_ran",
         "hydroweb": "credentials_missing",
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
@@ -487,10 +487,10 @@
       "name": "DERİNER HES",
       "storageType": "storage",
       "providersChecked": [
+        "dsi",
         "epias"
       ],
       "providersSkipped": {
-        "dsi": "dsi_fetch_never_ran",
         "hydroweb": "credentials_missing",
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
@@ -505,10 +505,10 @@
       "name": "DİCLE HES",
       "storageType": "storage",
       "providersChecked": [
+        "dsi",
         "epias"
       ],
       "providersSkipped": {
-        "dsi": "dsi_fetch_never_ran",
         "hydroweb": "credentials_missing",
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
@@ -523,10 +523,10 @@
       "name": "DİM HES",
       "storageType": "storage",
       "providersChecked": [
+        "dsi",
         "epias"
       ],
       "providersSkipped": {
-        "dsi": "dsi_fetch_never_ran",
         "hydroweb": "credentials_missing",
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
@@ -541,10 +541,10 @@
       "name": "DOĞANKAYA HES",
       "storageType": "unknown",
       "providersChecked": [
+        "dsi",
         "epias"
       ],
       "providersSkipped": {
-        "dsi": "dsi_fetch_never_ran",
         "hydroweb": "credentials_missing",
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
@@ -559,10 +559,10 @@
       "name": "DOĞANKENT HES",
       "storageType": "unknown",
       "providersChecked": [
+        "dsi",
         "epias"
       ],
       "providersSkipped": {
-        "dsi": "dsi_fetch_never_ran",
         "hydroweb": "credentials_missing",
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
@@ -577,10 +577,10 @@
       "name": "EREN HES",
       "storageType": "unknown",
       "providersChecked": [
+        "dsi",
         "epias"
       ],
       "providersSkipped": {
-        "dsi": "dsi_fetch_never_ran",
         "hydroweb": "credentials_missing",
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
@@ -595,10 +595,10 @@
       "name": "GARZAN HES",
       "storageType": "storage",
       "providersChecked": [
+        "dsi",
         "epias"
       ],
       "providersSkipped": {
-        "dsi": "dsi_fetch_never_ran",
         "hydroweb": "credentials_missing",
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
@@ -613,10 +613,10 @@
       "name": "GÖKKAYA HES",
       "storageType": "unknown",
       "providersChecked": [
+        "dsi",
         "epias"
       ],
       "providersSkipped": {
-        "dsi": "dsi_fetch_never_ran",
         "hydroweb": "credentials_missing",
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
@@ -631,10 +631,10 @@
       "name": "GÜLLÜBAĞ HES",
       "storageType": "unknown",
       "providersChecked": [
+        "dsi",
         "epias"
       ],
       "providersSkipped": {
-        "dsi": "dsi_fetch_never_ran",
         "hydroweb": "credentials_missing",
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
@@ -649,10 +649,10 @@
       "name": "GÜNDER HES",
       "storageType": "unknown",
       "providersChecked": [
+        "dsi",
         "epias"
       ],
       "providersSkipped": {
-        "dsi": "dsi_fetch_never_ran",
         "hydroweb": "credentials_missing",
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
@@ -667,10 +667,10 @@
       "name": "HACININOĞLU HES",
       "storageType": "unknown",
       "providersChecked": [
+        "dsi",
         "epias"
       ],
       "providersSkipped": {
-        "dsi": "dsi_fetch_never_ran",
         "hydroweb": "credentials_missing",
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
@@ -685,10 +685,10 @@
       "name": "ILISU HES",
       "storageType": "storage",
       "providersChecked": [
+        "dsi",
         "epias"
       ],
       "providersSkipped": {
-        "dsi": "dsi_fetch_never_ran",
         "hydroweb": "credentials_missing",
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
@@ -703,10 +703,10 @@
       "name": "KADINCIK1 HES",
       "storageType": "unknown",
       "providersChecked": [
+        "dsi",
         "epias"
       ],
       "providersSkipped": {
-        "dsi": "dsi_fetch_never_ran",
         "hydroweb": "credentials_missing",
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
@@ -721,10 +721,10 @@
       "name": "KADINCIK2 HES",
       "storageType": "unknown",
       "providersChecked": [
+        "dsi",
         "epias"
       ],
       "providersSkipped": {
-        "dsi": "dsi_fetch_never_ran",
         "hydroweb": "credentials_missing",
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
@@ -739,10 +739,10 @@
       "name": "KARAKAYA HES DİYARBAKIR",
       "storageType": "storage",
       "providersChecked": [
+        "dsi",
         "epias"
       ],
       "providersSkipped": {
-        "dsi": "dsi_fetch_never_ran",
         "hydroweb": "credentials_missing",
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
@@ -757,10 +757,10 @@
       "name": "KARAKURT HES",
       "storageType": "unknown",
       "providersChecked": [
+        "dsi",
         "epias"
       ],
       "providersSkipped": {
-        "dsi": "dsi_fetch_never_ran",
         "hydroweb": "credentials_missing",
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
@@ -775,10 +775,10 @@
       "name": "KARGILIK HES",
       "storageType": "unknown",
       "providersChecked": [
+        "dsi",
         "epias"
       ],
       "providersSkipped": {
-        "dsi": "dsi_fetch_never_ran",
         "hydroweb": "credentials_missing",
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
@@ -793,10 +793,10 @@
       "name": "KARKAMIŞ HES",
       "storageType": "storage",
       "providersChecked": [
+        "dsi",
         "epias"
       ],
       "providersSkipped": {
-        "dsi": "dsi_fetch_never_ran",
         "hydroweb": "credentials_missing",
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
@@ -811,10 +811,10 @@
       "name": "KASIMLAR HES",
       "storageType": "unknown",
       "providersChecked": [
+        "dsi",
         "epias"
       ],
       "providersSkipped": {
-        "dsi": "dsi_fetch_never_ran",
         "hydroweb": "credentials_missing",
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
@@ -829,10 +829,10 @@
       "name": "KAYAKÖPRÜ HES",
       "storageType": "unknown",
       "providersChecked": [
+        "dsi",
         "epias"
       ],
       "providersSkipped": {
-        "dsi": "dsi_fetch_never_ran",
         "hydroweb": "credentials_missing",
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
@@ -847,10 +847,10 @@
       "name": "KEBAN HES",
       "storageType": "storage",
       "providersChecked": [
+        "dsi",
         "epias"
       ],
       "providersSkipped": {
-        "dsi": "dsi_fetch_never_ran",
         "hydroweb": "credentials_missing",
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
@@ -865,10 +865,10 @@
       "name": "KİĞI HES",
       "storageType": "storage",
       "providersChecked": [
+        "dsi",
         "epias"
       ],
       "providersSkipped": {
-        "dsi": "dsi_fetch_never_ran",
         "hydroweb": "credentials_missing",
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
@@ -883,10 +883,10 @@
       "name": "KİRAZLIK HES",
       "storageType": "unknown",
       "providersChecked": [
+        "dsi",
         "epias"
       ],
       "providersSkipped": {
-        "dsi": "dsi_fetch_never_ran",
         "hydroweb": "credentials_missing",
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
@@ -901,10 +901,10 @@
       "name": "KOTANLI 1-2 HES",
       "storageType": "unknown",
       "providersChecked": [
+        "dsi",
         "epias"
       ],
       "providersSkipped": {
-        "dsi": "dsi_fetch_never_ran",
         "hydroweb": "credentials_missing",
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
@@ -919,10 +919,10 @@
       "name": "KOYULHİSAR BEREKET HES",
       "storageType": "unknown",
       "providersChecked": [
+        "dsi",
         "epias"
       ],
       "providersSkipped": {
-        "dsi": "dsi_fetch_never_ran",
         "hydroweb": "credentials_missing",
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
@@ -937,10 +937,10 @@
       "name": "KOZBÜKÜ HES",
       "storageType": "unknown",
       "providersChecked": [
+        "dsi",
         "epias"
       ],
       "providersSkipped": {
-        "dsi": "dsi_fetch_never_ran",
         "hydroweb": "credentials_missing",
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
@@ -955,10 +955,10 @@
       "name": "KRALKIZI HES",
       "storageType": "storage",
       "providersChecked": [
+        "dsi",
         "epias"
       ],
       "providersSkipped": {
-        "dsi": "dsi_fetch_never_ran",
         "hydroweb": "credentials_missing",
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
@@ -973,10 +973,10 @@
       "name": "KUZGUN HES",
       "storageType": "storage",
       "providersChecked": [
+        "dsi",
         "epias"
       ],
       "providersSkipped": {
-        "dsi": "dsi_fetch_never_ran",
         "hydroweb": "credentials_missing",
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
@@ -991,10 +991,10 @@
       "name": "MURATLI HES",
       "storageType": "unknown",
       "providersChecked": [
+        "dsi",
         "epias"
       ],
       "providersSkipped": {
-        "dsi": "dsi_fetch_never_ran",
         "hydroweb": "credentials_missing",
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
@@ -1009,10 +1009,10 @@
       "name": "ÖZLÜCE HES",
       "storageType": "storage",
       "providersChecked": [
+        "dsi",
         "epias"
       ],
       "providersSkipped": {
-        "dsi": "dsi_fetch_never_ran",
         "hydroweb": "credentials_missing",
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
@@ -1027,10 +1027,10 @@
       "name": "PEMBELİK HES",
       "storageType": "storage",
       "providersChecked": [
+        "dsi",
         "epias"
       ],
       "providersSkipped": {
-        "dsi": "dsi_fetch_never_ran",
         "hydroweb": "credentials_missing",
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
@@ -1045,10 +1045,10 @@
       "name": "REŞADİYE HES",
       "storageType": "unknown",
       "providersChecked": [
+        "dsi",
         "epias"
       ],
       "providersSkipped": {
-        "dsi": "dsi_fetch_never_ran",
         "hydroweb": "credentials_missing",
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
@@ -1063,10 +1063,10 @@
       "name": "SEFAKÖY HES",
       "storageType": "unknown",
       "providersChecked": [
+        "dsi",
         "epias"
       ],
       "providersSkipped": {
-        "dsi": "dsi_fetch_never_ran",
         "hydroweb": "credentials_missing",
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
@@ -1081,10 +1081,10 @@
       "name": "SEYHAN 1 HES",
       "storageType": "storage",
       "providersChecked": [
+        "dsi",
         "epias"
       ],
       "providersSkipped": {
-        "dsi": "dsi_fetch_never_ran",
         "hydroweb": "credentials_missing",
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
@@ -1099,10 +1099,10 @@
       "name": "SEYRANTEPE HES",
       "storageType": "unknown",
       "providersChecked": [
+        "dsi",
         "epias"
       ],
       "providersSkipped": {
-        "dsi": "dsi_fetch_never_ran",
         "hydroweb": "credentials_missing",
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
@@ -1117,10 +1117,10 @@
       "name": "SIRIMTAŞ HES",
       "storageType": "storage",
       "providersChecked": [
+        "dsi",
         "epias"
       ],
       "providersSkipped": {
-        "dsi": "dsi_fetch_never_ran",
         "hydroweb": "credentials_missing",
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
@@ -1135,10 +1135,10 @@
       "name": "SÜMER HES",
       "storageType": "unknown",
       "providersChecked": [
+        "dsi",
         "epias"
       ],
       "providersSkipped": {
-        "dsi": "dsi_fetch_never_ran",
         "hydroweb": "credentials_missing",
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
@@ -1153,10 +1153,10 @@
       "name": "ŞANLIURFA HES",
       "storageType": "unknown",
       "providersChecked": [
+        "dsi",
         "epias"
       ],
       "providersSkipped": {
-        "dsi": "dsi_fetch_never_ran",
         "hydroweb": "credentials_missing",
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
@@ -1171,10 +1171,10 @@
       "name": "ŞİRVAN HES",
       "storageType": "unknown",
       "providersChecked": [
+        "dsi",
         "epias"
       ],
       "providersSkipped": {
-        "dsi": "dsi_fetch_never_ran",
         "hydroweb": "credentials_missing",
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
@@ -1189,10 +1189,10 @@
       "name": "TATAR HES",
       "storageType": "storage",
       "providersChecked": [
+        "dsi",
         "epias"
       ],
       "providersSkipped": {
-        "dsi": "dsi_fetch_never_ran",
         "hydroweb": "credentials_missing",
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
@@ -1207,10 +1207,10 @@
       "name": "TOKAT AKINCI HES",
       "storageType": "unknown",
       "providersChecked": [
+        "dsi",
         "epias"
       ],
       "providersSkipped": {
-        "dsi": "dsi_fetch_never_ran",
         "hydroweb": "credentials_missing",
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
@@ -1225,10 +1225,10 @@
       "name": "TORTUM HES",
       "storageType": "unknown",
       "providersChecked": [
+        "dsi",
         "epias"
       ],
       "providersSkipped": {
-        "dsi": "dsi_fetch_never_ran",
         "hydroweb": "credentials_missing",
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
@@ -1243,10 +1243,10 @@
       "name": "TUNA HES",
       "storageType": "unknown",
       "providersChecked": [
+        "dsi",
         "epias"
       ],
       "providersSkipped": {
-        "dsi": "dsi_fetch_never_ran",
         "hydroweb": "credentials_missing",
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
@@ -1261,10 +1261,10 @@
       "name": "UZUNÇAYIR HES",
       "storageType": "storage",
       "providersChecked": [
+        "dsi",
         "epias"
       ],
       "providersSkipped": {
-        "dsi": "dsi_fetch_never_ran",
         "hydroweb": "credentials_missing",
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
@@ -1279,10 +1279,10 @@
       "name": "UZUNDERE1 HES",
       "storageType": "unknown",
       "providersChecked": [
+        "dsi",
         "epias"
       ],
       "providersSkipped": {
-        "dsi": "dsi_fetch_never_ran",
         "hydroweb": "credentials_missing",
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
@@ -1297,10 +1297,10 @@
       "name": "YUKARI KALEKÖY HES",
       "storageType": "storage",
       "providersChecked": [
+        "dsi",
         "epias"
       ],
       "providersSkipped": {
-        "dsi": "dsi_fetch_never_ran",
         "hydroweb": "credentials_missing",
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
@@ -1315,10 +1315,10 @@
       "name": "YUKARI MANAHOZ HES",
       "storageType": "unknown",
       "providersChecked": [
+        "dsi",
         "epias"
       ],
       "providersSkipped": {
-        "dsi": "dsi_fetch_never_ran",
         "hydroweb": "credentials_missing",
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
@@ -1333,10 +1333,10 @@
       "name": "YUSUFELİ HES",
       "storageType": "unknown",
       "providersChecked": [
+        "dsi",
         "epias"
       ],
       "providersSkipped": {
-        "dsi": "dsi_fetch_never_ran",
         "hydroweb": "credentials_missing",
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",

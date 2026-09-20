@@ -1,5 +1,5 @@
 {
-  "pipelineRunAt": "2026-09-20T13:35:59Z",
+  "pipelineRunAt": "2026-09-20T15:47:56Z",
   "hesCount": 129,
   "mappedReservoirs": 55,
   "records": [
@@ -48,7 +48,7 @@
       "hesName": "AKKÖPRÜ HES",
       "damName": "AKKÖPRÜ",
       "reservoirName": "Akkopru",
-      "river": "ÇALDERE",
+      "river": null,
       "basin": "Batı Akdeniz",
       "province": "MUĞLA",
       "coordinates": [
@@ -68,7 +68,7 @@
       "hesName": "AKKÖY1 HES",
       "damName": "AKKÖY 1",
       "reservoirName": null,
-      "river": "HARŞİT ÇAYI",
+      "river": null,
       "basin": "Doğu Karadeniz",
       "province": "GÜMÜŞHANE",
       "coordinates": [
@@ -88,7 +88,7 @@
       "hesName": "AKKÖY2 HES",
       "damName": "AKKÖY2",
       "reservoirName": null,
-      "river": "KAVRAZ DERESİ",
+      "river": null,
       "basin": "Doğu Karadeniz",
       "province": "GÜMÜŞHANE",
       "coordinates": [
@@ -108,7 +108,7 @@
       "hesName": "AKŞAR NAZAR HES",
       "damName": "AKŞAR NAZAR",
       "reservoirName": null,
-      "river": "BÜYÜK ÇAY",
+      "river": null,
       "basin": "Fırat-Dicle",
       "province": "BİTLİS",
       "coordinates": [
@@ -128,7 +128,7 @@
       "hesName": "ALAKÖPRÜ HES",
       "damName": "ALAKÖPRÜ",
       "reservoirName": null,
-      "river": "ANAMUR Ç.",
+      "river": "Güney",
       "basin": "Doğu Akdeniz",
       "province": "İÇEL",
       "coordinates": [
@@ -328,7 +328,7 @@
       "hesName": "ASLANCIK HES",
       "damName": "ASLANCIK",
       "reservoirName": null,
-      "river": "YAĞLIDERE",
+      "river": null,
       "basin": "Doğu Karadeniz",
       "province": "GİRESUN",
       "coordinates": [
@@ -605,7 +605,7 @@
       "hesName": "BÜYÜKDÜZ HES",
       "damName": "BÜYÜKDÜZ",
       "reservoirName": null,
-      "river": "CİZERE DERESI",
+      "river": null,
       "basin": "Doğu Karadeniz",
       "province": "GÜMÜŞHANE",
       "coordinates": [
@@ -705,7 +705,7 @@
       "hesName": "ÇETİN HES",
       "damName": "ÇETİN",
       "reservoirName": null,
-      "river": "BOTAN ÇAYI",
+      "river": "Dicle",
       "basin": "Fırat-Dicle",
       "province": "SİİRT",
       "coordinates": [
@@ -765,7 +765,7 @@
       "hesName": "DARICA2 HES",
       "damName": "DARICA2",
       "reservoirName": null,
-      "river": "TURNASUYU",
+      "river": null,
       "basin": "Doğu Karadeniz",
       "province": "ORDU",
       "coordinates": [
@@ -902,7 +902,7 @@
       "hesName": "DOĞANKAYA HES",
       "damName": "DOĞANKAYA",
       "reservoirName": null,
-      "river": "GÖKSU N.",
+      "river": null,
       "basin": "Fırat-Dicle",
       "province": "ADIYAMAN",
       "coordinates": null,
@@ -939,7 +939,7 @@
       "hesName": "EREN HES",
       "damName": "EREN",
       "reservoirName": null,
-      "river": "ARAÇ Ç.",
+      "river": null,
       "basin": "Batı Karadeniz",
       "province": "KARABÜK",
       "coordinates": [
@@ -959,7 +959,7 @@
       "hesName": "ERMENEK HES EÜAŞ",
       "damName": "ERMENEK",
       "reservoirName": "Ermenek",
-      "river": "KIŞLA DERESİ",
+      "river": null,
       "basin": "Doğu Akdeniz",
       "province": "KARAMAN",
       "coordinates": [
@@ -1039,7 +1039,7 @@
       "hesName": "GEZENDE HES",
       "damName": "GEZENDE",
       "reservoirName": null,
-      "river": "GÖKSU N.",
+      "river": null,
       "basin": "Doğu Akdeniz",
       "province": "İÇEL",
       "coordinates": [
@@ -1136,7 +1136,7 @@
       "hesName": "GÜNDER HES",
       "damName": "GÜNDER",
       "reservoirName": null,
-      "river": "GÖKTEPE D.",
+      "river": null,
       "basin": "Antalya",
       "province": "KARAMAN",
       "coordinates": null,
@@ -1253,7 +1253,7 @@
       "hesName": "KADINCIK1 HES",
       "damName": "KADINCIK1",
       "reservoirName": null,
-      "river": "DELİÇAY",
+      "river": null,
       "basin": "Doğu Akdeniz",
       "province": "MERSİN",
       "coordinates": [
@@ -1273,7 +1273,7 @@
       "hesName": "KADINCIK2 HES",
       "damName": "KADINCIK2",
       "reservoirName": null,
-      "river": "PAMUK D.",
+      "river": null,
       "basin": "Doğu Akdeniz",
       "province": "MERSİN",
       "coordinates": [
@@ -1333,7 +1333,7 @@
       "hesName": "KARACAÖREN1 HES",
       "damName": "KARACAÖREN I",
       "reservoirName": "Karacaoren 1",
-      "river": "DEĞİRMENDERE D.",
+      "river": null,
       "basin": "Antalya",
       "province": "BURDUR",
       "coordinates": [
@@ -1353,7 +1353,7 @@
       "hesName": "KARACAÖREN2 HES",
       "damName": "KARACAÖREN II",
       "reservoirName": "Karacaoren 1",
-      "river": "KÜÇÜKAKSU",
+      "river": null,
       "basin": "Antalya",
       "province": "BURDUR",
       "coordinates": [
@@ -1513,7 +1513,7 @@
       "hesName": "KASIMLAR HES",
       "damName": "KASIMLAR",
       "reservoirName": null,
-      "river": "KARTÖZ",
+      "river": null,
       "basin": "Antalya",
       "province": "ISPARTA",
       "coordinates": [
@@ -1553,7 +1553,7 @@
       "hesName": "KAYAKÖPRÜ HES",
       "damName": "KAYAKÖPRÜ",
       "reservoirName": null,
-      "river": "AKSU ÇAYI",
+      "river": null,
       "basin": "Doğu Karadeniz",
       "province": "GİRESUN",
       "coordinates": [
@@ -1753,7 +1753,7 @@
       "hesName": "KOZBÜKÜ HES",
       "damName": "KOZBÜKÜ",
       "reservoirName": null,
-      "river": "TURNASUYU",
+      "river": null,
       "basin": "Doğu Karadeniz",
       "province": "ORDU",
       "coordinates": [
@@ -1773,7 +1773,7 @@
       "hesName": "KÖPRÜBAŞI HES (BOLU)",
       "damName": "KÖPRÜBAŞI",
       "reservoirName": "Koprubasi",
-      "river": "KARASU",
+      "river": null,
       "basin": "Batı Karadeniz",
       "province": "BOLU",
       "coordinates": [
@@ -1833,7 +1833,7 @@
       "hesName": "KUZGUN HES",
       "damName": "KUZGUN",
       "reservoirName": "Kuzgun",
-      "river": "SERÇEME D.",
+      "river": null,
       "basin": "Fırat-Dicle",
       "province": "ERZURUM",
       "coordinates": [
@@ -1853,7 +1853,7 @@
       "hesName": "KÜRTÜN HES",
       "damName": "KÜRTÜN",
       "reservoirName": "Kurtun",
-      "river": "KÜRTÜN DERESİ",
+      "river": null,
       "basin": "Doğu Karadeniz",
       "province": "GÜMÜŞHANE",
       "coordinates": [
@@ -1873,7 +1873,7 @@
       "hesName": "MANAVGAT HES",
       "damName": "MANAVGAT",
       "reservoirName": "Manavgat",
-      "river": "KARPUZ Ç.",
+      "river": null,
       "basin": "Antalya",
       "province": "ANTALYA",
       "coordinates": [
@@ -1973,7 +1973,7 @@
       "hesName": "OYMAPINAR HES",
       "damName": "OYMAPINAR",
       "reservoirName": "Oymapinar",
-      "river": "SAĞARİN D.",
+      "river": null,
       "basin": "Antalya",
       "province": "ANTALYA",
       "coordinates": [
@@ -2190,7 +2190,7 @@
       "hesName": "SIRIMTAŞ HES",
       "damName": "SIRIMTAŞ HES",
       "reservoirName": null,
-      "river": "BİRİMŞE Ç.",
+      "river": "Fırat",
       "basin": "Fırat-Dicle",
       "province": "ADIYAMAN",
       "coordinates": null,
@@ -2318,7 +2318,7 @@
       "hesName": "TOPÇAM HES",
       "damName": "TOPÇAM-ORDU",
       "reservoirName": "Topcam",
-      "river": "MELET IRMAĞI",
+      "river": null,
       "basin": "Doğu Karadeniz",
       "province": "ORDU",
       "coordinates": [
@@ -2355,7 +2355,7 @@
       "hesName": "TORUL HES",
       "damName": "TORUL",
       "reservoirName": "Torul",
-      "river": "KORUM D.",
+      "river": null,
       "basin": "Doğu Karadeniz",
       "province": "GÜMÜŞHANE",
       "coordinates": [
@@ -2435,7 +2435,7 @@
       "hesName": "UZUNDERE1 HES",
       "damName": "UZUNDERE1",
       "reservoirName": null,
-      "river": "SALARHA D.",
+      "river": "Calet",
       "basin": "Doğu Karadeniz",
       "province": "RİZE",
       "coordinates": [

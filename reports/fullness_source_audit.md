@@ -1,6 +1,6 @@
 # Fullness source audit
 
-Pipeline run: `2026-09-20T13:35:59Z`
+Pipeline run: `2026-09-20T15:47:56Z`
 Latest observation: `2026-09-13T00:00:00Z`
 Status: `partial`
 New observations: `0`
@@ -65,5 +65,6 @@ Total HES: `129`
 
 | Provider | Fetched | Matched | Usable | Rejected |
 |---|---:|---:|---:|---:|
+| dsi | 0 | 0 | 0 | 0 |
 
 MOCK values are excluded from this production snapshot. Missing HES list with reasons: `reports/fullness_missing_sources.json`.

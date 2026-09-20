@@ -1,0 +1,9 @@
+{
+  "generatedAt": "2026-09-20T15:46:28Z",
+  "status": "error",
+  "errorCode": "endpoint_error",
+  "observations": [],
+  "errors": [
+    "DSİ request failed: <urlopen error timed out> (https://yagisbarajdolulukapi.dsi.gov.tr/api/Dashboard/latest-published-date)"
+  ]
+}
