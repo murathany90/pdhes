@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Activity, ArrowUpDown, ChevronDown, Eye, EyeOff, Gauge, Info, Mountain, Search, Waves, X, Zap } from 'lucide-react';
+import { Activity, ArrowUpDown, ChevronDown, Eye, EyeOff, Gauge, Mountain, Search, Waves, X, Zap } from 'lucide-react';
 import { describeFullness, fullnessRecordsByHes, fullnessSourceLabel, preferredFullnessRecord, resolveHistoricalFullness, resolveHesFullness } from '../data/fullnessSources';
 import { HesDetailPanel } from './HesDetail';
 import { useHydrologyStore, type TabType } from '../store/useHydrologyStore';
@@ -60,10 +60,10 @@ function volumeFullness(rows: Array<{ details?: Record<string, unknown> }>): num
 
 function fullnessCell(row: Row): React.ReactNode {
   const result = row.details?.fullnessResult as FullnessResult | undefined;
-  if (!result) return <span title="Doluluk verisi bulunamadı">— Veri yok</span>;
+  if (!result) return <span title="Doluluk verisi bulunamadı">—</span>;
   const described = describeFullness(result);
   const sourceLabel = `${fullnessSourceLabel(result)} · ${result.method}`;
-  if (row.fullness === null) return <span title={`${described.title} · ${sourceLabel}`}>— Veri yok</span>;
+  if (row.fullness === null) return <span title={`${described.title} · ${sourceLabel}`}>—</span>;
   return <span title={`${described.title} · ${sourceLabel}`}>{`%${Math.round(row.fullness)} · ${row.source}`}</span>;
 }
 
@@ -89,6 +89,8 @@ export const Sidebar: React.FC = () => {
   const setSearchQuery = useHydrologyStore((s) => s.setSearchQuery);
   const selectedEntity = useHydrologyStore((s) => s.selectedEntity);
   const setSelectedEntity = useHydrologyStore((s) => s.setSelectedEntity);
+  const timelineOpen = useHydrologyStore((s) => s.isTimelineOpen);
+  const setTimelineOpen = useHydrologyStore((s) => s.setTimelineOpen);
   const toggleLayer = useHydrologyStore((s) => s.toggleLayer);
   const flowVisualization = useHydrologyStore((s) => s.flowVisualization);
   const toggleFlowVisualization = useHydrologyStore((s) => s.toggleFlowVisualization);
@@ -225,9 +227,8 @@ export const Sidebar: React.FC = () => {
         <button type="button" className="hydro-layer-summary" onClick={() => setLayersOpen((open) => !open)} aria-expanded={layersOpen}><span>Katmanlar</span><ChevronDown className="h-3.5 w-3.5" /></button>
         {layersOpen && <div className="hydro-layer-options"><div className="hydro-layer-grid">{layerControls.map(({ key, label }) => <button key={key} onClick={() => toggleLayer(key)} className={layers[key] ? 'active' : ''} aria-pressed={layers[key]}>{layers[key] ? <Eye className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />}{label}</button>)}</div><button type="button" onClick={toggleFlowVisualization} className={`hydro-flow-toggle ${flowVisualization ? 'active' : ''}`} aria-pressed={flowVisualization} title="GEOGLOWS debi renk ölçeğini aç/kapat"><Waves className="h-3 w-3" />{flowVisualization ? 'Debi görünümü açık' : 'Debi görünümü'}</button></div>}
       </div>
-      <button type="button" className="hydro-source-info" title="E: EPİAŞ resmî canlı · D: DSİ resmî yayın · U: uydu · H: hacim tahmini · —: veri yok · N/A: uygulanamaz" aria-label="Doluluk kaynak kodları"><Info className="h-3 w-3" /><span>Kaynak kodları</span></button>
       {selectedHesPanel && <div className="hydro-selected-panel">{selectedHesPanel}</div>}
-      {selectedRiver && relatedRiverRows.length > 0 && <div className="hydro-related-panel"><div className="hydro-related-title">İlgili HES tesisleri</div>{relatedRiverRows.slice(0, 4).map((row) => <button key={row.id} onClick={() => selectRow(row)}>⚡ {row.name} · {formatMw(row.power)}</button>)}</div>}
+      {selectedRiver && relatedRiverRows.length > 0 && <div className="hydro-related-panel"><div className="hydro-related-heading"><div className="hydro-related-title">İlgili HES tesisleri</div>{selectedRiver.forecast && <button type="button" className={`hydro-related-flow ${timelineOpen ? 'active' : ''}`} onClick={() => setTimelineOpen(!timelineOpen)} aria-expanded={timelineOpen}>Akış tahmini</button>}</div>{relatedRiverRows.slice(0, 4).map((row) => <button key={row.id} onClick={() => selectRow(row)}>⚡ {row.name} · {formatMw(row.power)}</button>)}</div>}
     </div>
     <div className="hydro-list-header">
       <div className="hydro-list-filter"><span>{currentTab === 'hes' ? `${sortedRows.length.toLocaleString('tr-TR')} HES` : `${sortedRows.length.toLocaleString('tr-TR')} kayıt`}</span>{currentTab === 'hes' && <select value={fullnessFilter} onChange={(event) => setFullnessFilter(event.target.value as typeof fullnessFilter)} aria-label="Doluluk veri filtresi"><option value="all">Tüm doluluk</option><option value="available">Verisi var</option><option value="official">Resmî</option><option value="satellite">Uydu/türetilmiş</option><option value="calculated">Hacim hesabı</option><option value="stale">Eski / stale</option><option value="unavailable">Veri yok</option><option value="not_applicable">Uygulanamaz</option></select>}</div>

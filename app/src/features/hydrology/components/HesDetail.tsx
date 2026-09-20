@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useHydrologyStore } from '../store/useHydrologyStore';
 import { describeFullness, fullnessSourceLabel } from '../data/fullnessSources';
 import type { FullnessHistoryPoint, FullnessResult } from '../types/hydrology';
@@ -39,9 +39,10 @@ function storageLabel(value: unknown): string {
 }
 
 /** Compact selected-HES summary: decision info only, always open. */
-export function HesSummaryCard({ data, fullness, isLight, technicalOpen, onToggleTechnical, historyOpen, onToggleHistory }: {
+export function HesSummaryCard({ data, fullness, isLight, technicalOpen, onToggleTechnical, historyOpen, onToggleHistory, flowForecastAvailable, flowForecastOpen, onToggleFlowForecast }: {
   data: HesDetailData; fullness: FullnessResult | undefined; isLight: boolean;
   technicalOpen: boolean; onToggleTechnical: () => void; historyOpen: boolean; onToggleHistory: () => void;
+  flowForecastAvailable: boolean; flowForecastOpen: boolean; onToggleFlowForecast: () => void;
 }): React.ReactNode {
   const described = fullness ? describeFullness(fullness) : null;
   return (
@@ -54,6 +55,7 @@ export function HesSummaryCard({ data, fullness, isLight, technicalOpen, onToggl
       </div>
       <div className="hydro-summary-power">{formatMw(data.power)}</div>
       <div className="hydro-summary-location">{data.river} · {data.basin}</div>
+      <div className="hydro-summary-storage">Depo tipi: {storageLabel(fullness?.storageType ?? data.details?.storageType ?? data.details?.hydroPlantStorageType)}</div>
       <div className="hydro-summary-meta" title={described?.title ?? ''}>
         {fullness ? (
           <span>Kaynak: {String(fullness.provider ?? fullnessSourceLabel(fullness))} · </span>
@@ -62,7 +64,8 @@ export function HesSummaryCard({ data, fullness, isLight, technicalOpen, onToggl
       </div>
       <div className="hydro-summary-actions">
         <button type="button" onClick={onToggleHistory} aria-expanded={historyOpen} className={`hydro-summary-action ${historyOpen ? 'active' : ''}`}>Geçmiş</button>
-        <button type="button" onClick={onToggleTechnical} aria-expanded={technicalOpen} className={`hydro-summary-action ${technicalOpen ? 'active' : ''}`}>Teknik bilgiler</button>
+        <button type="button" onClick={onToggleTechnical} aria-expanded={technicalOpen} className={`hydro-summary-action ${technicalOpen ? 'active' : ''}`}>Teknik</button>
+        {flowForecastAvailable && <button type="button" onClick={onToggleFlowForecast} aria-expanded={flowForecastOpen} className={`hydro-summary-action ${flowForecastOpen ? 'active' : ''}`}>Akış tahmini</button>}
       </div>
     </div>
   );
@@ -168,10 +171,26 @@ export function HesDetailPanel({ data, fullness, isLight }: { data: HesDetailDat
   const [technicalOpen, setTechnicalOpen] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [pdhesLink, setPdhesLink] = useState<PdhesHesLink | null>(null);
+  const geoglows = useHydrologyStore((s) => s.geoglows);
+  const rivers = useHydrologyStore((s) => s.rivers);
+  const relations = useHydrologyStore((s) => s.hes177Relations);
+  const flowForecastOpen = useHydrologyStore((s) => s.isTimelineOpen);
+  const setTimelineOpen = useHydrologyStore((s) => s.setTimelineOpen);
+  const flowForecastAvailable = useMemo(() => {
+    const relation = relations?.byHesId?.[data.id];
+    const riverId = relation?.riverSystemId ?? relation?.riverIds?.[0];
+    const river = riverId ? rivers.features.find((feature) => String(feature.properties?.id ?? feature.id ?? '') === String(riverId)) : null;
+    const localIds = Array.isArray(data.details?.geoglowsLocalRiverIds)
+      ? data.details.geoglowsLocalRiverIds.map(String)
+      : Array.isArray(river?.properties?.geoglowsLocalRiverIds)
+        ? river.properties.geoglowsLocalRiverIds.map(String)
+        : [String(river?.properties?.representativeLocalRiverId ?? '')].filter(Boolean);
+    return (geoglows?.records ?? []).some((record) => localIds.includes(String(record.localRiverId ?? '')) && Array.isArray(record.data) && record.data.length > 1);
+  }, [data.details, data.id, geoglows?.records, relations?.byHesId, rivers.features]);
   useEffect(() => { void loadPdhesHesLinks().then((links) => setPdhesLink(links.find((link) => link.hesId === data.id) ?? null)).catch(() => setPdhesLink(null)); }, [data.id]);
   return (
     <div className="hydro-detail mb-2">
-      <HesSummaryCard data={data} fullness={fullness} isLight={isLight} technicalOpen={technicalOpen} onToggleTechnical={() => setTechnicalOpen((open) => !open)} historyOpen={historyOpen} onToggleHistory={() => setHistoryOpen((open) => !open)} />
+      <HesSummaryCard data={data} fullness={fullness} isLight={isLight} technicalOpen={technicalOpen} onToggleTechnical={() => setTechnicalOpen((open) => !open)} historyOpen={historyOpen} onToggleHistory={() => setHistoryOpen((open) => !open)} flowForecastAvailable={flowForecastAvailable} flowForecastOpen={flowForecastOpen} onToggleFlowForecast={() => setTimelineOpen(!flowForecastOpen)} />
       {technicalOpen && <HesTechnicalDetails data={data} fullness={fullness} />}
       {historyOpen && <HesHistoryPanel key={data.id} hesId={data.id} isLight={isLight} />}
       {pdhesLink && <a className="hydro-pdhes-backlink" href="/data">PDHES aday detayına dön</a>}

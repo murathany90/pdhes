@@ -21,6 +21,7 @@ interface AppState {
   theme: ThemeType;
   basemap: BasemapType;
   isSidebarOpen: boolean;
+  isTimelineOpen: boolean;
   timelineIndex: number;
   isPlayingTimeline: boolean;
   hydroDataStatus: HydroLoadStatus;
@@ -59,6 +60,7 @@ interface AppState {
   setTheme: (theme: ThemeType) => void;
   setBasemap: (basemap: BasemapType) => void;
   toggleSidebar: () => void;
+  setTimelineOpen: (open: boolean) => void;
   setTimelineIndex: (index: number) => void;
   toggleTimelinePlayback: () => void;
   loadHydroData: () => Promise<void>;
@@ -84,6 +86,7 @@ export const useHydrologyStore = create<AppState>((set) => ({
   theme: 'dark',
   basemap: 'dark',
   isSidebarOpen: true,
+  isTimelineOpen: false,
   timelineIndex: 0,
   isPlayingTimeline: false,
   hydroDataStatus: 'idle',
@@ -113,7 +116,7 @@ export const useHydrologyStore = create<AppState>((set) => ({
 
   setTab: (tab) => set({ currentTab: tab }),
   setSearchQuery: (query) => set({ searchQuery: query }),
-  setSelectedEntity: (entity) => set((state) => ({ selectedEntity: entity, historicalDate: entity?.type === 'hes' ? state.historicalDate : null })),
+  setSelectedEntity: (entity) => set((state) => ({ selectedEntity: entity, isTimelineOpen: false, isPlayingTimeline: false, historicalDate: entity?.type === 'hes' ? state.historicalDate : null })),
   setTrace: (type, riverId) => set({ activeTraceType: type, activeTraceRiverId: riverId }),
   toggleLayer: (layerName) => set((state) => ({
     layers: { ...state.layers, [layerName]: !state.layers[layerName] }
@@ -122,6 +125,7 @@ export const useHydrologyStore = create<AppState>((set) => ({
   setTheme: (theme) => set({ theme }),
   setBasemap: (basemap) => set({ basemap }),
   toggleSidebar: () => set((state) => ({ isSidebarOpen: !state.isSidebarOpen })),
+  setTimelineOpen: (open) => set({ isTimelineOpen: open, ...(open ? {} : { isPlayingTimeline: false }) }),
   setTimelineIndex: (index) => set({ timelineIndex: Math.max(0, Math.round(index)) }),
   toggleTimelinePlayback: () => set((state) => ({ isPlayingTimeline: !state.isPlayingTimeline })),
   setDataMode: (dataMode) => set({ dataMode }),

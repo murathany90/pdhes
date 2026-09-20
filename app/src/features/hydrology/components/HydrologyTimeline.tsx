@@ -1,14 +1,12 @@
 import React, { useEffect, useMemo } from 'react';
-import { CalendarClock, ChevronLeft, ChevronRight, Pause, Play, Radio } from 'lucide-react';
+import { CalendarClock, ChevronLeft, ChevronRight, Pause, Play, Radio, X } from 'lucide-react';
 import { formatDataDate } from '../data/hydrology';
 import { getForecastTimestamps } from '../services/hydroData';
 import { useHydrologyStore } from '../store/useHydrologyStore';
 
 export const Timeline: React.FC = () => {
   const status = useHydrologyStore((s) => s.hydroDataStatus);
-  const manifest = useHydrologyStore((s) => s.dataManifest);
   const geoglows = useHydrologyStore((s) => s.geoglows);
-  const epias = useHydrologyStore((s) => s.epias);
   const selectedEntity = useHydrologyStore((s) => s.selectedEntity);
   const rivers = useHydrologyStore((s) => s.rivers);
   const relations = useHydrologyStore((s) => s.hes177Relations);
@@ -16,6 +14,7 @@ export const Timeline: React.FC = () => {
   const isPlaying = useHydrologyStore((s) => s.isPlayingTimeline);
   const setIndex = useHydrologyStore((s) => s.setTimelineIndex);
   const togglePlayback = useHydrologyStore((s) => s.toggleTimelinePlayback);
+  const setTimelineOpen = useHydrologyStore((s) => s.setTimelineOpen);
   const selectedRiverId = selectedEntity?.type === 'river' ? selectedEntity.id : selectedEntity?.type === 'hes' ? relations?.byHesId?.[selectedEntity.id]?.riverSystemId ?? relations?.byHesId?.[selectedEntity.id]?.riverIds?.[0] : null;
   const selectedRiver = selectedRiverId ? rivers.features.find((feature) => String(feature.properties?.id ?? feature.id ?? '') === String(selectedRiverId)) : null;
   const forecastLocalIds = Array.isArray(selectedRiver?.properties?.geoglowsLocalRiverIds) ? selectedRiver.properties.geoglowsLocalRiverIds.map(String) : [String(selectedRiver?.properties?.representativeLocalRiverId ?? '')].filter(Boolean);
@@ -41,10 +40,10 @@ export const Timeline: React.FC = () => {
   if (!hasSelectedForecast || timestamps.length < 2) return null;
 
   return (
-    <section className={`hydro-timeline-card pointer-events-auto w-full max-w-[18rem] rounded-lg border p-2 shadow-lg shadow-slate-950/15 ${panel}`}>
-      <div className="flex items-center justify-between"><div className="flex items-center gap-1.5"><CalendarClock className="h-3.5 w-3.5 text-cyan-400" /><span className="text-[11px] font-semibold">GEOGLOWS zaman çizelgesi</span></div><span className={`flex items-center gap-1 font-mono text-[8px] ${status === 'ready' || status === 'partial' ? 'text-emerald-400' : 'text-amber-400'}`}><Radio className="h-3 w-3" />{timestamps.length ? `${activeIndex + 1}/${timestamps.length}` : 'VERİ YOK'}</span></div>
-      {timestamps.length > 1 ? <div className="mt-2 flex items-center gap-1.5"><button type="button" onClick={() => shift(-1)} className="rounded-md p-1 text-[var(--muted)] transition hover:bg-cyan-500/10 hover:text-[var(--primary)]" aria-label="Önceki tahmin zamanı"><ChevronLeft className="h-3.5 w-3.5" /></button><button type="button" onClick={togglePlayback} className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-[var(--primary)] text-white transition hover:bg-[var(--cyan)]" aria-label={isPlaying ? 'Durdur' : 'Oynat'}>{isPlaying ? <Pause className="h-3.5 w-3.5" fill="currentColor" /> : <Play className="ml-0.5 h-3.5 w-3.5" fill="currentColor" />}</button><input type="range" min="0" max={timestamps.length - 1} step="1" value={activeIndex} onChange={(event) => setIndex(Number(event.target.value))} className="timeline-range w-full" aria-label="GEOGLOWS zaman seçimi" /><button type="button" onClick={() => shift(1)} className="rounded-md p-1 text-[var(--muted)] transition hover:bg-cyan-500/10 hover:text-[var(--primary)]" aria-label="Sonraki tahmin zamanı"><ChevronRight className="h-3.5 w-3.5" /></button></div> : <div className="mt-2 rounded-lg border border-amber-500/20 bg-amber-500/5 p-1.5 text-[9px] text-amber-200">Oynatma için gerçek GEOGLOWS zaman serisi bekleniyor.</div>}
-      <div className="mt-1.5 flex items-center justify-between gap-2 border-t border-[var(--line)] pt-1.5 font-mono text-[8px] text-[var(--muted)]"><span className="truncate">{formatDataDate(activeTimestamp)}</span><span className="shrink-0">EPİAŞ {epias?.records?.length ?? 0}</span><span className="shrink-0">TATUS {manifest?.layers?.length ?? 0}</span></div>
+    <section className={`hydro-timeline-card pointer-events-auto w-full rounded-lg border ${panel}`} aria-label="Akış tahmini (GEOGLOWS)">
+      <div className="hydro-timeline-heading"><div className="flex min-w-0 items-center gap-1.5"><CalendarClock className="h-3.5 w-3.5 shrink-0 text-cyan-400" /><div className="min-w-0"><div className="hydro-timeline-title">Akış tahmini (GEOGLOWS)</div><div className="hydro-timeline-subtitle">Nehir tahmin adımları</div></div></div><div className="flex items-center gap-1"><span className={`hydro-timeline-step ${status === 'ready' || status === 'partial' ? 'ready' : ''}`}><Radio className="h-3 w-3" />{`${activeIndex + 1}/${timestamps.length}`}</span><button type="button" onClick={() => setTimelineOpen(false)} className="hydro-timeline-close" aria-label="Akış tahminini kapat" title="Kapat"><X className="h-3.5 w-3.5" /></button></div></div>
+      <div className="hydro-timeline-controls"><button type="button" onClick={() => shift(-1)} className="hydro-timeline-nav" aria-label="Önceki tahmin zamanı"><ChevronLeft className="h-3.5 w-3.5" /></button><button type="button" onClick={togglePlayback} className="hydro-timeline-play" aria-label={isPlaying ? 'Durdur' : 'Oynat'}>{isPlaying ? <Pause className="h-3.5 w-3.5" fill="currentColor" /> : <Play className="ml-0.5 h-3.5 w-3.5" fill="currentColor" />}</button><input type="range" min="0" max={timestamps.length - 1} step="1" value={activeIndex} onChange={(event) => setIndex(Number(event.target.value))} className="timeline-range" aria-label="GEOGLOWS tahmin zamanı" /><button type="button" onClick={() => shift(1)} className="hydro-timeline-nav" aria-label="Sonraki tahmin zamanı"><ChevronRight className="h-3.5 w-3.5" /></button></div>
+      <div className="hydro-timeline-footer"><span>{formatDataDate(activeTimestamp)}</span><span>GEOGLOWS tahmini</span></div>
     </section>
   );
 };

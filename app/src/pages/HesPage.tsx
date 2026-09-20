@@ -16,6 +16,7 @@ export default function HesPage() {
   const loadHydroData = useHydrologyStore((state) => state.loadHydroData);
   const setSelectedEntity = useHydrologyStore((state) => state.setSelectedEntity);
   const hesCount = useHydrologyStore((state) => state.hes177.features.length);
+  const isTimelineOpen = useHydrologyStore((state) => state.isTimelineOpen);
 
   useEffect(() => { setHydrologyTheme(theme); }, [setHydrologyTheme, theme]);
   useEffect(() => { void loadHydroData(); }, [loadHydroData]);
@@ -31,7 +32,7 @@ export default function HesPage() {
         <div className="hydrology-sidebar"><HydrologySidebar /></div>
         <div className="hydrology-map-panel">
           <HydrologyMap />
-          <div className="hydrology-timeline"><HydrologyTimeline /></div>
+          {isTimelineOpen && <div className="hydrology-timeline"><HydrologyTimeline /></div>}
           {hesCount === 0 && <div className="hydrology-empty-state">Kanonik HES verisi yükleniyor…</div>}
         </div>
       </div>
