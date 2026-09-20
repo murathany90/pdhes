@@ -1,7 +1,6 @@
 import React, { useMemo, useState } from 'react';
-import { Activity, ArrowUpDown, ChevronDown, Eye, EyeOff, Gauge, Mountain, Search, Waves, X, Zap } from 'lucide-react';
+import { Activity, ArrowUpDown, ChevronDown, Eye, EyeOff, Gauge, Info, Mountain, Search, Waves, X, Zap } from 'lucide-react';
 import { describeFullness, fullnessRecordsByHes, fullnessSourceLabel, preferredFullnessRecord, resolveHistoricalFullness, resolveHesFullness } from '../data/fullnessSources';
-import { hasVerifiedFlowDirection } from '../data/hydrology';
 import { HesDetailPanel, hydrologyDisplay } from './HesDetail';
 import { useHydrologyStore, type TabType } from '../store/useHydrologyStore';
 import type { FullnessResult } from '../types/hydrology';
@@ -94,8 +93,10 @@ export const Sidebar: React.FC = () => {
   const timelineOpen = useHydrologyStore((s) => s.isTimelineOpen);
   const setTimelineOpen = useHydrologyStore((s) => s.setTimelineOpen);
   const toggleLayer = useHydrologyStore((s) => s.toggleLayer);
-  const flowVisualization = useHydrologyStore((s) => s.flowVisualization);
-  const toggleFlowVisualization = useHydrologyStore((s) => s.toggleFlowVisualization);
+  const flowAnimationEnabled = useHydrologyStore((s) => s.flowAnimationEnabled);
+  const flowAnimationSpeed = useHydrologyStore((s) => s.flowAnimationSpeed);
+  const toggleFlowAnimation = useHydrologyStore((s) => s.toggleFlowAnimation);
+  const setFlowAnimationSpeed = useHydrologyStore((s) => s.setFlowAnimationSpeed);
   const layers = useHydrologyStore((s) => s.layers);
   const rivers = useHydrologyStore((s) => s.rivers);
   const hes = useHydrologyStore((s) => s.hes177);
@@ -205,10 +206,6 @@ export const Sidebar: React.FC = () => {
   const selectedFullness = selectedHes?.details?.fullnessResult as FullnessResult | undefined;
   const selectedRiver = selectedEntity?.type === 'river' ? riverRows.find((row) => row.id === selectedEntity.id) : null;
   const relatedRiverRows = selectedRiver ? hesRows.filter((row) => (selectedRiver.details?.hesIds as unknown[] ?? []).map(String).includes(row.id)) : [];
-  const selectedRiverIds = selectedEntity?.type === 'hes'
-    ? new Set((hesRows.find((row) => row.id === selectedEntity.id)?.details?.riverIds as unknown[] ?? []).map(String))
-    : selectedEntity?.type === 'river' ? new Set([selectedEntity.id]) : new Set<string>();
-  const selectedDirectionVerified = selectedRiverIds.size > 0 && rivers.features.some((feature) => selectedRiverIds.has(String(feature.properties?.id ?? feature.id ?? '')) && hasVerifiedFlowDirection(feature.properties));
   const tabs: Array<{ id: TabType; label: string; icon: React.ReactNode; count: number }> = [{ id: 'hes', label: 'HES', icon: <Mountain className="h-4 w-4" />, count: hesRows.length }, { id: 'rivers', label: 'Akarsular', icon: <Waves className="h-4 w-4" />, count: riverRows.length }, { id: 'basins', label: 'Havzalar', icon: <Gauge className="h-4 w-4" />, count: basinRows.length }];
   const layerControls: Array<{ key: keyof typeof layers; label: string }> = [{ key: 'basins', label: 'Havzalar' }, { key: 'rivers', label: 'Akarsular' }, { key: 'dams', label: 'Barajlar' }];
   const selectRow = (row: Row) => { setSelectedEntity({ type: row.type, id: row.id }); if (row.type === 'hes') setDetailSection('summary'); };
@@ -248,7 +245,16 @@ export const Sidebar: React.FC = () => {
       <div className="hydro-tabs">{tabs.map((tab) => <button key={tab.id} onClick={() => setTab(tab.id)} className={currentTab === tab.id ? 'active' : ''}>{tab.icon}<span>{tab.label}</span><span className="hydro-tab-count">{tab.count.toLocaleString('tr-TR')}</span></button>)}</div>
       <div className={`hydro-layer-controls ${layersOpen ? 'open' : ''}`}>
         <button type="button" className="hydro-layer-summary" onClick={() => setLayersOpen((open) => !open)} aria-expanded={layersOpen}><span>Katmanlar</span><ChevronDown className="h-3.5 w-3.5" /></button>
-        {layersOpen && <div className="hydro-layer-options"><div className="hydro-layer-grid">{layerControls.map(({ key, label }) => <button key={key} onClick={() => toggleLayer(key)} className={layers[key] ? 'active' : ''} aria-pressed={layers[key]}>{layers[key] ? <Eye className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />}{label}</button>)}</div><button type="button" onClick={toggleFlowVisualization} className={`hydro-flow-toggle ${flowVisualization ? 'active' : ''}`} aria-pressed={flowVisualization} title="GEOGLOWS akış tahmin ölçeğini aç/kapat"><Waves className="h-3 w-3" />{flowVisualization ? 'Akış / Debi açık' : 'Akış / Debi görünümü'}</button><div className="hydro-flow-explainer">Seçili HES’in bağlı olduğu akarsu sistemindeki tahmini akışı gösterir.{flowVisualization && !selectedDirectionVerified ? ' Yön verisi doğrulanmadığı için animasyon kapalı.' : ''}</div><div className="hydro-flow-legend" aria-label="Akış görünümü açıklaması"><span><i className="hydro-legend-line river" />Akarsu</span><span><i className="hydro-legend-line selected" />Seçili akarsu</span><span><i className="hydro-legend-line flow" />Akış yönü</span></div></div>}
+        {layersOpen && <div className="hydro-layer-options">
+          <div className="hydro-layer-grid">{layerControls.map(({ key, label }) => <button key={key} onClick={() => toggleLayer(key)} className={layers[key] ? 'active' : ''} aria-pressed={layers[key]}>{layers[key] ? <Eye className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />}{label}</button>)}</div>
+          <div className="hydro-flow-control">
+            <div className="hydro-flow-control-row">
+              <span className="hydro-flow-label"><Waves className="h-3 w-3" />Akış animasyonu <span className="hydro-flow-info" title="Akış yönü doğrulanmış akarsularda yönlü animasyon, diğerlerinde temsili hareket gösterilir. Animasyon hızı gerçek debi veya su hızı değildir." aria-label="Akış animasyonu bilgisi"><Info className="h-3 w-3" /></span></span>
+              <button type="button" onClick={toggleFlowAnimation} className={`hydro-flow-switch ${flowAnimationEnabled ? 'active' : ''}`} role="switch" aria-checked={flowAnimationEnabled} aria-label="Akış animasyonunu aç veya kapat"><span /></button>
+            </div>
+            {flowAnimationEnabled && <label className="hydro-flow-speed"><span>Hız</span><span className="hydro-flow-speed-range"><small>Yavaş</small><input type="range" min="0.25" max="3" step="0.25" value={flowAnimationSpeed} onChange={(event) => setFlowAnimationSpeed(Number(event.target.value))} aria-label="Akış animasyonu hızı" /><small>Hızlı</small></span><output>{flowAnimationSpeed.toLocaleString('tr-TR', { maximumFractionDigits: 2 })}×</output></label>}
+          </div>
+        </div>}
       </div>
       {selectedHesPanel && <div className="hydro-selected-panel">{selectedHesPanel}</div>}
       {selectedRiver && relatedRiverRows.length > 0 && <div className="hydro-related-panel"><div className="hydro-related-heading"><div className="hydro-related-title">İlgili HES tesisleri</div>{selectedRiver.forecast && <button type="button" className={`hydro-related-flow ${timelineOpen ? 'active' : ''}`} onClick={() => setTimelineOpen(!timelineOpen)} aria-expanded={timelineOpen}>Akış tahmini</button>}</div>{relatedRiverRows.slice(0, 4).map((row) => <button key={row.id} onClick={() => selectRow(row)}>⚡ {row.name} · {formatMw(row.power)}</button>)}</div>}

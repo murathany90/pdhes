@@ -1,15 +1,16 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import * as maplibregl from 'maplibre-gl';
-import type { Map as MapLibreMap } from 'maplibre-gl';
+import type { GeoJSONSource, Map as MapLibreMap } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import maplibreWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url';
 import { useHydrologyStore } from '../store/useHydrologyStore';
 import { getForecastTimestamps } from '../services/hydroData';
-import { damIconBucket, displayName, getBasinColor, getDamColor, getFlowScaleColor, hasVerifiedFlowDirection } from '../data/hydrology';
+import { damIconBucket, displayName, getBasinColor, getDamColor, hasVerifiedFlowDirection } from '../data/hydrology';
 import { fullnessRecordsByHes, fullnessSourceLabel, preferredFullnessRecord, resolveHistoricalFullness, resolveHesFullness } from '../data/fullnessSources';
 import { getBasemapBootstrapStyle, getBasemapStyle, THEME_BACKGROUND } from './mapStyles';
 import { HES_PIE_LAYER_ID, ensureHydrologyOverlay, type OverlayCollections, type OverlayOptions } from './mapLayers';
 import { focusSelectedEntity } from './mapCamera';
+import { createFlowParticleCollection, createFlowParticlePlans, emptyFlowParticles } from './flowParticles';
 import { emptyFeatureCollection } from '../types/hydrology';
 
 const INTERACTIVE_LAYERS = ['rivers-core', 'dams-points', 'basins-fill', 'reservoirs-outline', 'hes177-points', HES_PIE_LAYER_ID] as const;
@@ -147,6 +148,7 @@ export function BaseMap() {
   const lastSyncedOptionsRef = useRef<OverlayOptions | null>(null);
   const frameRef = useRef<number | null>(null);
   const flowAnimationRef = useRef<number | null>(null);
+  const flowAnimationSpeedRef = useRef(1);
   const popupRef = useRef<maplibregl.Popup | null>(null);
   const clickPopupRef = useRef<maplibregl.Popup | null>(null);
   const basemapFallbackRef = useRef(false);
@@ -171,7 +173,8 @@ export function BaseMap() {
   const selectedEntity = useHydrologyStore((state) => state.selectedEntity);
   const timelineIndex = useHydrologyStore((state) => state.timelineIndex);
   const dataMode = useHydrologyStore((state) => state.dataMode);
-  const flowVisualization = useHydrologyStore((state) => state.flowVisualization);
+  const flowAnimationEnabled = useHydrologyStore((state) => state.flowAnimationEnabled);
+  const flowAnimationSpeed = useHydrologyStore((state) => state.flowAnimationSpeed);
   const historicalDate = useHydrologyStore((state) => state.historicalDate);
   const activeCatchmentHesId = useHydrologyStore((state) => state.activeCatchmentHesId);
   const setSelectedEntity = useHydrologyStore((state) => state.setSelectedEntity);
@@ -187,13 +190,6 @@ export function BaseMap() {
       const current = resolveHesFullness(id, properties, preferredFullnessRecord(fullnessByHes.get(id), liveRecord), dataMode);
       return historicalDate ? resolveHistoricalFullness(id, current, fullnessHistory, historicalDate) : current;
     };
-    const activeForecastFlows = geoglowsRecords.flatMap((record) => {
-      const rows = Array.isArray(record.data) ? record.data : [];
-      const row = activeTimestamp ? rows.find((candidate) => candidate && typeof candidate === 'object' && (candidate as Record<string, unknown>).datetime === activeTimestamp) : rows[0];
-      const value = liveNumber(row, ['flow', 'discharge', 'streamflow', 'flow_median', 'value']);
-      return value === null ? [] : [value];
-    });
-    const maxForecastFlow = activeForecastFlows.length ? Math.max(...activeForecastFlows) : 0;
     const selectedRiver = selectedEntity?.type === 'river' ? rivers.features.find((feature) => String(feature.properties?.id ?? feature.id ?? '') === selectedEntity.id) ?? null : null;
     const selectedRiverHesIds = selectedEntity?.type === 'river'
       ? new Set(Array.isArray(selectedRiver?.properties?.hesIds) ? selectedRiver.properties.hesIds.map(String) : hes177.features.filter((feature) => {
@@ -217,13 +213,13 @@ export function BaseMap() {
       const live = geoglowsRecords.find((record) => localRiverIds.includes(String(record.localRiverId ?? '')));
       const liveData = Array.isArray(live?.data) && activeTimestamp ? live.data.filter((row) => row && typeof row === 'object' && (row as Record<string, unknown>).datetime === activeTimestamp) : live?.data;
       const flow = liveNumber(liveData, ['flow', 'discharge', 'streamflow', 'flow_median', 'value']) ?? numberFrom(feature.properties?.flow);
-      const color = flow !== null && flowVisualization ? getFlowScaleColor(flow, maxForecastFlow) : '#38bdf8';
       const width = flow !== null ? Math.min(8, Math.max(2.8, Math.log10(Math.max(flow, 0) + 1) * 2.8)) : numberFrom(feature.properties?.width) ?? 2.8;
       const relationRiverSelected = selectedEntity?.type === 'hes' ? hes177Relations?.byHesId?.[selectedEntity.id]?.riverIds?.map(String).includes(id) : false;
       const basinRelevant = selectedEntity?.type === 'basin' && (Array.isArray(feature.properties?.basinIds) ? feature.properties.basinIds.map(String).includes(selectedEntity.id) : String(feature.properties?.basinId ?? '') === selectedEntity.id);
       const riverRelevant = selectedEntity?.type === 'river' ? id === selectedEntity.id : selectedEntity?.type === 'basin' ? basinRelevant : relationRiverSelected;
       const directionVerified = hasVerifiedFlowDirection(feature.properties);
-      return { ...feature, properties: { ...feature.properties, name: displayName(feature.properties ?? {}, 'river', id), riverName: feature.properties?.riverName ?? feature.properties?.name, basinName: basinNames.get(String(feature.properties?.basinId ?? '')), flow, color: '#38bdf8', flowColor: color, flowVisualization, width, hasForecast: Boolean(live && Array.isArray(live.data) && live.data.length > 1), flowDirectionVerified: directionVerified, flowActive: Boolean(flowVisualization && riverRelevant && directionVerified), selectedRiver: riverRelevant, dimmed: Boolean(selectedEntity && !riverRelevant) } };
+      const hasFocusedRiver = selectedEntity?.type === 'hes' || selectedEntity?.type === 'river' || selectedEntity?.type === 'basin';
+      return { ...feature, properties: { ...feature.properties, name: displayName(feature.properties ?? {}, 'river', id), riverName: feature.properties?.riverName ?? feature.properties?.name, basinName: basinNames.get(String(feature.properties?.basinId ?? '')), flow, color: '#38bdf8', width, hasForecast: Boolean(live && Array.isArray(live.data) && live.data.length > 1), flowDirectionVerified: directionVerified, showVerifiedDirection: Boolean(flowAnimationEnabled && riverRelevant && directionVerified), flowParticleActive: Boolean(flowAnimationEnabled && (!hasFocusedRiver || riverRelevant)), selectedRiver: riverRelevant, dimmed: Boolean(selectedEntity && !riverRelevant) } };
     });
     const damFeatures = damStations.features.map((feature) => {
       const properties = feature.properties ?? {};
@@ -266,7 +262,7 @@ export function BaseMap() {
       return { ...feature, properties: { ...properties, selected: selectedHes, dimmed: Boolean(selectedEntity && !selectedHes && !selectedRiverHes && !selectedBasin) } };
     });
     return { rivers: { ...rivers, features: riverFeatures }, basins: { ...basins, features: basinFeatures }, dams: { ...damStations, features: damFeatures }, hes177: enrichedHes177, cascades, catchment, reservoirs: { ...reservoirs, features: reservoirFeatures } };
-  }, [basins, cascades, catchment, damStations, dataMode, epias, flowVisualization, fullness, fullnessHistory, geoglows, hes177, hes177Relations, historicalDate, reservoirs, rivers, selectedEntity, theme, timelineIndex]);
+  }, [basins, cascades, catchment, damStations, dataMode, epias, flowAnimationEnabled, fullness, fullnessHistory, geoglows, hes177, hes177Relations, historicalDate, reservoirs, rivers, selectedEntity, theme, timelineIndex]);
 
   const overlayOptions = useMemo<OverlayOptions>(() => ({
     rivers: layers.rivers,
@@ -279,10 +275,11 @@ export function BaseMap() {
     basinOutlineColor: theme === 'light' ? '#475569' : '#93c5fd',
     riverGlowColor: theme === 'light' ? '#0e7490' : '#38bdf8',
     riverSelectedColor: theme === 'light' ? '#0891b2' : '#67e8f9',
+    flowAnimationEnabled,
     selectedEntity,
     selectedBasinId: selectedEntity?.type === 'basin' ? selectedEntity.id : selectedEntity?.type === 'hes' ? String(hes177.features.find((feature) => String(feature.properties?.id ?? feature.id ?? '') === selectedEntity.id)?.properties?.basinId ?? '') || null : null,
     selectedRiverMemberIds: selectedEntity?.type === 'river' ? [selectedEntity.id] : selectedEntity?.type === 'hes' ? hes177Relations?.byHesId?.[selectedEntity.id]?.riverIds?.map(String) ?? [] : [],
-  }), [flowVisualization, hes177.features, hes177Relations, layers.basins, layers.dams, layers.rivers, selectedEntity, theme]);
+  }), [flowAnimationEnabled, hes177.features, hes177Relations, layers.basins, layers.dams, layers.rivers, selectedEntity, theme]);
 
   const syncOverlay = useCallback(function syncOverlay(force = false) {
     const map = mapRef.current;
@@ -483,19 +480,61 @@ export function BaseMap() {
     map.triggerRepaint();
   }, [theme, scheduleOverlaySync]);
 
+  useEffect(() => { flowAnimationSpeedRef.current = flowAnimationSpeed; }, [flowAnimationSpeed]);
+
   useEffect(() => {
     const map = mapRef.current;
-    const directionVerified = rivers.features.some((feature) => hasVerifiedFlowDirection(feature.properties));
-    const activeSelectedFlow = rivers.features.some((feature) => feature.properties?.flowActive === true);
-    if (!map || !layers.rivers || !directionVerified || !activeSelectedFlow || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    let phase = 0;
+    const clearParticles = () => {
+      const source = map?.getSource('rivers-flow-particles') as GeoJSONSource | undefined;
+      source?.setData(emptyFlowParticles());
+      const container = map?.getContainer();
+      if (container) {
+        container.dataset.flowParticleCount = '0';
+        container.dataset.flowParticleSignature = '';
+      }
+    };
+    if (!map || !flowAnimationEnabled || !layers.rivers) {
+      clearParticles();
+      return;
+    }
+
     let active = true;
-    const tick = () => {
+    let lastFrameAt = 0;
+    const startedAt = performance.now();
+    const selectedHes = selectedEntity?.type === 'hes'
+      ? collections.hes177.features.find((feature) => String(feature.properties?.id ?? feature.id ?? '') === selectedEntity.id)
+      : null;
+    const selectedPoint = selectedHes?.geometry?.type === 'Point'
+      ? [Number(selectedHes.geometry.coordinates[0]), Number(selectedHes.geometry.coordinates[1])] as [number, number]
+      : null;
+    let plans = createFlowParticlePlans(collections.rivers, selectedPoint);
+
+    const rebuildPlans = () => {
+      const bounds = map.getBounds();
+      plans = createFlowParticlePlans(collections.rivers, selectedPoint, {
+        west: bounds.getWest(), south: bounds.getSouth(), east: bounds.getEast(), north: bounds.getNorth(),
+      });
+    };
+    const tick = (now: number) => {
       if (!active || document.visibilityState !== 'visible') return;
-      if (map.isStyleLoaded() && map.getLayer('rivers-flow') && map.getLayoutProperty('rivers-flow', 'visibility') !== 'none') {
-        phase = (phase + 0.045) % 1;
-        map.setPaintProperty('rivers-flow', 'line-dasharray', [0.12 + phase * 0.7, 2.35, 0.1 + phase * 0.3, 0.55]);
-        map.triggerRepaint();
+      if (now - lastFrameAt >= 33) {
+        const source = map.getSource('rivers-flow-particles') as GeoJSONSource | undefined;
+        if (source && map.getLayer('rivers-flow-particles') && map.getLayoutProperty('rivers-flow-particles', 'visibility') !== 'none') {
+          const particles = createFlowParticleCollection(plans, (now - startedAt) / 1000, flowAnimationSpeedRef.current, map.getZoom());
+          source.setData(particles);
+          const signature = particles.features.slice(0, 4).map((feature) => feature.geometry.coordinates.map((value) => Number(value).toFixed(5)).join(',')).join('|');
+          const container = map.getContainer();
+          container.dataset.flowParticleCount = String(particles.features.length);
+          container.dataset.flowParticleSignature = signature;
+          (window as unknown as { __hydroFlowDebug?: Record<string, unknown> }).__hydroFlowDebug = {
+            enabled: true,
+            speed: flowAnimationSpeedRef.current,
+            particleCount: particles.features.length,
+            signature,
+            updatedAt: new Date().toISOString(),
+          };
+        }
+        lastFrameAt = now;
       }
       flowAnimationRef.current = requestAnimationFrame(tick);
     };
@@ -503,10 +542,24 @@ export function BaseMap() {
       if (flowAnimationRef.current !== null) cancelAnimationFrame(flowAnimationRef.current);
       flowAnimationRef.current = document.visibilityState === 'visible' ? requestAnimationFrame(tick) : null;
     };
+    const onViewportChange = () => rebuildPlans();
+
+    map.on('moveend', onViewportChange);
+    map.on('zoomend', onViewportChange);
     document.addEventListener('visibilitychange', restart);
+    rebuildPlans();
     restart();
-    return () => { active = false; document.removeEventListener('visibilitychange', restart); if (flowAnimationRef.current !== null) cancelAnimationFrame(flowAnimationRef.current); };
-  }, [layers.rivers, rivers.features]);
+    return () => {
+      active = false;
+      map.off('moveend', onViewportChange);
+      map.off('zoomend', onViewportChange);
+      document.removeEventListener('visibilitychange', restart);
+      if (flowAnimationRef.current !== null) cancelAnimationFrame(flowAnimationRef.current);
+      flowAnimationRef.current = null;
+      clearParticles();
+      (window as unknown as { __hydroFlowDebug?: Record<string, unknown> }).__hydroFlowDebug = { enabled: false, speed: flowAnimationSpeedRef.current, particleCount: 0 };
+    };
+  }, [collections.hes177, collections.rivers, flowAnimationEnabled, layers.rivers, selectedEntity]);
 
   useEffect(() => {
     const map = mapRef.current; const container = mapContainerRef.current;

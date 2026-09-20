@@ -46,7 +46,8 @@ interface AppState {
   historyError: string | null;
   historicalDate: string | null;
   dataMode: 'mock' | 'epias';
-  flowVisualization: boolean;
+  flowAnimationEnabled: boolean;
+  flowAnimationSpeed: number;
   activeCatchmentHesId: string | null;
 
   // Actions
@@ -68,7 +69,8 @@ interface AppState {
   loadFullnessHistory: () => Promise<void>;
   setHistoricalDate: (date: string | null) => void;
   setDataMode: (mode: 'mock' | 'epias') => void;
-  toggleFlowVisualization: () => void;
+  toggleFlowAnimation: () => void;
+  setFlowAnimationSpeed: (speed: number) => void;
   toggleCatchment: (hesId: string) => void;
 }
 
@@ -111,7 +113,8 @@ export const useHydrologyStore = create<AppState>((set) => ({
   historyError: null,
   historicalDate: null,
   dataMode: 'epias',
-  flowVisualization: false,
+  flowAnimationEnabled: false,
+  flowAnimationSpeed: 1,
   activeCatchmentHesId: null,
 
   setTab: (tab) => set({ currentTab: tab }),
@@ -129,7 +132,8 @@ export const useHydrologyStore = create<AppState>((set) => ({
   setTimelineIndex: (index) => set({ timelineIndex: Math.max(0, Math.round(index)) }),
   toggleTimelinePlayback: () => set((state) => ({ isPlayingTimeline: !state.isPlayingTimeline })),
   setDataMode: (dataMode) => set({ dataMode }),
-  toggleFlowVisualization: () => set((state) => ({ flowVisualization: !state.flowVisualization })),
+  toggleFlowAnimation: () => set((state) => ({ flowAnimationEnabled: !state.flowAnimationEnabled })),
+  setFlowAnimationSpeed: (speed) => set({ flowAnimationSpeed: Math.min(3, Math.max(0.25, Math.round(speed * 4) / 4)) }),
   setHistoricalDate: (historicalDate) => set({ historicalDate }),
   toggleCatchment: (hesId) => set((state) => ({ activeCatchmentHesId: state.activeCatchmentHesId === hesId ? null : hesId })),
   loadHydroData: async () => {
