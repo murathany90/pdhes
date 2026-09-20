@@ -54,10 +54,19 @@ export function focusSelectedEntity(map: MapLibreMap, selection: Selection, data
   if (selection.type === 'hes') {
     const relation = (feature.properties ?? {}) as Record<string, unknown>;
     const relatedIds = new Set([selection.id, ...(Array.isArray(relation.damIds) ? relation.damIds.map(String) : [])]);
+    const relatedRiverIds = new Set([
+      ...(Array.isArray(relation.riverIds) ? relation.riverIds.map(String) : []),
+      ...(relation.riverSystemId ? [String(relation.riverSystemId)] : []),
+    ]);
     const relatedPoints = [
       ...datasets.hes177.features,
       ...datasets.dams.features,
     ].filter((candidate) => { const id = featureId(candidate); return id !== null && relatedIds.has(id); }).flatMap((candidate) => positions(candidate.geometry));
+    relatedPoints.push(
+      ...datasets.rivers.features
+        .filter((candidate) => { const id = featureId(candidate); return id !== null && relatedRiverIds.has(id); })
+        .flatMap((candidate) => positions(candidate.geometry)),
+    );
     if (relatedPoints.length > 1) {
       const relatedBounds = boundsFor(relatedPoints);
       if (relatedBounds) {

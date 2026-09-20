@@ -27,8 +27,9 @@ TATUS = ROOT / "app" / "public" / "hydrology" / "data" / "static" / "tatus"
 OUT = ROOT / "app" / "public" / "hydrology" / "data" / "hes177"
 RIVER_REACH_MAPPING = ROOT / "app" / "public" / "hydrology" / "data" / "static" / "mappings" / "river_reach_map.json"
 HYDRO_RIVERS_CACHE = ROOT / "app" / "public" / "hydrology" / "data" / "static" / "mappings" / "hydrorivers_hes177.geojson"
+RIVER_GEOMETRY_OVERRIDES = ROOT / "tools" / "hydro" / "data" / "river_geometry_overrides.geojson"
 MIN_INSTALLED_POWER_MW = 20.0
-CANONICAL_DATA_VERSION = "hes177-v8"
+CANONICAL_DATA_VERSION = "hes177-v9"
 NS = "{http://schemas.openxmlformats.org/spreadsheetml/2006/main}"
 REL_NS = "{http://schemas.openxmlformats.org/officeDocument/2006/relationships}"
 
@@ -87,6 +88,40 @@ def normalize(value: Any) -> str:
 
 def read_json(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
+
+
+def read_json_or_fallback(path: Path, fallback: Path | None = None, default: dict[str, Any] | None = None) -> dict[str, Any]:
+    if path.exists():
+        return read_json(path)
+    if fallback and fallback.exists():
+        return read_json(fallback)
+    return default if default is not None else {}
+
+
+def read_river_geometry_overrides() -> list[dict[str, Any]]:
+    """Read versioned, source-backed river geometry additions.
+
+    Overrides are deliberately additive: they supply a verified reach that a
+    provider query may omit, but never invent a line or replace provider data.
+    """
+    if not RIVER_GEOMETRY_OVERRIDES.exists():
+        return []
+    payload = read_json(RIVER_GEOMETRY_OVERRIDES)
+    features = payload.get("features")
+    if not isinstance(features, list):
+        raise ValueError(f"River geometry overrides must contain a features array: {RIVER_GEOMETRY_OVERRIDES}")
+    valid: list[dict[str, Any]] = []
+    for feature in features:
+        if not isinstance(feature, dict) or feature.get("type") != "Feature":
+            raise ValueError("River geometry override must be a GeoJSON Feature")
+        properties = feature.get("properties") or {}
+        geometry = feature.get("geometry") or {}
+        if geometry.get("type") not in {"LineString", "MultiLineString"} or not geometry_line_parts(geometry):
+            raise ValueError(f"River geometry override has invalid geometry: {feature.get('id')}")
+        if not properties.get("riverSystemId") or not properties.get("sourceUrl") or not properties.get("sourceFeatureId"):
+            raise ValueError(f"River geometry override is missing provenance: {feature.get('id')}")
+        valid.append(feature)
+    return valid
 
 
 def source_commit() -> str | None:
@@ -649,11 +684,11 @@ def main() -> None:
     # original workbook order/IDs, but remove sub-threshold plants before any
     # spatial, river, dam or cascade relation is built.
     rows = [row for row in read_workbook_rows() if (number(row.get("Kurulu Güç (MW)")) or 0) >= MIN_INSTALLED_POWER_MW]
-    dams_source = read_json(TATUS / "dam_stations.geojson")
-    basins_source = read_json(TATUS / "basins.geojson")
-    stations_source = read_json(TATUS / "hes_stations.geojson")
-    lake_stations_source = read_json(TATUS / "lake_stations.geojson") if (TATUS / "lake_stations.geojson").exists() else {"features": []}
-    rivers_overview_source = read_json(TATUS / "rivers_overview.geojson")
+    dams_source = read_json_or_fallback(TATUS / "dam_stations.geojson", OUT / "hes_dam_points.geojson", {"features": []})
+    basins_source = read_json_or_fallback(TATUS / "basins.geojson", OUT / "hes_basins.geojson", {"features": []})
+    stations_source = read_json_or_fallback(TATUS / "hes_stations.geojson", default={"features": []})
+    lake_stations_source = read_json_or_fallback(TATUS / "lake_stations.geojson", default={"features": []})
+    rivers_overview_source = read_json_or_fallback(TATUS / "rivers_overview.geojson", OUT / "hes_rivers.geojson", {"features": []})
     reach_mapping = read_json(RIVER_REACH_MAPPING).get("mappings", []) if RIVER_REACH_MAPPING.exists() else []
     reach_mapping_by_code = {str(item.get("riverCode")): item for item in reach_mapping if item.get("riverCode")}
     hydrorivers_cache = read_json(HYDRO_RIVERS_CACHE) if HYDRO_RIVERS_CACHE.exists() else {}
@@ -669,6 +704,7 @@ def main() -> None:
                 hydro_ids_by_system[normalized_system_key].add(str(properties["hydroRiversId"]))
     overview_lines = feature_lines(rivers_overview_source)
     basin_by_id = {basin_id(feature): feature for feature in basins_source.get("features", [])}
+    river_geometry_overrides = read_river_geometry_overrides()
 
     river_urls = {str(row.get("Akarsu Polyline GeoJSON URL")) for row in rows if row.get("Akarsu Polyline GeoJSON URL")}
     dam_urls = {str(row.get("TATUS Baraj Point GeoJSON URL")) for row in rows if row.get("TATUS Baraj Point GeoJSON URL")}
@@ -1018,7 +1054,7 @@ def main() -> None:
     # package; no general hydrology network reaches runtime.
     source_parts_by_name_and_basin: dict[tuple[str, str], list[list[Any]]] = defaultdict(list)
     source_names = {canonical_source_river_name(system["name"]) for system in river_systems.values()}
-    full_rivers_source = read_json(TATUS / "rivers.geojson")
+    full_rivers_source = read_json_or_fallback(TATUS / "rivers.geojson", OUT / "hes_rivers.geojson", {"features": []})
     for source in full_rivers_source.get("features", []):
         source_name = canonical_source_river_name((source.get("properties") or {}).get("adi") or (source.get("properties") or {}).get("name"))
         source_basin = basin_id(source)
@@ -1037,7 +1073,19 @@ def main() -> None:
     river_topology_audit: list[dict[str, Any]] = []
     for index, system in enumerate(sorted(river_systems.values(), key=lambda item: (item["basinId"], item["name"])), start=1):
         river_id = f"river-system-{index:03d}"
-        focused_parts = system["geometries"]
+        matching_overrides = [
+            feature for feature in river_geometry_overrides
+            if str((feature.get("properties") or {}).get("riverSystemId")) == river_id
+            or (
+                canonical_source_river_name((feature.get("properties") or {}).get("riverName")) == canonical_source_river_name(system["name"])
+                and (
+                    not (feature.get("properties") or {}).get("riverCode")
+                    or str((feature.get("properties") or {}).get("riverCode")) in {str(code) for code in system["codes"]}
+                )
+            )
+        ]
+        override_parts = [part for feature in matching_overrides for part in geometry_line_parts(feature.get("geometry"))]
+        focused_parts = unique_line_parts(system["geometries"], override_parts)
         source_parts = [part for basin in system["basinIds"] for part in source_parts_by_name_and_basin.get((canonical_source_river_name(system["name"]), str(basin)), [])]
         anchors = [(point, float(hes_by_id[hes_id]["properties"].get("installedPowerMw") or 0)) for hes_id in system["hesIds"] if hes_by_id[hes_id]["properties"].get("coordinateKind") in {"hes", "dam"} and (point := point_of(hes_by_id[hes_id]))]
         hydro_parts = list(hydro_parts_by_system.get(canonical_source_river_name(system["name"]), []))
@@ -1061,6 +1109,9 @@ def main() -> None:
         source_collections = [routed_parts] if routed_parts else [hydro_corridor, source_corridor, focused_corridor, overview_corridor]
         source_labels = ["topology-routed corridor"] if routed_parts else [label for label, collection in (("HydroRIVERS v10 HES corridor", hydro_corridor), ("named river", source_corridor), ("Layer 8 HES corridors", focused_corridor), ("overview corridors", overview_corridor)) if collection]
         source_labels.extend(["Layer 8 HES corridors"] if focused_corridor else [])
+        if override_parts:
+            source_collections.append(override_parts)
+            source_labels.append("versioned verified geometry override")
         if not routed_parts and source_corridor and source_hes_count > 0:
             source_collections.insert(0, source_corridor)
             source_labels.insert(0, "named river")
@@ -1074,6 +1125,7 @@ def main() -> None:
         if not parts:
             continue
         geometry = {"type": "LineString", "coordinates": parts[0]} if len(parts) == 1 else {"type": "MultiLineString", "coordinates": parts}
+        system_geometry = {"type": "MultiLineString", "coordinates": parts}
         components = disconnected_components(parts)
         disconnected_river_components += max(0, components - 1)
         component_groups = sorted(connected_line_components(parts), key=lambda group: sum(line_length_km(part) for part in group), reverse=True)
@@ -1084,7 +1136,6 @@ def main() -> None:
         # focused package uses Layer 8 HES corridors. When their river codes
         # differ, retain only nearby reaches from the same official basin and
         # expose the match method/confidence to the UI.
-        system_geometry = {"type": "MultiLineString", "coordinates": parts}
         basin_candidates = [item for item in reach_mapping if str(item.get("riverCode") or "")[2:4].lstrip("0") in {str(bid).lstrip("0") for bid in system["basinIds"]} and item.get("representativePoint")]
         ranked_reaches = sorted(((line_distance_km(tuple(item["representativePoint"]), system_geometry), item) for item in basin_candidates), key=lambda item: item[0])
         nearest_distance = ranked_reaches[0][0] if ranked_reaches else float("inf")
@@ -1104,6 +1155,9 @@ def main() -> None:
             else:
                 hes_props["coordinateDistanceToRiverKm"] = None
         properties = {"id": river_id, "entityId": river_id, "entityType": "hesRiverSystem", "name": system["name"], "riverName": system["name"], "canonicalRiverName": canonical_source_river_name(system["name"]), "displayRiverName": system["name"], "sourceRiverName": system["name"], "riverSystemId": river_id, "riverCode": system["codes"][0] if system["codes"] else None, "riverCodes": system["codes"], "hesIds": system["hesIds"], "hesCount": len(system["hesIds"]), "installedPowerMw": sum(hes_by_id[hid]["properties"].get("installedPowerMw") or 0 for hid in system["hesIds"]), "basinId": system["basinId"], "basinIds": system["basinIds"], "geometrySource": geometry_source, "matchMethod": "+".join(sorted(system["matchMethods"])), "confidence": confidence, "lengthKm": visible_length_km, "totalLengthKm": visible_length_km, "representedLengthKm": visible_length_km, "segmentCount": len(parts), "candidateSegmentCount": candidate_segment_count, "candidateComponentCount": source_components + focused_components + overview_components, "representedComponentCount": components, "connectedComponentCount": components, "sourceRepresentedComponentCount": source_represented_components, "focusedRepresentedComponentCount": focused_represented_components, "overviewRepresentedComponentCount": overview_represented_components, "routedAnchorCount": routed_anchor_count, "omittedDisconnectedSegmentCount": omitted_segment_count, "disconnectedComponents": components, "corridorHesCount": corridor_hes_count, "corridorCoveragePercent": round(corridor_hes_count / len(system["hesIds"]) * 100, 1) if system["hesIds"] else 0, "geoglowsLocalRiverIds": [str(item.get("localRiverId")) for item in mapped_reaches if item.get("localRiverId")], "geoglowsRiverIds": [item.get("geoglowsRiverId") for item in mapped_reaches if item.get("geoglowsRiverId") is not None], "geoglowsMatchMethod": "river-code" if direct_reaches else "same-basin-nearest-corridor" if mapped_reaches else "unmatched", "geoglowsMatchDistanceKm": round(geoglows_distance, 2) if geoglows_distance is not None else None, "geoglowsConfidence": geoglows_confidence, "representativeLocalRiverId": str(representative_reach.get("localRiverId")) if representative_reach and representative_reach.get("localRiverId") else None, "representativeGeoglowsRiverId": representative_reach.get("geoglowsRiverId") if representative_reach else None, "hes177": True}
+        if matching_overrides:
+            properties["geometryOverrideIds"] = [str((feature.get("properties") or {}).get("sourceFeatureId")) for feature in matching_overrides]
+            properties["geometryOverrideSources"] = [str((feature.get("properties") or {}).get("sourceUrl")) for feature in matching_overrides]
         properties["hydroMainRiverIds"] = system.get("hydroMainRiverIds", [])
         properties["hydroRiversIds"] = system.get("hydroRiversIds", [])
         properties["hydroRiversFeatureCount"] = len(hydro_corridor)

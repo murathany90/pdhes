@@ -1,8 +1,8 @@
 {
-  "dataVersion": "hes177-v8",
-  "pipelineRunAt": "2026-09-16T22:00:53Z",
+  "dataVersion": "hes177-v9",
+  "pipelineRunAt": "2026-09-20T13:35:59Z",
   "latestObservationAt": "2026-09-13T00:00:00Z",
-  "generatedAt": "2026-09-16T22:00:53Z",
+  "generatedAt": "2026-09-20T13:35:59Z",
   "status": "partial",
   "coverage": {
     "hesCount": 129,
@@ -51,7 +51,7 @@
       "observationErrorCode": "empty_result",
       "observationCount": 0,
       "latestObservationAt": null,
-      "downloadedAt": "2026-09-16T21:21:55Z"
+      "downloadedAt": "2026-09-16T20:56:43Z"
     },
     "dahiti": {
       "status": "requires_access",
@@ -102,12 +102,12 @@
   },
   "quality": {
     "rejectedCount": 0,
-    "rejectedPath": "public/data/quality/fullness_rejected.json"
+    "rejectedPath": "app/public/hydrology/data/quality/fullness_rejected.json"
   },
   "recordCount": 3,
   "records": [
     {
-      "dataVersion": "hes177-v8",
+      "dataVersion": "hes177-v9",
       "hesId": "hes177-014",
       "fullnessPercent": 41.985822959889354,
       "status": "available",
@@ -117,8 +117,8 @@
       "method": "active-volume/(max-volume-min-volume)",
       "observedAt": "2026-09-13",
       "sourcePublishedAt": null,
-      "fetchedAt": "2026-09-16T22:00:53Z",
-      "freshnessDays": 3,
+      "fetchedAt": "2026-09-20T13:35:59Z",
+      "freshnessDays": 7,
       "freshnessLabel": "fresh",
       "confidence": "medium",
       "isEstimated": true,
@@ -156,7 +156,7 @@
       "observationTimestamp": "2026-09-13"
     },
     {
-      "dataVersion": "hes177-v8",
+      "dataVersion": "hes177-v9",
       "hesId": "hes177-073",
       "fullnessPercent": 55.17864402186188,
       "status": "available",
@@ -166,8 +166,8 @@
       "method": "active-volume/(max-volume-min-volume)",
       "observedAt": "2026-09-13",
       "sourcePublishedAt": null,
-      "fetchedAt": "2026-09-16T22:00:53Z",
-      "freshnessDays": 3,
+      "fetchedAt": "2026-09-20T13:35:59Z",
+      "freshnessDays": 7,
       "freshnessLabel": "fresh",
       "confidence": "medium",
       "isEstimated": true,
@@ -205,7 +205,7 @@
       "observationTimestamp": "2026-09-13"
     },
     {
-      "dataVersion": "hes177-v8",
+      "dataVersion": "hes177-v9",
       "hesId": "hes177-140",
       "fullnessPercent": 64.50805969420752,
       "status": "available",
@@ -215,8 +215,8 @@
       "method": "active-volume/(max-volume-min-volume)",
       "observedAt": "2026-09-13",
       "sourcePublishedAt": null,
-      "fetchedAt": "2026-09-16T22:00:53Z",
-      "freshnessDays": 3,
+      "fetchedAt": "2026-09-20T13:35:59Z",
+      "freshnessDays": 7,
       "freshnessLabel": "fresh",
       "confidence": "medium",
       "isEstimated": true,

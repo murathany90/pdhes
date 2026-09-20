@@ -16,6 +16,7 @@ export default function HesPage() {
   const loadHydroData = useHydrologyStore((state) => state.loadHydroData);
   const setSelectedEntity = useHydrologyStore((state) => state.setSelectedEntity);
   const hesCount = useHydrologyStore((state) => state.hes177.features.length);
+  const isSidebarOpen = useHydrologyStore((state) => state.isSidebarOpen);
   const isTimelineOpen = useHydrologyStore((state) => state.isTimelineOpen);
 
   useEffect(() => { setHydrologyTheme(theme); }, [setHydrologyTheme, theme]);
@@ -29,7 +30,7 @@ export default function HesPage() {
     <section className="hydrology-page" data-hydrology-theme={theme} aria-label="HES hidroloji modülü">
       <HydrologyToolbar />
       <div className="hydrology-workspace">
-        <div className="hydrology-sidebar"><HydrologySidebar /></div>
+        {isSidebarOpen && <div className="hydrology-sidebar"><HydrologySidebar /></div>}
         <div className="hydrology-map-panel">
           <HydrologyMap />
           {isTimelineOpen && <div className="hydrology-timeline"><HydrologyTimeline /></div>}
