@@ -5,12 +5,12 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import maplibreWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url';
 import { useHydrologyStore } from '../store/useHydrologyStore';
 import { getForecastTimestamps } from '../services/hydroData';
-import { damIconBucket, displayName, getBasinColor, getDamColor, hasVerifiedFlowDirection } from '../data/hydrology';
+import { damIconBucket, displayName, getBasinColor, getDamColor } from '../data/hydrology';
 import { fullnessRecordsByHes, fullnessSourceLabel, preferredFullnessRecord, resolveHistoricalFullness, resolveHesFullness } from '../data/fullnessSources';
 import { getBasemapBootstrapStyle, getBasemapStyle, THEME_BACKGROUND } from './mapStyles';
 import { HES_PIE_LAYER_ID, ensureHydrologyOverlay, type OverlayCollections, type OverlayOptions } from './mapLayers';
 import { focusSelectedEntity } from './mapCamera';
-import { createFlowParticleCollection, createFlowParticlePlans, emptyFlowParticles } from './flowParticles';
+import { advanceFlowDistance, createFlowParticleCollection, createFlowParticlePlans, emptyFlowParticles, hasVerifiedFlowRouteDirection } from './flowParticles';
 import { emptyFeatureCollection } from '../types/hydrology';
 
 const INTERACTIVE_LAYERS = ['rivers-core', 'dams-points', 'basins-fill', 'reservoirs-outline', 'hes177-points', HES_PIE_LAYER_ID] as const;
@@ -217,7 +217,7 @@ export function BaseMap() {
       const relationRiverSelected = selectedEntity?.type === 'hes' ? hes177Relations?.byHesId?.[selectedEntity.id]?.riverIds?.map(String).includes(id) : false;
       const basinRelevant = selectedEntity?.type === 'basin' && (Array.isArray(feature.properties?.basinIds) ? feature.properties.basinIds.map(String).includes(selectedEntity.id) : String(feature.properties?.basinId ?? '') === selectedEntity.id);
       const riverRelevant = selectedEntity?.type === 'river' ? id === selectedEntity.id : selectedEntity?.type === 'basin' ? basinRelevant : relationRiverSelected;
-      const directionVerified = hasVerifiedFlowDirection(feature.properties);
+      const directionVerified = hasVerifiedFlowRouteDirection(feature.properties);
       const hasFocusedRiver = selectedEntity?.type === 'hes' || selectedEntity?.type === 'river' || selectedEntity?.type === 'basin';
       return { ...feature, properties: { ...feature.properties, name: displayName(feature.properties ?? {}, 'river', id), riverName: feature.properties?.riverName ?? feature.properties?.name, basinName: basinNames.get(String(feature.properties?.basinId ?? '')), flow, color: '#38bdf8', width, hasForecast: Boolean(live && Array.isArray(live.data) && live.data.length > 1), flowDirectionVerified: directionVerified, showVerifiedDirection: Boolean(flowAnimationEnabled && riverRelevant && directionVerified), flowParticleActive: Boolean(flowAnimationEnabled && (!hasFocusedRiver || riverRelevant)), selectedRiver: riverRelevant, dimmed: Boolean(selectedEntity && !riverRelevant) } };
     });
@@ -491,6 +491,10 @@ export function BaseMap() {
       if (container) {
         container.dataset.flowParticleCount = '0';
         container.dataset.flowParticleSignature = '';
+        container.dataset.flowParticleProbe = '';
+        container.dataset.flowRouteCount = '0';
+        container.dataset.flowConnectedTransitions = '0';
+        container.dataset.flowTraveledDistanceKm = '0';
       }
     };
     if (!map || !flowAnimationEnabled || !layers.rivers) {
@@ -499,8 +503,9 @@ export function BaseMap() {
     }
 
     let active = true;
-    let lastFrameAt = 0;
-    const startedAt = performance.now();
+    let lastTickAt: number | null = null;
+    let lastPaintAt = 0;
+    let traveledDistanceKm = 0;
     const selectedHes = selectedEntity?.type === 'hes'
       ? collections.hes177.features.find((feature) => String(feature.properties?.id ?? feature.id ?? '') === selectedEntity.id)
       : null;
@@ -517,29 +522,62 @@ export function BaseMap() {
     };
     const tick = (now: number) => {
       if (!active || document.visibilityState !== 'visible') return;
-      if (now - lastFrameAt >= 33) {
+      if (lastTickAt !== null) {
+        traveledDistanceKm = advanceFlowDistance(traveledDistanceKm, (now - lastTickAt) / 1000, flowAnimationSpeedRef.current);
+      }
+      lastTickAt = now;
+      if (now - lastPaintAt >= 33) {
         const source = map.getSource('rivers-flow-particles') as GeoJSONSource | undefined;
         if (source && map.getLayer('rivers-flow-particles') && map.getLayoutProperty('rivers-flow-particles', 'visibility') !== 'none') {
-          const particles = createFlowParticleCollection(plans, (now - startedAt) / 1000, flowAnimationSpeedRef.current, map.getZoom());
+          const particles = createFlowParticleCollection(plans, traveledDistanceKm, map.getZoom());
           source.setData(particles);
           const signature = particles.features.slice(0, 4).map((feature) => feature.geometry.coordinates.map((value) => Number(value).toFixed(5)).join(',')).join('|');
           const container = map.getContainer();
+          const probe = particles.features.find((feature) => Number(feature.properties?.routeSegmentCount ?? 0) > 1) ?? particles.features[0];
           container.dataset.flowParticleCount = String(particles.features.length);
           container.dataset.flowParticleSignature = signature;
+          container.dataset.flowParticleProbe = probe ? JSON.stringify({
+            id: probe.id,
+            coordinates: probe.geometry.coordinates.map((value) => Number(Number(value).toFixed(6))),
+            routeId: probe.properties?.routeId,
+            sourceSegmentIndex: probe.properties?.sourceSegmentIndex,
+            routeSegmentCount: probe.properties?.routeSegmentCount,
+            routeDistanceKm: probe.properties?.routeDistanceKm,
+            directionMode: probe.properties?.directionMode,
+          }) : '';
+          container.dataset.flowRouteCount = String(plans.length);
+          container.dataset.flowConnectedTransitions = String(plans.reduce((total, plan) => total + Math.max(0, plan.edgeBreaksKm.length - 1), 0));
+          container.dataset.flowTraveledDistanceKm = traveledDistanceKm.toFixed(3);
+          container.dataset.flowAnimationSpeed = String(flowAnimationSpeedRef.current);
           (window as unknown as { __hydroFlowDebug?: Record<string, unknown> }).__hydroFlowDebug = {
             enabled: true,
             speed: flowAnimationSpeedRef.current,
             particleCount: particles.features.length,
+            routeCount: plans.length,
+            routeLengthKm: Number(plans.reduce((total, plan) => total + plan.lengthKm, 0).toFixed(2)),
+            connectedTransitions: plans.reduce((total, plan) => total + Math.max(0, plan.edgeBreaksKm.length - 1), 0),
+            traveledDistanceKm: Number(traveledDistanceKm.toFixed(3)),
+            particles: particles.features.slice(0, 24).map((feature) => ({
+              id: feature.id,
+              coordinates: feature.geometry.coordinates.map((value) => Number(Number(value).toFixed(6))),
+              routeId: feature.properties?.routeId,
+              sourceSegmentIndex: feature.properties?.sourceSegmentIndex,
+              routeSegmentCount: feature.properties?.routeSegmentCount,
+              routeDistanceKm: feature.properties?.routeDistanceKm,
+              directionMode: feature.properties?.directionMode,
+              travelDirection: feature.properties?.travelDirection,
+            })),
             signature,
             updatedAt: new Date().toISOString(),
           };
         }
-        lastFrameAt = now;
+        lastPaintAt = now;
       }
       flowAnimationRef.current = requestAnimationFrame(tick);
     };
     const restart = () => {
       if (flowAnimationRef.current !== null) cancelAnimationFrame(flowAnimationRef.current);
+      lastTickAt = null;
       flowAnimationRef.current = document.visibilityState === 'visible' ? requestAnimationFrame(tick) : null;
     };
     const onViewportChange = () => rebuildPlans();
