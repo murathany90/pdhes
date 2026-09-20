@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import type * as maplibregl from 'maplibre-gl';
 import { useManualGeometryStore } from '../stores/useManualGeometryStore';
 import { useShallow } from 'zustand/react/shallow';
 

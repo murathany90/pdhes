@@ -8,6 +8,7 @@ import { useSettingsStore } from '../stores/useSettingsStore';
 import { useManualGeometryStore } from '../stores/useManualGeometryStore';
 import { MANUAL_FEATURE_TYPES, type ManualFeatureType, type ManualGeometryFeature } from '../types/manualGeometry';
 import { Download } from 'lucide-react';
+import type * as maplibregl from 'maplibre-gl';
 
 export default function MeasurementUI() {
   const { map, mode, setMode, isDrawing, setIsDrawing, measurementPoints, clearMeasurement } = useMapToolsStore();

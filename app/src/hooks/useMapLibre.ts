@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, type RefObject } from 'react';
-import maplibregl from 'maplibre-gl';
+import * as maplibregl from 'maplibre-gl';
 import type { FeatureCollection, Geometry } from 'geojson';
 import type { Site } from '../types/site';
 import { escapeHtml } from '../utils/format';
@@ -204,7 +204,7 @@ export function useMapLibre({
     layerId: string,
     handler: (event: any) => void,
   ) => {
-    const key = `${event}:${layerId}`;
+    const key = `${String(event)}:${layerId}`;
     if (boundLayerEventsRef.current.has(key)) return;
     map.on(event, layerId, handler);
     boundLayerEventsRef.current.add(key);
@@ -732,7 +732,7 @@ export function useMapLibre({
       }, 400); // Wait for terrain to settle to avoid extrusion elevation issues
     });
     
-    map.on('contextmenu', (e) => {
+    map.on('contextmenu', (e: maplibregl.MapMouseEvent) => {
       const { mode, isDrawing, setIsDrawing, openContextMenu } = useMapToolsStore.getState();
       if (mode === 'measure' && isDrawing) {
         setIsDrawing(false);
@@ -741,7 +741,7 @@ export function useMapLibre({
       }
     });
 
-    map.on('error', (e) => {
+    map.on('error', (e: maplibregl.ErrorEvent) => {
       if (e && e.error && (e.error as any).status === 403 || (e.error as any).status === 401 || (e.error?.message || '').includes('403')) {
         const currentStyle = useSettingsStore.getState().mapStyle;
         if (currentStyle.includes('maptiler')) {
@@ -751,7 +751,7 @@ export function useMapLibre({
       }
     });
 
-    map.on('click', (e) => {
+    map.on('click', (e: maplibregl.MapMouseEvent) => {
       const { mode, addMeasurementPoint } = useMapToolsStore.getState();
       if (mode === 'measure') {
         addMeasurementPoint([e.lngLat.lng, e.lngLat.lat]);

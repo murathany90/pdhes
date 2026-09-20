@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import type { LngLat } from 'maplibre-gl';
+import type * as maplibregl from 'maplibre-gl';
 
 export type InteractionMode = 'default' | 'measure';
 

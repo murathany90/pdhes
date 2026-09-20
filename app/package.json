@@ -26,7 +26,7 @@
     "jsdom": "^29.1.1",
     "typescript": "~6.0.2",
     "vite": "^8.0.12",
-    "vitest": "^4.1.9",
+    "vitest": "^4.1.11",
     "xlsx": "^0.18.5"
   },
   "dependencies": {
@@ -34,18 +34,23 @@
     "@react-three/fiber": "^9.6.1",
     "@types/dompurify": "^3.0.5",
     "@types/three": "^0.184.1",
-    "dompurify": "^3.4.11",
+    "dompurify": "^3.4.15",
     "lucide-react": "^1.17.0",
-    "maplibre-gl": "^5.24.0",
+    "maplibre-gl": "^6.10.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "react-markdown": "^10.1.0",
-    "react-router-dom": "^7.17.0",
+    "react-router-dom": "^7.18.4",
     "recharts": "^3.9.2",
     "rehype-katex": "^7.0.1",
     "remark-gfm": "^4.0.1",
     "remark-math": "^6.0.0",
     "three": "^0.185.1",
     "zustand": "^5.0.14"
+  },
+  "overrides": {
+    "three-stdlib": {
+      "fflate": "0.8.3"
+    }
   }
 }

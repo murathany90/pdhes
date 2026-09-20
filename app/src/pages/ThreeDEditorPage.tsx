@@ -13,6 +13,7 @@ import { FabPopover } from '../components/FabPopover';
 import { publicAssetUrl } from '../utils/publicUrl';
 import { buildComponentsDetail } from '../utils/siteDerived';
 import * as turf from '@turf/turf';
+import type * as maplibregl from 'maplibre-gl';
 
 interface ThreeDEditorPageProps {
   site?: Site;
