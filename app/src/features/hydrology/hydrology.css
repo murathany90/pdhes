@@ -91,6 +91,12 @@
 .hydrology-page .hydro-layer-grid button, .hydrology-page .hydro-flow-toggle { display: inline-flex; min-width: 0; min-height: 28px; align-items: center; justify-content: center; gap: 4px; padding: 4px; border: 1px solid transparent; border-radius: 6px; color: var(--hydro-muted); background: transparent; cursor: pointer; font-size: 9px; }
 .hydrology-page .hydro-layer-grid button.active, .hydrology-page .hydro-flow-toggle.active { color: var(--hydro-primary); border-color: color-mix(in srgb, var(--hydro-primary) 35%, var(--hydro-line)); background: color-mix(in srgb, var(--hydro-primary) 10%, transparent); }
 .hydrology-page .hydro-flow-toggle { width: 100%; margin-top: 4px; }
+.hydrology-page .hydro-flow-explainer { margin-top: 4px; color: var(--hydro-muted); font-size: 9px; line-height: 1.35; }
+.hydrology-page .hydro-flow-legend { display: flex; flex-wrap: wrap; gap: 5px 8px; margin-top: 5px; color: var(--hydro-muted); font-size: 9px; }
+.hydrology-page .hydro-flow-legend span { display: inline-flex; align-items: center; gap: 4px; }
+.hydrology-page .hydro-legend-line { display: inline-block; width: 18px; height: 0; border-top: 2px solid #38bdf8; }
+.hydrology-page .hydro-legend-line.selected { border-top-width: 3px; border-top-color: #06b6d4; box-shadow: 0 0 4px #22d3ee; }
+.hydrology-page .hydro-legend-line.flow { border-top-style: dashed; border-top-color: #fbbf24; }
 .hydrology-page .hydro-selected-panel { padding: 0 10px 6px; }
 .hydrology-page .hydro-detail { margin: 0; padding: 7px; border: 1px solid color-mix(in srgb, var(--hydro-primary) 35%, var(--hydro-line)); border-radius: 8px; background: color-mix(in srgb, var(--hydro-primary) 7%, var(--hydro-panel)); }
 .hydrology-page .hydro-detail-compact { padding: 0; border: 0; background: transparent; }

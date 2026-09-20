@@ -15,6 +15,22 @@ export function getFlowScaleColor(flow: number, maxFlow: number): string {
   return ratio > 0.8 ? '#f7bf4f' : '#29d3a2';
 }
 
+/**
+ * Direction is enabled only when the canonical package explicitly verifies
+ * it or when a direct GEOGLOWS river-code match is backed by HydroRIVERS
+ * topology. Same-basin proximity matches are intentionally not animated.
+ */
+export function hasVerifiedFlowDirection(properties: Record<string, unknown> | null | undefined): boolean {
+  if (properties?.flowDirectionVerified === true || properties?.directionVerified === true) return true;
+  const hydroRiversIds = Array.isArray(properties?.hydroRiversIds) ? properties.hydroRiversIds : [];
+  const hydroMainRiverIds = Array.isArray(properties?.hydroMainRiverIds) ? properties.hydroMainRiverIds : [];
+  return String(properties?.geoglowsMatchMethod ?? '') === 'river-code'
+    && String(properties?.geoglowsConfidence ?? '') === 'high'
+    && hydroRiversIds.length > 0
+    && hydroMainRiverIds.length > 0
+    && /HydroRIVERS/i.test(String(properties?.geometrySource ?? ''));
+}
+
 export function getDamColor(occupancy: number): string {
   if (occupancy < 30) return '#fb4f72';
   if (occupancy >= 60) return '#31c9e8';

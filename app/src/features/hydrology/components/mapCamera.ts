@@ -33,6 +33,24 @@ function positions(geometry: Geometry | null): Position[] {
   return [];
 }
 
+function distanceSquared(a: Position, b: Position): number {
+  const longitudeScale = Math.cos((Number(a[1]) * Math.PI) / 180) || 1;
+  const dx = (Number(a[0]) - Number(b[0])) * longitudeScale;
+  const dy = Number(a[1]) - Number(b[1]);
+  return dx * dx + dy * dy;
+}
+
+function positionsNearPoint(geometry: Geometry | null, point: Position): Position[] {
+  if (!geometry || geometry.type !== 'MultiLineString') return positions(geometry);
+  const parts = geometry.coordinates;
+  if (!parts.length) return [];
+  const nearest = parts.reduce((best, part, index) => {
+    const distance = part.reduce((minimum, candidate) => Math.min(minimum, distanceSquared(candidate, point)), Infinity);
+    return distance < best.distance ? { distance, index } : best;
+  }, { distance: Infinity, index: -1 });
+  return nearest.index >= 0 ? parts[nearest.index] : [];
+}
+
 function findFeature(selection: Selection, datasets: FocusDatasets): Feature<Geometry, GeoJsonProperties> | null {
   if (selection.type === 'river' && datasets.riverGroups?.has(selection.id)) return datasets.riverGroups.get(selection.id) ?? null;
   const collection = datasets[selection.type === 'river' ? 'rivers' : selection.type === 'basin' ? 'basins' : selection.type === 'dam' ? 'dams' : selection.type === 'hes' ? 'hes177' : 'rivers'];
@@ -62,11 +80,11 @@ export function focusSelectedEntity(map: MapLibreMap, selection: Selection, data
       ...datasets.hes177.features,
       ...datasets.dams.features,
     ].filter((candidate) => { const id = featureId(candidate); return id !== null && relatedIds.has(id); }).flatMap((candidate) => positions(candidate.geometry));
-    relatedPoints.push(
-      ...datasets.rivers.features
-        .filter((candidate) => { const id = featureId(candidate); return id !== null && relatedRiverIds.has(id); })
-        .flatMap((candidate) => positions(candidate.geometry)),
-    );
+    const focusPoint = points[0];
+    const relatedRiverFeatures = datasets.rivers.features
+      .filter((candidate) => { const id = featureId(candidate); return id !== null && relatedRiverIds.has(id); });
+    const nearbyRiverPoints = relatedRiverFeatures.flatMap((candidate) => positionsNearPoint(candidate.geometry, focusPoint));
+    relatedPoints.push(...(nearbyRiverPoints.length ? nearbyRiverPoints : relatedRiverFeatures.flatMap((candidate) => positions(candidate.geometry))));
     if (relatedPoints.length > 1) {
       const relatedBounds = boundsFor(relatedPoints);
       if (relatedBounds) {

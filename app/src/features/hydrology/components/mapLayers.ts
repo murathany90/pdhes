@@ -23,6 +23,7 @@ export type OverlayOptions = {
   selectionColor: string;
   basinOutlineColor: string;
   riverGlowColor: string;
+  riverSelectedColor: string;
   selectedEntity: { type: string; id: string } | null;
   selectedBasinId: string | null;
   selectedRiverMemberIds: string[];
@@ -117,10 +118,10 @@ export function ensureHydrologyOverlay(map: MapLibreMap, collections: OverlayCol
   addLayer(map, { id: 'reservoirs-outline', type: 'line', source: 'reservoirs', layout: { 'line-join': 'round' }, paint: { 'line-color': '#67e8f9', 'line-width': 1, 'line-opacity': ['case', ['get', 'dimmed'], 0.05, 0.55] } });
   addLayer(map, { id: 'reservoirs-selected', type: 'line', source: 'reservoirs', filter: ['==', ['get', 'selected'], true], paint: { 'line-color': options.selectionColor, 'line-width': 2.2, 'line-opacity': 0.9 } });
 
-  addLayer(map, { id: 'rivers-glow', type: 'line', source: 'rivers', minzoom: 4, layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': ['coalesce', ['get', 'color'], options.riverGlowColor], 'line-width': ['+', ['coalesce', ['get', 'width'], 3], 4], 'line-opacity': ['case', ['get', 'dimmed'], 0.03, 0.18], 'line-blur': 2 } });
-  addLayer(map, { id: 'rivers-core', type: 'line', source: 'rivers', minzoom: 4, layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': ['coalesce', ['get', 'color'], '#38bdf8'], 'line-width': ['interpolate', ['linear'], ['zoom'], 5, ['*', ['coalesce', ['get', 'width'], 3], 0.75], 10, ['coalesce', ['get', 'width'], 3]], 'line-opacity': ['case', ['get', 'dimmed'], 0.12, 0.95] } });
-  addLayer(map, { id: 'rivers-flow', type: 'line', source: 'rivers', minzoom: 5, layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': ['coalesce', ['get', 'color'], options.riverGlowColor], 'line-width': ['+', ['coalesce', ['get', 'width'], 3], 1], 'line-opacity': ['case', ['get', 'dimmed'], 0.04, 0.68], 'line-dasharray': [0.2, 2.6] } });
-  addLayer(map, { id: 'rivers-selected', type: 'line', source: 'rivers', minzoom: 4, filter: ['==', ['get', 'selectedRiver'], true], layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': options.selectionColor, 'line-width': ['+', ['coalesce', ['get', 'width'], 3], 3], 'line-opacity': 1 } });
+  addLayer(map, { id: 'rivers-glow', type: 'line', source: 'rivers', minzoom: 4, layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': ['coalesce', ['get', 'color'], options.riverGlowColor], 'line-width': ['+', ['coalesce', ['get', 'width'], 3], 6], 'line-opacity': ['case', ['get', 'dimmed'], 0.025, ['get', 'selectedRiver'], 0.38, 0.12], 'line-blur': 2.4 } });
+  addLayer(map, { id: 'rivers-core', type: 'line', source: 'rivers', minzoom: 4, layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': ['case', ['get', 'flowVisualization'], ['coalesce', ['get', 'flowColor'], '#38bdf8'], '#38bdf8'], 'line-width': ['interpolate', ['linear'], ['zoom'], 5, ['case', ['get', 'selectedRiver'], ['+', ['*', ['coalesce', ['get', 'width'], 3], 0.75], 1], ['*', ['coalesce', ['get', 'width'], 3], 0.75]], 10, ['case', ['get', 'selectedRiver'], ['+', ['coalesce', ['get', 'width'], 3], 1], ['coalesce', ['get', 'width'], 3]]], 'line-opacity': ['case', ['get', 'dimmed'], 0.12, 0.96] } });
+  addLayer(map, { id: 'rivers-flow', type: 'line', source: 'rivers', minzoom: 5, filter: ['==', ['get', 'flowActive'], true], layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': '#fbbf24', 'line-width': ['+', ['coalesce', ['get', 'width'], 3], 1], 'line-opacity': 0.9, 'line-dasharray': [0.2, 2.6] } });
+  addLayer(map, { id: 'rivers-selected', type: 'line', source: 'rivers', minzoom: 4, filter: ['==', ['get', 'selectedRiver'], true], layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': options.riverSelectedColor, 'line-width': ['+', ['coalesce', ['get', 'width'], 3], 3], 'line-opacity': 1, 'line-blur': 0.35 } });
 
   addLayer(map, { id: 'dams-halo', type: 'circle', source: 'dams', minzoom: 6, paint: { 'circle-radius': ['+', ['coalesce', ['get', 'radius'], 6], 5], 'circle-color': '#38bdf8', 'circle-opacity': ['case', ['get', 'dimmed'], 0.02, 0.12], 'circle-blur': 0.45 } });
   addLayer(map, { id: 'dams-points', type: 'circle', source: 'dams', minzoom: 6, paint: { 'circle-radius': ['coalesce', ['get', 'radius'], 6], 'circle-color': ['coalesce', ['get', 'color'], '#64748b'], 'circle-opacity': ['case', ['get', 'dimmed'], 0.08, 0.65], 'circle-stroke-width': 1.4, 'circle-stroke-color': options.outlineColor } });
@@ -155,7 +156,7 @@ export function ensureHydrologyOverlay(map: MapLibreMap, collections: OverlayCol
   if (map.getLayer('dams-selected')) map.setFilter('dams-selected', options.selectedEntity?.type === 'dam' ? selectedFilter : noSelection);
   if (map.getLayer('hes177-selected')) map.setFilter('hes177-selected', options.selectedEntity?.type === 'hes' ? selectedFilter : noSelection);
   if (map.getLayer('basins-outline')) map.setPaintProperty('basins-outline', 'line-color', options.basinOutlineColor);
-  if (map.getLayer('rivers-selected')) map.setPaintProperty('rivers-selected', 'line-color', options.selectionColor);
+  if (map.getLayer('rivers-selected')) map.setPaintProperty('rivers-selected', 'line-color', options.riverSelectedColor);
   if (map.getLayer('basins-selected')) map.setPaintProperty('basins-selected', 'line-color', options.selectionColor);
   if (map.getLayer('hes-cascades')) map.setPaintProperty('hes-cascades', 'line-opacity', options.selectedEntity?.type === 'hes' ? 0.7 : 0.16);
   return imagesReady && SOURCE_IDS.every((id) => Boolean(map.getSource(id))) && OVERLAY_LAYER_IDS.every((id) => Boolean(map.getLayer(id)));

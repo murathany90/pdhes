@@ -5,7 +5,7 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import maplibreWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url';
 import { useHydrologyStore } from '../store/useHydrologyStore';
 import { getForecastTimestamps } from '../services/hydroData';
-import { damIconBucket, displayName, getBasinColor, getDamColor, getFlowScaleColor } from '../data/hydrology';
+import { damIconBucket, displayName, getBasinColor, getDamColor, getFlowScaleColor, hasVerifiedFlowDirection } from '../data/hydrology';
 import { fullnessRecordsByHes, fullnessSourceLabel, preferredFullnessRecord, resolveHistoricalFullness, resolveHesFullness } from '../data/fullnessSources';
 import { getBasemapBootstrapStyle, getBasemapStyle, THEME_BACKGROUND } from './mapStyles';
 import { HES_PIE_LAYER_ID, ensureHydrologyOverlay, type OverlayCollections, type OverlayOptions } from './mapLayers';
@@ -222,7 +222,8 @@ export function BaseMap() {
       const relationRiverSelected = selectedEntity?.type === 'hes' ? hes177Relations?.byHesId?.[selectedEntity.id]?.riverIds?.map(String).includes(id) : false;
       const basinRelevant = selectedEntity?.type === 'basin' && (Array.isArray(feature.properties?.basinIds) ? feature.properties.basinIds.map(String).includes(selectedEntity.id) : String(feature.properties?.basinId ?? '') === selectedEntity.id);
       const riverRelevant = selectedEntity?.type === 'river' ? id === selectedEntity.id : selectedEntity?.type === 'basin' ? basinRelevant : relationRiverSelected;
-      return { ...feature, properties: { ...feature.properties, name: displayName(feature.properties ?? {}, 'river', id), riverName: feature.properties?.riverName ?? feature.properties?.name, basinName: basinNames.get(String(feature.properties?.basinId ?? '')), flow, color, width, hasForecast: Boolean(live && Array.isArray(live.data) && live.data.length > 1), selectedRiver: riverRelevant, dimmed: Boolean(selectedEntity && !riverRelevant) } };
+      const directionVerified = hasVerifiedFlowDirection(feature.properties);
+      return { ...feature, properties: { ...feature.properties, name: displayName(feature.properties ?? {}, 'river', id), riverName: feature.properties?.riverName ?? feature.properties?.name, basinName: basinNames.get(String(feature.properties?.basinId ?? '')), flow, color: '#38bdf8', flowColor: color, flowVisualization, width, hasForecast: Boolean(live && Array.isArray(live.data) && live.data.length > 1), flowDirectionVerified: directionVerified, flowActive: Boolean(flowVisualization && riverRelevant && directionVerified), selectedRiver: riverRelevant, dimmed: Boolean(selectedEntity && !riverRelevant) } };
     });
     const damFeatures = damStations.features.map((feature) => {
       const properties = feature.properties ?? {};
@@ -277,10 +278,11 @@ export function BaseMap() {
     selectionColor: theme === 'light' ? '#0f766e' : '#f8fafc',
     basinOutlineColor: theme === 'light' ? '#475569' : '#93c5fd',
     riverGlowColor: theme === 'light' ? '#0e7490' : '#38bdf8',
+    riverSelectedColor: theme === 'light' ? '#0891b2' : '#67e8f9',
     selectedEntity,
     selectedBasinId: selectedEntity?.type === 'basin' ? selectedEntity.id : selectedEntity?.type === 'hes' ? String(hes177.features.find((feature) => String(feature.properties?.id ?? feature.id ?? '') === selectedEntity.id)?.properties?.basinId ?? '') || null : null,
     selectedRiverMemberIds: selectedEntity?.type === 'river' ? [selectedEntity.id] : selectedEntity?.type === 'hes' ? hes177Relations?.byHesId?.[selectedEntity.id]?.riverIds?.map(String) ?? [] : [],
-  }), [hes177.features, hes177Relations, layers.basins, layers.dams, layers.rivers, selectedEntity, theme]);
+  }), [flowVisualization, hes177.features, hes177Relations, layers.basins, layers.dams, layers.rivers, selectedEntity, theme]);
 
   const syncOverlay = useCallback(function syncOverlay(force = false) {
     const map = mapRef.current;
@@ -483,8 +485,9 @@ export function BaseMap() {
 
   useEffect(() => {
     const map = mapRef.current;
-    const directionVerified = rivers.features.some((feature) => feature.properties?.flowDirectionVerified === true || feature.properties?.directionVerified === true);
-    if (!map || !layers.rivers || !directionVerified || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const directionVerified = rivers.features.some((feature) => hasVerifiedFlowDirection(feature.properties));
+    const activeSelectedFlow = rivers.features.some((feature) => feature.properties?.flowActive === true);
+    if (!map || !layers.rivers || !directionVerified || !activeSelectedFlow || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     let phase = 0;
     let active = true;
     const tick = () => {
