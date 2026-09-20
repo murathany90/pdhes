@@ -60,17 +60,17 @@ export const HesToolbar: React.FC = () => {
   const pipelineRunAt = fullnessPayload?.pipelineRunAt ?? lastRefreshAt;
 
   return (
-    <section className="hes-toolbar z-20 flex min-h-12 shrink-0 items-center gap-2 border-b px-3 py-1.5 sm:px-4" aria-label="HES araç çubuğu">
+    <section className="hes-toolbar" aria-label="HES araç çubuğu">
       <button type="button" onClick={toggleSidebar} className="rounded-lg border border-[var(--line)] p-1.5 text-[var(--muted)] transition hover:text-[var(--primary)]" title="Paneli aç/kapa" aria-label="Paneli aç/kapa">
         {isSidebarOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
       </button>
-      <div className="flex min-w-0 items-center gap-2 border-r border-[var(--line)] pr-2 sm:pr-3">
+      <div className="hes-toolbar-title">
         <span className="text-xs font-semibold">HESLER</span>
         <span className="rounded-md bg-cyan-500/10 px-1.5 py-0.5 font-mono text-[9px] font-semibold text-[var(--primary)]">20 MW+</span>
         <span className="hidden font-mono text-[9px] text-[var(--muted)] sm:inline" title={hydroDataError ?? (pipelineRunAt ? `Pipeline çalışması: ${formatDataDate(pipelineRunAt)}` : undefined)}>{statusLabel}{kpis.latestObservationAt ? ` · Son gözlem ${formatDataDate(kpis.latestObservationAt)}` : ' · Gözlem yok'}</span>
       </div>
 
-      <div className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto whitespace-nowrap">
+      <div className="hydro-kpis">
         <Kpi label="HES" value={kpis.hes.toLocaleString('tr-TR')} />
         <Kpi label="MW" value={Math.round(kpis.power).toLocaleString('tr-TR')} />
         <Kpi label="Havza" value={kpis.basins.toLocaleString('tr-TR')} />
@@ -80,7 +80,7 @@ export const HesToolbar: React.FC = () => {
         <Kpi label="Doluluk" value={`${kpis.available}/${kpis.applicable}`} className="hidden xl:flex" title={`Mevcut ${kpis.available} · Uygulanabilir ${kpis.applicable} · Hesaplanan ${kpis.calculated} · EPİAŞ ${kpis.epias} · Uydu ${kpis.satellite} · Eski ${kpis.stale} · Veri yok ${kpis.unavailable} · Uygulanamaz ${kpis.notApplicable}`} />
       </div>
 
-      <div className="ml-auto flex shrink-0 items-center gap-1.5">
+      <div className="hes-toolbar-actions">
         <span className="rounded-lg border border-cyan-500/25 bg-cyan-500/8 px-2 py-1.5 font-mono text-[9px] text-[var(--primary)]" title="Doluluk, kanonik resolver ve mevcut doğrulanmış kaynaklara göre gösterilir">GERÇEK VERİ</span>
         <button type="button" onClick={() => void refreshHydroData()} disabled={dataStatus === 'loading'} className="hidden items-center gap-1.5 rounded-lg border border-cyan-500/35 px-2 py-1.5 text-[10px] font-medium text-[var(--primary)] transition hover:bg-cyan-500/8 disabled:opacity-50 sm:flex"><RefreshCw className={`h-3.5 w-3.5 ${dataStatus === 'loading' ? 'animate-spin' : ''}`} />Yenile</button>
         <div className="relative">
@@ -93,7 +93,7 @@ export const HesToolbar: React.FC = () => {
 };
 
 const Kpi: React.FC<{ label: string; value: string; className?: string; title?: string }> = ({ label, value, className = 'flex', title }) => (
-  <div title={title} className={`${className} shrink-0 items-center gap-1 rounded-md px-1.5 py-1`}>
+  <div title={title} className={`hydro-kpi ${className}`}>
     <span className="font-mono text-[10px] font-semibold text-[var(--text)]">{value}</span>
     <span className="text-[8px] uppercase tracking-wide text-[var(--muted)]">{label}</span>
   </div>

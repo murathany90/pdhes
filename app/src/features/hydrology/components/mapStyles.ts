@@ -129,50 +129,19 @@ export const BASEMAP_RASTER_SOURCE = {
   attribution: 'Tiles © Esri',
 };
 
-/** A source-free first style lets local GeoJSON layers attach before tiles load. */
+/** A source-free first style lets MapLibre finish its first render immediately.
+ * Hydrology GeoJSON sources are attached after style readiness by mapLayers;
+ * declaring empty sources here can leave MapLibre's initial source lifecycle
+ * pending indefinitely on production workers.
+ */
 export const getBasemapBootstrapStyle = (theme: 'dark' | 'light' = 'dark'): StyleSpecification => ({
   version: 8,
   name: 'HydroScope overlay bootstrap style',
-  // Declare local sources in the first style.  GitHub Pages can render the
-  // raster basemap while the style is still settling; predeclaring these
-  // sources keeps production from racing `addSource()` during that window.
-  sources: {
-    basins: { type: 'geojson', data: { type: 'FeatureCollection', features: [] } },
-    rivers: { type: 'geojson', data: { type: 'FeatureCollection', features: [] } },
-    dams: { type: 'geojson', data: { type: 'FeatureCollection', features: [] } },
-    hes177: { type: 'geojson', data: { type: 'FeatureCollection', features: [] } },
-    cascades: { type: 'geojson', data: { type: 'FeatureCollection', features: [] } },
-    catchment: { type: 'geojson', data: { type: 'FeatureCollection', features: [] } },
-    reservoirs: { type: 'geojson', data: { type: 'FeatureCollection', features: [] } },
-  },
+  sources: {},
   layers: [{
     id: 'basemap-background',
     type: 'background',
     paint: { 'background-color': THEME_BACKGROUND[theme] },
-  }, {
-    id: 'basins-fill',
-    type: 'fill',
-    source: 'basins',
-    paint: { 'fill-color': '#2563eb', 'fill-opacity': 0.12 },
-  }, {
-    id: 'rivers-core',
-    type: 'line',
-    source: 'rivers',
-    minzoom: 4,
-    layout: { 'line-cap': 'round', 'line-join': 'round' },
-    paint: { 'line-color': '#38bdf8', 'line-width': 3, 'line-opacity': 0.95 },
-  }, {
-    id: 'hes177-points',
-    type: 'circle',
-    source: 'hes177',
-    minzoom: 4,
-    paint: {
-      'circle-radius': 8,
-      'circle-color': '#0f172a',
-      'circle-stroke-width': 2,
-      'circle-stroke-color': '#f8fafc',
-      'circle-opacity': 0.95,
-    },
   }],
 });
 

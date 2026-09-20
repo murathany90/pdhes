@@ -68,3 +68,71 @@
   .hydrology-page .hydrology-map-panel { width: 100%; }
   .hydrology-page .hydrology-timeline { right: 10px; bottom: 10px; width: calc(100% - 20px); }
 }
+
+/* The hydrology source was authored with Tailwind utility classes, but the
+   PDHES app intentionally does not ship a global Tailwind build. These
+   semantic rules keep the native HES layout deterministic and scoped. */
+.app > main:has(.hydrology-page) { height: 100%; min-height: 0; overflow: hidden; }
+.hydrology-page { flex: 1 1 auto; height: auto; min-width: 0; min-height: 0; }
+.hydrology-page .hydrology-workspace { flex: 1 1 auto; min-width: 0; min-height: 0; }
+.hydrology-page .hydrology-sidebar { flex: 0 0 clamp(360px, 30vw, 400px); width: auto; min-width: 360px; height: 100%; min-height: 0; overflow: hidden; }
+.hydrology-page .hydrology-map-panel { flex: 1 1 auto; width: auto; min-width: 0; min-height: 0; overflow: hidden; }
+.hydrology-page .hydrology-map-canvas { position: absolute; inset: 0; width: 100%; height: 100%; min-height: 0 !important; }
+.hydrology-page .hydrology-map-canvas .maplibregl-canvas-container { position: absolute; inset: 0; width: 100%; height: 100%; }
+.hydrology-page .hydrology-map-canvas .maplibregl-canvas { position: absolute; inset: 0; width: 100% !important; height: 100% !important; }
+
+.hydrology-page .hes-toolbar {
+  display: flex; flex: 0 0 auto; flex-wrap: nowrap; align-items: center; gap: 8px;
+  min-height: 48px; padding: 6px 12px; overflow: hidden; white-space: nowrap;
+}
+.hydrology-page .hes-toolbar > button { display: inline-flex; flex: 0 0 auto; align-items: center; justify-content: center; width: 36px; height: 36px; padding: 0; }
+.hydrology-page .hes-toolbar-title { display: flex; flex: 0 1 auto; min-width: 0; align-items: center; gap: 8px; padding-right: 12px; border-right: 1px solid var(--hydro-line); }
+.hydrology-page .hes-toolbar-title > span:last-child { overflow: hidden; text-overflow: ellipsis; }
+.hydrology-page .hydro-kpis { display: flex; flex: 1 1 auto; min-width: 0; align-items: center; gap: 4px; overflow: hidden; }
+.hydrology-page .hydro-kpi { display: flex; flex: 0 0 auto; align-items: baseline; gap: 4px; padding: 4px 7px; border-radius: 6px; background: color-mix(in srgb, var(--hydro-primary) 9%, transparent); }
+.hydrology-page .hydro-kpi span:first-child { font: 700 11px ui-monospace, monospace; }
+.hydrology-page .hydro-kpi span:last-child { margin-left: 0; color: var(--hydro-muted); font-size: 9px; text-transform: uppercase; }
+.hydrology-page .hes-toolbar-actions { display: flex; flex: 0 0 auto; align-items: center; gap: 6px; margin-left: auto; }
+.hydrology-page .hes-toolbar-actions > span, .hydrology-page .hes-toolbar-actions button { display: inline-flex; flex: 0 0 auto; align-items: center; min-height: 32px; }
+
+.hydrology-page .hydro-sidebar { display: flex; flex-direction: column; }
+.hydrology-page .hydro-sidebar-header { flex: 0 0 auto; padding: 12px; }
+.hydrology-page .hydro-sidebar-titlebar { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 12px; }
+.hydrology-page .hydro-sidebar-title { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; }
+.hydrology-page .hydro-sidebar-meta { margin-top: 4px; color: var(--hydro-muted); font: 10px ui-monospace, monospace; }
+.hydrology-page .hydro-sidebar-close { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; padding: 0; border: 0; border-radius: 7px; color: var(--hydro-muted); background: transparent; cursor: pointer; }
+.hydrology-page .hydro-sidebar-close:hover { color: var(--hydro-text); background: var(--hydro-panel-2); }
+.hydrology-page .hydro-search-wrap { position: relative; }
+.hydrology-page .hydro-search-icon { position: absolute; left: 10px; top: 9px; width: 16px; height: 16px; color: var(--hydro-muted); }
+.hydrology-page .hydro-search { display: block; box-sizing: border-box; width: 100%; height: 36px; margin: 0; padding: 8px 10px 8px 34px; }
+.hydrology-page .hydro-tabs { display: grid; flex: 0 0 auto; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; padding: 8px; }
+.hydrology-page .hydro-tabs button { display: flex; min-width: 0; min-height: 48px; flex-direction: column; align-items: center; justify-content: center; gap: 3px; padding: 5px 3px; border: 1px solid transparent; border-radius: 7px; color: var(--hydro-muted); background: transparent; cursor: pointer; font-size: 10px; }
+.hydrology-page .hydro-tabs button.active { color: var(--hydro-primary); border-color: color-mix(in srgb, var(--hydro-primary) 35%, var(--hydro-line)); background: color-mix(in srgb, var(--hydro-primary) 10%, transparent); }
+.hydrology-page .hydro-tab-count { font: 700 9px ui-monospace, monospace; opacity: .75; }
+.hydrology-page .hydro-layer-controls { display: block; flex: 0 0 auto; padding: 10px 12px; }
+.hydrology-page .hydro-section-label { margin-bottom: 6px; color: var(--hydro-text); font-size: 11px; font-weight: 600; }
+.hydrology-page .hydro-layer-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; }
+.hydrology-page .hydro-layer-grid button, .hydrology-page .hydro-flow-toggle { display: inline-flex; min-width: 0; align-items: center; justify-content: center; gap: 4px; min-height: 30px; padding: 5px 4px; border: 1px solid transparent; border-radius: 7px; color: var(--hydro-muted); background: transparent; cursor: pointer; font-size: 10px; }
+.hydrology-page .hydro-layer-grid button.active, .hydrology-page .hydro-flow-toggle.active { color: var(--hydro-primary); border-color: color-mix(in srgb, var(--hydro-primary) 35%, var(--hydro-line)); background: color-mix(in srgb, var(--hydro-primary) 10%, transparent); }
+.hydrology-page .hydro-flow-toggle { width: 100%; margin-top: 5px; }
+.hydrology-page .hydro-source-legend { margin-top: 8px; color: var(--hydro-muted); font: 9px ui-monospace, monospace; }
+.hydrology-page .hydro-sidebar-list { display: block; flex: 1 1 0; min-height: 0; overflow: auto; padding: 8px; }
+.hydrology-page .hydro-column-header { display: grid; min-height: 26px; align-items: center; gap: 5px; margin-bottom: 4px; padding: 4px 8px; border-radius: 7px; color: var(--hydro-muted); background: var(--hydro-panel-2); font: 9px ui-monospace, monospace; text-transform: uppercase; }
+.hydrology-page .hydro-column-header button { min-width: 0; overflow: hidden; border: 0; color: inherit; background: transparent; cursor: pointer; font: inherit; text-align: left; text-overflow: ellipsis; white-space: nowrap; }
+.hydrology-page .hydro-row { display: grid; min-height: 38px; align-items: center; gap: 5px; width: 100%; margin-bottom: 4px; padding: 6px 8px; border: 1px solid transparent; border-radius: 7px; color: var(--hydro-text); background: var(--hydro-panel-2); cursor: pointer; text-align: left; }
+.hydrology-page .hydro-row:hover, .hydrology-page .hydro-row.selected { border-color: var(--hydro-primary); }
+.hydrology-page .hydro-row > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 10px; }
+.hydrology-page .hydro-row .name-cell { font-weight: 600; }
+.hydrology-page .hydro-row .river-cell { color: var(--hydro-primary); }
+.hydrology-page .hydro-row .muted-cell { color: var(--hydro-muted); }
+.hydrology-page .hydro-list-state { padding: 16px; color: var(--hydro-muted); text-align: center; font-size: 12px; }
+.hydrology-page .hydro-list-error { margin: 4px; padding: 12px; border: 1px solid color-mix(in srgb, #f43f5e 30%, var(--hydro-line)); border-radius: 8px; color: #fda4af; font-size: 11px; }
+.hydrology-page .hydro-sidebar-footer { flex: 0 0 auto; padding: 10px 12px; border-top: 1px solid var(--hydro-line); color: var(--hydro-muted); font: 9px ui-monospace, monospace; }
+
+@media (max-width: 800px) {
+  .hydrology-page .hydrology-sidebar { width: min(360px, calc(100% - 42px)); min-width: 0; }
+  .hydrology-page .hes-toolbar { gap: 5px; padding-inline: 8px; overflow-x: auto; }
+  .hydrology-page .hes-toolbar-title { flex: 0 0 auto; }
+  .hydrology-page .hes-toolbar-title > span:last-child { display: none; }
+  .hydrology-page .hydro-kpis { flex: 0 0 auto; }
+}

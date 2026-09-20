@@ -2,11 +2,12 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import * as maplibregl from 'maplibre-gl';
 import type { Map as MapLibreMap } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
+import maplibreWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url';
 import { useHydrologyStore } from '../store/useHydrologyStore';
 import { getForecastTimestamps } from '../services/hydroData';
 import { damIconBucket, displayName, getBasinColor, getDamColor, getFlowScaleColor } from '../data/hydrology';
 import { fullnessRecordsByHes, fullnessSourceLabel, preferredFullnessRecord, resolveHistoricalFullness, resolveHesFullness } from '../data/fullnessSources';
-import { BASEMAP_RASTER_SOURCE, getBasemapBootstrapStyle, getBasemapFallbackStyle, getBasemapStyle, THEME_BACKGROUND } from './mapStyles';
+import { getBasemapBootstrapStyle, getBasemapStyle, THEME_BACKGROUND } from './mapStyles';
 import { HES_PIE_LAYER_ID, ensureHydrologyOverlay, type OverlayCollections, type OverlayOptions } from './mapLayers';
 import { focusSelectedEntity } from './mapCamera';
 import { emptyFeatureCollection } from '../types/hydrology';
@@ -296,10 +297,6 @@ export function BaseMap() {
       }
       const firstHydrologyLayer = HYDROLOGY_LAYER_ORDER.find((id) => Boolean(map.getLayer(id)));
       if (map.getLayer('basemap-raster') && firstHydrologyLayer) map.moveLayer('basemap-raster', firstHydrologyLayer);
-      if (lastSyncedDataRef.current === null) {
-        // eslint-disable-next-line no-console
-        console.info(`[BaseMap] overlays synced: ${dataRef.current.hes177.features.length} HES, ${dataRef.current.rivers.features.length} rivers, ${dataRef.current.basins.features.length} basins`);
-      }
       lastSyncedDataRef.current = dataRef.current;
       lastSyncedOptionsRef.current = optionsRef.current;
       if (map.getLayer('basemap-background')) map.setPaintProperty('basemap-background', 'background-color', THEME_BACKGROUND[themeRef.current]);
@@ -313,7 +310,9 @@ export function BaseMap() {
           syncOverlay(true);
         }, 350);
       }
-    } catch {
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.warn('[BaseMap] overlay sync retry:', error instanceof Error ? error.message : String(error));
       // A style swap can briefly invalidate the style object. Retry after the
       // style parser has had a chance to finish, even if no further tile event
       // is emitted by the fallback source.
@@ -339,56 +338,47 @@ export function BaseMap() {
     // map renders instantly; overlays sync in when data arrives via dataRef.
     if (!mapContainerRef.current || mapRef.current) return;
     const initialStyle = getBasemapBootstrapStyle(themeRef.current);
+    maplibregl.setWorkerUrl(maplibreWorkerUrl);
     const map = new maplibregl.Map({ container: mapContainerRef.current, style: initialStyle, center: [35.3, 39], zoom: 5.5, attributionControl: false, renderWorldCopies: false });
     mapRef.current = map;
     // Support/deep-diagnosis handle (allows console inspection of live map state).
     (window as unknown as { __hydroMap?: MapLibreMap }).__hydroMap = map;
-    let rasterBasemapReady = false;
-    const addRasterBasemap = () => {
-      if (rasterBasemapReady) return;
-      try {
-        if (!map.getSource('basemap-raster')) map.addSource('basemap-raster', { ...BASEMAP_RASTER_SOURCE });
-        const firstHydrologyLayer = HYDROLOGY_LAYER_ORDER.find((id) => Boolean(map.getLayer(id)));
-        if (!map.getLayer('basemap-raster')) {
-          map.addLayer(
-            { id: 'basemap-raster', type: 'raster', source: 'basemap-raster', paint: { 'raster-opacity': themeRef.current === 'light' ? 0.72 : 0.48 } },
-            firstHydrologyLayer,
-          );
-        } else if (firstHydrologyLayer) {
-          map.moveLayer('basemap-raster', firstHydrologyLayer);
-        }
-        rasterBasemapReady = true;
-      } catch {
-        // styledata/load will retry after the source-free bootstrap style is ready
-      }
-    };
-    const addRasterAfterOverlayBootstrap = () => {
-      syncOverlay(true);
-      requestAnimationFrame(() => {
-        addRasterBasemap();
-        scheduleOverlaySync(true);
-      });
+    const loggedMapErrors = new Set<string>();
+    let initialBasemapApplied = false;
+    const applyInitialBasemap = () => {
+      if (initialBasemapApplied) return;
+      initialBasemapApplied = true;
+      map.setStyle(getBasemapStyle(initialBasemapRef.current), { diff: false });
     };
     const onStyleData = () => { scheduleOverlaySync(); };
-    const onLoad = () => { addRasterAfterOverlayBootstrap(); };
-    const onStyleLoad = () => {
-      rasterBasemapReady = false;
-      addRasterAfterOverlayBootstrap();
-    };
-    const fallbackToRaster = () => {
-      if (basemapFallbackRef.current || initialBasemapRef.current === 'satellite') return;
+    const onLoad = () => { map.resize(); applyInitialBasemap(); };
+    const onStyleLoad = () => { scheduleOverlaySync(true); };
+    const fallbackToVector = () => {
+      if (basemapFallbackRef.current) return;
       basemapFallbackRef.current = true;
       lastSyncedDataRef.current = null;
       lastSyncedOptionsRef.current = null;
-      map.setStyle(getBasemapFallbackStyle(themeRef.current), { diff: false });
+      map.setStyle(getBasemapStyle(themeRef.current === 'light' ? 'light' : 'dark'), { diff: false });
+    };
+    const fallbackToLocal = () => {
+      if (basemapFallbackRef.current) return;
+      basemapFallbackRef.current = true;
+      lastSyncedDataRef.current = null;
+      lastSyncedOptionsRef.current = null;
+      map.setStyle(getBasemapBootstrapStyle(themeRef.current), { diff: false });
     };
     const onMapError = (event: maplibregl.ErrorEvent) => {
       const details = event as unknown as { sourceId?: unknown; error?: unknown };
       const sourceId = String(details.sourceId ?? '').toLocaleLowerCase('en-US');
       const message = String(details.error instanceof Error ? details.error.message : details.error ?? '').toLocaleLowerCase('en-US');
-      // eslint-disable-next-line no-console
-      console.warn('[BaseMap] map error:', sourceId || '(no source)', message.slice(0, 120));
-      if (sourceId === 'basemap-raster' || sourceId === 'openmaptiles' || message.includes('openfreemap') || message.includes('openmaptiles')) fallbackToRaster();
+      const errorKey = `${sourceId}:${message.slice(0, 120)}`;
+      if (!loggedMapErrors.has(errorKey)) {
+        loggedMapErrors.add(errorKey);
+        // eslint-disable-next-line no-console
+        console.warn('[BaseMap] map fallback:', sourceId || '(no source)', message.slice(0, 120));
+      }
+      if (sourceId === 'basemap-raster') fallbackToVector();
+      else if (sourceId === 'openmaptiles' || message.includes('openfreemap') || message.includes('openmaptiles')) fallbackToLocal();
       (event as unknown as { preventDefault?: () => void }).preventDefault?.();
     };
     map.on('load', onLoad);
@@ -415,23 +405,12 @@ export function BaseMap() {
       }
     };
     overlayBootstrapRef.current = setTimeout(bootstrapOverlays, 500);
-    // Raster health check: the bootstrap style is local, so the style itself
-    // always loads. If the Esri raster layer is missing a few seconds after
-    // load (blocked tiles), re-add it; overlays stay visible regardless.
-    const fallbackTimer = initialBasemapRef.current === 'satellite' ? null : setTimeout(() => {
-      try {
-        if (!map.getLayer('basemap-raster')) addRasterBasemap();
-      } catch {
-        // Next style event will retry.
-      }
-    }, 6000);
     map.addControl(new maplibregl.NavigationControl({ showCompass: true }), 'top-right');
     map.addControl(new maplibregl.AttributionControl({ compact: true, customAttribution: 'GDW rezervuar poligonları · OpenFreeMap / OSM' }), 'bottom-right');
     return () => {
       if (frameRef.current !== null) cancelAnimationFrame(frameRef.current);
       if (overlayRetryRef.current !== null) clearTimeout(overlayRetryRef.current);
       stopOverlayBootstrap();
-      if (fallbackTimer !== null) clearTimeout(fallbackTimer);
       map.off('load', onLoad); map.off('style.load', onStyleLoad); map.off('styledata', onStyleData); map.off('error', onMapError);
       popupRef.current?.remove();
       map.remove(); mapRef.current = null;
@@ -601,6 +580,6 @@ export function BaseMap() {
   }, [collections, selectedEntity]);
 
   return (
-    <div ref={mapContainerRef} className="absolute inset-0" style={{ minHeight: 320 }} aria-label="Türkiye hidroloji haritası" />
+    <div ref={mapContainerRef} className="hydrology-map-canvas" style={{ minHeight: 320 }} aria-label="Türkiye hidroloji haritası" />
   );
 }
