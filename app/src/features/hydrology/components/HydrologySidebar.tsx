@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { Activity, ArrowUpDown, ChevronDown, Eye, EyeOff, Gauge, Mountain, Search, Waves, X, Zap } from 'lucide-react';
 import { describeFullness, fullnessRecordsByHes, fullnessSourceLabel, preferredFullnessRecord, resolveHistoricalFullness, resolveHesFullness } from '../data/fullnessSources';
-import { HesDetailPanel } from './HesDetail';
+import { HesDetailPanel, hydrologyDisplay } from './HesDetail';
 import { useHydrologyStore, type TabType } from '../store/useHydrologyStore';
 import type { FullnessResult } from '../types/hydrology';
 
@@ -62,16 +62,17 @@ function fullnessCell(row: Row): React.ReactNode {
   const result = row.details?.fullnessResult as FullnessResult | undefined;
   if (!result) return <span title="Doluluk verisi bulunamadı">—</span>;
   const described = describeFullness(result);
-  const sourceLabel = `${fullnessSourceLabel(result)} · ${result.method}`;
+  const sourceLabel = `${fullnessSourceLabel(result)} · ${hydrologyDisplay(result.method)}`;
   if (row.fullness === null) return <span title={`${described.title} · ${sourceLabel}`}>—</span>;
   return <span title={`${described.title} · ${sourceLabel}`}>{`%${Math.round(row.fullness)} · ${row.source}`}</span>;
 }
 
 function hesNameCell(row: Row): React.ReactNode {
   return (
-    <span className="min-w-0">
-      <span className="flex min-w-0 items-center gap-1 truncate"><Zap className="h-3 w-3 shrink-0 text-amber-400" /><span className="truncate">{row.name}</span></span>
-      <span className="block truncate text-[8px] font-normal text-[var(--muted)]">{row.river} · {row.basin}</span>
+    <span className="hydro-hes-name-cell">
+      <span className="hydro-hes-name"><Zap className="h-3 w-3 shrink-0 text-amber-400" /><span>{row.name}</span></span>
+      <span className="hydro-hes-river">{row.river}</span>
+      <span className="hydro-hes-basin">{row.basin}</span>
     </span>
   );
 }
@@ -111,6 +112,7 @@ export const Sidebar: React.FC = () => {
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [fullnessFilter, setFullnessFilter] = useState<'all' | 'available' | 'official' | 'satellite' | 'calculated' | 'stale' | 'unavailable' | 'not_applicable'>('all');
   const [layersOpen, setLayersOpen] = useState(false);
+  const [detailSection, setDetailSection] = useState<'summary' | 'technical' | 'history'>('summary');
   const fullnessByHes = useMemo(() => fullnessRecordsByHes(fullnessPayload), [fullnessPayload]);
 
   const epiasByHes = useMemo(() => new Map(hes.features.flatMap((feature) => {
@@ -204,7 +206,7 @@ export const Sidebar: React.FC = () => {
   const relatedRiverRows = selectedRiver ? hesRows.filter((row) => (selectedRiver.details?.hesIds as unknown[] ?? []).map(String).includes(row.id)) : [];
   const tabs: Array<{ id: TabType; label: string; icon: React.ReactNode; count: number }> = [{ id: 'hes', label: 'HES', icon: <Mountain className="h-4 w-4" />, count: hesRows.length }, { id: 'rivers', label: 'Akarsular', icon: <Waves className="h-4 w-4" />, count: riverRows.length }, { id: 'basins', label: 'Havzalar', icon: <Gauge className="h-4 w-4" />, count: basinRows.length }];
   const layerControls: Array<{ key: keyof typeof layers; label: string }> = [{ key: 'basins', label: 'Havzalar' }, { key: 'rivers', label: 'Akarsular' }, { key: 'dams', label: 'Barajlar' }];
-  const selectRow = (row: Row) => setSelectedEntity({ type: row.type, id: row.id });
+  const selectRow = (row: Row) => { setSelectedEntity({ type: row.type, id: row.id }); if (row.type === 'hes') setDetailSection('summary'); };
   const onSort = (key: SortKey) => { if (sortKey === key) setSortDirection((direction) => direction === 'asc' ? 'desc' : 'asc'); else { setSortKey(key); setSortDirection('asc'); } };
 
   const selectedHesPanel = selectedHes ? (
@@ -213,10 +215,26 @@ export const Sidebar: React.FC = () => {
       data={{ id: selectedHes.id, name: selectedHes.name, basin: selectedHes.basin, river: selectedHes.river, power: selectedHes.power, fullness: selectedHes.fullness, source: selectedHes.source, details: selectedHes.details }}
       fullness={selectedFullness}
       isLight={isLight}
+      compact
+      section="summary"
+      onSectionChange={setDetailSection}
+    />
+  ) : null;
+
+  const selectedHesDetail = selectedHes ? (
+    <HesDetailPanel
+      key={`detail-${selectedHes.id}`}
+      data={{ id: selectedHes.id, name: selectedHes.name, basin: selectedHes.basin, river: selectedHes.river, power: selectedHes.power, fullness: selectedHes.fullness, source: selectedHes.source, details: selectedHes.details }}
+      fullness={selectedFullness}
+      isLight={isLight}
+      section={detailSection}
+      onSectionChange={setDetailSection}
+      onBack={() => setDetailSection('summary')}
     />
   ) : null;
 
   return <aside className={`hydro-sidebar ${isLight ? 'light-scrollbar' : ''}`}>
+    <div className={`hydro-sidebar-list-view ${detailSection !== 'summary' && selectedHes ? 'is-hidden' : ''}`}>
     <div className="hydro-sidebar-header">
       <div className="hydro-sidebar-titlebar"><div className="hydro-sidebar-title"><Activity className="h-4 w-4 text-cyan-400" />HESLER <span className="hydro-sidebar-count">{hesRows.length.toLocaleString('tr-TR')}</span></div><button onClick={() => useHydrologyStore.getState().toggleSidebar()} className="hydro-sidebar-close" aria-label="Paneli kapat" title="Paneli kapat"><X className="h-4 w-4" /></button></div>
       <div className="hydro-search-wrap"><Search className="hydro-search-icon" /><input value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} placeholder="HES, akarsu veya havza ara..." className="hydro-search" aria-label="HES, akarsu veya havza ara" />{searchQuery && <button type="button" className="hydro-search-clear" onClick={() => setSearchQuery('')} aria-label="Aramayı temizle" title="Aramayı temizle"><X className="h-3.5 w-3.5" /></button>}</div>
@@ -231,11 +249,13 @@ export const Sidebar: React.FC = () => {
       {selectedRiver && relatedRiverRows.length > 0 && <div className="hydro-related-panel"><div className="hydro-related-heading"><div className="hydro-related-title">İlgili HES tesisleri</div>{selectedRiver.forecast && <button type="button" className={`hydro-related-flow ${timelineOpen ? 'active' : ''}`} onClick={() => setTimelineOpen(!timelineOpen)} aria-expanded={timelineOpen}>Akış tahmini</button>}</div>{relatedRiverRows.slice(0, 4).map((row) => <button key={row.id} onClick={() => selectRow(row)}>⚡ {row.name} · {formatMw(row.power)}</button>)}</div>}
     </div>
     <div className="hydro-list-header">
-      <div className="hydro-list-filter"><span>{currentTab === 'hes' ? `${sortedRows.length.toLocaleString('tr-TR')} HES` : `${sortedRows.length.toLocaleString('tr-TR')} kayıt`}</span>{currentTab === 'hes' && <select value={fullnessFilter} onChange={(event) => setFullnessFilter(event.target.value as typeof fullnessFilter)} aria-label="Doluluk veri filtresi"><option value="all">Tüm doluluk</option><option value="available">Verisi var</option><option value="official">Resmî</option><option value="satellite">Uydu/türetilmiş</option><option value="calculated">Hacim hesabı</option><option value="stale">Eski / stale</option><option value="unavailable">Veri yok</option><option value="not_applicable">Uygulanamaz</option></select>}</div>
+      <div className="hydro-list-filter"><span>{currentTab === 'hes' ? `${sortedRows.length.toLocaleString('tr-TR')} HES` : `${sortedRows.length.toLocaleString('tr-TR')} kayıt`}</span>{currentTab === 'hes' && <select value={fullnessFilter} onChange={(event) => setFullnessFilter(event.target.value as typeof fullnessFilter)} aria-label="Doluluk veri filtresi"><option value="all">Tüm doluluk</option><option value="available">Verisi var</option><option value="official">Resmî</option><option value="satellite">Uydu/türetilmiş</option><option value="calculated">Hacim hesabı</option><option value="stale">Eski</option><option value="unavailable">Veri yok</option><option value="not_applicable">Uygulanamaz</option></select>}</div>
       <div className={`hydro-column-header ${currentTab === 'hes' ? '' : 'wide-columns'}`} style={{ gridTemplateColumns: gridTemplate }}>{columns.map((column) => <button key={column.key} type="button" onClick={() => onSort(column.key)} className={column.className ?? ''} title={`${column.label} göre sırala`}>{column.label}{sortKey === column.key ? <ArrowUpDown className="ml-0.5 inline h-2.5 w-2.5" /> : null}</button>)}</div>
     </div>
     <div className="hydro-list-scroll">
       {dataStatus === 'loading' ? <div className="hydro-list-state">Kanonik HES verisi yükleniyor…</div> : dataStatus === 'failed' ? <div className="hydro-list-error" role="alert"><div>Veri paketi yüklenemedi</div><div>{hydroDataError ?? 'Kanonik manifest veya HES GeoJSON alınamadı.'}</div></div> : sortedRows.map((row) => <button key={row.id} onClick={() => selectRow(row)} className={`hydro-row ${selectedEntity?.type === row.type && selectedEntity.id === row.id ? 'selected' : ''} ${currentTab === 'hes' ? '' : 'wide-row'}`} style={{ gridTemplateColumns: gridTemplate }}>{columns.map((column) => { const content = column.value(row); return <span key={column.key} title={typeof content === 'string' ? content : undefined} className={column.key === 'name' ? 'name-cell' : column.key === 'river' ? 'river-cell' : column.className ?? 'muted-cell'}>{content}</span>; })}</button>)}
     </div>
+    </div>
+    {selectedHes && <div className={`hydro-sidebar-detail-view ${detailSection !== 'summary' ? 'is-visible' : ''}`}>{selectedHesDetail}</div>}
   </aside>;
 };
