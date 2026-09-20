@@ -10,7 +10,7 @@ import { fullnessRecordsByHes, fullnessSourceLabel, preferredFullnessRecord, res
 import { getBasemapBootstrapStyle, getBasemapStyle, THEME_BACKGROUND } from './mapStyles';
 import { HES_PIE_LAYER_ID, ensureHydrologyOverlay, type OverlayCollections, type OverlayOptions } from './mapLayers';
 import { focusSelectedEntity } from './mapCamera';
-import { advanceFlowDistance, createFlowParticleCollection, createFlowParticlePlans, emptyFlowParticles, hasVerifiedFlowRouteDirection } from './flowParticles';
+import { advanceFlowDistance, createCascadeFlowGuides, createFlowParticleCollection, createFlowParticlePlans, emptyFlowParticles, hasVerifiedFlowRouteDirection } from './flowParticles';
 import { emptyFeatureCollection } from '../types/hydrology';
 
 const INTERACTIVE_LAYERS = ['rivers-core', 'dams-points', 'basins-fill', 'reservoirs-outline', 'hes177-points', HES_PIE_LAYER_ID] as const;
@@ -179,6 +179,7 @@ export function BaseMap() {
   const activeCatchmentHesId = useHydrologyStore((state) => state.activeCatchmentHesId);
   const setSelectedEntity = useHydrologyStore((state) => state.setSelectedEntity);
   const toggleCatchment = useHydrologyStore((state) => state.toggleCatchment);
+  const cascadeFlowGuides = useMemo(() => createCascadeFlowGuides(hes177, cascades), [cascades, hes177]);
 
   const collections = useMemo<OverlayCollections>(() => {
     const geoglowsRecords = geoglows?.records ?? [];
@@ -493,6 +494,7 @@ export function BaseMap() {
         container.dataset.flowParticleSignature = '';
         container.dataset.flowParticleProbe = '';
         container.dataset.flowRouteCount = '0';
+        container.dataset.flowCascadeDirectedRouteCount = '0';
         container.dataset.flowConnectedTransitions = '0';
         container.dataset.flowTraveledDistanceKm = '0';
       }
@@ -512,13 +514,13 @@ export function BaseMap() {
     const selectedPoint = selectedHes?.geometry?.type === 'Point'
       ? [Number(selectedHes.geometry.coordinates[0]), Number(selectedHes.geometry.coordinates[1])] as [number, number]
       : null;
-    let plans = createFlowParticlePlans(collections.rivers, selectedPoint);
+    let plans = createFlowParticlePlans(collections.rivers, selectedPoint, undefined, cascadeFlowGuides);
 
     const rebuildPlans = () => {
       const bounds = map.getBounds();
       plans = createFlowParticlePlans(collections.rivers, selectedPoint, {
         west: bounds.getWest(), south: bounds.getSouth(), east: bounds.getEast(), north: bounds.getNorth(),
-      });
+      }, cascadeFlowGuides);
     };
     const tick = (now: number) => {
       if (!active || document.visibilityState !== 'visible') return;
@@ -533,7 +535,9 @@ export function BaseMap() {
           source.setData(particles);
           const signature = particles.features.slice(0, 4).map((feature) => feature.geometry.coordinates.map((value) => Number(value).toFixed(5)).join(',')).join('|');
           const container = map.getContainer();
-          const probe = particles.features.find((feature) => Number(feature.properties?.routeSegmentCount ?? 0) > 1) ?? particles.features[0];
+          const probe = particles.features.find((feature) => feature.properties?.directionMode === 'cascade-elevation' && feature.properties?.trailStep === 0)
+            ?? particles.features.find((feature) => Number(feature.properties?.routeSegmentCount ?? 0) > 1 && feature.properties?.trailStep === 0)
+            ?? particles.features[0];
           container.dataset.flowParticleCount = String(particles.features.length);
           container.dataset.flowParticleSignature = signature;
           container.dataset.flowParticleProbe = probe ? JSON.stringify({
@@ -544,8 +548,13 @@ export function BaseMap() {
             routeSegmentCount: probe.properties?.routeSegmentCount,
             routeDistanceKm: probe.properties?.routeDistanceKm,
             directionMode: probe.properties?.directionMode,
+            travelDirection: probe.properties?.travelDirection,
+            upstreamName: probe.properties?.upstreamName,
+            downstreamName: probe.properties?.downstreamName,
+            elevationDropM: probe.properties?.elevationDropM,
           }) : '';
           container.dataset.flowRouteCount = String(plans.length);
+          container.dataset.flowCascadeDirectedRouteCount = String(plans.filter((plan) => plan.directionMode === 'cascade-elevation').length);
           container.dataset.flowConnectedTransitions = String(plans.reduce((total, plan) => total + Math.max(0, plan.edgeBreaksKm.length - 1), 0));
           container.dataset.flowTraveledDistanceKm = traveledDistanceKm.toFixed(3);
           container.dataset.flowAnimationSpeed = String(flowAnimationSpeedRef.current);
@@ -554,6 +563,7 @@ export function BaseMap() {
             speed: flowAnimationSpeedRef.current,
             particleCount: particles.features.length,
             routeCount: plans.length,
+            cascadeDirectedRouteCount: plans.filter((plan) => plan.directionMode === 'cascade-elevation').length,
             routeLengthKm: Number(plans.reduce((total, plan) => total + plan.lengthKm, 0).toFixed(2)),
             connectedTransitions: plans.reduce((total, plan) => total + Math.max(0, plan.edgeBreaksKm.length - 1), 0),
             traveledDistanceKm: Number(traveledDistanceKm.toFixed(3)),
@@ -566,6 +576,10 @@ export function BaseMap() {
               routeDistanceKm: feature.properties?.routeDistanceKm,
               directionMode: feature.properties?.directionMode,
               travelDirection: feature.properties?.travelDirection,
+              trailStep: feature.properties?.trailStep,
+              upstreamName: feature.properties?.upstreamName,
+              downstreamName: feature.properties?.downstreamName,
+              elevationDropM: feature.properties?.elevationDropM,
             })),
             signature,
             updatedAt: new Date().toISOString(),
@@ -597,7 +611,7 @@ export function BaseMap() {
       clearParticles();
       (window as unknown as { __hydroFlowDebug?: Record<string, unknown> }).__hydroFlowDebug = { enabled: false, speed: flowAnimationSpeedRef.current, particleCount: 0 };
     };
-  }, [collections.hes177, collections.rivers, flowAnimationEnabled, layers.rivers, selectedEntity]);
+  }, [cascadeFlowGuides, collections.hes177, collections.rivers, flowAnimationEnabled, layers.rivers, selectedEntity]);
 
   useEffect(() => {
     const map = mapRef.current; const container = mapContainerRef.current;

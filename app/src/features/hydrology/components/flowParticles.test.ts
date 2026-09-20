@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { FeatureCollection, Geometry, GeoJsonProperties } from 'geojson';
-import { advanceFlowDistance, createFlowParticleCollection, createFlowParticlePlans } from './flowParticles';
+import { advanceFlowDistance, createCascadeFlowGuides, createFlowParticleCollection, createFlowParticlePlans } from './flowParticles';
 
 function rivers(coordinates: number[][][], properties: GeoJsonProperties = {}): FeatureCollection<Geometry, GeoJsonProperties> {
   return {
@@ -15,6 +15,49 @@ function rivers(coordinates: number[][][], properties: GeoJsonProperties = {}): 
 }
 
 describe('flow particle animation', () => {
+  it('orients real river geometry from the higher cascade HES to the lower HES', () => {
+    const hes: FeatureCollection<Geometry, GeoJsonProperties> = {
+      type: 'FeatureCollection',
+      features: [
+        { type: 'Feature', id: 'high', properties: { id: 'high', name: 'Yüksek HES', riverSystemId: 'river-1', maxWaterLevelM: 900 }, geometry: { type: 'Point', coordinates: [31, 40] } },
+        { type: 'Feature', id: 'low', properties: { id: 'low', name: 'Düşük HES', riverSystemId: 'river-1', maxWaterLevelM: 500 }, geometry: { type: 'Point', coordinates: [30, 40] } },
+      ],
+    };
+    const cascades: FeatureCollection<Geometry, GeoJsonProperties> = {
+      type: 'FeatureCollection',
+      features: [{ type: 'Feature', properties: { fromId: 'high', toId: 'low' }, geometry: { type: 'LineString', coordinates: [[31, 40], [30, 40]] } }],
+    };
+    const guides = createCascadeFlowGuides(hes, cascades);
+    const plans = createFlowParticlePlans(rivers([[[30, 40], [31, 40]]]), [31, 40], undefined, guides);
+    expect(guides).toHaveLength(1);
+    expect(plans[0]).toMatchObject({ directionMode: 'cascade-elevation', directionSign: -1, elevationDropM: 400 });
+    const particles = createFlowParticleCollection(plans, 2, 6).features.filter((feature) => feature.properties?.trailStep === 0);
+    expect(new Set(particles.map((feature) => feature.properties?.travelDirection))).toEqual(new Set([-1]));
+  });
+
+  it('does not claim a cascade direction without shared river and elevation evidence', () => {
+    const hes: FeatureCollection<Geometry, GeoJsonProperties> = {
+      type: 'FeatureCollection',
+      features: [
+        { type: 'Feature', id: 'a', properties: { id: 'a', riverSystemId: 'river-1', maxWaterLevelM: 900 }, geometry: { type: 'Point', coordinates: [30, 40] } },
+        { type: 'Feature', id: 'b', properties: { id: 'b', riverSystemId: 'river-2' }, geometry: { type: 'Point', coordinates: [31, 40] } },
+      ],
+    };
+    const cascades: FeatureCollection<Geometry, GeoJsonProperties> = {
+      type: 'FeatureCollection',
+      features: [{ type: 'Feature', properties: { fromId: 'a', toId: 'b' }, geometry: { type: 'LineString', coordinates: [[30, 40], [31, 40]] } }],
+    };
+    expect(createCascadeFlowGuides(hes, cascades)).toEqual([]);
+  });
+
+  it('renders a bright head and trailing points so movement direction is visible', () => {
+    const plans = createFlowParticlePlans(rivers([[[30, 40], [31, 40]]]), [30.5, 40]);
+    const particles = createFlowParticleCollection(plans, 2, 5);
+    const grouped = new Map<string, number[]>();
+    particles.features.forEach((feature) => grouped.set(String(feature.properties?.particleId), [...(grouped.get(String(feature.properties?.particleId)) ?? []), Number(feature.properties?.trailStep)]));
+    expect([...grouped.values()].every((steps) => steps.sort().join(',') === '0,1,2')).toBe(true);
+  });
+
   it('stitches every endpoint-connected segment instead of keeping two nearby snippets', () => {
     const plans = createFlowParticlePlans(rivers([
       [[30, 40], [30.1, 40]],

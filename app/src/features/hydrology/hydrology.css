@@ -104,6 +104,11 @@
 .hydrology-page .hydro-flow-speed input { width: 100%; height: 14px; margin: 0; accent-color: var(--hydro-primary); cursor: pointer; }
 .hydrology-page .hydro-flow-speed output { color: var(--hydro-text); font: 700 9px ui-monospace, monospace; text-align: right; }
 .hydrology-page .hydro-flow-mode { margin-top: 2px; overflow: hidden; color: var(--hydro-muted); font-size: 8px; line-height: 1.2; text-overflow: ellipsis; white-space: nowrap; }
+.hydrology-page .hydro-flow-mode.verified { color: #d6a900; }
+.hydrology-page .hydro-flow-legend { display: flex; flex-wrap: wrap; gap: 4px 10px; margin-top: 3px; color: var(--hydro-muted); font-size: 8px; line-height: 1.2; }
+.hydrology-page .hydro-flow-legend span { display: inline-flex; align-items: center; gap: 4px; }
+.hydrology-page .hydro-flow-legend i { width: 12px; height: 3px; border-radius: 999px; background: #67e8f9; box-shadow: 0 0 5px #22d3ee; }
+.hydrology-page .hydro-flow-legend i.cascade { background: #facc15; box-shadow: 0 0 5px #facc15; }
 .hydrology-page .hydro-selected-panel { padding: 0 10px 6px; }
 .hydrology-page .hydro-detail { margin: 0; padding: 7px; border: 1px solid color-mix(in srgb, var(--hydro-primary) 35%, var(--hydro-line)); border-radius: 8px; background: color-mix(in srgb, var(--hydro-primary) 7%, var(--hydro-panel)); }
 .hydrology-page .hydro-detail-compact { padding: 0; border: 0; background: transparent; }

@@ -6,11 +6,6 @@ export type TabType = 'hes' | 'rivers' | 'basins';
 export type ThemeType = 'dark' | 'light';
 export type BasemapType = 'dark' | 'light' | 'neutral' | 'satellite' | 'streets';
 
-function defaultFlowAnimationEnabled(): boolean {
-  if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return true;
-  return !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-}
-
 interface AppState {
   currentTab: TabType;
   searchQuery: string;
@@ -118,7 +113,7 @@ export const useHydrologyStore = create<AppState>((set) => ({
   historyError: null,
   historicalDate: null,
   dataMode: 'epias',
-  flowAnimationEnabled: defaultFlowAnimationEnabled(),
+  flowAnimationEnabled: true,
   flowAnimationSpeed: 1,
   activeCatchmentHesId: null,
 

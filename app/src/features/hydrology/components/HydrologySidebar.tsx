@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { Activity, ArrowUpDown, ChevronDown, Eye, EyeOff, Gauge, Info, Mountain, Search, Waves, X, Zap } from 'lucide-react';
 import { describeFullness, fullnessRecordsByHes, fullnessSourceLabel, preferredFullnessRecord, resolveHistoricalFullness, resolveHesFullness } from '../data/fullnessSources';
 import { HesDetailPanel, hydrologyDisplay } from './HesDetail';
-import { hasVerifiedFlowRouteDirection } from './flowParticles';
+import { createCascadeFlowGuides, hasVerifiedFlowRouteDirection } from './flowParticles';
 import { useHydrologyStore, type TabType } from '../store/useHydrologyStore';
 import type { FullnessResult } from '../types/hydrology';
 
@@ -101,6 +101,7 @@ export const Sidebar: React.FC = () => {
   const layers = useHydrologyStore((s) => s.layers);
   const rivers = useHydrologyStore((s) => s.rivers);
   const hes = useHydrologyStore((s) => s.hes177);
+  const cascades = useHydrologyStore((s) => s.cascades);
   const basins = useHydrologyStore((s) => s.basins);
   const geoglows = useHydrologyStore((s) => s.geoglows);
   const epias = useHydrologyStore((s) => s.epias);
@@ -117,6 +118,7 @@ export const Sidebar: React.FC = () => {
   const [layersOpen, setLayersOpen] = useState(false);
   const [detailSection, setDetailSection] = useState<'summary' | 'technical' | 'history'>('summary');
   const fullnessByHes = useMemo(() => fullnessRecordsByHes(fullnessPayload), [fullnessPayload]);
+  const cascadeFlowGuides = useMemo(() => createCascadeFlowGuides(hes, cascades), [cascades, hes]);
 
   const epiasByHes = useMemo(() => new Map(hes.features.flatMap((feature) => {
     const properties = feature.properties ?? {};
@@ -213,6 +215,7 @@ export const Sidebar: React.FC = () => {
     const feature = rivers.features.find((candidate) => String(candidate.properties?.id ?? candidate.id ?? '') === riverId);
     return hasVerifiedFlowRouteDirection(feature?.properties ?? null);
   });
+  const selectedCascadeDirection = selectedRiverIds.some((riverId) => cascadeFlowGuides.some((guide) => guide.systemId === riverId));
   const relatedRiverRows = selectedRiver ? hesRows.filter((row) => (selectedRiver.details?.hesIds as unknown[] ?? []).map(String).includes(row.id)) : [];
   const tabs: Array<{ id: TabType; label: string; icon: React.ReactNode; count: number }> = [{ id: 'hes', label: 'HES', icon: <Mountain className="h-4 w-4" />, count: hesRows.length }, { id: 'rivers', label: 'Akarsular', icon: <Waves className="h-4 w-4" />, count: riverRows.length }, { id: 'basins', label: 'Havzalar', icon: <Gauge className="h-4 w-4" />, count: basinRows.length }];
   const layerControls: Array<{ key: keyof typeof layers; label: string }> = [{ key: 'basins', label: 'Havzalar' }, { key: 'rivers', label: 'Akarsular' }, { key: 'dams', label: 'Barajlar' }];
@@ -257,11 +260,13 @@ export const Sidebar: React.FC = () => {
           <div className="hydro-layer-grid">{layerControls.map(({ key, label }) => <button key={key} onClick={() => toggleLayer(key)} className={layers[key] ? 'active' : ''} aria-pressed={layers[key]}>{layers[key] ? <Eye className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />}{label}</button>)}</div>
           <div className="hydro-flow-control">
             <div className="hydro-flow-control-row">
-              <span className="hydro-flow-label"><Waves className="h-3 w-3" />Akış animasyonu <span className="hydro-flow-info" title="Akarsu güzergâhı boyunca temsili hareket. Doğrulanmış nehirlerde gerçek akış yönü kullanılır. Hız ayarı görsel animasyon hızıdır." aria-label="Akış animasyonu bilgisi"><Info className="h-3 w-3" /></span></span>
+              <span className="hydro-flow-label"><Waves className="h-3 w-3" />Akış animasyonu <span className="hydro-flow-info" title="Sarı hareket, kot verisiyle doğrulanan kaskatlarda yüksekten düşük kota ilerler. Cyan hareket yön iddiası taşımayan temsili akıştır. Hız ayarı gerçek debi değildir." aria-label="Akış animasyonu bilgisi"><Info className="h-3 w-3" /></span></span>
               <button type="button" onClick={toggleFlowAnimation} className={`hydro-flow-switch ${flowAnimationEnabled ? 'active' : ''}`} role="switch" aria-checked={flowAnimationEnabled} aria-label="Akış animasyonunu aç veya kapat"><span /></button>
             </div>
             {flowAnimationEnabled && <label className="hydro-flow-speed"><span>Hız</span><span className="hydro-flow-speed-range"><small>Yavaş</small><input type="range" min="0.25" max="3" step="0.25" value={flowAnimationSpeed} onChange={(event) => setFlowAnimationSpeed(Number(event.target.value))} aria-label="Akış animasyonu hızı" /><small>Hızlı</small></span><output>{flowAnimationSpeed.toLocaleString('tr-TR', { maximumFractionDigits: 2 })}×</output></label>}
-            {flowAnimationEnabled && selectedRiverIds.length > 0 && !selectedFlowDirectionVerified && <div className="hydro-flow-mode">Temsili animasyon – akış yönü doğrulanmadı</div>}
+            {flowAnimationEnabled && <div className="hydro-flow-legend" aria-label="Akış animasyonu göstergeleri"><span><i className="cascade" />Kaskat: yüksek → düşük</span><span><i />Temsili</span></div>}
+            {flowAnimationEnabled && selectedCascadeDirection && <div className="hydro-flow-mode verified">Kaskat yönü kot verisiyle doğrulandı</div>}
+            {flowAnimationEnabled && selectedRiverIds.length > 0 && !selectedCascadeDirection && !selectedFlowDirectionVerified && <div className="hydro-flow-mode">Temsili animasyon – akış yönü doğrulanmadı</div>}
           </div>
         </div>}
       </div>
