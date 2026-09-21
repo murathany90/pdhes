@@ -1,0 +1,9 @@
+{
+  "generatedAt": "2026-09-21T08:06:13Z",
+  "status": "skipped",
+  "errorCode": "credentials_missing",
+  "observations": [],
+  "errors": [
+    "SENTINEL2_ENABLED is not 1 (opt-in tile pipeline)"
+  ]
+}

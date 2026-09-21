@@ -1,0 +1,9 @@
+{
+  "generatedAt": "2026-09-21T08:06:13Z",
+  "status": "skipped",
+  "errorCode": "credentials_missing",
+  "observations": [],
+  "errors": [
+    "EARTHDATA_TOKEN (or USERNAME/PASSWORD) is not configured"
+  ]
+}

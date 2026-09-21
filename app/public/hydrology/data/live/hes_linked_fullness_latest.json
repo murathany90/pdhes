@@ -1,8 +1,8 @@
 {
   "dataVersion": "hes177-v9",
-  "pipelineRunAt": "2026-09-21T04:16:19Z",
+  "pipelineRunAt": "2026-09-21T08:06:54Z",
   "latestObservationAt": "2026-09-13T00:00:00Z",
-  "generatedAt": "2026-09-21T04:16:19Z",
+  "generatedAt": "2026-09-21T08:06:54Z",
   "status": "partial",
   "coverage": {
     "hesCount": 129,
@@ -57,7 +57,13 @@
       "status": "requires_access",
       "dataAccess": "api_key_required",
       "credentialsConfigured": false,
-      "sourceUrl": "https://dahiti.dgfi.tum.de/en/api/doc/v2/"
+      "sourceUrl": "https://dahiti.dgfi.tum.de/en/api/doc/v2/",
+      "observationFile": "app/public/hydrology/data/live/providers/dahiti_levels.json",
+      "observationStatus": "skipped",
+      "observationErrorCode": "credentials_missing",
+      "observationCount": 0,
+      "latestObservationAt": null,
+      "downloadedAt": "2026-09-21T08:06:13Z"
     },
     "hydroweb": {
       "status": "catalog_available",
@@ -67,27 +73,43 @@
       "dataAccess": "requires_api_key",
       "etag": null,
       "credentialsConfigured": false,
-      "downloadedAt": "2026-09-16T21:01:18Z",
+      "downloadedAt": "2026-09-21T08:06:13Z",
       "version": "HYDROWEB_LAKES_OPE",
-      "checksum": "1e3e4edd15350350793ec80d48c6aecd094b017fd9f4963471a4a506fabd923d"
+      "checksum": "7f8cac1373430494edca6ce5f24880779586eff7dd965cd34fee6838ca4cb652",
+      "observationFile": "app/public/hydrology/data/live/providers/hydroweb_levels.json",
+      "observationStatus": "skipped",
+      "observationErrorCode": "credentials_missing",
+      "observationCount": 0,
+      "latestObservationAt": null
     },
     "copernicus": {
       "status": "catalog_available",
       "sourceUrl": "https://catalogue.dataspace.copernicus.eu/odata/v1/Products?%24filter=Collection%2FName+eq+%27CLMS%27+and+Attributes%2FOData.CSC.StringAttribute%2Fany%28att%3A+att%2FName+eq+%27datasetIdentifier%27+and+att%2FValue+eq+%27wl-lakes_global_vector_daily_v2%27%29+and+OData.CSC.Intersects%28area%3Dgeography%27SRID%3D4326%3BPOLYGON+%28%2825+35%2C45+35%2C45+43%2C25+43%2C25+35%29%29%27%29&%24top=1000&%24expand=Attributes",
       "dataset": "wl-lakes_global_vector_daily_v2",
-      "recordCount": 125,
+      "recordCount": 132,
       "dataAccess": "requires_access_token",
       "etag": null,
       "credentialsConfigured": false,
-      "downloadedAt": "2026-09-16T21:01:18Z",
+      "downloadedAt": "2026-09-21T08:06:13Z",
       "version": "wl-lakes_global_vector_daily_v2",
-      "checksum": "f696fb5af5f01fe4f0f8290fe91f3e63b56f01badd25261b1135876ee4379e51"
+      "checksum": "e0a805244ddaff3f98ef8d3fbc8b1263ed32542806620b7848816ad96573f89b",
+      "observationFile": "app/public/hydrology/data/live/providers/copernicus_lwl.json",
+      "observationStatus": "skipped",
+      "observationErrorCode": "credentials_missing",
+      "observationCount": 0,
+      "latestObservationAt": null
     },
     "swot": {
       "status": "requires_access",
       "dataAccess": "Earthdata_credentials_required",
       "credentialsConfigured": false,
-      "sourceUrl": "https://www.earthdata.nasa.gov/"
+      "sourceUrl": "https://www.earthdata.nasa.gov/",
+      "observationFile": "app/public/hydrology/data/live/providers/swot_levels.json",
+      "observationStatus": "skipped",
+      "observationErrorCode": "credentials_missing",
+      "observationCount": 0,
+      "latestObservationAt": null,
+      "downloadedAt": "2026-09-21T08:06:13Z"
     },
     "g_realm": {
       "status": "not_queried",
@@ -97,7 +119,13 @@
     "sentinel": {
       "status": "not_queried",
       "dataAccess": "provider_catalog_required",
-      "sourceUrl": "https://dataspace.copernicus.eu/"
+      "sourceUrl": "https://dataspace.copernicus.eu/",
+      "observationFile": "app/public/hydrology/data/live/providers/sentinel2_area.json",
+      "observationStatus": "skipped",
+      "observationErrorCode": "credentials_missing",
+      "observationCount": 0,
+      "latestObservationAt": null,
+      "downloadedAt": "2026-09-21T08:06:13Z"
     }
   },
   "quality": {
@@ -117,7 +145,7 @@
       "method": "active-volume/(max-volume-min-volume)",
       "observedAt": "2026-09-13",
       "sourcePublishedAt": null,
-      "fetchedAt": "2026-09-21T04:16:19Z",
+      "fetchedAt": "2026-09-21T08:06:54Z",
       "freshnessDays": 8,
       "freshnessLabel": "fresh",
       "confidence": "medium",
@@ -166,7 +194,7 @@
       "method": "active-volume/(max-volume-min-volume)",
       "observedAt": "2026-09-13",
       "sourcePublishedAt": null,
-      "fetchedAt": "2026-09-21T04:16:19Z",
+      "fetchedAt": "2026-09-21T08:06:54Z",
       "freshnessDays": 8,
       "freshnessLabel": "fresh",
       "confidence": "medium",
@@ -215,7 +243,7 @@
       "method": "active-volume/(max-volume-min-volume)",
       "observedAt": "2026-09-13",
       "sourcePublishedAt": null,
-      "fetchedAt": "2026-09-21T04:16:19Z",
+      "fetchedAt": "2026-09-21T08:06:54Z",
       "freshnessDays": 8,
       "freshnessLabel": "fresh",
       "confidence": "medium",

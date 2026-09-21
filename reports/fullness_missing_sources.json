@@ -1,5 +1,5 @@
 {
-  "pipelineRunAt": "2026-09-21T04:16:19Z",
+  "pipelineRunAt": "2026-09-21T08:06:54Z",
   "missingCount": 74,
   "providersChecked": [
     "dsi",
@@ -10,7 +10,7 @@
     "copernicus": "credentials_missing",
     "dahiti": "credentials_missing",
     "swot": "credentials_missing",
-    "sentinel": "disabled_opt_in (SENTINEL2_ENABLED!=1)"
+    "sentinel": "credentials_missing"
   },
   "notApplicable": [],
   "records": [
@@ -27,7 +27,7 @@
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
         "swot": "credentials_missing",
-        "sentinel": "disabled_opt_in (SENTINEL2_ENABLED!=1)"
+        "sentinel": "credentials_missing"
       },
       "candidateSources": [],
       "reason": "missing_inventory_volume"
@@ -45,7 +45,7 @@
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
         "swot": "credentials_missing",
-        "sentinel": "disabled_opt_in (SENTINEL2_ENABLED!=1)"
+        "sentinel": "credentials_missing"
       },
       "candidateSources": [],
       "reason": "reservoir_not_mapped"
@@ -63,7 +63,7 @@
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
         "swot": "credentials_missing",
-        "sentinel": "disabled_opt_in (SENTINEL2_ENABLED!=1)"
+        "sentinel": "credentials_missing"
       },
       "candidateSources": [],
       "reason": "storage_type_unknown"
@@ -81,7 +81,7 @@
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
         "swot": "credentials_missing",
-        "sentinel": "disabled_opt_in (SENTINEL2_ENABLED!=1)"
+        "sentinel": "credentials_missing"
       },
       "candidateSources": [],
       "reason": "storage_type_unknown"
@@ -99,7 +99,7 @@
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
         "swot": "credentials_missing",
-        "sentinel": "disabled_opt_in (SENTINEL2_ENABLED!=1)"
+        "sentinel": "credentials_missing"
       },
       "candidateSources": [],
       "reason": "storage_type_unknown"
@@ -117,7 +117,7 @@
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
         "swot": "credentials_missing",
-        "sentinel": "disabled_opt_in (SENTINEL2_ENABLED!=1)"
+        "sentinel": "credentials_missing"
       },
       "candidateSources": [],
       "reason": "storage_type_unknown"
@@ -135,7 +135,7 @@
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
         "swot": "credentials_missing",
-        "sentinel": "disabled_opt_in (SENTINEL2_ENABLED!=1)"
+        "sentinel": "credentials_missing"
       },
       "candidateSources": [],
       "reason": "storage_type_unknown"
@@ -153,7 +153,7 @@
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
         "swot": "credentials_missing",
-        "sentinel": "disabled_opt_in (SENTINEL2_ENABLED!=1)"
+        "sentinel": "credentials_missing"
       },
       "candidateSources": [],
       "reason": "storage_type_unknown"
@@ -171,7 +171,7 @@
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
         "swot": "credentials_missing",
-        "sentinel": "disabled_opt_in (SENTINEL2_ENABLED!=1)"
+        "sentinel": "credentials_missing"
       },
       "candidateSources": [],
       "reason": "storage_type_unknown"
@@ -189,7 +189,7 @@
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
         "swot": "credentials_missing",
-        "sentinel": "disabled_opt_in (SENTINEL2_ENABLED!=1)"
+        "sentinel": "credentials_missing"
       },
       "candidateSources": [],
       "reason": "storage_type_unknown"
@@ -207,7 +207,7 @@
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
         "swot": "credentials_missing",
-        "sentinel": "disabled_opt_in (SENTINEL2_ENABLED!=1)"
+        "sentinel": "credentials_missing"
       },
       "candidateSources": [],
       "reason": "storage_type_unknown"
@@ -225,7 +225,7 @@
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
         "swot": "credentials_missing",
-        "sentinel": "disabled_opt_in (SENTINEL2_ENABLED!=1)"
+        "sentinel": "credentials_missing"
       },
       "candidateSources": [],
       "reason": "storage_type_unknown"
@@ -243,7 +243,7 @@
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
         "swot": "credentials_missing",
-        "sentinel": "disabled_opt_in (SENTINEL2_ENABLED!=1)"
+        "sentinel": "credentials_missing"
       },
       "candidateSources": [],
       "reason": "storage_type_unknown"
@@ -261,7 +261,7 @@
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
         "swot": "credentials_missing",
-        "sentinel": "disabled_opt_in (SENTINEL2_ENABLED!=1)"
+        "sentinel": "credentials_missing"
       },
       "candidateSources": [],
       "reason": "missing_inventory_volume"
@@ -279,7 +279,7 @@
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
         "swot": "credentials_missing",
-        "sentinel": "disabled_opt_in (SENTINEL2_ENABLED!=1)"
+        "sentinel": "credentials_missing"
       },
       "candidateSources": [],
       "reason": "storage_type_unknown"
@@ -297,7 +297,7 @@
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
         "swot": "credentials_missing",
-        "sentinel": "disabled_opt_in (SENTINEL2_ENABLED!=1)"
+        "sentinel": "credentials_missing"
       },
       "candidateSources": [],
       "reason": "storage_type_unknown"
@@ -315,7 +315,7 @@
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
         "swot": "credentials_missing",
-        "sentinel": "disabled_opt_in (SENTINEL2_ENABLED!=1)"
+        "sentinel": "credentials_missing"
       },
       "candidateSources": [],
       "reason": "storage_type_unknown"
@@ -333,7 +333,7 @@
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
         "swot": "credentials_missing",
-        "sentinel": "disabled_opt_in (SENTINEL2_ENABLED!=1)"
+        "sentinel": "credentials_missing"
       },
       "candidateSources": [],
       "reason": "missing_inventory_volume"
@@ -351,7 +351,7 @@
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
         "swot": "credentials_missing",
-        "sentinel": "disabled_opt_in (SENTINEL2_ENABLED!=1)"
+        "sentinel": "credentials_missing"
       },
       "candidateSources": [],
       "reason": "storage_type_unknown"
@@ -369,7 +369,7 @@
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
         "swot": "credentials_missing",
-        "sentinel": "disabled_opt_in (SENTINEL2_ENABLED!=1)"
+        "sentinel": "credentials_missing"
       },
       "candidateSources": [],
       "reason": "storage_type_unknown"
@@ -387,7 +387,7 @@
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
         "swot": "credentials_missing",
-        "sentinel": "disabled_opt_in (SENTINEL2_ENABLED!=1)"
+        "sentinel": "credentials_missing"
       },
       "candidateSources": [],
       "reason": "missing_inventory_volume"
@@ -405,7 +405,7 @@
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
         "swot": "credentials_missing",
-        "sentinel": "disabled_opt_in (SENTINEL2_ENABLED!=1)"
+        "sentinel": "credentials_missing"
       },
       "candidateSources": [],
       "reason": "storage_type_unknown"
@@ -423,7 +423,7 @@
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
         "swot": "credentials_missing",
-        "sentinel": "disabled_opt_in (SENTINEL2_ENABLED!=1)"
+        "sentinel": "credentials_missing"
       },
       "candidateSources": [],
       "reason": "storage_type_unknown"
@@ -441,7 +441,7 @@
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
         "swot": "credentials_missing",
-        "sentinel": "disabled_opt_in (SENTINEL2_ENABLED!=1)"
+        "sentinel": "credentials_missing"
       },
       "candidateSources": [],
       "reason": "storage_type_unknown"
@@ -459,7 +459,7 @@
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
         "swot": "credentials_missing",
-        "sentinel": "disabled_opt_in (SENTINEL2_ENABLED!=1)"
+        "sentinel": "credentials_missing"
       },
       "candidateSources": [],
       "reason": "storage_type_unknown"
@@ -477,7 +477,7 @@
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
         "swot": "credentials_missing",
-        "sentinel": "disabled_opt_in (SENTINEL2_ENABLED!=1)"
+        "sentinel": "credentials_missing"
       },
       "candidateSources": [],
       "reason": "storage_type_unknown"
@@ -495,7 +495,7 @@
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
         "swot": "credentials_missing",
-        "sentinel": "disabled_opt_in (SENTINEL2_ENABLED!=1)"
+        "sentinel": "credentials_missing"
       },
       "candidateSources": [],
       "reason": "missing_inventory_volume"
@@ -513,7 +513,7 @@
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
         "swot": "credentials_missing",
-        "sentinel": "disabled_opt_in (SENTINEL2_ENABLED!=1)"
+        "sentinel": "credentials_missing"
       },
       "candidateSources": [],
       "reason": "missing_inventory_volume"
@@ -531,7 +531,7 @@
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
         "swot": "credentials_missing",
-        "sentinel": "disabled_opt_in (SENTINEL2_ENABLED!=1)"
+        "sentinel": "credentials_missing"
       },
       "candidateSources": [],
       "reason": "reservoir_not_mapped"
@@ -549,7 +549,7 @@
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
         "swot": "credentials_missing",
-        "sentinel": "disabled_opt_in (SENTINEL2_ENABLED!=1)"
+        "sentinel": "credentials_missing"
       },
       "candidateSources": [],
       "reason": "storage_type_unknown"
@@ -567,7 +567,7 @@
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
         "swot": "credentials_missing",
-        "sentinel": "disabled_opt_in (SENTINEL2_ENABLED!=1)"
+        "sentinel": "credentials_missing"
       },
       "candidateSources": [],
       "reason": "storage_type_unknown"
@@ -585,7 +585,7 @@
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
         "swot": "credentials_missing",
-        "sentinel": "disabled_opt_in (SENTINEL2_ENABLED!=1)"
+        "sentinel": "credentials_missing"
       },
       "candidateSources": [],
       "reason": "storage_type_unknown"
@@ -603,7 +603,7 @@
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
         "swot": "credentials_missing",
-        "sentinel": "disabled_opt_in (SENTINEL2_ENABLED!=1)"
+        "sentinel": "credentials_missing"
       },
       "candidateSources": [],
       "reason": "missing_inventory_volume"
@@ -621,7 +621,7 @@
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
         "swot": "credentials_missing",
-        "sentinel": "disabled_opt_in (SENTINEL2_ENABLED!=1)"
+        "sentinel": "credentials_missing"
       },
       "candidateSources": [],
       "reason": "storage_type_unknown"
@@ -639,7 +639,7 @@
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
         "swot": "credentials_missing",
-        "sentinel": "disabled_opt_in (SENTINEL2_ENABLED!=1)"
+        "sentinel": "credentials_missing"
       },
       "candidateSources": [],
       "reason": "storage_type_unknown"
@@ -657,7 +657,7 @@
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
         "swot": "credentials_missing",
-        "sentinel": "disabled_opt_in (SENTINEL2_ENABLED!=1)"
+        "sentinel": "credentials_missing"
       },
       "candidateSources": [],
       "reason": "storage_type_unknown"
@@ -675,7 +675,7 @@
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
         "swot": "credentials_missing",
-        "sentinel": "disabled_opt_in (SENTINEL2_ENABLED!=1)"
+        "sentinel": "credentials_missing"
       },
       "candidateSources": [],
       "reason": "storage_type_unknown"
@@ -693,7 +693,7 @@
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
         "swot": "credentials_missing",
-        "sentinel": "disabled_opt_in (SENTINEL2_ENABLED!=1)"
+        "sentinel": "credentials_missing"
       },
       "candidateSources": [],
       "reason": "missing_inventory_volume"
@@ -711,7 +711,7 @@
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
         "swot": "credentials_missing",
-        "sentinel": "disabled_opt_in (SENTINEL2_ENABLED!=1)"
+        "sentinel": "credentials_missing"
       },
       "candidateSources": [],
       "reason": "storage_type_unknown"
@@ -729,7 +729,7 @@
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
         "swot": "credentials_missing",
-        "sentinel": "disabled_opt_in (SENTINEL2_ENABLED!=1)"
+        "sentinel": "credentials_missing"
       },
       "candidateSources": [],
       "reason": "storage_type_unknown"
@@ -747,7 +747,7 @@
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
         "swot": "credentials_missing",
-        "sentinel": "disabled_opt_in (SENTINEL2_ENABLED!=1)"
+        "sentinel": "credentials_missing"
       },
       "candidateSources": [],
       "reason": "missing_inventory_volume"
@@ -765,7 +765,7 @@
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
         "swot": "credentials_missing",
-        "sentinel": "disabled_opt_in (SENTINEL2_ENABLED!=1)"
+        "sentinel": "credentials_missing"
       },
       "candidateSources": [],
       "reason": "storage_type_unknown"
@@ -783,7 +783,7 @@
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
         "swot": "credentials_missing",
-        "sentinel": "disabled_opt_in (SENTINEL2_ENABLED!=1)"
+        "sentinel": "credentials_missing"
       },
       "candidateSources": [],
       "reason": "storage_type_unknown"
@@ -801,7 +801,7 @@
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
         "swot": "credentials_missing",
-        "sentinel": "disabled_opt_in (SENTINEL2_ENABLED!=1)"
+        "sentinel": "credentials_missing"
       },
       "candidateSources": [],
       "reason": "missing_inventory_volume"
@@ -819,7 +819,7 @@
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
         "swot": "credentials_missing",
-        "sentinel": "disabled_opt_in (SENTINEL2_ENABLED!=1)"
+        "sentinel": "credentials_missing"
       },
       "candidateSources": [],
       "reason": "storage_type_unknown"
@@ -837,7 +837,7 @@
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
         "swot": "credentials_missing",
-        "sentinel": "disabled_opt_in (SENTINEL2_ENABLED!=1)"
+        "sentinel": "credentials_missing"
       },
       "candidateSources": [],
       "reason": "storage_type_unknown"
@@ -855,7 +855,7 @@
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
         "swot": "credentials_missing",
-        "sentinel": "disabled_opt_in (SENTINEL2_ENABLED!=1)"
+        "sentinel": "credentials_missing"
       },
       "candidateSources": [],
       "reason": "missing_inventory_volume"
@@ -873,7 +873,7 @@
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
         "swot": "credentials_missing",
-        "sentinel": "disabled_opt_in (SENTINEL2_ENABLED!=1)"
+        "sentinel": "credentials_missing"
       },
       "candidateSources": [],
       "reason": "missing_inventory_volume"
@@ -891,7 +891,7 @@
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
         "swot": "credentials_missing",
-        "sentinel": "disabled_opt_in (SENTINEL2_ENABLED!=1)"
+        "sentinel": "credentials_missing"
       },
       "candidateSources": [],
       "reason": "storage_type_unknown"
@@ -909,7 +909,7 @@
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
         "swot": "credentials_missing",
-        "sentinel": "disabled_opt_in (SENTINEL2_ENABLED!=1)"
+        "sentinel": "credentials_missing"
       },
       "candidateSources": [],
       "reason": "storage_type_unknown"
@@ -927,7 +927,7 @@
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
         "swot": "credentials_missing",
-        "sentinel": "disabled_opt_in (SENTINEL2_ENABLED!=1)"
+        "sentinel": "credentials_missing"
       },
       "candidateSources": [],
       "reason": "storage_type_unknown"
@@ -945,7 +945,7 @@
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
         "swot": "credentials_missing",
-        "sentinel": "disabled_opt_in (SENTINEL2_ENABLED!=1)"
+        "sentinel": "credentials_missing"
       },
       "candidateSources": [],
       "reason": "storage_type_unknown"
@@ -963,7 +963,7 @@
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
         "swot": "credentials_missing",
-        "sentinel": "disabled_opt_in (SENTINEL2_ENABLED!=1)"
+        "sentinel": "credentials_missing"
       },
       "candidateSources": [],
       "reason": "missing_inventory_volume"
@@ -981,7 +981,7 @@
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
         "swot": "credentials_missing",
-        "sentinel": "disabled_opt_in (SENTINEL2_ENABLED!=1)"
+        "sentinel": "credentials_missing"
       },
       "candidateSources": [],
       "reason": "missing_inventory_volume"
@@ -999,7 +999,7 @@
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
         "swot": "credentials_missing",
-        "sentinel": "disabled_opt_in (SENTINEL2_ENABLED!=1)"
+        "sentinel": "credentials_missing"
       },
       "candidateSources": [],
       "reason": "storage_type_unknown"
@@ -1017,7 +1017,7 @@
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
         "swot": "credentials_missing",
-        "sentinel": "disabled_opt_in (SENTINEL2_ENABLED!=1)"
+        "sentinel": "credentials_missing"
       },
       "candidateSources": [],
       "reason": "missing_inventory_volume"
@@ -1035,7 +1035,7 @@
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
         "swot": "credentials_missing",
-        "sentinel": "disabled_opt_in (SENTINEL2_ENABLED!=1)"
+        "sentinel": "credentials_missing"
       },
       "candidateSources": [],
       "reason": "missing_inventory_volume"
@@ -1053,7 +1053,7 @@
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
         "swot": "credentials_missing",
-        "sentinel": "disabled_opt_in (SENTINEL2_ENABLED!=1)"
+        "sentinel": "credentials_missing"
       },
       "candidateSources": [],
       "reason": "storage_type_unknown"
@@ -1071,7 +1071,7 @@
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
         "swot": "credentials_missing",
-        "sentinel": "disabled_opt_in (SENTINEL2_ENABLED!=1)"
+        "sentinel": "credentials_missing"
       },
       "candidateSources": [],
       "reason": "storage_type_unknown"
@@ -1089,7 +1089,7 @@
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
         "swot": "credentials_missing",
-        "sentinel": "disabled_opt_in (SENTINEL2_ENABLED!=1)"
+        "sentinel": "credentials_missing"
       },
       "candidateSources": [],
       "reason": "missing_inventory_volume"
@@ -1107,7 +1107,7 @@
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
         "swot": "credentials_missing",
-        "sentinel": "disabled_opt_in (SENTINEL2_ENABLED!=1)"
+        "sentinel": "credentials_missing"
       },
       "candidateSources": [],
       "reason": "storage_type_unknown"
@@ -1125,7 +1125,7 @@
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
         "swot": "credentials_missing",
-        "sentinel": "disabled_opt_in (SENTINEL2_ENABLED!=1)"
+        "sentinel": "credentials_missing"
       },
       "candidateSources": [],
       "reason": "reservoir_not_mapped"
@@ -1143,7 +1143,7 @@
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
         "swot": "credentials_missing",
-        "sentinel": "disabled_opt_in (SENTINEL2_ENABLED!=1)"
+        "sentinel": "credentials_missing"
       },
       "candidateSources": [],
       "reason": "storage_type_unknown"
@@ -1161,7 +1161,7 @@
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
         "swot": "credentials_missing",
-        "sentinel": "disabled_opt_in (SENTINEL2_ENABLED!=1)"
+        "sentinel": "credentials_missing"
       },
       "candidateSources": [],
       "reason": "storage_type_unknown"
@@ -1179,7 +1179,7 @@
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
         "swot": "credentials_missing",
-        "sentinel": "disabled_opt_in (SENTINEL2_ENABLED!=1)"
+        "sentinel": "credentials_missing"
       },
       "candidateSources": [],
       "reason": "storage_type_unknown"
@@ -1197,7 +1197,7 @@
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
         "swot": "credentials_missing",
-        "sentinel": "disabled_opt_in (SENTINEL2_ENABLED!=1)"
+        "sentinel": "credentials_missing"
       },
       "candidateSources": [],
       "reason": "missing_inventory_volume"
@@ -1215,7 +1215,7 @@
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
         "swot": "credentials_missing",
-        "sentinel": "disabled_opt_in (SENTINEL2_ENABLED!=1)"
+        "sentinel": "credentials_missing"
       },
       "candidateSources": [],
       "reason": "storage_type_unknown"
@@ -1233,7 +1233,7 @@
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
         "swot": "credentials_missing",
-        "sentinel": "disabled_opt_in (SENTINEL2_ENABLED!=1)"
+        "sentinel": "credentials_missing"
       },
       "candidateSources": [],
       "reason": "storage_type_unknown"
@@ -1251,7 +1251,7 @@
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
         "swot": "credentials_missing",
-        "sentinel": "disabled_opt_in (SENTINEL2_ENABLED!=1)"
+        "sentinel": "credentials_missing"
       },
       "candidateSources": [],
       "reason": "storage_type_unknown"
@@ -1269,7 +1269,7 @@
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
         "swot": "credentials_missing",
-        "sentinel": "disabled_opt_in (SENTINEL2_ENABLED!=1)"
+        "sentinel": "credentials_missing"
       },
       "candidateSources": [],
       "reason": "missing_inventory_volume"
@@ -1287,7 +1287,7 @@
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
         "swot": "credentials_missing",
-        "sentinel": "disabled_opt_in (SENTINEL2_ENABLED!=1)"
+        "sentinel": "credentials_missing"
       },
       "candidateSources": [],
       "reason": "storage_type_unknown"
@@ -1305,7 +1305,7 @@
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
         "swot": "credentials_missing",
-        "sentinel": "disabled_opt_in (SENTINEL2_ENABLED!=1)"
+        "sentinel": "credentials_missing"
       },
       "candidateSources": [],
       "reason": "missing_inventory_volume"
@@ -1323,7 +1323,7 @@
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
         "swot": "credentials_missing",
-        "sentinel": "disabled_opt_in (SENTINEL2_ENABLED!=1)"
+        "sentinel": "credentials_missing"
       },
       "candidateSources": [],
       "reason": "storage_type_unknown"
@@ -1341,7 +1341,7 @@
         "copernicus": "credentials_missing",
         "dahiti": "credentials_missing",
         "swot": "credentials_missing",
-        "sentinel": "disabled_opt_in (SENTINEL2_ENABLED!=1)"
+        "sentinel": "credentials_missing"
       },
       "candidateSources": [],
       "reason": "storage_type_unknown"
