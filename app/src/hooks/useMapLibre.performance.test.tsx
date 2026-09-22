@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import type { FeatureCollection } from 'geojson';
-import { act, cleanup, render } from '@testing-library/react';
+import { act, cleanup, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { useRef } from 'react';
 import { DEFAULT_POWER_GRID_CONFIG, useSettingsStore, type PowerGridConfig } from '../stores/useSettingsStore';
@@ -203,7 +203,7 @@ function Harness({
   mapStyle?: 'satellite' | 'light';
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
-  useMapLibre({
+  const { osmPowerGridStatus, osmPowerGridError } = useMapLibre({
     containerRef,
     site,
     sites,
@@ -214,7 +214,11 @@ function Harness({
     layers,
     onSelectSite: vi.fn(),
   });
-  return <div ref={containerRef} />;
+  return (
+    <div ref={containerRef}>
+      <span data-testid="osm-grid-status">{osmPowerGridStatus}:{osmPowerGridError ?? ''}</span>
+    </div>
+  );
 }
 
 function latestMap() {
@@ -299,6 +303,25 @@ describe('useMapLibre performance behavior', () => {
     expect(map.sourceAddCounts.get('osm-power-grid')).toBe(1);
     expect(map.setLayoutProperty).toHaveBeenCalledWith('osm-power-lines', 'visibility', 'none');
     expect(map.setLayoutProperty).toHaveBeenCalledWith('osm-power-lines', 'visibility', 'visible');
+  });
+
+  it('reports OSM load failures without changing project grid state', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('network unavailable')));
+    const site = makeTestSite();
+    useSettingsStore.setState({ showPowerGrid: true });
+    render(<Harness site={site} layers={DEFAULT_LAYERS} />);
+    const map = latestMap();
+    act(() => map.fire('load'));
+
+    await act(async () => {
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    expect(screen.getByTestId('osm-grid-status').textContent).toContain('error:');
+    expect(screen.getByTestId('osm-grid-status').textContent).toContain('network unavailable');
+    expect(map.sourceAddCounts.get('projectGrid')).toBe(1);
+    expect(map.sourceAddCounts.get('osm-power-grid')).toBeUndefined();
   });
 
   it('does not call setData again when a redraw reuses the same grid data', () => {

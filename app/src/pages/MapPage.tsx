@@ -112,7 +112,7 @@ export default function MapPage() {
     return sites.map((item) => (item.id === siteWithFootprints.id ? siteWithFootprints : item));
   }, [siteWithFootprints, sites]);
 
-  const { mapRef } = useMapLibre({
+  const { mapRef, osmPowerGridStatus, osmPowerGridError } = useMapLibre({
     containerRef: mapContainer,
     site: siteWithFootprints,
     sites: sitesWithSelectedFootprints,
@@ -286,7 +286,21 @@ export default function MapPage() {
               Proje şebeke verisi yüklenemedi. Gerçek iletim katmanı korunmuştur.
             </div>
           )}
-
+          {showPowerGrid && osmPowerGridStatus === 'loading' && (
+            <div className="map-data-notice" role="status">
+              OSM şebeke verisi yükleniyor...
+            </div>
+          )}
+          {showPowerGrid && osmPowerGridStatus === 'empty' && (
+            <div className="map-data-notice" role="status">
+              OSM şebeke verisi boş; gösterilecek doğrulanmış hat bulunamadı.
+            </div>
+          )}
+          {showPowerGrid && osmPowerGridStatus === 'error' && (
+            <div className="map-data-notice map-data-notice-error" role="alert">
+              {osmPowerGridError || 'OSM şebeke verisi yüklenemedi.'}
+            </div>
+          )}
 
           {rightCollapsed && (
             <button

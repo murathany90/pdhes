@@ -86,6 +86,8 @@ interface UseMapLibreOptions {
   disableAutoFlyTo?: boolean;
 }
 
+export type OSMGridLoadStatus = 'idle' | 'loading' | 'ready' | 'empty' | 'error';
+
 function setLayerVisibility(map: maplibregl.Map, layerId: string, visible: boolean) {
   if (!map.getLayer(layerId)) return;
   map.setLayoutProperty(layerId, 'visibility', visible ? 'visible' : 'none');
@@ -190,6 +192,8 @@ export function useMapLibre({
   const worldMarkersRef = useRef<Map<string, CachedMarker>>(new Map());
   const activePopupRef = useRef<maplibregl.Popup | null>(null);
   const [osmPowerGridData, setOsmPowerGridData] = useState<FeatureCollection | null>(null);
+  const [osmPowerGridStatus, setOsmPowerGridStatus] = useState<OSMGridLoadStatus>('idle');
+  const [osmPowerGridError, setOsmPowerGridError] = useState<string | null>(null);
   const layerEventCleanupRef = useRef<(() => void)[]>([]);
   const boundLayerEventsRef = useRef<Set<string>>(new Set());
   const canCreateMap = Boolean(site);
@@ -202,8 +206,19 @@ export function useMapLibre({
   const projectLayout = useMemo(() => site ? buildLayout(site, heightScale) : null, [heightScale, site]);
 
   useEffect(() => {
-    if (!showPowerGrid || osmPowerGridData || typeof fetch !== 'function') return undefined;
+    if (!showPowerGrid) {
+      if (!osmPowerGridData) setOsmPowerGridStatus('idle');
+      return undefined;
+    }
+    if (osmPowerGridData || osmPowerGridStatus === 'loading' || osmPowerGridStatus === 'ready' || osmPowerGridStatus === 'empty' || osmPowerGridStatus === 'error') return undefined;
+    if (typeof fetch !== 'function') {
+      setOsmPowerGridError('OSM şebeke verisi bu tarayıcıda yüklenemedi.');
+      setOsmPowerGridStatus('error');
+      return undefined;
+    }
     const controller = new AbortController();
+    setOsmPowerGridError(null);
+    setOsmPowerGridStatus('loading');
     fetch(osmPowerGridUrl, { signal: controller.signal })
       .then(async (response) => {
         if (!response.ok) throw new Error(`power-grid-filtered.geojson HTTP ${response.status}`);
@@ -211,10 +226,19 @@ export function useMapLibre({
         if (data?.type !== 'FeatureCollection' || !Array.isArray(data.features)) {
           throw new Error('power-grid-filtered.geojson geçerli bir FeatureCollection değil');
         }
-        if (!controller.signal.aborted) setOsmPowerGridData(normalizeGridVoltageFeatures(data));
+        if (!controller.signal.aborted) {
+          const normalized = normalizeGridVoltageFeatures(data);
+          setOsmPowerGridData(normalized);
+          setOsmPowerGridStatus(normalized.features.length > 0 ? 'ready' : 'empty');
+        }
       })
       .catch((error) => {
-        if (!controller.signal.aborted) console.error('Failed to normalize OSM power-grid data:', error);
+        if (!controller.signal.aborted) {
+          const message = error instanceof Error ? error.message : String(error);
+          setOsmPowerGridError(`OSM şebeke verisi yüklenemedi: ${message}`);
+          setOsmPowerGridStatus('error');
+          console.error('Failed to normalize OSM power-grid data:', error);
+        }
       });
     return () => controller.abort();
   }, [osmPowerGridData, osmPowerGridUrl, showPowerGrid]);
@@ -835,5 +859,5 @@ export function useMapLibre({
     });
   }, [selectedId, site, worldExampleFocusId]);
 
-  return { mapRef };
+  return { mapRef, osmPowerGridStatus, osmPowerGridError };
 }

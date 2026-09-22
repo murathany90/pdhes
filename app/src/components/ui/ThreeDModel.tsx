@@ -1,8 +1,9 @@
-import { memo, useRef, useMemo, useEffect, useLayoutEffect } from 'react';
+import { memo, useRef, useMemo, useEffect, useLayoutEffect, type MutableRefObject } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls, Html, Line, Sky, MeshDistortMaterial } from '@react-three/drei';
 import { BatteryCharging, Zap } from 'lucide-react';
 import * as THREE from 'three';
+import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import { COMPONENTS } from '../../utils/constants';
 import type { ComponentsDetail, Site } from '../../types/site';
 import { useSiteStore } from '../../stores/useSiteStore';
@@ -1932,14 +1933,17 @@ export function calculateCameraDistance(
   return Math.max(verticalDistance, horizontalDistance, depthDistance, 120);
 }
 
-function CameraTarget({ frame }: { frame: CameraFrame }) {
+function CameraTarget({ frame, controlsRef }: { frame: CameraFrame; controlsRef: MutableRefObject<OrbitControlsImpl | null> }) {
   const { camera, invalidate, size } = useThree();
   const appliedFrameKeyRef = useRef<string | null>(null);
 
   useLayoutEffect(() => {
     const aspect = size.height > 0 ? size.width / size.height : 1;
     const isNewFrame = appliedFrameKeyRef.current !== frame.key;
+    const controls = controlsRef.current;
+    const target = controls?.target ?? new THREE.Vector3(...frame.target);
     if (isNewFrame) {
+      if (controls) controls.target.set(...frame.target);
       const distance = calculateCameraDistance(
         frame,
         (camera as THREE.PerspectiveCamera).fov,
@@ -1953,11 +1957,25 @@ function CameraTarget({ frame }: { frame: CameraFrame }) {
       );
       camera.lookAt(...frame.target);
       appliedFrameKeyRef.current = frame.key;
+    } else {
+      const direction = new THREE.Vector3().subVectors(camera.position, target);
+      const currentDistance = direction.length();
+      const requiredDistance = calculateCameraDistance(
+        frame,
+        (camera as THREE.PerspectiveCamera).fov,
+        aspect,
+      );
+      if (currentDistance > 0 && currentDistance < requiredDistance) {
+        direction.normalize().multiplyScalar(requiredDistance);
+        const nextPosition = target.clone().add(direction);
+        camera.position.set(nextPosition.x, nextPosition.y, nextPosition.z);
+      }
     }
+    controls?.update?.();
     camera.updateMatrixWorld(true);
     camera.updateProjectionMatrix();
     invalidate();
-  }, [camera, frame, invalidate, size.height, size.width]);
+  }, [camera, controlsRef, frame, invalidate, size.height, size.width]);
 
   return null;
 }
@@ -2106,6 +2124,7 @@ function Scene({
   const fogSpan = Math.max(cameraFrame.horizontalSpan, cameraFrame.verticalSpan, cameraFrame.depthSpan);
   const fogNear = Math.max(80, fogSpan * 0.55);
   const fogFar = Math.max(fogNear + 320, fogSpan * 6);
+  const controlsRef = useRef<OrbitControlsImpl | null>(null);
   
   // Shared Simulation Water Levels
   const waterLevelRef = useRef(0.85);
@@ -2171,7 +2190,7 @@ function Scene({
 
   return (
     <>
-      <CameraTarget frame={cameraFrame} />
+      <CameraTarget frame={cameraFrame} controlsRef={controlsRef} />
       {theme === 'dark' ? (
         <Sky sunPosition={[0, -10, -50]} turbidity={10} rayleigh={0.1} mieCoefficient={0.005} />
       ) : (
@@ -2442,7 +2461,7 @@ function Scene({
       {/* Transmission pylons and lines */}
       {layers.transmission && !footprintPlan.enabled && <TransmissionLine isPresenzano={isPresenzano} isPlaying={isPlaying} mode={mode} activeUnits={activeUnits} />}
 
-      <OrbitControls target={cameraFrame.target} makeDefault enableDamping dampingFactor={0.05} minDistance={20} maxDistance={Math.max(2500, fogSpan * 12)} />
+      <OrbitControls ref={controlsRef} target={cameraFrame.target} makeDefault enableDamping dampingFactor={0.05} minDistance={20} maxDistance={Math.max(2500, fogSpan * 12)} />
     </>
   );
 }
