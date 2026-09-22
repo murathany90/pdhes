@@ -24,6 +24,21 @@ export interface Layout3DFootprintPlan {
   items: Layout3DProjectedFootprint[];
 }
 
+const VALID_FOOTPRINT_MATERIALS = new Set<Layout3DMaterial>([
+  'water',
+  'embankment',
+  'crest_road',
+  'concrete',
+  'tunnel_axis',
+  'shaft',
+  'portal',
+  'industrial',
+  'tailrace_channel',
+  'switchyard',
+  'switchyard_existing',
+  'switchyard_new',
+]);
+
 export const LAYOUT_3D_MATERIAL_COLORS: Record<Layout3DMaterial, string> = {
   water: '#0f70b7',
   embankment: '#6f756b',
@@ -56,6 +71,27 @@ export function projectLngLatToScene(
     x: (coord[0] - centerLon) * metersPerDegreeLon * SCENE_SCALE,
     z: -(coord[1] - centerLat) * METERS_PER_DEGREE_LAT * SCENE_SCALE,
   };
+}
+
+export function isValidLayout3DFootprint(value: unknown): value is Layout3DFootprint {
+  if (!value || typeof value !== 'object') return false;
+  const footprint = value as Partial<Layout3DFootprint>;
+  if (
+    typeof footprint.id !== 'string'
+    || typeof footprint.component !== 'string'
+    || (footprint.kind !== 'polygon' && footprint.kind !== 'polyline')
+    || typeof footprint.material !== 'string'
+    || !VALID_FOOTPRINT_MATERIALS.has(footprint.material as Layout3DMaterial)
+    || !Array.isArray(footprint.coords)
+  ) return false;
+
+  const minimumPoints = footprint.kind === 'polygon' ? 3 : 2;
+  return footprint.coords.length >= minimumPoints && footprint.coords.every((coord) => (
+    Array.isArray(coord)
+    && coord.length >= 2
+    && Number.isFinite(coord[0])
+    && Number.isFinite(coord[1])
+  ));
 }
 
 function getFootprintsBbox(footprints: Layout3DFootprint[]): [number, number, number, number] {
@@ -131,12 +167,17 @@ export function buildLayout3DFootprintPlan(site: Site): Layout3DFootprintPlan {
     return { enabled: false, hideLegacySquareReservoir: false, items: [] };
   }
 
-  const bbox = getFootprintsBbox(layout3D.componentFootprints);
-  const baseElevation = minElevation(layout3D.componentFootprints);
+  const validFootprints = layout3D.componentFootprints.filter(isValidLayout3DFootprint);
+  if (validFootprints.length === 0) {
+    return { enabled: false, hideLegacySquareReservoir: false, items: [] };
+  }
+
+  const bbox = getFootprintsBbox(validFootprints);
+  const baseElevation = minElevation(validFootprints);
   return {
     enabled: true,
     hideLegacySquareReservoir: layout3D.hideLegacySquareReservoir,
-    items: layout3D.componentFootprints.map((footprint) => projectFootprint(footprint, site, baseElevation, bbox)),
+    items: validFootprints.map((footprint) => projectFootprint(footprint, site, baseElevation, bbox)),
   };
 }
 

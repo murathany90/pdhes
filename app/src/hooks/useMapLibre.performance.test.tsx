@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import type { FeatureCollection } from 'geojson';
-import { act, cleanup, render } from '@testing-library/react';
+import { act, cleanup, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { useRef } from 'react';
 import { DEFAULT_POWER_GRID_CONFIG, useSettingsStore, type PowerGridConfig } from '../stores/useSettingsStore';
@@ -203,7 +203,7 @@ function Harness({
   mapStyle?: 'satellite' | 'light';
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
-  useMapLibre({
+  const { osmPowerGridStatus, osmPowerGridError, retryOsmPowerGrid } = useMapLibre({
     containerRef,
     site,
     sites,
@@ -214,7 +214,12 @@ function Harness({
     layers,
     onSelectSite: vi.fn(),
   });
-  return <div ref={containerRef} />;
+  return (
+    <div ref={containerRef}>
+      <span data-testid="osm-grid-status">{osmPowerGridStatus}:{osmPowerGridError ?? ''}</span>
+      <button type="button" data-testid="osm-grid-retry" onClick={retryOsmPowerGrid}>Yeniden Dene</button>
+    </div>
+  );
 }
 
 function latestMap() {
@@ -230,12 +235,17 @@ describe('useMapLibre performance behavior', () => {
       showPowerGrid: false,
       powerGridConfig: structuredClone(DEFAULT_POWER_GRID_CONFIG) as PowerGridConfig,
     });
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ type: 'FeatureCollection', features: [] }),
+    }));
     useMapToolsStore.setState({ map: null, mode: 'default', isDrawing: false, measurementPoints: [] });
   });
 
   afterEach(() => {
     vi.useRealTimers();
     cleanup();
+    vi.unstubAllGlobals();
     vi.clearAllMocks();
   });
 
@@ -278,6 +288,10 @@ describe('useMapLibre performance behavior', () => {
     const map = latestMap();
 
     act(() => map.fire('load'));
+    await act(async () => {
+      await Promise.resolve();
+      await Promise.resolve();
+    });
     expect(map.sourceAddCounts.get('osm-power-grid')).toBe(1);
 
     await act(async () => {
@@ -290,6 +304,59 @@ describe('useMapLibre performance behavior', () => {
     expect(map.sourceAddCounts.get('osm-power-grid')).toBe(1);
     expect(map.setLayoutProperty).toHaveBeenCalledWith('osm-power-lines', 'visibility', 'none');
     expect(map.setLayoutProperty).toHaveBeenCalledWith('osm-power-lines', 'visibility', 'visible');
+  });
+
+  it('reports OSM load failures without changing project grid state', async () => {
+    const fetchMock = vi.fn().mockRejectedValue(new Error('network unavailable'));
+    vi.stubGlobal('fetch', fetchMock);
+    const site = makeTestSite();
+    useSettingsStore.setState({ showPowerGrid: true });
+    render(<Harness site={site} layers={DEFAULT_LAYERS} />);
+    const map = latestMap();
+    act(() => map.fire('load'));
+
+    await act(async () => {
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    expect(screen.getByTestId('osm-grid-status').textContent).toContain('error:');
+    expect(screen.getByTestId('osm-grid-status').textContent).toContain('network unavailable');
+    expect(map.sourceAddCounts.get('projectGrid')).toBe(1);
+    expect(map.sourceAddCounts.get('osm-power-grid')).toBeUndefined();
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+
+    fetchMock.mockResolvedValue({
+      ok: true,
+      json: async () => ({ type: 'FeatureCollection', features: [] }),
+    });
+    await act(async () => {
+      screen.getByTestId('osm-grid-retry').click();
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(screen.getByTestId('osm-grid-status').textContent).toContain('empty:');
+  });
+
+  it('does not call setData again when a redraw reuses the same grid data', () => {
+    vi.useFakeTimers();
+    const site = makeTestSite();
+    render(<Harness site={site} layers={DEFAULT_LAYERS} />);
+    const map = latestMap();
+
+    act(() => map.fire('load'));
+    const gridSource = map.sources.get('grid400');
+    expect(gridSource).toBeTruthy();
+    const initialSetDataCalls = gridSource!.setData.mock.calls.length;
+
+    act(() => {
+      map.fire('moveend');
+      vi.advanceTimersByTime(450);
+    });
+
+    expect(gridSource!.setData).toHaveBeenCalledTimes(initialSetDataCalls);
   });
 
   it('keeps 3D terrain enabled after moveend redraws from the initial 2D render', () => {
@@ -328,6 +395,21 @@ describe('useMapLibre performance behavior', () => {
     act(() => map.fire('styledata'));
 
     expect(map.setTerrain).toHaveBeenLastCalledWith({ source: 'terrainSource', exaggeration: 1.1 * 1.3 });
+  });
+
+  it('rebinds layer tooltips exactly once after a style change', () => {
+    const site = makeTestSite();
+    const { rerender } = render(<Harness site={site} layers={DEFAULT_LAYERS} mapStyle="satellite" />);
+    const map = latestMap();
+
+    act(() => map.fire('load'));
+    expect(map.layerHandlers.get('mouseenter:blocks-extrusion')?.size).toBe(1);
+
+    rerender(<Harness site={site} layers={DEFAULT_LAYERS} mapStyle="light" />);
+    act(() => map.fire('styledata'));
+
+    expect(map.layerHandlers.get('mouseenter:blocks-extrusion')?.size).toBe(1);
+    expect(map.layerHandlers.get('mouseleave:blocks-extrusion')?.size).toBe(1);
   });
 
   it('uses responsive popup card markup for candidate and world example popups', () => {

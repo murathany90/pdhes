@@ -1,8 +1,9 @@
-import { memo, useRef, useMemo, useEffect } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
+import { memo, useRef, useMemo, useEffect, useLayoutEffect, type MutableRefObject } from 'react';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls, Html, Line, Sky, MeshDistortMaterial } from '@react-three/drei';
 import { BatteryCharging, Zap } from 'lucide-react';
 import * as THREE from 'three';
+import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import { COMPONENTS } from '../../utils/constants';
 import type { ComponentsDetail, Site } from '../../types/site';
 import { useSiteStore } from '../../stores/useSiteStore';
@@ -1431,9 +1432,20 @@ function alignFootprintsForDisplay(items: Layout3DProjectedFootprint[]): Layout3
 }
 
 function createFootprintPolygonGeometry(item: Layout3DProjectedFootprint): THREE.BufferGeometry {
-  const ring = item.points.slice(0, item.closed ? -1 : undefined);
+  const points = item.points.filter((point) => (
+    Number.isFinite(point.x) && Number.isFinite(point.y) && Number.isFinite(point.z)
+  ));
+  const first = points[0];
+  const last = points.at(-1);
+  const hasRepeatedClosingPoint = Boolean(
+    first && last && first.x === last.x && first.z === last.z,
+  );
+  const ring = hasRepeatedClosingPoint ? points.slice(0, -1) : points;
+  if (ring.length < 3) return new THREE.BufferGeometry();
+
   const shapePoints = ring.map((point) => new THREE.Vector2(point.x, point.z));
   const triangles = THREE.ShapeUtils.triangulateShape(shapePoints, []);
+  if (triangles.length === 0) return new THREE.BufferGeometry();
   const vertices: number[] = [];
   const indices: number[] = [];
 
@@ -1478,6 +1490,8 @@ const FootprintPolygon = memo(function FootprintPolygon({ item, layerKey, active
   const opacity = item.material === 'water' ? 0.82 : item.material === 'embankment' ? 0.74 : 0.9;
   const labelPosition = labelPositionForFootprint(item);
 
+  if (!geometry.getAttribute('position')) return null;
+
   return (
     <group onClick={(event) => { event.stopPropagation(); onSelectComponent(layerKey); }}>
       <mesh geometry={geometry} castShadow receiveShadow>
@@ -1505,8 +1519,12 @@ const FootprintPolyline = memo(function FootprintPolyline({ item, layerKey, acti
   showLabels: boolean;
 }) {
   const color = LAYOUT_3D_MATERIAL_COLORS[item.material] ?? '#36d6ff';
-  const points = item.points.map((point) => [point.x, point.y + 1, point.z]) as [number, number, number][];
+  const points = item.points
+    .filter((point) => Number.isFinite(point.x) && Number.isFinite(point.y) && Number.isFinite(point.z))
+    .map((point) => [point.x, point.y + 1, point.z]) as [number, number, number][];
   const labelPosition = labelPositionForFootprint(item);
+
+  if (points.length < 2) return null;
 
   return (
     <group onClick={(event) => { event.stopPropagation(); onSelectComponent(layerKey); }}>
@@ -1891,6 +1909,77 @@ function SimulationStatusLayer({ plan, state, mode, activeUnits, maxUnits, power
   );
 }
 
+interface CameraFrame {
+  target: [number, number, number];
+  horizontalSpan: number;
+  verticalSpan: number;
+  depthSpan: number;
+  key: string;
+}
+
+export function calculateCameraDistance(
+  frame: Pick<CameraFrame, 'horizontalSpan' | 'verticalSpan' | 'depthSpan'>,
+  fovDegrees: number,
+  aspect: number,
+): number {
+  const safeFov = clamp(Number.isFinite(fovDegrees) ? fovDegrees : 45, 20, 100);
+  const safeAspect = Math.max(0.25, Number.isFinite(aspect) && aspect > 0 ? aspect : 1);
+  const verticalFov = THREE.MathUtils.degToRad(safeFov);
+  const horizontalFov = 2 * Math.atan(Math.tan(verticalFov / 2) * safeAspect);
+  const padding = 1.2;
+  const verticalDistance = (Math.max(frame.verticalSpan, 1) / 2 * padding) / Math.tan(verticalFov / 2);
+  const horizontalDistance = (Math.max(frame.horizontalSpan, 1) / 2 * padding) / Math.tan(horizontalFov / 2);
+  const depthDistance = Math.max(frame.depthSpan, 1) * 0.75 * padding;
+  return Math.max(verticalDistance, horizontalDistance, depthDistance, 120);
+}
+
+function CameraTarget({ frame, controlsRef }: { frame: CameraFrame; controlsRef: MutableRefObject<OrbitControlsImpl | null> }) {
+  const { camera, invalidate, size } = useThree();
+  const appliedFrameKeyRef = useRef<string | null>(null);
+
+  useLayoutEffect(() => {
+    const aspect = size.height > 0 ? size.width / size.height : 1;
+    const isNewFrame = appliedFrameKeyRef.current !== frame.key;
+    const controls = controlsRef.current;
+    const target = controls?.target ?? new THREE.Vector3(...frame.target);
+    if (isNewFrame) {
+      if (controls) controls.target.set(...frame.target);
+      const distance = calculateCameraDistance(
+        frame,
+        (camera as THREE.PerspectiveCamera).fov,
+        aspect,
+      );
+      const direction = new THREE.Vector3(0.72, 0.52, 0.72).normalize();
+      camera.position.set(
+        frame.target[0] + direction.x * distance,
+        frame.target[1] + direction.y * distance,
+        frame.target[2] + direction.z * distance,
+      );
+      camera.lookAt(...frame.target);
+      appliedFrameKeyRef.current = frame.key;
+    } else {
+      const direction = new THREE.Vector3().subVectors(camera.position, target);
+      const currentDistance = direction.length();
+      const requiredDistance = calculateCameraDistance(
+        frame,
+        (camera as THREE.PerspectiveCamera).fov,
+        aspect,
+      );
+      if (currentDistance > 0 && currentDistance < requiredDistance) {
+        direction.normalize().multiplyScalar(requiredDistance);
+        const nextPosition = target.clone().add(direction);
+        camera.position.set(nextPosition.x, nextPosition.y, nextPosition.z);
+      }
+    }
+    controls?.update?.();
+    camera.updateMatrixWorld(true);
+    camera.updateProjectionMatrix();
+    invalidate();
+  }, [camera, controlsRef, frame, invalidate, size.height, size.width]);
+
+  return null;
+}
+
 function RepresentativeFootprintTerrain({ opacity, theme }: { opacity: number; theme?: string }) {
   const geometry = useMemo(() => {
     const terrain = new THREE.PlaneGeometry(1000, 1000, 32, 32);
@@ -2003,6 +2092,39 @@ function Scene({
     () => calculateActiveFlowCms(topology, resolvedActiveUnitIds, mode),
     [mode, topology, resolvedActiveUnitIds],
   );
+
+  const cameraFrame = useMemo<CameraFrame>(() => {
+    if (footprintPlan.enabled && footprintPlan.items.length > 0) {
+      const points = footprintPlan.items.flatMap((item) => item.points).filter((point) => (
+        Number.isFinite(point.x) && Number.isFinite(point.y) && Number.isFinite(point.z)
+      ));
+      if (points.length > 0) {
+        const xs = points.map((point) => point.x);
+        const ys = points.map((point) => point.y);
+        const zs = points.map((point) => point.z);
+        const horizontalSpan = Math.max(Math.max(...xs) - Math.min(...xs), 40);
+        const depthSpan = Math.max(Math.max(...zs) - Math.min(...zs), 40);
+        const verticalSpan = Math.max(Math.max(...ys) - Math.min(...ys), 24);
+        const target: [number, number, number] = [
+            (Math.min(...xs) + Math.max(...xs)) / 2,
+            (Math.min(...ys) + Math.max(...ys)) / 2,
+            (Math.min(...zs) + Math.max(...zs)) / 2,
+        ];
+        return {
+          target,
+          horizontalSpan,
+          verticalSpan,
+          depthSpan,
+          key: `${site.id}:${target.join(',')}:${horizontalSpan}:${verticalSpan}:${depthSpan}`,
+        };
+      }
+    }
+    return { target: [0, 20, 0], horizontalSpan: 120, verticalSpan: 40, depthSpan: 120, key: `${site.id}:fallback` };
+  }, [footprintPlan, site.id]);
+  const fogSpan = Math.max(cameraFrame.horizontalSpan, cameraFrame.verticalSpan, cameraFrame.depthSpan);
+  const fogNear = Math.max(80, fogSpan * 0.55);
+  const fogFar = Math.max(fogNear + 320, fogSpan * 6);
+  const controlsRef = useRef<OrbitControlsImpl | null>(null);
   
   // Shared Simulation Water Levels
   const waterLevelRef = useRef(0.85);
@@ -2068,6 +2190,7 @@ function Scene({
 
   return (
     <>
+      <CameraTarget frame={cameraFrame} controlsRef={controlsRef} />
       {theme === 'dark' ? (
         <Sky sunPosition={[0, -10, -50]} turbidity={10} rayleigh={0.1} mieCoefficient={0.005} />
       ) : (
@@ -2080,7 +2203,7 @@ function Scene({
         shadow-camera-left={-200} shadow-camera-right={200}
         shadow-camera-top={200} shadow-camera-bottom={-200}
       />
-      <fog attach="fog" args={[theme === 'dark' ? '#0a0c10' : '#a2adb9', 150, 550]} />
+      <fog attach="fog" args={[theme === 'dark' ? '#0a0c10' : '#a2adb9', fogNear, fogFar]} />
 
       {showTerrain && !footprintPlan.enabled && <RealisticTerrain opacity={terrainOpacity} isPresenzano={isPresenzano} />}
 
@@ -2338,7 +2461,7 @@ function Scene({
       {/* Transmission pylons and lines */}
       {layers.transmission && !footprintPlan.enabled && <TransmissionLine isPresenzano={isPresenzano} isPlaying={isPlaying} mode={mode} activeUnits={activeUnits} />}
 
-      <OrbitControls makeDefault enableDamping dampingFactor={0.05} minDistance={20} maxDistance={2500} />
+      <OrbitControls ref={controlsRef} target={cameraFrame.target} makeDefault enableDamping dampingFactor={0.05} minDistance={20} maxDistance={Math.max(2500, fogSpan * 12)} />
     </>
   );
 }
@@ -2354,6 +2477,7 @@ export default function ThreeDModel(props: ThreeDModelProps) {
         frameloop={props.isPlaying ? 'always' : 'demand'}
         gl={{ antialias: false, powerPreference: 'high-performance' }}
         camera={{ position: [150, 120, 180], fov: 45 }}
+        fallback={<div role="alert" style={{ padding: 24, color: '#f8fafc' }}>WebGL başlatılamadı. 3D görünüm bu tarayıcıda kullanılamıyor.</div>}
       >
         <Scene {...props} theme={theme} />
       </Canvas>

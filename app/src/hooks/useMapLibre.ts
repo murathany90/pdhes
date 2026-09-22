@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useRef, type RefObject } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type RefObject } from 'react';
 import * as maplibregl from 'maplibre-gl';
-import type { FeatureCollection, Geometry } from 'geojson';
+import type { FeatureCollection } from 'geojson';
 import type { Site } from '../types/site';
 import { escapeHtml } from '../utils/format';
 import { buildLayout } from '../utils/layout';
@@ -18,6 +18,7 @@ import {
 import { num } from '../utils/format';
 import { useSettingsStore } from '../stores/useSettingsStore';
 import { useMapToolsStore } from '../stores/useMapToolsStore';
+import { filterGridFeatures, formatGridVoltageLabel, normalizeGridVoltageFeatures } from '../utils/powerGrid';
 
 function popupWaterwayText(site: Site): string {
   if (site.tunnelLengthKm !== null && site.tunnelLengthKm !== undefined) return `${num(site.tunnelLengthKm, 1)} km tünel`;
@@ -85,18 +86,7 @@ interface UseMapLibreOptions {
   disableAutoFlyTo?: boolean;
 }
 
-function featureCollection(features: GeoJSON.Feature<Geometry>[]): FeatureCollection {
-  return { type: 'FeatureCollection', features } as FeatureCollection;
-}
-
-function filterGrid(gridAssets: FeatureCollection | null, geometryType: string, voltages: string[]) {
-  if (!gridAssets) return featureCollection([]);
-  return featureCollection(
-    gridAssets.features.filter((feature) =>
-      feature.geometry?.type === geometryType && voltages.includes(String(feature.properties?.voltage ?? '')),
-    ) as GeoJSON.Feature<Geometry>[],
-  );
-}
+export type OSMGridLoadStatus = 'idle' | 'loading' | 'ready' | 'empty' | 'error';
 
 function setLayerVisibility(map: maplibregl.Map, layerId: string, visible: boolean) {
   if (!map.getLayer(layerId)) return;
@@ -107,13 +97,24 @@ function setLayersVisibility(map: maplibregl.Map, layerIds: string[], visible: b
   layerIds.forEach((layerId) => setLayerVisibility(map, layerId, visible));
 }
 
+const geoJsonSourceDataCache = new WeakMap<object, Map<string, FeatureCollection | string>>();
+
 function ensureGeoJsonSource(map: maplibregl.Map, id: string, data: FeatureCollection | string) {
+  let dataCache = geoJsonSourceDataCache.get(map);
+  if (!dataCache) {
+    dataCache = new Map();
+    geoJsonSourceDataCache.set(map, dataCache);
+  }
   const source = map.getSource(id) as maplibregl.GeoJSONSource | undefined;
   if (source) {
-    if (typeof data !== 'string') source.setData(data);
+    if (typeof data !== 'string' && dataCache.get(id) !== data) {
+      source.setData(data);
+      dataCache.set(id, data);
+    }
     return source;
   }
   map.addSource(id, { type: 'geojson', data });
+  dataCache.set(id, data);
   return map.getSource(id) as maplibregl.GeoJSONSource | undefined;
 }
 
@@ -190,9 +191,65 @@ export function useMapLibre({
   const candidateMarkersRef = useRef<Map<string, CachedMarker>>(new Map());
   const worldMarkersRef = useRef<Map<string, CachedMarker>>(new Map());
   const activePopupRef = useRef<maplibregl.Popup | null>(null);
+  const [osmPowerGridData, setOsmPowerGridData] = useState<FeatureCollection | null>(null);
+  const [osmPowerGridStatus, setOsmPowerGridStatus] = useState<OSMGridLoadStatus>('idle');
+  const [osmPowerGridError, setOsmPowerGridError] = useState<string | null>(null);
+  const [osmPowerGridRetryKey, setOsmPowerGridRetryKey] = useState(0);
   const layerEventCleanupRef = useRef<(() => void)[]>([]);
   const boundLayerEventsRef = useRef<Set<string>>(new Set());
   const canCreateMap = Boolean(site);
+  const osmPowerGridUrl = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/power-grid-filtered.geojson?v=4`;
+  const projectGridSources = useMemo(() => ({
+    grid400: filterGridFeatures(gridAssets, 'LineString', ['400']),
+    grid154: filterGridFeatures(gridAssets, 'LineString', ['154']),
+    substations: filterGridFeatures(gridAssets, 'Point', ['400', '154']),
+  }), [gridAssets]);
+  const projectLayout = useMemo(() => site ? buildLayout(site, heightScale) : null, [heightScale, site]);
+
+  useEffect(() => {
+    if (!showPowerGrid) {
+      if (!osmPowerGridData) setOsmPowerGridStatus('idle');
+      return undefined;
+    }
+    if (osmPowerGridData || osmPowerGridStatus === 'loading' || osmPowerGridStatus === 'ready' || osmPowerGridStatus === 'empty' || osmPowerGridStatus === 'error') return undefined;
+    if (typeof fetch !== 'function') {
+      setOsmPowerGridError('OSM şebeke verisi bu tarayıcıda yüklenemedi.');
+      setOsmPowerGridStatus('error');
+      return undefined;
+    }
+    const controller = new AbortController();
+    setOsmPowerGridError(null);
+    setOsmPowerGridStatus('loading');
+    fetch(osmPowerGridUrl, { signal: controller.signal })
+      .then(async (response) => {
+        if (!response.ok) throw new Error(`power-grid-filtered.geojson HTTP ${response.status}`);
+        const data = await response.json();
+        if (data?.type !== 'FeatureCollection' || !Array.isArray(data.features)) {
+          throw new Error('power-grid-filtered.geojson geçerli bir FeatureCollection değil');
+        }
+        if (!controller.signal.aborted) {
+          const normalized = normalizeGridVoltageFeatures(data);
+          setOsmPowerGridData(normalized);
+          setOsmPowerGridStatus(normalized.features.length > 0 ? 'ready' : 'empty');
+        }
+      })
+      .catch((error) => {
+        if (!controller.signal.aborted) {
+          const message = error instanceof Error ? error.message : String(error);
+          setOsmPowerGridError(`OSM şebeke verisi yüklenemedi: ${message}`);
+          setOsmPowerGridStatus('error');
+          console.error('Failed to normalize OSM power-grid data:', error);
+        }
+      });
+    return () => controller.abort();
+  }, [osmPowerGridData, osmPowerGridRetryKey, osmPowerGridUrl, showPowerGrid]);
+
+  const retryOsmPowerGrid = useCallback(() => {
+    if (osmPowerGridData || osmPowerGridStatus === 'loading') return;
+    setOsmPowerGridError(null);
+    setOsmPowerGridStatus('idle');
+    setOsmPowerGridRetryKey((value) => value + 1);
+  }, [osmPowerGridData, osmPowerGridStatus]);
 
   useEffect(() => {
     onSelectSiteRef.current = onSelectSite;
@@ -232,9 +289,7 @@ export function useMapLibre({
 
       applyTerrainMode(map, layers.terrain3d, heightScale);
 
-      const layout = buildLayout(site, heightScale);
-
-      ensureGeoJsonSource(map, 'grid400', filterGrid(gridAssets, 'LineString', ['400']));
+      ensureGeoJsonSource(map, 'grid400', projectGridSources.grid400);
       ensureLayer(map, {
         id: 'grid-400-line',
         type: 'line',
@@ -242,7 +297,7 @@ export function useMapLibre({
         paint: { 'line-color': '#ffd75a', 'line-width': 1.1, 'line-opacity': 0.28 },
       });
 
-      ensureGeoJsonSource(map, 'grid154', filterGrid(gridAssets, 'LineString', ['154']));
+      ensureGeoJsonSource(map, 'grid154', projectGridSources.grid154);
       ensureLayer(map, {
         id: 'grid-154-line',
         type: 'line',
@@ -250,21 +305,23 @@ export function useMapLibre({
         paint: { 'line-color': '#48f49a', 'line-width': 0.8, 'line-opacity': 0.2 },
       });
 
-      ensureGeoJsonSource(map, 'substations', filterGrid(gridAssets, 'Point', ['400', '154']));
+      ensureGeoJsonSource(map, 'substations', projectGridSources.substations);
       ensureLayer(map, {
         id: 'substation-circles',
         type: 'circle',
         source: 'substations',
         paint: {
-          'circle-radius': ['case', ['==', ['get', 'voltage'], '400'], 4, 2.8],
-          'circle-color': ['case', ['==', ['get', 'voltage'], '400'], '#ffd75a', '#48f49a'],
+          'circle-radius': ['case', ['==', ['get', 'voltageGroup'], 'v400'], 4, 2.8],
+          'circle-color': ['case', ['==', ['get', 'voltageGroup'], 'v400'], '#ffd75a', '#48f49a'],
           'circle-opacity': 0.65,
           'circle-stroke-width': 1,
           'circle-stroke-color': '#07110e',
         },
       });
 
-      ensureGeoJsonSource(map, 'projectGrid', layout.grid);
+      if (!projectLayout) return;
+
+      ensureGeoJsonSource(map, 'projectGrid', projectLayout.grid);
       ensureLayer(map, {
         id: 'project-grid-line',
         type: 'line',
@@ -273,12 +330,12 @@ export function useMapLibre({
       });
       setLayersVisibility(map, ['grid-400-line', 'grid-154-line', 'substation-circles', 'project-grid-line'], layers.powerGrid);
 
-      ensureGeoJsonSource(map, 'risk', layout.risk);
+      ensureGeoJsonSource(map, 'risk', projectLayout.risk);
       ensureLayer(map, { id: 'risk-fill', type: 'fill', source: 'risk', paint: { 'fill-color': '#ff5c73', 'fill-opacity': 0.13 } });
       ensureLayer(map, { id: 'risk-line', type: 'line', source: 'risk', paint: { 'line-color': '#ff5c73', 'line-width': 1.5, 'line-dasharray': [2, 2] } });
       setLayersVisibility(map, ['risk-fill', 'risk-line'], layers.risk);
 
-      ensureGeoJsonSource(map, 'water', layout.water);
+      ensureGeoJsonSource(map, 'water', projectLayout.water);
       ensureLayer(map, {
         id: 'water-line',
         type: 'line',
@@ -298,7 +355,7 @@ export function useMapLibre({
 
         const filteredBlocks = {
           type: 'FeatureCollection',
-          features: layout.blocks.features.filter(f => {
+          features: projectLayout.blocks.features.filter(f => {
             const comp = f.properties?.component || f.properties?.key;
             return activeBlocks.includes(comp);
           })
@@ -306,7 +363,7 @@ export function useMapLibre({
 
         const filteredLabels = {
           type: 'FeatureCollection',
-          features: layout.labels.features.filter(f => activeBlocks.includes(f.properties?.key))
+          features: projectLayout.labels.features.filter(f => activeBlocks.includes(f.properties?.key))
         } as any;
 
         const extrusionColor = draftingMode ? [
@@ -347,9 +404,7 @@ export function useMapLibre({
         });
         setLayersVisibility(map, ['blocks-extrusion', 'block-labels'], layers.projectLayout);
 
-        if (!(map as any)._blockBound) {
-              (map as any)._blockBound = true;
-              
+        {
               const showBlockTooltip = (e: any) => {
                 map.getCanvas().style.cursor = 'pointer';
                 const feature = e.features[0];
@@ -381,24 +436,26 @@ export function useMapLibre({
 
               bindLayerEvent(map, 'mouseenter', 'blocks-extrusion', showBlockTooltip);
               bindLayerEvent(map, 'mouseleave', 'blocks-extrusion', hideBlockTooltip);
-            }
+        }
       } else {
         setLayersVisibility(map, ['blocks-extrusion', 'block-labels'], false);
       }
 
       const shouldKeepOsmPowerGrid = showPowerGrid || Boolean(map.getSource('osm-power-grid'));
-      if (shouldKeepOsmPowerGrid) {
-        ensureGeoJsonSource(map, 'osm-power-grid', import.meta.env.BASE_URL.replace(/\/$/, '') + '/power-grid-filtered.geojson?v=4');
+      if (shouldKeepOsmPowerGrid && osmPowerGridData) {
+        ensureGeoJsonSource(map, 'osm-power-grid', osmPowerGridData);
         
         const getVoltageProp = (prop: 'color' | 'width'): any => {
-          const v = ['to-number', ['coalesce', ['get', 'voltage'], 0]];
+          const group = ['coalesce', ['get', 'voltageGroup'], 'unknown'];
           return [
-            'case',
-            ['>=', v, 500], powerGridConfig.voltages.over500[prop],
-            ['>=', v, 300], powerGridConfig.voltages.v400[prop],
-            ['>=', v, 66], powerGridConfig.voltages.v154[prop],
-            ['>=', v, 20], powerGridConfig.voltages.v33[prop],
-            ['all', ['>', v, 0], ['<', v, 20]], powerGridConfig.voltages.under33[prop],
+            'match',
+            group,
+            'over500', powerGridConfig.voltages.over500[prop],
+            'v400', powerGridConfig.voltages.v400[prop],
+            'v380', powerGridConfig.voltages.v380?.[prop] ?? '#f59e0b',
+            'v154', powerGridConfig.voltages.v154[prop],
+            'v33', powerGridConfig.voltages.v33[prop],
+            'under33', powerGridConfig.voltages.under33[prop],
             powerGridConfig.voltages.unknown[prop]
           ];
         };
@@ -468,21 +525,13 @@ export function useMapLibre({
               'text-ignore-placement': true
             },
             paint: {
-              'text-color': [
-                'case',
-                ['==', ['get', 'type'], 'plant'], powerGridConfig.elements.plant.color,
-                powerGridConfig.elements.substation.color
-              ],
+              'text-color': getVoltageProp('color'),
               'text-halo-color': '#ffffff',
               'text-halo-width': 2
             }
           });
           map.setFilter('osm-power-points', ['in', ['get', 'type'], ['literal', pointTypes]]);
-          map.setPaintProperty('osm-power-points', 'text-color', [
-            'case',
-            ['==', ['get', 'type'], 'plant'], powerGridConfig.elements.plant.color,
-            powerGridConfig.elements.substation.color
-          ]);
+          map.setPaintProperty('osm-power-points', 'text-color', getVoltageProp('color'));
           setLayerVisibility(map, 'osm-power-points', showPowerGrid);
         }
 
@@ -494,16 +543,14 @@ export function useMapLibre({
         }
 
         // Add tooltips
-        if (!(map as any)._pgBound) {
-          (map as any)._pgBound = true;
-          
+        {
           const showTooltip = (e: any) => {
             map.getCanvas().style.cursor = 'pointer';
             const feature = e.features[0];
             const props = feature.properties;
             const html = popupTooltip(props.name || 'İsimsiz', [
               ['Tip', props.type || 'Bilinmiyor'],
-              ['Gerilim', props.voltage ? `${props.voltage} kV` : 'Bilinmiyor'],
+              ['Gerilim', formatGridVoltageLabel(props.voltageKv ?? props.voltage)],
             ]);
             
             if (!(map as any)._pgPopup) {
@@ -692,7 +739,7 @@ export function useMapLibre({
 
     };
     run();
-  }, [bindLayerEvent, draftingMode, gridAssets, heightScale, interactiveCandidates, layers, powerGridConfig, selectedId, site, sites, showPowerGrid, worldExampleFocusId]);
+  }, [bindLayerEvent, draftingMode, heightScale, interactiveCandidates, layers, osmPowerGridData, osmPowerGridUrl, powerGridConfig, projectGridSources, projectLayout, selectedId, site, sites, showPowerGrid, worldExampleFocusId]);
 
   useEffect(() => {
     queueDrawLayersRef.current = queueDrawLayers;
@@ -742,7 +789,8 @@ export function useMapLibre({
     });
 
     map.on('error', (e: maplibregl.ErrorEvent) => {
-      if (e && e.error && (e.error as any).status === 403 || (e.error as any).status === 401 || (e.error?.message || '').includes('403')) {
+      const error = e?.error as { status?: number; message?: string } | undefined;
+      if (error?.status === 403 || error?.status === 401 || error?.message?.includes('403')) {
         const currentStyle = useSettingsStore.getState().mapStyle;
         if (currentStyle.includes('maptiler')) {
           console.warn('MapTiler kota aşımı / yetki hatası tespit edildi. Açık kaynaklı sağlayıcıya geçiliyor...');
@@ -793,6 +841,9 @@ export function useMapLibre({
     if (!map || !site) return;
     if (mapStyleRef.current === mapStyle) return;
     mapStyleRef.current = mapStyle;
+    layerEventCleanupRef.current.forEach((cleanup) => cleanup());
+    layerEventCleanupRef.current = [];
+    boundLayerEventsRef.current.clear();
     map.setStyle(getMapStyleSpecification(mapStyle));
     queueDrawLayers();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -816,5 +867,5 @@ export function useMapLibre({
     });
   }, [selectedId, site, worldExampleFocusId]);
 
-  return { mapRef };
+  return { mapRef, osmPowerGridStatus, osmPowerGridError, retryOsmPowerGrid };
 }

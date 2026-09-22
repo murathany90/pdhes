@@ -6,11 +6,16 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { makeTestSite } from '../../test-utils/makeTestSite';
 import { useSettingsStore } from '../../stores/useSettingsStore';
 import { useSiteStore } from '../../stores/useSiteStore';
-import ThreeDModel from './ThreeDModel';
+import ThreeDModel, { calculateCameraDistance } from './ThreeDModel';
 
 vi.mock('@react-three/fiber', () => ({
   Canvas: ({ children }: { children?: React.ReactNode }) => <div data-testid="mock-canvas">{children}</div>,
   useFrame: vi.fn(),
+  useThree: () => ({
+    camera: { fov: 45, position: { set: vi.fn() }, lookAt: vi.fn(), updateMatrixWorld: vi.fn(), updateProjectionMatrix: vi.fn() },
+    invalidate: vi.fn(),
+    size: { width: 1200, height: 700 },
+  }),
 }));
 
 vi.mock('@react-three/drei', () => ({
@@ -30,6 +35,15 @@ describe('ThreeDModel footprint source', () => {
   afterEach(() => {
     cleanup();
     vi.restoreAllMocks();
+  });
+
+  it('frames large footprints from FOV and viewport aspect without a fixed 700-unit cap', () => {
+    const frame = { horizontalSpan: 900, verticalSpan: 180, depthSpan: 700 };
+    const wideViewportDistance = calculateCameraDistance(frame, 45, 16 / 9);
+    const narrowViewportDistance = calculateCameraDistance(frame, 45, 0.75);
+
+    expect(wideViewportDistance).toBeGreaterThan(700);
+    expect(narrowViewportDistance).toBeGreaterThan(wideViewportDistance);
   });
 
   it('renders footprint data from the explicit site prop instead of stale store data', () => {

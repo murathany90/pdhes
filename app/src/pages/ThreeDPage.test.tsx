@@ -103,6 +103,51 @@ describe('ThreeDPage controls', () => {
     await waitFor(() => {
       expect(screen.getByTestId('three-d-model')).toBeTruthy();
     });
+    expect(screen.getByRole('alert').textContent).toMatch(/fallback|empty/i);
+  });
+
+  it('ignores a previous site footprint result after a fast site change', async () => {
+    let resolveFirst!: (value: unknown) => void;
+    let resolveSecond!: (value: unknown) => void;
+    const firstResponse = new Promise((resolve) => { resolveFirst = resolve; });
+    const secondResponse = new Promise((resolve) => { resolveSecond = resolve; });
+    const fetchMock = vi.fn((url: string) => (
+      url.includes('site-a') ? firstResponse : secondResponse
+    ));
+    vi.stubGlobal('fetch', fetchMock);
+
+    const layout3D = {
+      scale: 'macro' as const,
+      preferredBearing: 0,
+      terrainExaggeration: 1,
+      reservoirSurfaceMode: 'polygon' as const,
+      useFootprintPolygons: true,
+      hideLegacySquareReservoir: true,
+    };
+    const siteA = makeTestSite({ id: 'site-a', layout3D });
+    const siteB = makeTestSite({ id: 'site-b', layout3D });
+    const { rerender } = render(<ThreeDPage site={siteA} />);
+
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1));
+    rerender(<ThreeDPage site={siteB} />);
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
+
+    resolveFirst({ ok: false, status: 404, json: async () => [] });
+    resolveSecond({
+      ok: true,
+      json: async () => [{
+        id: 'site-b-powerhouse',
+        component: 'powerhouse',
+        kind: 'polygon',
+        material: 'concrete',
+        closed: true,
+        coords: [[32, 40], [32.01, 40], [32.01, 40.01], [32, 40.01], [32, 40]],
+        elevationM: 100,
+      }],
+    });
+
+    await waitFor(() => expect(screen.getByTestId('three-d-model')).toBeTruthy());
+    expect(screen.queryByText(/Footprint verisi yüklenemedi/i)).toBeNull();
   });
 
   it('uses independent group toggles and allows zero active units', () => {

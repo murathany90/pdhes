@@ -40,7 +40,7 @@ const LAYER_LABELS: Array<{ key: keyof MapLayerVisibility; label: string; Icon: 
 
 export default function MapPage() {
   const mapContainer = useRef<HTMLDivElement>(null);
-  const { sites, selectedId, selectSite, gridAssets, fetchGridAssets, worldExampleFocusId, clearWorldExampleFocus } = useSiteStore();
+  const { sites, selectedId, selectSite, gridAssets, gridAssetsStatus, fetchGridAssets, worldExampleFocusId, clearWorldExampleFocus } = useSiteStore();
   const { mapStyle, setMapStyle, heightScale, setHeightScale, showPowerGrid, setShowPowerGrid } = useSettingsStore();
   const [rightCollapsed, setRightCollapsed] = useState(false);
   const [layers, setLayers] = useState<MapLayerVisibility>(DEFAULT_LAYERS);
@@ -112,7 +112,7 @@ export default function MapPage() {
     return sites.map((item) => (item.id === siteWithFootprints.id ? siteWithFootprints : item));
   }, [siteWithFootprints, sites]);
 
-  const { mapRef } = useMapLibre({
+  const { mapRef, osmPowerGridStatus, osmPowerGridError, retryOsmPowerGrid } = useMapLibre({
     containerRef: mapContainer,
     site: siteWithFootprints,
     sites: sitesWithSelectedFootprints,
@@ -276,6 +276,34 @@ export default function MapPage() {
             </button>
           </div>
 
+          {layers.projectLayout && layers.powerGrid && gridAssetsStatus === 'empty' && (
+            <div className="map-data-notice" role="status">
+              Proje şebeke geometrisi mevcut değil. Gerçek iletim verisi için Şebeke düğmesini kullanın.
+            </div>
+          )}
+          {layers.projectLayout && layers.powerGrid && gridAssetsStatus === 'error' && (
+            <div className="map-data-notice map-data-notice-error" role="alert">
+              Proje şebeke verisi yüklenemedi. Gerçek iletim katmanı korunmuştur.
+            </div>
+          )}
+          {showPowerGrid && osmPowerGridStatus === 'loading' && (
+            <div className="map-data-notice" role="status">
+              OSM şebeke verisi yükleniyor...
+            </div>
+          )}
+          {showPowerGrid && osmPowerGridStatus === 'empty' && (
+            <div className="map-data-notice" role="status">
+              OSM şebeke verisi boş; gösterilecek doğrulanmış hat bulunamadı.
+            </div>
+          )}
+          {showPowerGrid && osmPowerGridStatus === 'error' && (
+            <div className="map-data-notice map-data-notice-error" role="alert">
+              <span>{osmPowerGridError || 'OSM şebeke verisi yüklenemedi.'}</span>
+              <button type="button" className="btn ghost" onClick={retryOsmPowerGrid} style={{ marginLeft: 10 }}>
+                Yeniden Dene
+              </button>
+            </div>
+          )}
 
           {rightCollapsed && (
             <button

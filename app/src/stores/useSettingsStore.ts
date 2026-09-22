@@ -14,7 +14,7 @@ export const DEFAULT_SCORE_WEIGHTS: ScoreWeights = {
   market: 15,
 };
 
-export type VoltageGroup = 'under33' | 'v33' | 'v154' | 'v400' | 'over500' | 'unknown' | 'external';
+export type VoltageGroup = 'under33' | 'v33' | 'v154' | 'v380' | 'v400' | 'over500' | 'unknown' | 'external';
 export type ElementGroup = 'lines' | 'cables' | 'substation' | 'plant' | 'substationInner';
 
 export interface PowerGridElementStyle {
@@ -34,6 +34,7 @@ export const DEFAULT_POWER_GRID_CONFIG: PowerGridConfig = {
     under33: { color: '#4ade80', width: 2 },
     v33: { color: '#16a34a', width: 2.5 },
     v154: { color: '#1e293b', width: 3 },
+    v380: { color: '#f59e0b', width: 3.5 },
     v400: { color: '#ef4444', width: 4 },
     over500: { color: '#b91c1c', width: 5 },
     unknown: { color: '#f97316', width: 1.5 },
@@ -63,6 +64,48 @@ interface SettingsStore {
   setShowPowerGrid: (v: boolean) => void;
   updatePowerGridVoltage: (group: VoltageGroup, updates: Partial<{ color: string; width: number }>) => void;
   updatePowerGridElement: (group: ElementGroup, updates: Partial<{ show: boolean; line: number; size: number }>) => void;
+}
+
+type PersistedPowerGridConfig = {
+  voltages?: Partial<Record<VoltageGroup, Partial<{ color: string; width: number }>>>;
+  elements?: Partial<Record<ElementGroup, Partial<PowerGridElementStyle>>>;
+};
+
+type PersistedSettings = {
+  theme?: SettingsStore['theme'];
+  mapStyle?: MapStyleKind;
+  heightScale?: number;
+  weights?: ScoreWeights;
+  showPowerGrid?: boolean;
+  powerGridConfig?: PersistedPowerGridConfig;
+};
+
+function mergePowerGridConfig(saved?: PersistedPowerGridConfig): PowerGridConfig {
+  const voltages = { ...DEFAULT_POWER_GRID_CONFIG.voltages } as PowerGridConfig['voltages'];
+  (Object.keys(DEFAULT_POWER_GRID_CONFIG.voltages) as VoltageGroup[]).forEach((group) => {
+    voltages[group] = {
+      ...DEFAULT_POWER_GRID_CONFIG.voltages[group],
+      ...(saved?.voltages?.[group] ?? {}),
+    };
+  });
+
+  const elements = { ...DEFAULT_POWER_GRID_CONFIG.elements } as PowerGridConfig['elements'];
+  (Object.keys(DEFAULT_POWER_GRID_CONFIG.elements) as ElementGroup[]).forEach((group) => {
+    elements[group] = {
+      ...DEFAULT_POWER_GRID_CONFIG.elements[group],
+      ...(saved?.elements?.[group] ?? {}),
+    };
+  });
+
+  return { voltages, elements };
+}
+
+function mergePersistedSettings(value: unknown): PersistedSettings {
+  const saved = value && typeof value === 'object' ? value as PersistedSettings : {};
+  return {
+    ...saved,
+    powerGridConfig: mergePowerGridConfig(saved.powerGridConfig),
+  };
 }
 
 function legacyTheme(): 'dark' | 'light' {
@@ -115,8 +158,17 @@ export const useSettingsStore = create<SettingsStore>()(
     }),
     {
       name: SETTINGS_STORAGE_KEY,
-      version: 3,
+      version: 4,
       storage: createJSONStorage(() => localStorage),
+      migrate: (persistedState) => mergePersistedSettings(persistedState),
+      merge: (persistedState, currentState) => {
+        const persisted = mergePersistedSettings(persistedState);
+        return {
+          ...currentState,
+          ...persisted,
+          powerGridConfig: mergePowerGridConfig(persisted.powerGridConfig),
+        };
+      },
       partialize: ({ theme, mapStyle, heightScale, weights, showPowerGrid, powerGridConfig }) => ({
         theme,
         mapStyle,

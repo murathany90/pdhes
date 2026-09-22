@@ -540,6 +540,25 @@ html[data-theme="light"] .map-right { background: rgba(255,255,255,.95); color: 
   border-radius: 24px; overflow: hidden; background: #030504; box-shadow: var(--shadow);
   min-height: 0;
 }
+.map-data-notice {
+  position: absolute;
+  left: 16px;
+  bottom: 16px;
+  z-index: 4;
+  max-width: min(420px, calc(100% - 32px));
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 215, 90, .45);
+  border-radius: 10px;
+  background: rgba(7, 17, 14, .9);
+  color: #fff1b8;
+  font-size: 12px;
+  line-height: 1.35;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, .25);
+}
+.map-data-notice-error {
+  border-color: rgba(255, 92, 115, .55);
+  color: #ffd6dc;
+}
 /* ── ThreeD Layout ── */
 .threed-layout { display: grid; grid-template-columns: minmax(0, 1fr) 360px; height: 100%; }
 .threed-page { height: 100%; overflow: hidden; isolation: isolate; }

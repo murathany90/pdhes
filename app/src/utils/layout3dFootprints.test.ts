@@ -1,11 +1,13 @@
 import { describe, it, expect } from 'vitest';
 import {
+  buildLayout3DFootprintPlan,
   footprintLayerKey,
   groupFootprintsByLayer,
   isFootprintLayerVisible,
   isLayerVisible,
   shouldClearActiveFootprintComponent,
 } from './layout3dFootprints';
+import { makeTestSite } from '../test-utils/makeTestSite';
 
 describe('footprintLayerKey', () => {
   it('maps known components to their respective standard layers', () => {
@@ -54,5 +56,34 @@ describe('footprintLayerKey', () => {
       'switchyardNew',
       'switchyardExisting',
     ]);
+  });
+});
+
+describe('footprint validation', () => {
+  it('ignores invalid coordinates without enabling a broken 3D plan', () => {
+    const site = makeTestSite({
+      layout3D: {
+        scale: 'macro',
+        preferredBearing: 0,
+        terrainExaggeration: 1,
+        reservoirSurfaceMode: 'polygon',
+        useFootprintPolygons: true,
+        hideLegacySquareReservoir: true,
+        componentFootprints: [{
+          id: 'invalid',
+          component: 'powerhouse',
+          kind: 'polygon',
+          material: 'concrete',
+          closed: true,
+          coords: [[32, Number.NaN], [32.01, 40], [32.01, 40.01]],
+        }],
+      },
+    });
+
+    expect(buildLayout3DFootprintPlan(site)).toEqual({
+      enabled: false,
+      hideLegacySquareReservoir: false,
+      items: [],
+    });
   });
 });
