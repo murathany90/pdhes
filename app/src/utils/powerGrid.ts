@@ -2,6 +2,8 @@ import type { Feature, FeatureCollection, Geometry } from 'geojson';
 
 const VOLTAGE_UNIT_PATTERN = /(-?\d+(?:[.,]\d+)?)\s*(?:kv|kvolt)?/gi;
 
+export type GridVoltageGroup = 'over500' | 'v400' | 'v380' | 'v154' | 'v33' | 'under33' | 'unknown';
+
 function toKv(value: number): number | null {
   if (!Number.isFinite(value) || value <= 0) return null;
   return value >= 1000 ? value / 1000 : value;
@@ -24,6 +26,22 @@ export function normalizeGridVoltageKv(value: unknown): number[] {
   return result;
 }
 
+/** Maps normalized nominal voltages to a visual style group without changing the source value. */
+export function getGridVoltageGroup(value: unknown): GridVoltageGroup {
+  const voltages = Array.isArray(value) && value.every((item) => typeof item === 'number')
+    ? value.filter((item): item is number => Number.isFinite(item) && item > 0)
+    : normalizeGridVoltageKv(value);
+  if (voltages.length === 0) return 'unknown';
+
+  const maximum = Math.max(...voltages);
+  if (maximum >= 500) return 'over500';
+  if (maximum >= 390) return 'v400';
+  if (maximum >= 300) return 'v380';
+  if (maximum >= 66) return 'v154';
+  if (maximum >= 20) return 'v33';
+  return 'under33';
+}
+
 /** Adds normalized style-only fields while retaining the original voltage property. */
 export function normalizeGridVoltageFeatures(gridAssets: FeatureCollection): FeatureCollection {
   return {
@@ -36,6 +54,7 @@ export function normalizeGridVoltageFeatures(gridAssets: FeatureCollection): Fea
           ...(feature.properties ?? {}),
           voltageKv,
           voltageKvMax: voltageKv.length > 0 ? Math.max(...voltageKv) : null,
+          voltageGroup: getGridVoltageGroup(voltageKv),
         },
       };
     }),
@@ -62,5 +81,5 @@ export function filterGridFeatures(
     && normalizeGridVoltageKv(feature.properties?.voltage).some((voltage) => targetVoltages.includes(voltage))
   )) as Feature<Geometry>[];
 
-  return { type: 'FeatureCollection', features };
+  return normalizeGridVoltageFeatures({ type: 'FeatureCollection', features });
 }

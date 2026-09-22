@@ -283,6 +283,10 @@ describe('useMapLibre performance behavior', () => {
     const map = latestMap();
 
     act(() => map.fire('load'));
+    await act(async () => {
+      await Promise.resolve();
+      await Promise.resolve();
+    });
     expect(map.sourceAddCounts.get('osm-power-grid')).toBe(1);
 
     await act(async () => {
@@ -295,6 +299,25 @@ describe('useMapLibre performance behavior', () => {
     expect(map.sourceAddCounts.get('osm-power-grid')).toBe(1);
     expect(map.setLayoutProperty).toHaveBeenCalledWith('osm-power-lines', 'visibility', 'none');
     expect(map.setLayoutProperty).toHaveBeenCalledWith('osm-power-lines', 'visibility', 'visible');
+  });
+
+  it('does not call setData again when a redraw reuses the same grid data', () => {
+    vi.useFakeTimers();
+    const site = makeTestSite();
+    render(<Harness site={site} layers={DEFAULT_LAYERS} />);
+    const map = latestMap();
+
+    act(() => map.fire('load'));
+    const gridSource = map.sources.get('grid400');
+    expect(gridSource).toBeTruthy();
+    const initialSetDataCalls = gridSource!.setData.mock.calls.length;
+
+    act(() => {
+      map.fire('moveend');
+      vi.advanceTimersByTime(450);
+    });
+
+    expect(gridSource!.setData).toHaveBeenCalledTimes(initialSetDataCalls);
   });
 
   it('keeps 3D terrain enabled after moveend redraws from the initial 2D render', () => {

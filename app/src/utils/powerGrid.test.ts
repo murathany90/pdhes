@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { filterGridFeatures, normalizeGridVoltageFeatures, normalizeGridVoltageKv } from './powerGrid';
+import { filterGridFeatures, getGridVoltageGroup, normalizeGridVoltageFeatures, normalizeGridVoltageKv } from './powerGrid';
 
 describe('power grid voltage normalization', () => {
   it.each([
@@ -52,7 +52,14 @@ describe('power grid voltage normalization', () => {
     };
 
     const normalized = normalizeGridVoltageFeatures(data);
-    expect(normalized.features[0].properties).toMatchObject({ voltage: '400000;154', voltageKv: [400, 154], voltageKvMax: 400 });
-    expect(normalized.features[1].properties).toMatchObject({ voltage: 'bilinmiyor', voltageKv: [], voltageKvMax: null });
+    expect(normalized.features[0].properties).toMatchObject({ voltage: '400000;154', voltageKv: [400, 154], voltageKvMax: 400, voltageGroup: 'v400' });
+    expect(normalized.features[1].properties).toMatchObject({ voltage: 'bilinmiyor', voltageKv: [], voltageKvMax: null, voltageGroup: 'unknown' });
+  });
+
+  it('keeps nominal voltage values separate from visual voltage groups', () => {
+    expect(getGridVoltageGroup('380')).toBe('v380');
+    expect(getGridVoltageGroup('400')).toBe('v400');
+    expect(getGridVoltageGroup('400;154')).toBe('v400');
+    expect(getGridVoltageGroup('bilinmiyor')).toBe('unknown');
   });
 });

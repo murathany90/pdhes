@@ -1908,23 +1908,56 @@ function SimulationStatusLayer({ plan, state, mode, activeUnits, maxUnits, power
   );
 }
 
-function CameraTarget({ target, distance }: { target: [number, number, number]; distance: number }) {
+interface CameraFrame {
+  target: [number, number, number];
+  horizontalSpan: number;
+  verticalSpan: number;
+  depthSpan: number;
+  key: string;
+}
+
+export function calculateCameraDistance(
+  frame: Pick<CameraFrame, 'horizontalSpan' | 'verticalSpan' | 'depthSpan'>,
+  fovDegrees: number,
+  aspect: number,
+): number {
+  const safeFov = clamp(Number.isFinite(fovDegrees) ? fovDegrees : 45, 20, 100);
+  const safeAspect = Math.max(0.25, Number.isFinite(aspect) && aspect > 0 ? aspect : 1);
+  const verticalFov = THREE.MathUtils.degToRad(safeFov);
+  const horizontalFov = 2 * Math.atan(Math.tan(verticalFov / 2) * safeAspect);
+  const padding = 1.2;
+  const verticalDistance = (Math.max(frame.verticalSpan, 1) / 2 * padding) / Math.tan(verticalFov / 2);
+  const horizontalDistance = (Math.max(frame.horizontalSpan, 1) / 2 * padding) / Math.tan(horizontalFov / 2);
+  const depthDistance = Math.max(frame.depthSpan, 1) * 0.75 * padding;
+  return Math.max(verticalDistance, horizontalDistance, depthDistance, 120);
+}
+
+function CameraTarget({ frame }: { frame: CameraFrame }) {
   const { camera, invalidate, size } = useThree();
+  const appliedFrameKeyRef = useRef<string | null>(null);
 
   useLayoutEffect(() => {
     const aspect = size.height > 0 ? size.width / size.height : 1;
-    const narrowViewportScale = aspect < 1 ? Math.min(1.6, 1 / Math.max(aspect, 0.625)) : 1;
-    const effectiveDistance = distance * narrowViewportScale;
-    camera.position.set(
-      target[0] + effectiveDistance * 0.72,
-      target[1] + effectiveDistance * 0.52,
-      target[2] + effectiveDistance * 0.72,
-    );
-    camera.lookAt(...target);
+    const isNewFrame = appliedFrameKeyRef.current !== frame.key;
+    if (isNewFrame) {
+      const distance = calculateCameraDistance(
+        frame,
+        (camera as THREE.PerspectiveCamera).fov,
+        aspect,
+      );
+      const direction = new THREE.Vector3(0.72, 0.52, 0.72).normalize();
+      camera.position.set(
+        frame.target[0] + direction.x * distance,
+        frame.target[1] + direction.y * distance,
+        frame.target[2] + direction.z * distance,
+      );
+      camera.lookAt(...frame.target);
+      appliedFrameKeyRef.current = frame.key;
+    }
     camera.updateMatrixWorld(true);
     camera.updateProjectionMatrix();
     invalidate();
-  }, [camera, distance, invalidate, size.height, size.width, target]);
+  }, [camera, frame, invalidate, size.height, size.width]);
 
   return null;
 }
@@ -2042,7 +2075,7 @@ function Scene({
     [mode, topology, resolvedActiveUnitIds],
   );
 
-  const cameraFrame = useMemo<{ target: [number, number, number]; distance: number }>(() => {
+  const cameraFrame = useMemo<CameraFrame>(() => {
     if (footprintPlan.enabled && footprintPlan.items.length > 0) {
       const points = footprintPlan.items.flatMap((item) => item.points).filter((point) => (
         Number.isFinite(point.x) && Number.isFinite(point.y) && Number.isFinite(point.z)
@@ -2051,23 +2084,27 @@ function Scene({
         const xs = points.map((point) => point.x);
         const ys = points.map((point) => point.y);
         const zs = points.map((point) => point.z);
-        const horizontalSpan = Math.max(Math.max(...xs) - Math.min(...xs), Math.max(...zs) - Math.min(...zs));
-        const verticalSpan = Math.max(...ys) - Math.min(...ys);
-        const span = Math.max(horizontalSpan, verticalSpan * 1.5, 120);
+        const horizontalSpan = Math.max(Math.max(...xs) - Math.min(...xs), 40);
+        const depthSpan = Math.max(Math.max(...zs) - Math.min(...zs), 40);
+        const verticalSpan = Math.max(Math.max(...ys) - Math.min(...ys), 24);
         return {
           target: [
             (Math.min(...xs) + Math.max(...xs)) / 2,
             (Math.min(...ys) + Math.max(...ys)) / 2,
             (Math.min(...zs) + Math.max(...zs)) / 2,
           ],
-          distance: Math.min(Math.max(span * 1.55, 220), 700),
+          horizontalSpan,
+          verticalSpan,
+          depthSpan,
+          key: `${site.id}:${horizontalSpan}:${verticalSpan}:${depthSpan}`,
         };
       }
     }
-    return { target: [0, 20, 0], distance: 260 };
-  }, [footprintPlan]);
-  const fogNear = Math.max(80, cameraFrame.distance * 0.45);
-  const fogFar = Math.max(fogNear + 160, cameraFrame.distance * 3.2);
+    return { target: [0, 20, 0], horizontalSpan: 120, verticalSpan: 40, depthSpan: 120, key: `${site.id}:fallback` };
+  }, [footprintPlan, site.id]);
+  const fogSpan = Math.max(cameraFrame.horizontalSpan, cameraFrame.verticalSpan, cameraFrame.depthSpan);
+  const fogNear = Math.max(80, fogSpan * 0.55);
+  const fogFar = Math.max(fogNear + 320, fogSpan * 6);
   
   // Shared Simulation Water Levels
   const waterLevelRef = useRef(0.85);
@@ -2133,7 +2170,7 @@ function Scene({
 
   return (
     <>
-      <CameraTarget target={cameraFrame.target} distance={cameraFrame.distance} />
+      <CameraTarget frame={cameraFrame} />
       {theme === 'dark' ? (
         <Sky sunPosition={[0, -10, -50]} turbidity={10} rayleigh={0.1} mieCoefficient={0.005} />
       ) : (
@@ -2404,7 +2441,7 @@ function Scene({
       {/* Transmission pylons and lines */}
       {layers.transmission && !footprintPlan.enabled && <TransmissionLine isPresenzano={isPresenzano} isPlaying={isPlaying} mode={mode} activeUnits={activeUnits} />}
 
-      <OrbitControls target={cameraFrame.target} makeDefault enableDamping dampingFactor={0.05} minDistance={20} maxDistance={2500} />
+      <OrbitControls target={cameraFrame.target} makeDefault enableDamping dampingFactor={0.05} minDistance={20} maxDistance={Math.max(2500, fogSpan * 12)} />
     </>
   );
 }
