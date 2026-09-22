@@ -203,7 +203,7 @@ function Harness({
   mapStyle?: 'satellite' | 'light';
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const { osmPowerGridStatus, osmPowerGridError } = useMapLibre({
+  const { osmPowerGridStatus, osmPowerGridError, retryOsmPowerGrid } = useMapLibre({
     containerRef,
     site,
     sites,
@@ -217,6 +217,7 @@ function Harness({
   return (
     <div ref={containerRef}>
       <span data-testid="osm-grid-status">{osmPowerGridStatus}:{osmPowerGridError ?? ''}</span>
+      <button type="button" data-testid="osm-grid-retry" onClick={retryOsmPowerGrid}>Yeniden Dene</button>
     </div>
   );
 }
@@ -306,7 +307,8 @@ describe('useMapLibre performance behavior', () => {
   });
 
   it('reports OSM load failures without changing project grid state', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('network unavailable')));
+    const fetchMock = vi.fn().mockRejectedValue(new Error('network unavailable'));
+    vi.stubGlobal('fetch', fetchMock);
     const site = makeTestSite();
     useSettingsStore.setState({ showPowerGrid: true });
     render(<Harness site={site} layers={DEFAULT_LAYERS} />);
@@ -322,6 +324,20 @@ describe('useMapLibre performance behavior', () => {
     expect(screen.getByTestId('osm-grid-status').textContent).toContain('network unavailable');
     expect(map.sourceAddCounts.get('projectGrid')).toBe(1);
     expect(map.sourceAddCounts.get('osm-power-grid')).toBeUndefined();
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+
+    fetchMock.mockResolvedValue({
+      ok: true,
+      json: async () => ({ type: 'FeatureCollection', features: [] }),
+    });
+    await act(async () => {
+      screen.getByTestId('osm-grid-retry').click();
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(screen.getByTestId('osm-grid-status').textContent).toContain('empty:');
   });
 
   it('does not call setData again when a redraw reuses the same grid data', () => {

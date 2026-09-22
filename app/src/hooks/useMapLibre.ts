@@ -194,6 +194,7 @@ export function useMapLibre({
   const [osmPowerGridData, setOsmPowerGridData] = useState<FeatureCollection | null>(null);
   const [osmPowerGridStatus, setOsmPowerGridStatus] = useState<OSMGridLoadStatus>('idle');
   const [osmPowerGridError, setOsmPowerGridError] = useState<string | null>(null);
+  const [osmPowerGridRetryKey, setOsmPowerGridRetryKey] = useState(0);
   const layerEventCleanupRef = useRef<(() => void)[]>([]);
   const boundLayerEventsRef = useRef<Set<string>>(new Set());
   const canCreateMap = Boolean(site);
@@ -241,7 +242,14 @@ export function useMapLibre({
         }
       });
     return () => controller.abort();
-  }, [osmPowerGridData, osmPowerGridUrl, showPowerGrid]);
+  }, [osmPowerGridData, osmPowerGridRetryKey, osmPowerGridUrl, showPowerGrid]);
+
+  const retryOsmPowerGrid = useCallback(() => {
+    if (osmPowerGridData || osmPowerGridStatus === 'loading') return;
+    setOsmPowerGridError(null);
+    setOsmPowerGridStatus('idle');
+    setOsmPowerGridRetryKey((value) => value + 1);
+  }, [osmPowerGridData, osmPowerGridStatus]);
 
   useEffect(() => {
     onSelectSiteRef.current = onSelectSite;
@@ -859,5 +867,5 @@ export function useMapLibre({
     });
   }, [selectedId, site, worldExampleFocusId]);
 
-  return { mapRef, osmPowerGridStatus, osmPowerGridError };
+  return { mapRef, osmPowerGridStatus, osmPowerGridError, retryOsmPowerGrid };
 }

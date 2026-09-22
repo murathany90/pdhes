@@ -112,7 +112,7 @@ export default function MapPage() {
     return sites.map((item) => (item.id === siteWithFootprints.id ? siteWithFootprints : item));
   }, [siteWithFootprints, sites]);
 
-  const { mapRef, osmPowerGridStatus, osmPowerGridError } = useMapLibre({
+  const { mapRef, osmPowerGridStatus, osmPowerGridError, retryOsmPowerGrid } = useMapLibre({
     containerRef: mapContainer,
     site: siteWithFootprints,
     sites: sitesWithSelectedFootprints,
@@ -298,7 +298,10 @@ export default function MapPage() {
           )}
           {showPowerGrid && osmPowerGridStatus === 'error' && (
             <div className="map-data-notice map-data-notice-error" role="alert">
-              {osmPowerGridError || 'OSM şebeke verisi yüklenemedi.'}
+              <span>{osmPowerGridError || 'OSM şebeke verisi yüklenemedi.'}</span>
+              <button type="button" className="btn ghost" onClick={retryOsmPowerGrid} style={{ marginLeft: 10 }}>
+                Yeniden Dene
+              </button>
             </div>
           )}
 
