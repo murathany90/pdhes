@@ -42,6 +42,17 @@ export function getGridVoltageGroup(value: unknown): GridVoltageGroup {
   return 'under33';
 }
 
+/** Formats normalized kV values for UI text while leaving the source voltage untouched. */
+export function formatGridVoltageLabel(value: unknown): string {
+  const voltages = Array.isArray(value) && value.every((item) => typeof item === 'number')
+    ? value.filter((item): item is number => Number.isFinite(item) && item > 0)
+    : normalizeGridVoltageKv(value);
+  if (voltages.length === 0) return 'Bilinmiyor';
+  return voltages
+    .map((voltage) => `${Number.isInteger(voltage) ? voltage : Number(voltage.toFixed(2))} kV`)
+    .join(' / ');
+}
+
 /** Adds normalized style-only fields while retaining the original voltage property. */
 export function normalizeGridVoltageFeatures(gridAssets: FeatureCollection): FeatureCollection {
   return {

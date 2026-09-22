@@ -358,6 +358,21 @@ describe('useMapLibre performance behavior', () => {
     expect(map.setTerrain).toHaveBeenLastCalledWith({ source: 'terrainSource', exaggeration: 1.1 * 1.3 });
   });
 
+  it('rebinds layer tooltips exactly once after a style change', () => {
+    const site = makeTestSite();
+    const { rerender } = render(<Harness site={site} layers={DEFAULT_LAYERS} mapStyle="satellite" />);
+    const map = latestMap();
+
+    act(() => map.fire('load'));
+    expect(map.layerHandlers.get('mouseenter:blocks-extrusion')?.size).toBe(1);
+
+    rerender(<Harness site={site} layers={DEFAULT_LAYERS} mapStyle="light" />);
+    act(() => map.fire('styledata'));
+
+    expect(map.layerHandlers.get('mouseenter:blocks-extrusion')?.size).toBe(1);
+    expect(map.layerHandlers.get('mouseleave:blocks-extrusion')?.size).toBe(1);
+  });
+
   it('uses responsive popup card markup for candidate and world example popups', () => {
     const site = makeTestSite({ id: 'candidate-one', name: 'Candidate One PDHES' });
     render(<Harness site={site} layers={DEFAULT_LAYERS} />);

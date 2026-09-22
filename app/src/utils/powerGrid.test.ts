@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { filterGridFeatures, getGridVoltageGroup, normalizeGridVoltageFeatures, normalizeGridVoltageKv } from './powerGrid';
+import { filterGridFeatures, formatGridVoltageLabel, getGridVoltageGroup, normalizeGridVoltageFeatures, normalizeGridVoltageKv } from './powerGrid';
 
 describe('power grid voltage normalization', () => {
   it.each([
@@ -61,5 +61,12 @@ describe('power grid voltage normalization', () => {
     expect(getGridVoltageGroup('400')).toBe('v400');
     expect(getGridVoltageGroup('400;154')).toBe('v400');
     expect(getGridVoltageGroup('bilinmiyor')).toBe('unknown');
+  });
+
+  it('formats voltage tooltip values once in kV and preserves multi-voltage values', () => {
+    expect(formatGridVoltageLabel('400000')).toBe('400 kV');
+    expect(formatGridVoltageLabel('400 kV')).toBe('400 kV');
+    expect(formatGridVoltageLabel('400;154')).toBe('400 kV / 154 kV');
+    expect(formatGridVoltageLabel('bilinmiyor')).toBe('Bilinmiyor');
   });
 });

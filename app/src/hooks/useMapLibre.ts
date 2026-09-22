@@ -18,7 +18,7 @@ import {
 import { num } from '../utils/format';
 import { useSettingsStore } from '../stores/useSettingsStore';
 import { useMapToolsStore } from '../stores/useMapToolsStore';
-import { filterGridFeatures, normalizeGridVoltageFeatures } from '../utils/powerGrid';
+import { filterGridFeatures, formatGridVoltageLabel, normalizeGridVoltageFeatures } from '../utils/powerGrid';
 
 function popupWaterwayText(site: Site): string {
   if (site.tunnelLengthKm !== null && site.tunnelLengthKm !== undefined) return `${num(site.tunnelLengthKm, 1)} km tünel`;
@@ -372,9 +372,7 @@ export function useMapLibre({
         });
         setLayersVisibility(map, ['blocks-extrusion', 'block-labels'], layers.projectLayout);
 
-        if (!(map as any)._blockBound) {
-              (map as any)._blockBound = true;
-              
+        {
               const showBlockTooltip = (e: any) => {
                 map.getCanvas().style.cursor = 'pointer';
                 const feature = e.features[0];
@@ -406,7 +404,7 @@ export function useMapLibre({
 
               bindLayerEvent(map, 'mouseenter', 'blocks-extrusion', showBlockTooltip);
               bindLayerEvent(map, 'mouseleave', 'blocks-extrusion', hideBlockTooltip);
-            }
+        }
       } else {
         setLayersVisibility(map, ['blocks-extrusion', 'block-labels'], false);
       }
@@ -513,16 +511,14 @@ export function useMapLibre({
         }
 
         // Add tooltips
-        if (!(map as any)._pgBound) {
-          (map as any)._pgBound = true;
-          
+        {
           const showTooltip = (e: any) => {
             map.getCanvas().style.cursor = 'pointer';
             const feature = e.features[0];
             const props = feature.properties;
             const html = popupTooltip(props.name || 'İsimsiz', [
               ['Tip', props.type || 'Bilinmiyor'],
-              ['Gerilim', props.voltage ? `${props.voltage} kV` : 'Bilinmiyor'],
+              ['Gerilim', formatGridVoltageLabel(props.voltageKv ?? props.voltage)],
             ]);
             
             if (!(map as any)._pgPopup) {

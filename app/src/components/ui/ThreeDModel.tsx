@@ -2087,16 +2087,17 @@ function Scene({
         const horizontalSpan = Math.max(Math.max(...xs) - Math.min(...xs), 40);
         const depthSpan = Math.max(Math.max(...zs) - Math.min(...zs), 40);
         const verticalSpan = Math.max(Math.max(...ys) - Math.min(...ys), 24);
-        return {
-          target: [
+        const target: [number, number, number] = [
             (Math.min(...xs) + Math.max(...xs)) / 2,
             (Math.min(...ys) + Math.max(...ys)) / 2,
             (Math.min(...zs) + Math.max(...zs)) / 2,
-          ],
+        ];
+        return {
+          target,
           horizontalSpan,
           verticalSpan,
           depthSpan,
-          key: `${site.id}:${horizontalSpan}:${verticalSpan}:${depthSpan}`,
+          key: `${site.id}:${target.join(',')}:${horizontalSpan}:${verticalSpan}:${depthSpan}`,
         };
       }
     }
