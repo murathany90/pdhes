@@ -40,7 +40,7 @@ const LAYER_LABELS: Array<{ key: keyof MapLayerVisibility; label: string; Icon: 
 
 export default function MapPage() {
   const mapContainer = useRef<HTMLDivElement>(null);
-  const { sites, selectedId, selectSite, gridAssets, fetchGridAssets, worldExampleFocusId, clearWorldExampleFocus } = useSiteStore();
+  const { sites, selectedId, selectSite, gridAssets, gridAssetsStatus, fetchGridAssets, worldExampleFocusId, clearWorldExampleFocus } = useSiteStore();
   const { mapStyle, setMapStyle, heightScale, setHeightScale, showPowerGrid, setShowPowerGrid } = useSettingsStore();
   const [rightCollapsed, setRightCollapsed] = useState(false);
   const [layers, setLayers] = useState<MapLayerVisibility>(DEFAULT_LAYERS);
@@ -275,6 +275,17 @@ export default function MapPage() {
               <b>Tesis 3D</b>
             </button>
           </div>
+
+          {layers.projectLayout && layers.powerGrid && gridAssetsStatus === 'empty' && (
+            <div className="map-data-notice" role="status">
+              Proje şebeke geometrisi mevcut değil. Gerçek iletim verisi için Şebeke düğmesini kullanın.
+            </div>
+          )}
+          {layers.projectLayout && layers.powerGrid && gridAssetsStatus === 'error' && (
+            <div className="map-data-notice map-data-notice-error" role="alert">
+              Proje şebeke verisi yüklenemedi. Gerçek iletim katmanı korunmuştur.
+            </div>
+          )}
 
 
           {rightCollapsed && (

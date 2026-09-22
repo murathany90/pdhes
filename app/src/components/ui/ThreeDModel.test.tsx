@@ -11,6 +11,10 @@ import ThreeDModel from './ThreeDModel';
 vi.mock('@react-three/fiber', () => ({
   Canvas: ({ children }: { children?: React.ReactNode }) => <div data-testid="mock-canvas">{children}</div>,
   useFrame: vi.fn(),
+  useThree: () => ({
+    camera: { position: { set: vi.fn() }, lookAt: vi.fn(), updateMatrixWorld: vi.fn(), updateProjectionMatrix: vi.fn() },
+    invalidate: vi.fn(),
+  }),
 }));
 
 vi.mock('@react-three/drei', () => ({

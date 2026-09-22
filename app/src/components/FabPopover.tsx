@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, type KeyboardEvent } from 'react';
 import { Zap, X, Settings, Globe, List } from 'lucide-react';
 import { useSiteStore } from '../stores/useSiteStore';
-import { useSettingsStore, type VoltageGroup, type ElementGroup } from '../stores/useSettingsStore';
+import { DEFAULT_POWER_GRID_CONFIG, useSettingsStore, type VoltageGroup, type ElementGroup } from '../stores/useSettingsStore';
 import { WORLD_EXAMPLES_DETAILED } from '../data/worldExamplesDetailed';
 import { num } from '../utils/format';
 import type { MapStyleKind } from '../utils/mapProviders';
@@ -264,13 +264,14 @@ export function FabPopover({
                     { key: 'under33', label: '33 kV altı' },
                     { key: 'v33', label: '33 kV' },
                     { key: 'v154', label: '154 kV' },
+                    { key: 'v380', label: '380 kV' },
                     { key: 'v400', label: '400 kV' },
                     { key: 'over500', label: '500 kV üstü' },
                     { key: 'unknown', label: 'Bilinmeyen kV' },
                     { key: 'external', label: 'Harici Katmanlar' },
                   ].map(({ key, label }) => {
                     const k = key as VoltageGroup;
-                    const val = powerGridConfig.voltages[k];
+                    const val = powerGridConfig.voltages[k] ?? DEFAULT_POWER_GRID_CONFIG.voltages[k];
                     return (
                       <div key={key} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
                         <div style={{ width: 12, height: 12, backgroundColor: val.color }} />

@@ -1,5 +1,5 @@
-import { memo, useRef, useMemo, useEffect } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
+import { memo, useRef, useMemo, useEffect, useLayoutEffect } from 'react';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls, Html, Line, Sky, MeshDistortMaterial } from '@react-three/drei';
 import { BatteryCharging, Zap } from 'lucide-react';
 import * as THREE from 'three';
@@ -1431,9 +1431,20 @@ function alignFootprintsForDisplay(items: Layout3DProjectedFootprint[]): Layout3
 }
 
 function createFootprintPolygonGeometry(item: Layout3DProjectedFootprint): THREE.BufferGeometry {
-  const ring = item.points.slice(0, item.closed ? -1 : undefined);
+  const points = item.points.filter((point) => (
+    Number.isFinite(point.x) && Number.isFinite(point.y) && Number.isFinite(point.z)
+  ));
+  const first = points[0];
+  const last = points.at(-1);
+  const hasRepeatedClosingPoint = Boolean(
+    first && last && first.x === last.x && first.z === last.z,
+  );
+  const ring = hasRepeatedClosingPoint ? points.slice(0, -1) : points;
+  if (ring.length < 3) return new THREE.BufferGeometry();
+
   const shapePoints = ring.map((point) => new THREE.Vector2(point.x, point.z));
   const triangles = THREE.ShapeUtils.triangulateShape(shapePoints, []);
+  if (triangles.length === 0) return new THREE.BufferGeometry();
   const vertices: number[] = [];
   const indices: number[] = [];
 
@@ -1478,6 +1489,8 @@ const FootprintPolygon = memo(function FootprintPolygon({ item, layerKey, active
   const opacity = item.material === 'water' ? 0.82 : item.material === 'embankment' ? 0.74 : 0.9;
   const labelPosition = labelPositionForFootprint(item);
 
+  if (!geometry.getAttribute('position')) return null;
+
   return (
     <group onClick={(event) => { event.stopPropagation(); onSelectComponent(layerKey); }}>
       <mesh geometry={geometry} castShadow receiveShadow>
@@ -1505,8 +1518,12 @@ const FootprintPolyline = memo(function FootprintPolyline({ item, layerKey, acti
   showLabels: boolean;
 }) {
   const color = LAYOUT_3D_MATERIAL_COLORS[item.material] ?? '#36d6ff';
-  const points = item.points.map((point) => [point.x, point.y + 1, point.z]) as [number, number, number][];
+  const points = item.points
+    .filter((point) => Number.isFinite(point.x) && Number.isFinite(point.y) && Number.isFinite(point.z))
+    .map((point) => [point.x, point.y + 1, point.z]) as [number, number, number][];
   const labelPosition = labelPositionForFootprint(item);
+
+  if (points.length < 2) return null;
 
   return (
     <group onClick={(event) => { event.stopPropagation(); onSelectComponent(layerKey); }}>
@@ -1891,6 +1908,24 @@ function SimulationStatusLayer({ plan, state, mode, activeUnits, maxUnits, power
   );
 }
 
+function CameraTarget({ target, distance }: { target: [number, number, number]; distance: number }) {
+  const { camera, invalidate } = useThree();
+
+  useLayoutEffect(() => {
+    camera.position.set(
+      target[0] + distance * 0.72,
+      target[1] + distance * 0.52,
+      target[2] + distance * 0.72,
+    );
+    camera.lookAt(...target);
+    camera.updateMatrixWorld(true);
+    camera.updateProjectionMatrix();
+    invalidate();
+  }, [camera, distance, invalidate, target]);
+
+  return null;
+}
+
 function RepresentativeFootprintTerrain({ opacity, theme }: { opacity: number; theme?: string }) {
   const geometry = useMemo(() => {
     const terrain = new THREE.PlaneGeometry(1000, 1000, 32, 32);
@@ -2003,6 +2038,29 @@ function Scene({
     () => calculateActiveFlowCms(topology, resolvedActiveUnitIds, mode),
     [mode, topology, resolvedActiveUnitIds],
   );
+
+  const cameraFrame = useMemo<{ target: [number, number, number]; distance: number }>(() => {
+    if (footprintPlan.enabled && footprintPlan.items.length > 0) {
+      const points = footprintPlan.items.flatMap((item) => item.points).filter((point) => (
+        Number.isFinite(point.x) && Number.isFinite(point.y) && Number.isFinite(point.z)
+      ));
+      if (points.length > 0) {
+        const xs = points.map((point) => point.x);
+        const ys = points.map((point) => point.y);
+        const zs = points.map((point) => point.z);
+        const span = Math.max(Math.max(...xs) - Math.min(...xs), Math.max(...zs) - Math.min(...zs), 120);
+        return {
+          target: [
+            (Math.min(...xs) + Math.max(...xs)) / 2,
+            Math.min(Math.max((Math.min(...ys) + Math.max(...ys)) / 2, 12), 42),
+            (Math.min(...zs) + Math.max(...zs)) / 2,
+          ],
+          distance: Math.min(Math.max(span * 1.55, 220), 700),
+        };
+      }
+    }
+    return { target: [0, 20, 0], distance: 260 };
+  }, [footprintPlan]);
   
   // Shared Simulation Water Levels
   const waterLevelRef = useRef(0.85);
@@ -2068,6 +2126,7 @@ function Scene({
 
   return (
     <>
+      <CameraTarget target={cameraFrame.target} distance={cameraFrame.distance} />
       {theme === 'dark' ? (
         <Sky sunPosition={[0, -10, -50]} turbidity={10} rayleigh={0.1} mieCoefficient={0.005} />
       ) : (
@@ -2338,7 +2397,7 @@ function Scene({
       {/* Transmission pylons and lines */}
       {layers.transmission && !footprintPlan.enabled && <TransmissionLine isPresenzano={isPresenzano} isPlaying={isPlaying} mode={mode} activeUnits={activeUnits} />}
 
-      <OrbitControls makeDefault enableDamping dampingFactor={0.05} minDistance={20} maxDistance={2500} />
+      <OrbitControls target={cameraFrame.target} makeDefault enableDamping dampingFactor={0.05} minDistance={20} maxDistance={2500} />
     </>
   );
 }
@@ -2354,6 +2413,7 @@ export default function ThreeDModel(props: ThreeDModelProps) {
         frameloop={props.isPlaying ? 'always' : 'demand'}
         gl={{ antialias: false, powerPreference: 'high-performance' }}
         camera={{ position: [150, 120, 180], fov: 45 }}
+        fallback={<div role="alert" style={{ padding: 24, color: '#f8fafc' }}>WebGL başlatılamadı. 3D görünüm bu tarayıcıda kullanılamıyor.</div>}
       >
         <Scene {...props} theme={theme} />
       </Canvas>

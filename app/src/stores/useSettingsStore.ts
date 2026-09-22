@@ -14,7 +14,7 @@ export const DEFAULT_SCORE_WEIGHTS: ScoreWeights = {
   market: 15,
 };
 
-export type VoltageGroup = 'under33' | 'v33' | 'v154' | 'v400' | 'over500' | 'unknown' | 'external';
+export type VoltageGroup = 'under33' | 'v33' | 'v154' | 'v380' | 'v400' | 'over500' | 'unknown' | 'external';
 export type ElementGroup = 'lines' | 'cables' | 'substation' | 'plant' | 'substationInner';
 
 export interface PowerGridElementStyle {
@@ -34,6 +34,7 @@ export const DEFAULT_POWER_GRID_CONFIG: PowerGridConfig = {
     under33: { color: '#4ade80', width: 2 },
     v33: { color: '#16a34a', width: 2.5 },
     v154: { color: '#1e293b', width: 3 },
+    v380: { color: '#f59e0b', width: 3.5 },
     v400: { color: '#ef4444', width: 4 },
     over500: { color: '#b91c1c', width: 5 },
     unknown: { color: '#f97316', width: 1.5 },

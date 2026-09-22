@@ -6,10 +6,13 @@ import { parseWorkspaceImport, serializeWorkspaceSites } from '../utils/workspac
 export const SITES_STORAGE_KEY = 'pspp-sites-v1';
 const LEGACY_CUSTOM_SITES_KEY = 'pspp-custom-sites-v1';
 
+export type GridAssetsStatus = 'idle' | 'loading' | 'ready' | 'empty' | 'error';
+
 interface SiteStore {
   sites: Site[];
   baseSites: Site[];
   gridAssets: FeatureCollection | null;
+  gridAssetsStatus: GridAssetsStatus;
   selectedId: string;
   worldExampleFocusId: string | null;
   loading: boolean;
@@ -61,13 +64,14 @@ export const useSiteStore = create<SiteStore>((set, get) => ({
   sites: [],
   baseSites: [],
   gridAssets: null,
+  gridAssetsStatus: 'idle',
   selectedId: 'gokcekaya',
   worldExampleFocusId: null,
   loading: true,
   selectSite: (id) => set({ selectedId: id, worldExampleFocusId: null }),
   setSites: (sites) => set((state) => ({ sites, selectedId: ensureSelected(sites, state.selectedId) })),
   setBaseSites: (sites) => set({ baseSites: sites }),
-  setGridAssets: (g) => set({ gridAssets: g }),
+  setGridAssets: (g) => set({ gridAssets: g, gridAssetsStatus: g.features.length > 0 ? 'ready' : 'empty' }),
   setLoading: (v) => set({ loading: v }),
   addSite: (site) => {
     set((state) => {
@@ -110,18 +114,20 @@ export const useSiteStore = create<SiteStore>((set, get) => ({
   setWorldExampleFocus: (id) => set({ worldExampleFocusId: id }),
   clearWorldExampleFocus: () => set({ worldExampleFocusId: null }),
   fetchGridAssets: async () => {
-    if (get().gridAssets) return;
+    if (get().gridAssets || get().gridAssetsStatus === 'loading') return;
+    set({ gridAssetsStatus: 'loading' });
     try {
       const base = import.meta.env.BASE_URL;
       const res = await fetch(`${base.replace(/\/$/, '')}/grid_assets.json`);
-      if (res.ok) {
-        const data = await res.json();
-        if (data.type === 'FeatureCollection') {
-          set({ gridAssets: data });
-        }
+      if (!res.ok) throw new Error(`grid_assets.json HTTP ${res.status}`);
+      const data = await res.json();
+      if (data.type !== 'FeatureCollection' || !Array.isArray(data.features)) {
+        throw new Error('grid_assets.json geçerli bir FeatureCollection değil');
       }
+      set({ gridAssets: data, gridAssetsStatus: data.features.length > 0 ? 'ready' : 'empty' });
     } catch (e) {
       console.error('Failed to load grid assets:', e);
+      set({ gridAssetsStatus: 'error' });
     }
   },
 }));

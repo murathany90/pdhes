@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, type RefObject } from 'react';
 import * as maplibregl from 'maplibre-gl';
-import type { FeatureCollection, Geometry } from 'geojson';
+import type { FeatureCollection } from 'geojson';
 import type { Site } from '../types/site';
 import { escapeHtml } from '../utils/format';
 import { buildLayout } from '../utils/layout';
@@ -18,6 +18,7 @@ import {
 import { num } from '../utils/format';
 import { useSettingsStore } from '../stores/useSettingsStore';
 import { useMapToolsStore } from '../stores/useMapToolsStore';
+import { filterGridFeatures } from '../utils/powerGrid';
 
 function popupWaterwayText(site: Site): string {
   if (site.tunnelLengthKm !== null && site.tunnelLengthKm !== undefined) return `${num(site.tunnelLengthKm, 1)} km tünel`;
@@ -83,19 +84,6 @@ interface UseMapLibreOptions {
   interactiveCandidates?: boolean;
   draftingMode?: string;
   disableAutoFlyTo?: boolean;
-}
-
-function featureCollection(features: GeoJSON.Feature<Geometry>[]): FeatureCollection {
-  return { type: 'FeatureCollection', features } as FeatureCollection;
-}
-
-function filterGrid(gridAssets: FeatureCollection | null, geometryType: string, voltages: string[]) {
-  if (!gridAssets) return featureCollection([]);
-  return featureCollection(
-    gridAssets.features.filter((feature) =>
-      feature.geometry?.type === geometryType && voltages.includes(String(feature.properties?.voltage ?? '')),
-    ) as GeoJSON.Feature<Geometry>[],
-  );
 }
 
 function setLayerVisibility(map: maplibregl.Map, layerId: string, visible: boolean) {
@@ -234,7 +222,7 @@ export function useMapLibre({
 
       const layout = buildLayout(site, heightScale);
 
-      ensureGeoJsonSource(map, 'grid400', filterGrid(gridAssets, 'LineString', ['400']));
+      ensureGeoJsonSource(map, 'grid400', filterGridFeatures(gridAssets, 'LineString', ['400']));
       ensureLayer(map, {
         id: 'grid-400-line',
         type: 'line',
@@ -242,7 +230,7 @@ export function useMapLibre({
         paint: { 'line-color': '#ffd75a', 'line-width': 1.1, 'line-opacity': 0.28 },
       });
 
-      ensureGeoJsonSource(map, 'grid154', filterGrid(gridAssets, 'LineString', ['154']));
+      ensureGeoJsonSource(map, 'grid154', filterGridFeatures(gridAssets, 'LineString', ['154']));
       ensureLayer(map, {
         id: 'grid-154-line',
         type: 'line',
@@ -250,14 +238,14 @@ export function useMapLibre({
         paint: { 'line-color': '#48f49a', 'line-width': 0.8, 'line-opacity': 0.2 },
       });
 
-      ensureGeoJsonSource(map, 'substations', filterGrid(gridAssets, 'Point', ['400', '154']));
+      ensureGeoJsonSource(map, 'substations', filterGridFeatures(gridAssets, 'Point', ['400', '154']));
       ensureLayer(map, {
         id: 'substation-circles',
         type: 'circle',
         source: 'substations',
         paint: {
-          'circle-radius': ['case', ['==', ['get', 'voltage'], '400'], 4, 2.8],
-          'circle-color': ['case', ['==', ['get', 'voltage'], '400'], '#ffd75a', '#48f49a'],
+          'circle-radius': ['case', ['any', ['==', ['to-number', ['get', 'voltage']], 400], ['==', ['to-number', ['get', 'voltage']], 400000]], 4, 2.8],
+          'circle-color': ['case', ['any', ['==', ['to-number', ['get', 'voltage']], 400], ['==', ['to-number', ['get', 'voltage']], 400000]], '#ffd75a', '#48f49a'],
           'circle-opacity': 0.65,
           'circle-stroke-width': 1,
           'circle-stroke-color': '#07110e',
@@ -395,7 +383,8 @@ export function useMapLibre({
           return [
             'case',
             ['>=', v, 500], powerGridConfig.voltages.over500[prop],
-            ['>=', v, 300], powerGridConfig.voltages.v400[prop],
+            ['>=', v, 390], powerGridConfig.voltages.v400[prop],
+            ['>=', v, 300], powerGridConfig.voltages.v380?.[prop] ?? '#f59e0b',
             ['>=', v, 66], powerGridConfig.voltages.v154[prop],
             ['>=', v, 20], powerGridConfig.voltages.v33[prop],
             ['all', ['>', v, 0], ['<', v, 20]], powerGridConfig.voltages.under33[prop],

@@ -9,7 +9,7 @@ import ThreeDModel from '../components/ui/ThreeDModel';
 import WarningBanner from '../components/ui/WarningBanner';
 import { buildComponentsDetail, COORDINATE_CONFIDENCE_LABELS } from '../utils/siteDerived';
 import { publicAssetUrl } from '../utils/publicUrl';
-import { shouldClearActiveFootprintComponent } from '../utils/layout3dFootprints';
+import { isValidLayout3DFootprint, shouldClearActiveFootprintComponent } from '../utils/layout3dFootprints';
 import {
   advanceReservoirSoc,
   transitionSimulationState,
@@ -48,14 +48,7 @@ interface FootprintLoadState {
 }
 
 function validateFootprintPayload(value: unknown): value is Layout3DFootprint[] {
-  return Array.isArray(value) && value.every((item) => (
-    item
-    && typeof item === 'object'
-    && typeof (item as Layout3DFootprint).id === 'string'
-    && typeof (item as Layout3DFootprint).component === 'string'
-    && ['polygon', 'polyline'].includes(String((item as Layout3DFootprint).kind))
-    && Array.isArray((item as Layout3DFootprint).coords)
-  ));
+  return Array.isArray(value) && value.every(isValidLayout3DFootprint);
 }
 
 function makeUnitIds(count: number): string[] {
