@@ -14,6 +14,7 @@ vi.mock('@react-three/fiber', () => ({
   useThree: () => ({
     camera: { position: { set: vi.fn() }, lookAt: vi.fn(), updateMatrixWorld: vi.fn(), updateProjectionMatrix: vi.fn() },
     invalidate: vi.fn(),
+    size: { width: 1200, height: 700 },
   }),
 }));
 

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, type RefObject } from 'react';
+import { useCallback, useEffect, useRef, useState, type RefObject } from 'react';
 import * as maplibregl from 'maplibre-gl';
 import type { FeatureCollection } from 'geojson';
 import type { Site } from '../types/site';
@@ -18,7 +18,7 @@ import {
 import { num } from '../utils/format';
 import { useSettingsStore } from '../stores/useSettingsStore';
 import { useMapToolsStore } from '../stores/useMapToolsStore';
-import { filterGridFeatures } from '../utils/powerGrid';
+import { filterGridFeatures, normalizeGridVoltageFeatures } from '../utils/powerGrid';
 
 function popupWaterwayText(site: Site): string {
   if (site.tunnelLengthKm !== null && site.tunnelLengthKm !== undefined) return `${num(site.tunnelLengthKm, 1)} km tünel`;
@@ -178,9 +178,29 @@ export function useMapLibre({
   const candidateMarkersRef = useRef<Map<string, CachedMarker>>(new Map());
   const worldMarkersRef = useRef<Map<string, CachedMarker>>(new Map());
   const activePopupRef = useRef<maplibregl.Popup | null>(null);
+  const [osmPowerGridData, setOsmPowerGridData] = useState<FeatureCollection | null>(null);
   const layerEventCleanupRef = useRef<(() => void)[]>([]);
   const boundLayerEventsRef = useRef<Set<string>>(new Set());
   const canCreateMap = Boolean(site);
+  const osmPowerGridUrl = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/power-grid-filtered.geojson?v=4`;
+
+  useEffect(() => {
+    if (!showPowerGrid || osmPowerGridData || typeof fetch !== 'function') return undefined;
+    const controller = new AbortController();
+    fetch(osmPowerGridUrl, { signal: controller.signal })
+      .then(async (response) => {
+        if (!response.ok) throw new Error(`power-grid-filtered.geojson HTTP ${response.status}`);
+        const data = await response.json();
+        if (data?.type !== 'FeatureCollection' || !Array.isArray(data.features)) {
+          throw new Error('power-grid-filtered.geojson geçerli bir FeatureCollection değil');
+        }
+        if (!controller.signal.aborted) setOsmPowerGridData(normalizeGridVoltageFeatures(data));
+      })
+      .catch((error) => {
+        if (!controller.signal.aborted) console.error('Failed to normalize OSM power-grid data:', error);
+      });
+    return () => controller.abort();
+  }, [osmPowerGridData, osmPowerGridUrl, showPowerGrid]);
 
   useEffect(() => {
     onSelectSiteRef.current = onSelectSite;
@@ -376,10 +396,10 @@ export function useMapLibre({
 
       const shouldKeepOsmPowerGrid = showPowerGrid || Boolean(map.getSource('osm-power-grid'));
       if (shouldKeepOsmPowerGrid) {
-        ensureGeoJsonSource(map, 'osm-power-grid', import.meta.env.BASE_URL.replace(/\/$/, '') + '/power-grid-filtered.geojson?v=4');
+        ensureGeoJsonSource(map, 'osm-power-grid', osmPowerGridData ?? osmPowerGridUrl);
         
         const getVoltageProp = (prop: 'color' | 'width'): any => {
-          const v = ['to-number', ['coalesce', ['get', 'voltage'], 0]];
+          const v = ['to-number', ['coalesce', ['get', 'voltageKvMax'], 0]];
           return [
             'case',
             ['>=', v, 500], powerGridConfig.voltages.over500[prop],
@@ -681,7 +701,7 @@ export function useMapLibre({
 
     };
     run();
-  }, [bindLayerEvent, draftingMode, gridAssets, heightScale, interactiveCandidates, layers, powerGridConfig, selectedId, site, sites, showPowerGrid, worldExampleFocusId]);
+  }, [bindLayerEvent, draftingMode, gridAssets, heightScale, interactiveCandidates, layers, osmPowerGridData, osmPowerGridUrl, powerGridConfig, selectedId, site, sites, showPowerGrid, worldExampleFocusId]);
 
   useEffect(() => {
     queueDrawLayersRef.current = queueDrawLayers;

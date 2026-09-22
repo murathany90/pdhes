@@ -66,6 +66,48 @@ interface SettingsStore {
   updatePowerGridElement: (group: ElementGroup, updates: Partial<{ show: boolean; line: number; size: number }>) => void;
 }
 
+type PersistedPowerGridConfig = {
+  voltages?: Partial<Record<VoltageGroup, Partial<{ color: string; width: number }>>>;
+  elements?: Partial<Record<ElementGroup, Partial<PowerGridElementStyle>>>;
+};
+
+type PersistedSettings = {
+  theme?: SettingsStore['theme'];
+  mapStyle?: MapStyleKind;
+  heightScale?: number;
+  weights?: ScoreWeights;
+  showPowerGrid?: boolean;
+  powerGridConfig?: PersistedPowerGridConfig;
+};
+
+function mergePowerGridConfig(saved?: PersistedPowerGridConfig): PowerGridConfig {
+  const voltages = { ...DEFAULT_POWER_GRID_CONFIG.voltages } as PowerGridConfig['voltages'];
+  (Object.keys(DEFAULT_POWER_GRID_CONFIG.voltages) as VoltageGroup[]).forEach((group) => {
+    voltages[group] = {
+      ...DEFAULT_POWER_GRID_CONFIG.voltages[group],
+      ...(saved?.voltages?.[group] ?? {}),
+    };
+  });
+
+  const elements = { ...DEFAULT_POWER_GRID_CONFIG.elements } as PowerGridConfig['elements'];
+  (Object.keys(DEFAULT_POWER_GRID_CONFIG.elements) as ElementGroup[]).forEach((group) => {
+    elements[group] = {
+      ...DEFAULT_POWER_GRID_CONFIG.elements[group],
+      ...(saved?.elements?.[group] ?? {}),
+    };
+  });
+
+  return { voltages, elements };
+}
+
+function mergePersistedSettings(value: unknown): PersistedSettings {
+  const saved = value && typeof value === 'object' ? value as PersistedSettings : {};
+  return {
+    ...saved,
+    powerGridConfig: mergePowerGridConfig(saved.powerGridConfig),
+  };
+}
+
 function legacyTheme(): 'dark' | 'light' {
   if (typeof localStorage === 'undefined') return 'light';
   return localStorage.getItem('pspp-theme') === 'dark' ? 'dark' : 'light';
@@ -116,8 +158,17 @@ export const useSettingsStore = create<SettingsStore>()(
     }),
     {
       name: SETTINGS_STORAGE_KEY,
-      version: 3,
+      version: 4,
       storage: createJSONStorage(() => localStorage),
+      migrate: (persistedState) => mergePersistedSettings(persistedState),
+      merge: (persistedState, currentState) => {
+        const persisted = mergePersistedSettings(persistedState);
+        return {
+          ...currentState,
+          ...persisted,
+          powerGridConfig: mergePowerGridConfig(persisted.powerGridConfig),
+        };
+      },
       partialize: ({ theme, mapStyle, heightScale, weights, showPowerGrid, powerGridConfig }) => ({
         theme,
         mapStyle,

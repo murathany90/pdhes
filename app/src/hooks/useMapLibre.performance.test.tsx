@@ -230,12 +230,17 @@ describe('useMapLibre performance behavior', () => {
       showPowerGrid: false,
       powerGridConfig: structuredClone(DEFAULT_POWER_GRID_CONFIG) as PowerGridConfig,
     });
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ type: 'FeatureCollection', features: [] }),
+    }));
     useMapToolsStore.setState({ map: null, mode: 'default', isDrawing: false, measurementPoints: [] });
   });
 
   afterEach(() => {
     vi.useRealTimers();
     cleanup();
+    vi.unstubAllGlobals();
     vi.clearAllMocks();
   });
 

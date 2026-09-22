@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useReducer } from 'react';
+import { useState, useEffect, useMemo, useReducer, useRef } from 'react';
 import { Droplets, Mountain, Play, Square, Tag, Zap } from 'lucide-react';
 import { useSiteStore } from '../stores/useSiteStore';
 import { COMPONENTS } from '../utils/constants';
@@ -35,6 +35,7 @@ type FootprintLoadStatus =
   | 'idle'
   | 'loading'
   | 'success'
+  | 'empty'
   | 'not-found'
   | 'invalid-schema'
   | 'network-error'
@@ -42,13 +43,14 @@ type FootprintLoadStatus =
   | 'fallback-model';
 
 interface FootprintLoadState {
+  siteId: string | null;
   status: FootprintLoadStatus;
   footprints: Layout3DFootprint[];
   error?: string;
 }
 
 function validateFootprintPayload(value: unknown): value is Layout3DFootprint[] {
-  return Array.isArray(value) && value.every(isValidLayout3DFootprint);
+  return Array.isArray(value) && value.length > 0 && value.every(isValidLayout3DFootprint);
 }
 
 function makeUnitIds(count: number): string[] {
@@ -72,59 +74,78 @@ export default function ThreeDPage({ site: propSite }: { site?: Site }) {
 
   const [layers, setLayers] = useState<Record<string, boolean>>(initialLayers);
   const [footprintLoad, setFootprintLoad] = useState<FootprintLoadState>({
+    siteId: null,
     status: 'idle',
     footprints: [],
   });
+  const footprintRequestRef = useRef(0);
 
   // Lazy load footprints
   useEffect(() => {
-    if (site?.layout3D?.useFootprintPolygons) {
-      if (site.layout3D.componentFootprints && site.layout3D.componentFootprints.length > 0) {
-        setFootprintLoad({ status: 'success', footprints: site.layout3D.componentFootprints });
-      } else {
-        let cancelled = false;
-        const controller = new AbortController();
-        const timeout = window.setTimeout(() => controller.abort(), 10_000);
-        setFootprintLoad({ status: 'loading', footprints: [] });
-        fetch(publicAssetUrl(`/footprints/${site.id}.json`), { signal: controller.signal })
-          .then(async (res) => {
-            if (!res.ok) {
-              setFootprintLoad({
-                status: res.status === 404 ? 'not-found' : 'network-error',
-                footprints: [],
-                error: `HTTP ${res.status}`,
-              });
-              return;
-            }
-            const data = await res.json();
-            if (!validateFootprintPayload(data)) {
-              setFootprintLoad({
-                status: 'invalid-schema',
-                footprints: [],
-                error: 'Footprint semasi gecersiz.',
-              });
-              return;
-            }
-            if (!cancelled) setFootprintLoad({ status: 'success', footprints: data });
-          })
-          .catch((err) => {
-            if (cancelled) return;
-            console.error('Failed to load footprints:', err);
-            setFootprintLoad({
-              status: err?.name === 'AbortError' ? 'timeout' : 'network-error',
-              footprints: [],
-              error: String(err?.message || err),
-            });
-          });
-        return () => {
-          cancelled = true;
-          window.clearTimeout(timeout);
-          controller.abort();
-        };
-      }
-    } else {
-      setFootprintLoad({ status: 'idle', footprints: [] });
+    const requestId = footprintRequestRef.current + 1;
+    footprintRequestRef.current = requestId;
+    const requestSiteId = site?.id ?? null;
+    const applyResult = (result: Omit<FootprintLoadState, 'siteId'>) => {
+      if (requestId !== footprintRequestRef.current) return;
+      setFootprintLoad({ ...result, siteId: requestSiteId });
+    };
+
+    if (!site?.layout3D?.useFootprintPolygons) {
+      applyResult({ status: 'idle', footprints: [] });
+      return undefined;
     }
+
+    const inlineFootprints = site.layout3D.componentFootprints;
+    if (inlineFootprints && inlineFootprints.length > 0) {
+      if (inlineFootprints.every(isValidLayout3DFootprint)) {
+        applyResult({ status: 'success', footprints: inlineFootprints });
+      } else {
+        applyResult({ status: 'invalid-schema', footprints: [], error: 'Footprint şeması geçersiz.' });
+      }
+      return undefined;
+    }
+
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 10_000);
+    applyResult({ status: 'loading', footprints: [] });
+    fetch(publicAssetUrl(`/footprints/${requestSiteId}.json`), { signal: controller.signal })
+      .then(async (res) => {
+        if (!res.ok) {
+          applyResult({
+            status: res.status === 404 ? 'not-found' : 'network-error',
+            footprints: [],
+            error: `HTTP ${res.status}`,
+          });
+          return;
+        }
+        const data = await res.json();
+        if (!Array.isArray(data) || data.length === 0) {
+          applyResult({ status: 'empty', footprints: [], error: 'Footprint dizisi boş.' });
+          return;
+        }
+        if (!validateFootprintPayload(data)) {
+          applyResult({
+            status: 'invalid-schema',
+            footprints: [],
+            error: 'Footprint şeması geçersiz.',
+          });
+          return;
+        }
+        applyResult({ status: 'success', footprints: data });
+      })
+      .catch((err) => {
+        if (requestId !== footprintRequestRef.current) return;
+        console.error('Failed to load footprints:', err);
+        applyResult({
+          status: err?.name === 'AbortError' ? 'timeout' : 'network-error',
+          footprints: [],
+          error: String(err?.message || err),
+        });
+      });
+    return () => {
+      window.clearTimeout(timeout);
+      controller.abort();
+    };
   }, [site?.id, site?.layout3D?.useFootprintPolygons, site?.layout3D?.componentFootprints]);
 
   const [activeComponent, setActiveComponent] = useState('upper_reservoir');
@@ -219,16 +240,20 @@ export default function ThreeDPage({ site: propSite }: { site?: Site }) {
   // Inject fetched footprints into site object temporarily for ThreeDModel.
   const siteWithFootprints = useMemo(() => {
     if (!site) return undefined;
+    const footprints = footprintLoad.siteId === site.id ? footprintLoad.footprints : [];
     return {
       ...site,
       layout3D: site.layout3D ? {
         ...site.layout3D,
-        componentFootprints: footprintLoad.footprints
+        componentFootprints: footprints,
       } : undefined
     };
-  }, [site, footprintLoad.footprints]);
+  }, [site, footprintLoad.siteId, footprintLoad.footprints]);
 
-  if (!site || (site.layout3D?.useFootprintPolygons && footprintLoad.status === 'loading')) {
+  const footprintPendingForSite = Boolean(
+    site?.layout3D?.useFootprintPolygons && footprintLoad.siteId !== site.id,
+  );
+  if (!site || (site.layout3D?.useFootprintPolygons && (footprintPendingForSite || footprintLoad.status === 'loading'))) {
     return <section className="panel active"><p className="muted">Veri yükleniyor...</p></section>;
   }
 

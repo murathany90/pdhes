@@ -24,6 +24,24 @@ export function normalizeGridVoltageKv(value: unknown): number[] {
   return result;
 }
 
+/** Adds normalized style-only fields while retaining the original voltage property. */
+export function normalizeGridVoltageFeatures(gridAssets: FeatureCollection): FeatureCollection {
+  return {
+    ...gridAssets,
+    features: gridAssets.features.map((feature) => {
+      const voltageKv = normalizeGridVoltageKv(feature.properties?.voltage);
+      return {
+        ...feature,
+        properties: {
+          ...(feature.properties ?? {}),
+          voltageKv,
+          voltageKvMax: voltageKv.length > 0 ? Math.max(...voltageKv) : null,
+        },
+      };
+    }),
+  };
+}
+
 export function filterGridFeatures(
   gridAssets: FeatureCollection | null,
   geometryType: string,

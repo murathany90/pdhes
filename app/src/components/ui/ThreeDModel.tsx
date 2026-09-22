@@ -1909,19 +1909,22 @@ function SimulationStatusLayer({ plan, state, mode, activeUnits, maxUnits, power
 }
 
 function CameraTarget({ target, distance }: { target: [number, number, number]; distance: number }) {
-  const { camera, invalidate } = useThree();
+  const { camera, invalidate, size } = useThree();
 
   useLayoutEffect(() => {
+    const aspect = size.height > 0 ? size.width / size.height : 1;
+    const narrowViewportScale = aspect < 1 ? Math.min(1.6, 1 / Math.max(aspect, 0.625)) : 1;
+    const effectiveDistance = distance * narrowViewportScale;
     camera.position.set(
-      target[0] + distance * 0.72,
-      target[1] + distance * 0.52,
-      target[2] + distance * 0.72,
+      target[0] + effectiveDistance * 0.72,
+      target[1] + effectiveDistance * 0.52,
+      target[2] + effectiveDistance * 0.72,
     );
     camera.lookAt(...target);
     camera.updateMatrixWorld(true);
     camera.updateProjectionMatrix();
     invalidate();
-  }, [camera, distance, invalidate, target]);
+  }, [camera, distance, invalidate, size.height, size.width, target]);
 
   return null;
 }
@@ -2048,11 +2051,13 @@ function Scene({
         const xs = points.map((point) => point.x);
         const ys = points.map((point) => point.y);
         const zs = points.map((point) => point.z);
-        const span = Math.max(Math.max(...xs) - Math.min(...xs), Math.max(...zs) - Math.min(...zs), 120);
+        const horizontalSpan = Math.max(Math.max(...xs) - Math.min(...xs), Math.max(...zs) - Math.min(...zs));
+        const verticalSpan = Math.max(...ys) - Math.min(...ys);
+        const span = Math.max(horizontalSpan, verticalSpan * 1.5, 120);
         return {
           target: [
             (Math.min(...xs) + Math.max(...xs)) / 2,
-            Math.min(Math.max((Math.min(...ys) + Math.max(...ys)) / 2, 12), 42),
+            (Math.min(...ys) + Math.max(...ys)) / 2,
             (Math.min(...zs) + Math.max(...zs)) / 2,
           ],
           distance: Math.min(Math.max(span * 1.55, 220), 700),
@@ -2061,6 +2066,8 @@ function Scene({
     }
     return { target: [0, 20, 0], distance: 260 };
   }, [footprintPlan]);
+  const fogNear = Math.max(80, cameraFrame.distance * 0.45);
+  const fogFar = Math.max(fogNear + 160, cameraFrame.distance * 3.2);
   
   // Shared Simulation Water Levels
   const waterLevelRef = useRef(0.85);
@@ -2139,7 +2146,7 @@ function Scene({
         shadow-camera-left={-200} shadow-camera-right={200}
         shadow-camera-top={200} shadow-camera-bottom={-200}
       />
-      <fog attach="fog" args={[theme === 'dark' ? '#0a0c10' : '#a2adb9', 150, 550]} />
+      <fog attach="fog" args={[theme === 'dark' ? '#0a0c10' : '#a2adb9', fogNear, fogFar]} />
 
       {showTerrain && !footprintPlan.enabled && <RealisticTerrain opacity={terrainOpacity} isPresenzano={isPresenzano} />}
 

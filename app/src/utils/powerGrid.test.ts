@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { filterGridFeatures, normalizeGridVoltageKv } from './powerGrid';
+import { filterGridFeatures, normalizeGridVoltageFeatures, normalizeGridVoltageKv } from './powerGrid';
 
 describe('power grid voltage normalization', () => {
   it.each([
@@ -40,5 +40,19 @@ describe('power grid voltage normalization', () => {
 
     expect(filterGridFeatures(data, 'LineString', ['380']).features).toHaveLength(1);
     expect(filterGridFeatures(data, 'LineString', ['400']).features).toHaveLength(1);
+  });
+
+  it('adds normalized style fields without overwriting original voltage data', () => {
+    const data = {
+      type: 'FeatureCollection' as const,
+      features: [
+        { type: 'Feature' as const, geometry: { type: 'LineString' as const, coordinates: [[30, 40], [31, 41]] }, properties: { voltage: '400000;154' } },
+        { type: 'Feature' as const, geometry: { type: 'LineString' as const, coordinates: [[30, 40], [31, 41]] }, properties: { voltage: 'bilinmiyor' } },
+      ],
+    };
+
+    const normalized = normalizeGridVoltageFeatures(data);
+    expect(normalized.features[0].properties).toMatchObject({ voltage: '400000;154', voltageKv: [400, 154], voltageKvMax: 400 });
+    expect(normalized.features[1].properties).toMatchObject({ voltage: 'bilinmiyor', voltageKv: [], voltageKvMax: null });
   });
 });
