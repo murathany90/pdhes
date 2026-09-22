@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { useMapLibre } from '../hooks/useMapLibre';
 import { useSettingsStore } from '../stores/useSettingsStore';
@@ -8,14 +8,21 @@ import { useSiteStore } from '../stores/useSiteStore';
 import { makeTestSite } from '../test-utils/makeTestSite';
 import MapPage from './MapPage';
 
+const mapRefMock = vi.hoisted(() => ({ current: null as any }));
+
 vi.mock('../hooks/useMapLibre', () => ({
-  useMapLibre: vi.fn(() => ({ mapRef: { current: null } })),
+  useMapLibre: vi.fn(() => ({ mapRef: mapRefMock })),
+}));
+
+vi.mock('../components/ManualGeometryLayer', () => ({
+  default: () => null,
 }));
 
 const site = makeTestSite();
 
 describe('MapPage controls', () => {
   beforeEach(() => {
+    mapRefMock.current = null;
     useSiteStore.setState({
       sites: [site],
       selectedId: site.id,
@@ -111,5 +118,100 @@ describe('MapPage controls', () => {
       expect(latestCall?.site?.layout3D?.componentFootprints).toEqual(footprints);
       expect(latestCall?.sites[0].layout3D?.componentFootprints).toEqual(footprints);
     });
+  });
+
+  it('does not reuse a previous site footprint while the next site is loading', async () => {
+    const gokcekaya = makeTestSite({
+      id: 'kamu-gokcekaya-pspp',
+      layout3D: {
+        scale: 'macro',
+        preferredBearing: 0,
+        terrainExaggeration: 1,
+        reservoirSurfaceMode: 'polygon',
+        useFootprintPolygons: true,
+        hideLegacySquareReservoir: true,
+      },
+    });
+    const sariyar = makeTestSite({
+      id: 'kamu-sariyar-pspp',
+      layout3D: {
+        scale: 'macro',
+        preferredBearing: 0,
+        terrainExaggeration: 1,
+        reservoirSurfaceMode: 'polygon',
+        useFootprintPolygons: true,
+        hideLegacySquareReservoir: true,
+      },
+    });
+    let resolveGokcekaya!: (value: unknown) => void;
+    let resolveSariyar!: (value: unknown) => void;
+    const gokcekayaFootprints = [{ id: 'gokcekaya-footprint', component: 'upper_reservoir' }];
+    const sariyarFootprints = [{ id: 'sariyar-footprint', component: 'powerhouse' }];
+    const fetchMock = vi.fn((url: string) => new Promise((resolve) => {
+      if (url.includes(gokcekaya.id)) resolveGokcekaya = resolve;
+      if (url.includes(sariyar.id)) resolveSariyar = resolve;
+    }));
+    vi.stubGlobal('fetch', fetchMock);
+    useSiteStore.setState({
+      sites: [gokcekaya, sariyar],
+      selectedId: gokcekaya.id,
+      gridAssets: null,
+      fetchGridAssets: vi.fn().mockResolvedValue(undefined),
+    });
+
+    render(<MapPage />);
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledWith('/footprints/kamu-gokcekaya-pspp.json'));
+
+    act(() => useSiteStore.getState().selectSite(sariyar.id));
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledWith('/footprints/kamu-sariyar-pspp.json'));
+
+    await act(async () => {
+      resolveGokcekaya({ ok: true, json: async () => gokcekayaFootprints });
+      await Promise.resolve();
+    });
+    const duringSariyarLoad = vi.mocked(useMapLibre).mock.calls.at(-1)?.[0];
+    expect(duringSariyarLoad?.site?.layout3D?.componentFootprints).toEqual([]);
+
+    await act(async () => {
+      resolveSariyar({ ok: true, json: async () => sariyarFootprints });
+      await Promise.resolve();
+    });
+    await waitFor(() => {
+      const latestCall = vi.mocked(useMapLibre).mock.calls.at(-1)?.[0];
+      expect(latestCall?.site?.layout3D?.componentFootprints).toEqual(sariyarFootprints);
+    });
+  });
+
+  it('keeps the camera position when the same site footprint finishes loading', async () => {
+    const map = { easeTo: vi.fn() };
+    mapRefMock.current = map;
+    const siteWithFootprints = makeTestSite({
+      id: 'same-site',
+      layout3D: {
+        scale: 'macro',
+        preferredBearing: 0,
+        terrainExaggeration: 1,
+        reservoirSurfaceMode: 'polygon',
+        useFootprintPolygons: true,
+        hideLegacySquareReservoir: true,
+      },
+    });
+    const footprints = [{ id: 'same-site-footprint', component: 'powerhouse' }];
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: async () => footprints }));
+    useSiteStore.setState({
+      sites: [siteWithFootprints],
+      selectedId: siteWithFootprints.id,
+      gridAssets: null,
+      fetchGridAssets: vi.fn().mockResolvedValue(undefined),
+    });
+
+    render(<MapPage />);
+    await waitFor(() => expect(map.easeTo).toHaveBeenCalledTimes(1));
+
+    await waitFor(() => {
+      const latestCall = vi.mocked(useMapLibre).mock.calls.at(-1)?.[0];
+      expect(latestCall?.site?.layout3D?.componentFootprints).toEqual(footprints);
+    });
+    expect(map.easeTo).toHaveBeenCalledTimes(1);
   });
 });

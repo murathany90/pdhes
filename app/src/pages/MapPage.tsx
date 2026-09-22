@@ -47,7 +47,10 @@ export default function MapPage() {
   const [layers, setLayers] = useState<MapLayerVisibility>(DEFAULT_LAYERS);
   const [imageModalSiteId, setImageModalSiteId] = useState<string | null>(null);
   const [imageLoadError, setImageLoadError] = useState(false);
-  const [selectedFootprints, setSelectedFootprints] = useState<Layout3DFootprint[] | null>(null);
+  const [selectedFootprints, setSelectedFootprints] = useState<{
+    siteId: string;
+    data: Layout3DFootprint[];
+  } | null>(null);
   const site = sites.find((item) => item.id === selectedId) || sites[0];
   const worldExample = worldExampleFocusId ? WORLD_EXAMPLES_DETAILED.find((e) => e.id === worldExampleFocusId) : null;
 
@@ -66,27 +69,31 @@ export default function MapPage() {
 
   useEffect(() => {
     let cancelled = false;
-    if (!site?.layout3D?.useFootprintPolygons) {
+    const currentSite = site;
+    const siteId = currentSite?.id;
+    if (!currentSite?.id || !currentSite.layout3D?.useFootprintPolygons) {
       setSelectedFootprints(null);
       return () => {
         cancelled = true;
       };
     }
-    if (site.layout3D.componentFootprints && site.layout3D.componentFootprints.length > 0) {
-      setSelectedFootprints(site.layout3D.componentFootprints);
+    if (currentSite.layout3D.componentFootprints && currentSite.layout3D.componentFootprints.length > 0) {
+      setSelectedFootprints({ siteId, data: currentSite.layout3D.componentFootprints });
       return () => {
         cancelled = true;
       };
     }
 
-    setSelectedFootprints(null);
-    fetch(publicAssetUrl(`/footprints/${site.id}.json`))
+    setSelectedFootprints((current) => current?.siteId === siteId ? current : null);
+    fetch(publicAssetUrl(`/footprints/${siteId}.json`))
       .then((res) => (res.ok ? res.json() : []))
       .then((data) => {
-        if (!cancelled) setSelectedFootprints(Array.isArray(data) ? data : []);
+        if (!cancelled && siteId) {
+          setSelectedFootprints({ siteId, data: Array.isArray(data) ? data : [] });
+        }
       })
       .catch(() => {
-        if (!cancelled) setSelectedFootprints([]);
+        if (!cancelled && siteId) setSelectedFootprints({ siteId, data: [] });
       });
 
     return () => {
@@ -98,7 +105,7 @@ export default function MapPage() {
     if (!site?.layout3D?.useFootprintPolygons) return site;
     const componentFootprints = site.layout3D.componentFootprints?.length
       ? site.layout3D.componentFootprints
-      : (selectedFootprints ?? []);
+      : (selectedFootprints?.siteId === site.id ? selectedFootprints.data : []);
     return {
       ...site,
       layout3D: {
@@ -136,7 +143,7 @@ export default function MapPage() {
         mapRef.current.flyTo({
           center: [example.lon || 0, example.lat || 0],
           zoom: 13.5,
-          pitch: 50,
+          pitch: layers.terrain3d ? 50 : 0,
           bearing: 0,
           duration: 2500,
         });
@@ -153,17 +160,21 @@ export default function MapPage() {
         }, 300);
       }
     }
-  }, [worldExampleFocusId, mapRef]);
+  }, [layers.terrain3d, worldExampleFocusId, mapRef]);
+
+  const previousTerrainModeRef = useRef<boolean | null>(null);
 
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !site || typeof (map as any).easeTo !== 'function') return;
+    if (previousTerrainModeRef.current === layers.terrain3d) return;
+    previousTerrainModeRef.current = layers.terrain3d;
     const view = getSiteView(site);
     map.easeTo({
       pitch: layers.terrain3d ? Math.max(50, view.pitch) : 0,
       duration: 650,
     });
-  }, [layers.terrain3d, mapRef, site]);
+  }, [layers.terrain3d, mapRef, site?.id]);
 
   if (!site) return <section className="panel active"><p className="muted">Veri yükleniyor...</p></section>;
 

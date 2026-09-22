@@ -877,11 +877,11 @@ export function useMapLibre({
     map.flyTo({
       center: view.center,
       zoom: view.zoom,
-      pitch: view.pitch,
+      pitch: layers.terrain3d ? Math.max(50, view.pitch) : 0,
       bearing: view.bearing,
       duration: 2500,
     });
-  }, [selectedId, site, worldExampleFocusId]);
+  }, [selectedId, site?.id, worldExampleFocusId]);
 
   return { mapRef, osmPowerGridStatus, osmPowerGridError, retryOsmPowerGrid };
 }

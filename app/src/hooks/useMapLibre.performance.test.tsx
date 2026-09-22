@@ -46,6 +46,7 @@ vi.mock('maplibre-gl', () => {
   }
 
   class FakeMap {
+    options: any;
     styleLoaded = false;
     removed = false;
     sources = new Map<string, FakeGeoJsonSource>();
@@ -115,7 +116,8 @@ vi.mock('maplibre-gl', () => {
       this.removed = true;
     });
 
-    constructor() {
+    constructor(options: any) {
+      this.options = options;
       mapMockState.maps.push(this);
     }
   }
@@ -196,18 +198,20 @@ function Harness({
   site,
   sites = [site],
   mapStyle = 'satellite',
+  selectedId = site.id,
 }: {
   layers: MapLayerVisibility;
   site: Site;
   sites?: Site[];
   mapStyle?: 'satellite' | 'light';
+  selectedId?: string;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const { osmPowerGridStatus, osmPowerGridError, retryOsmPowerGrid } = useMapLibre({
     containerRef,
     site,
     sites,
-    selectedId: site.id,
+    selectedId,
     mapStyle,
     heightScale: 1.1,
     gridAssets,
@@ -395,6 +399,44 @@ describe('useMapLibre performance behavior', () => {
     act(() => map.fire('styledata'));
 
     expect(map.setTerrain).toHaveBeenLastCalledWith({ source: 'terrainSource', exaggeration: 1.1 * 1.3 });
+  });
+
+  it('keeps 2D camera pitch at zero and uses the selected site pitch in 3D', () => {
+    const firstSite = makeTestSite({ id: 'first-site', view: { center: [32, 40], zoom: 13, pitch: 57, bearing: 5 } });
+    const secondSite = makeTestSite({ id: 'second-site', view: { center: [33, 41], zoom: 12, pitch: 63, bearing: 15 } });
+    const twoDimensionalLayers = { ...DEFAULT_LAYERS, terrain3d: false };
+    const threeDimensionalLayers = { ...DEFAULT_LAYERS, terrain3d: true };
+    const { rerender } = render(
+      <Harness site={firstSite} sites={[firstSite, secondSite]} selectedId={firstSite.id} layers={twoDimensionalLayers} />,
+    );
+    const map = latestMap();
+
+    expect(map.options.pitch).toBe(0);
+    act(() => map.fire('load'));
+    map.flyTo.mockClear();
+
+    rerender(
+      <Harness site={secondSite} sites={[firstSite, secondSite]} selectedId={secondSite.id} layers={twoDimensionalLayers} />,
+    );
+    expect(map.flyTo).toHaveBeenLastCalledWith(expect.objectContaining({ pitch: 0 }));
+
+    map.flyTo.mockClear();
+    rerender(
+      <Harness site={firstSite} sites={[firstSite, secondSite]} selectedId={firstSite.id} layers={threeDimensionalLayers} />,
+    );
+    expect(map.flyTo).toHaveBeenLastCalledWith(expect.objectContaining({ pitch: 57 }));
+  });
+
+  it('does not refocus the camera when footprint data changes without changing the site id', () => {
+    const site = makeTestSite({ id: 'same-site' });
+    const { rerender } = render(<Harness site={site} layers={DEFAULT_LAYERS} />);
+    const map = latestMap();
+
+    act(() => map.fire('load'));
+    map.flyTo.mockClear();
+    rerender(<Harness site={{ ...site, name: 'Same Site with loaded footprints' }} layers={DEFAULT_LAYERS} />);
+
+    expect(map.flyTo).not.toHaveBeenCalled();
   });
 
   it('filters footprint blocks by component layer instead of relying only on footprint ids', () => {
