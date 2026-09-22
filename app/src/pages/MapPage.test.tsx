@@ -56,6 +56,19 @@ describe('MapPage controls', () => {
     expect(screen.queryByRole('group', { name: '3D arazi kalitesi' })).toBeNull();
   });
 
+  it('exposes a separate visibility control for the conceptual project grid', () => {
+    render(<MapPage />);
+
+    const projectGridButton = screen.getByRole('button', { name: 'Proje Şebeke' });
+    expect(projectGridButton.getAttribute('title')).toBe('Kavramsal şebekeyi göster');
+    expect(projectGridButton.getAttribute('aria-pressed')).toBe('false');
+
+    fireEvent.click(projectGridButton);
+
+    expect(projectGridButton.getAttribute('title')).toBe('Kavramsal şebekeyi gizle');
+    expect(projectGridButton.getAttribute('aria-pressed')).toBe('true');
+  });
+
   it('lazy-loads selected site footprints before passing the site to MapLibre', async () => {
     const lazySite = makeTestSite({
       id: 'lazy-footprint-site',

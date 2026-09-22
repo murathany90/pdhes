@@ -5,6 +5,7 @@ import { parseWorkspaceImport, serializeWorkspaceSites } from '../utils/workspac
 
 export const SITES_STORAGE_KEY = 'pspp-sites-v1';
 const LEGACY_CUSTOM_SITES_KEY = 'pspp-custom-sites-v1';
+export const DEFAULT_SITE_ID = 'kamu-gokcekaya-pspp';
 
 export type GridAssetsStatus = 'idle' | 'loading' | 'ready' | 'empty' | 'error';
 
@@ -49,7 +50,8 @@ function persistSites(sites: Site[]) {
 }
 
 function ensureSelected(sites: Site[], selectedId: string) {
-  return sites.some((site) => site.id === selectedId) ? selectedId : sites[0]?.id || '';
+  if (sites.some((site) => site.id === selectedId)) return selectedId;
+  return sites.find((site) => site.id === DEFAULT_SITE_ID)?.id || sites[0]?.id || DEFAULT_SITE_ID;
 }
 
 export function getPersistedSites(): Site[] | null {
@@ -65,7 +67,7 @@ export const useSiteStore = create<SiteStore>((set, get) => ({
   baseSites: [],
   gridAssets: null,
   gridAssetsStatus: 'idle',
-  selectedId: 'gokcekaya',
+  selectedId: DEFAULT_SITE_ID,
   worldExampleFocusId: null,
   loading: true,
   selectSite: (id) => set({ selectedId: id, worldExampleFocusId: null }),

@@ -13,6 +13,7 @@ import { WORLD_EXAMPLES_DETAILED } from '../data/worldExamplesDetailed';
 import { num, moneyBn } from '../utils/format';
 import { publicAssetUrl } from '../utils/publicUrl';
 import type { Layout3DFootprint } from '../types/site';
+import { getSiteView } from '../utils/siteDerived';
 
 const DEFAULT_LAYERS: MapLayerVisibility = {
   candidates: true,
@@ -154,6 +155,16 @@ export default function MapPage() {
     }
   }, [worldExampleFocusId, mapRef]);
 
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !site || typeof (map as any).easeTo !== 'function') return;
+    const view = getSiteView(site);
+    map.easeTo({
+      pitch: layers.terrain3d ? Math.max(50, view.pitch) : 0,
+      duration: 650,
+    });
+  }, [layers.terrain3d, mapRef, site]);
+
   if (!site) return <section className="panel active"><p className="muted">Veri yükleniyor...</p></section>;
 
   const layoutCls = `map-layout ${rightCollapsed ? 'collapsed-right' : ''}`;
@@ -240,11 +251,27 @@ export default function MapPage() {
                 background: showPowerGrid ? 'var(--bg-primary, #0f172a)' : undefined, 
                 color: showPowerGrid ? 'var(--text-inverted, #fff)' : undefined 
               }}
+              aria-pressed={showPowerGrid}
               onClick={() => setShowPowerGrid(!showPowerGrid)}
               title={showPowerGrid ? "Elektrik Şebekesini Gizle" : "Elektrik Şebekesini Göster"}
             >
               <Zap size={18} />
               <b>Şebeke</b>
+            </button>
+
+            <button
+              type="button"
+              className="btn minimalist-3d-toggle"
+              style={{
+                background: layers.powerGrid ? 'var(--bg-primary, #0f172a)' : undefined,
+                color: layers.powerGrid ? 'var(--text-inverted, #fff)' : undefined,
+              }}
+              aria-pressed={layers.powerGrid}
+              onClick={() => setLayers((current) => ({ ...current, powerGrid: !current.powerGrid }))}
+              title={layers.powerGrid ? 'Kavramsal şebekeyi gizle' : 'Kavramsal şebekeyi göster'}
+            >
+              <Layers size={18} />
+              <b>Proje Şebeke</b>
             </button>
 
             <button
@@ -278,12 +305,12 @@ export default function MapPage() {
 
           {layers.projectLayout && layers.powerGrid && gridAssetsStatus === 'empty' && (
             <div className="map-data-notice" role="status">
-              Proje şebeke geometrisi mevcut değil. Gerçek iletim verisi için Şebeke düğmesini kullanın.
+              Doğrulanmış proje şebeke verisi mevcut değil; kavramsal bağlantılar gösteriliyor. Gerçek iletim verisi için Şebeke düğmesini kullanın.
             </div>
           )}
           {layers.projectLayout && layers.powerGrid && gridAssetsStatus === 'error' && (
             <div className="map-data-notice map-data-notice-error" role="alert">
-              Proje şebeke verisi yüklenemedi. Gerçek iletim katmanı korunmuştur.
+              Proje şebeke verisi yüklenemedi; kavramsal bağlantılar korunmuştur. Gerçek iletim katmanı için Şebeke düğmesini kullanın.
             </div>
           )}
           {showPowerGrid && osmPowerGridStatus === 'loading' && (

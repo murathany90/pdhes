@@ -353,17 +353,33 @@ export function useMapLibre({
         if (layers.switchyard3d) activeBlocks.push('switchyard', 'switchyardFootprint', 'existing_switchyard', 'new_switchyard');
         if (layers.portal) activeBlocks.push('portal', 'serviceDrainPortal');
 
+        const footprintLayerByComponent: Record<string, keyof MapLayerVisibility> = {
+          upper_reservoir: 'upperReservoir',
+          lower_reservoir: 'lowerReservoir',
+          powerhouse: 'powerhouse',
+          surge_tank: 'surgeTank',
+          penstock: 'waterPath',
+          headrace_tunnel: 'waterPath',
+          tailrace_tunnel: 'waterPath',
+          switchyard: 'switchyard3d',
+          portal: 'portal',
+        };
+        const isProjectBlockVisible = (feature: any) => {
+          const component = String(feature.properties?.component ?? '');
+          const layer = footprintLayerByComponent[component];
+          if (layer) return layers[layer];
+          const key = String(feature.properties?.key ?? '');
+          return activeBlocks.includes(component) || activeBlocks.includes(key);
+        };
+
         const filteredBlocks = {
           type: 'FeatureCollection',
-          features: projectLayout.blocks.features.filter(f => {
-            const comp = f.properties?.component || f.properties?.key;
-            return activeBlocks.includes(comp);
-          })
+          features: projectLayout.blocks.features.filter(isProjectBlockVisible),
         } as any;
 
         const filteredLabels = {
           type: 'FeatureCollection',
-          features: projectLayout.labels.features.filter(f => activeBlocks.includes(f.properties?.key))
+          features: projectLayout.labels.features.filter(isProjectBlockVisible),
         } as any;
 
         const extrusionColor = draftingMode ? [
@@ -752,7 +768,7 @@ export function useMapLibre({
       style: getMapStyleSpecification(mapStyle),
       center: getSiteView(site).center,
       zoom: getSiteView(site).zoom,
-      pitch: getSiteView(site).pitch,
+      pitch: layers.terrain3d ? getSiteView(site).pitch : 0,
       bearing: getSiteView(site).bearing,
       attributionControl: false,
       maxZoom: 22,

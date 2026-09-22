@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useReducer, useRef } from 'react';
 import { Droplets, Mountain, Play, Square, Tag, Zap } from 'lucide-react';
-import { useSiteStore } from '../stores/useSiteStore';
+import { DEFAULT_SITE_ID, useSiteStore } from '../stores/useSiteStore';
 import { COMPONENTS } from '../utils/constants';
 import type { Layout3DFootprint, Site } from '../types/site';
 import LayerToggle from '../components/ui/LayerToggle';
@@ -64,9 +64,18 @@ function simulationReducer(state: SimulationState, action: Parameters<typeof tra
 const INITIAL_RESERVOIR_SOC = { upper: 0.72, lower: 0.28 };
 const SIMULATION_STEP_SECONDS = 60;
 
-export default function ThreeDPage({ site: propSite }: { site?: Site }) {
+interface ThreeDPageProps {
+  site?: Site;
+  dataLoading?: boolean;
+  dataError?: string | null;
+}
+
+export default function ThreeDPage({ site: propSite, dataLoading = false, dataError = null }: ThreeDPageProps) {
   const { sites, selectedId } = useSiteStore();
-  const site = propSite || sites.find((item) => item.id === selectedId);
+  const site = propSite
+    || sites.find((item) => item.id === selectedId)
+    || sites.find((item) => item.id === DEFAULT_SITE_ID)
+    || sites[0];
 
   const initialLayers = useMemo(() => {
     return createLayerVisibilityState(true);
@@ -253,7 +262,20 @@ export default function ThreeDPage({ site: propSite }: { site?: Site }) {
   const footprintPendingForSite = Boolean(
     site?.layout3D?.useFootprintPolygons && footprintLoad.siteId !== site.id,
   );
-  if (!site || (site.layout3D?.useFootprintPolygons && (footprintPendingForSite || footprintLoad.status === 'loading'))) {
+  if (!site) {
+    return (
+      <section className="panel active">
+        <p className="muted" role={dataError ? 'alert' : 'status'}>
+          {dataError
+            ? `3D tesis verisi yüklenemedi: ${dataError}`
+            : dataLoading
+              ? 'Veri yükleniyor...'
+              : 'Geçerli tesis verisi bulunamadı.'}
+        </p>
+      </section>
+    );
+  }
+  if (site.layout3D?.useFootprintPolygons && (footprintPendingForSite || footprintLoad.status === 'loading')) {
     return <section className="panel active"><p className="muted">Veri yükleniyor...</p></section>;
   }
 

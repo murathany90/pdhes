@@ -12,7 +12,7 @@ import {
   Sun,
 } from 'lucide-react';
 import { Navigate, NavLink, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom';
-import { useSiteStore } from './stores/useSiteStore';
+import { DEFAULT_SITE_ID, useSiteStore } from './stores/useSiteStore';
 import { useSettingsStore } from './stores/useSettingsStore';
 import { useAppData } from './hooks/useAppData';
 import DataPage from './pages/DataPage';
@@ -76,7 +76,7 @@ export default function App() {
   const [siteEditorMode, setSiteEditorMode] = useState<'new' | 'edit'>('edit');
   const navigate = useNavigate();
   const location = useLocation();
-  const { sites, selectedId, selectSite } = useSiteStore();
+  const { sites, selectedId, selectSite, loading } = useSiteStore();
   const { theme, toggleTheme } = useSettingsStore();
   const { error: dataError } = useAppData();
 
@@ -97,7 +97,9 @@ export default function App() {
     themeColor.content = theme === 'dark' ? '#0a0a0a' : '#fafafa';
   }, [theme]);
 
-  const selectedSite = sites.find((s) => s.id === selectedId) || sites[0];
+  const selectedSite = sites.find((s) => s.id === selectedId)
+    || sites.find((s) => s.id === DEFAULT_SITE_ID)
+    || sites[0];
   const isHydrologyRoute = location.pathname === '/hes';
 
 
@@ -195,7 +197,7 @@ export default function App() {
           <Route path="/data" element={<DataPage site={selectedSite} />} />
           <Route path="/world-examples" element={<WorldExamplesPage />} />
           <Route path="/map" element={<MapPage />} />
-          <Route path="/3d" element={<ThreeDPage site={selectedSite} />} />
+          <Route path="/3d" element={<ThreeDPage site={selectedSite} dataLoading={loading} dataError={dataError} />} />
           <Route path="/reports" element={<ReportsPage />} />
           <Route path="/reports/:reportId" element={<ReportsPage />} />
           <Route path="/hes" element={<HesPage />} />

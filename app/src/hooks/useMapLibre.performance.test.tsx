@@ -397,6 +397,47 @@ describe('useMapLibre performance behavior', () => {
     expect(map.setTerrain).toHaveBeenLastCalledWith({ source: 'terrainSource', exaggeration: 1.1 * 1.3 });
   });
 
+  it('filters footprint blocks by component layer instead of relying only on footprint ids', () => {
+    const site = makeTestSite({
+      layout3D: {
+        scale: 'macro',
+        preferredBearing: 0,
+        terrainExaggeration: 1,
+        reservoirSurfaceMode: 'polygon',
+        useFootprintPolygons: true,
+        hideLegacySquareReservoir: true,
+        componentFootprints: [
+          {
+            id: 'upper-reservoir-custom-id',
+            component: 'upper_reservoir',
+            kind: 'polygon',
+            material: 'water',
+            closed: true,
+            coords: [[32, 40], [32.01, 40], [32.01, 40.01], [32, 40.01], [32, 40]],
+          },
+          {
+            id: 'switchyard-custom-id',
+            component: 'switchyard',
+            kind: 'polygon',
+            material: 'switchyard',
+            closed: true,
+            coords: [[32.02, 40], [32.03, 40], [32.03, 40.01], [32.02, 40.01], [32.02, 40]],
+          },
+        ],
+      },
+    });
+    const layers = { ...DEFAULT_LAYERS, upperReservoir: false, switchyard3d: true };
+    render(<Harness site={site} layers={layers} />);
+    const map = latestMap();
+
+    act(() => map.fire('load'));
+
+    const blocks = (map.sources.get('blocks')?.data as any).features;
+    const blockKeys = blocks.map((feature: any) => feature.properties.id ?? feature.properties.key);
+    expect(blockKeys).toContain('switchyard-custom-id');
+    expect(blockKeys).not.toContain('upper-reservoir-custom-id');
+  });
+
   it('rebinds layer tooltips exactly once after a style change', () => {
     const site = makeTestSite();
     const { rerender } = render(<Harness site={site} layers={DEFAULT_LAYERS} mapStyle="satellite" />);
