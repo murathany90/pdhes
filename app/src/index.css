@@ -2014,9 +2014,14 @@ details.maplibregl-ctrl-attrib:not([open]) .maplibregl-ctrl-attrib-inner {
 .threed-site-meta { display: flex; align-items: baseline; gap: 8px; flex: 2; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 .threed-site-meta b { font-size: 14px; }
 .threed-site-meta span { font-size: 12px; overflow: hidden; text-overflow: ellipsis; }
-.threed-main { display: grid; grid-template-columns: 290px minmax(0, 1fr) 350px; flex: 1; min-height: 0; overflow: hidden; position: relative; }
-.threed-tree { border-right: 1px solid var(--line); background: var(--panel); padding: 16px; overflow: auto; min-height: 0; }
-.threed-info { border-left: 1px solid var(--line); background: var(--panel); padding: 16px; overflow: auto; min-height: 0; }
+.threed-main { display: grid; grid-template-columns: minmax(0, 1fr); flex: 1; min-height: 0; overflow: hidden; position: relative; }
+.threed-main.has-tree { grid-template-columns: 290px minmax(0, 1fr); }
+.threed-main.has-tree.has-info { grid-template-columns: 290px minmax(0, 1fr) 350px; }
+.threed-main.has-info:not(.has-tree) { grid-template-columns: minmax(0, 1fr) 350px; }
+.threed-tree { display: none; border-right: 1px solid var(--line); background: var(--panel); padding: 16px; overflow: auto; min-height: 0; }
+.has-tree .threed-tree { display: block; }
+.threed-info { display: none; border-left: 1px solid var(--line); background: var(--panel); padding: 16px; overflow: auto; min-height: 0; }
+.has-info .threed-info { display: block; }
 .threed-stage { position: relative; min-width: 0; min-height: 0; display: flex; background: #030504; overflow: hidden; }
 .threed-stage .threed-scene-stage { flex: 1; min-height: 0; height: 100%; }
 .threed-panel-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 12px; }
@@ -2040,8 +2045,9 @@ details.maplibregl-ctrl-attrib:not([open]) .maplibregl-ctrl-attrib-inner {
 .threed-settings h4 { margin: 16px 0 8px; font-size: 13px; }
 
 @media (max-width: 1100px) {
-  .threed-main { grid-template-columns: minmax(0, 1fr); }
+  .threed-main, .threed-main.has-tree, .threed-main.has-tree.has-info, .threed-main.has-info:not(.has-tree) { grid-template-columns: minmax(0, 1fr); }
   .threed-tree, .threed-info { position: absolute; top: 0; bottom: 0; width: min(330px, 88vw); z-index: 25; transition: transform .2s ease; box-shadow: 0 0 32px rgba(0,0,0,.4); }
+  .threed-tree.open, .threed-info.open { display: block; }
   .threed-tree { left: 0; transform: translateX(-110%); }
   .threed-info { right: 0; border-left: 1px solid var(--line); border-right: none; transform: translateX(110%); }
   .threed-tree.open, .threed-info.open { transform: none; }

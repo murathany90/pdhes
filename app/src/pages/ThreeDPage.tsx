@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useReducer, useRef } from 'react';
-import { Droplets, Mountain, Play, Square, Tag, Zap, Search, Settings2, PanelLeft, PanelRight, Eye, EyeOff, X } from 'lucide-react';
+import { Droplets, Mountain, Play, Square, Tag, Zap, Search, Settings2, PanelLeft, PanelRight, Eye, EyeOff, X, ChevronDown, ChevronUp } from 'lucide-react';
 import { DEFAULT_SITE_ID, useSiteStore } from '../stores/useSiteStore';
 import { COMPONENTS } from '../utils/constants';
 import type { Layout3DFootprint, Site } from '../types/site';
@@ -409,6 +409,7 @@ export default function ThreeDPage({ site: propSite, dataLoading = false, dataEr
   const [treeOpen, setTreeOpen] = useState(() => (typeof window === 'undefined' ? true : window.innerWidth > 1100));
   const [infoOpen, setInfoOpen] = useState(() => (typeof window === 'undefined' ? true : window.innerWidth > 1100));
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [bottomOpen, setBottomOpen] = useState(true);
   const [siteSearch, setSiteSearch] = useState('');
   const [searchFocus, setSearchFocus] = useState(false);
 
@@ -609,13 +610,21 @@ export default function ThreeDPage({ site: propSite, dataLoading = false, dataEr
         </button>
       </div>
 
-      <div className="threed-main">
+      <div className={`threed-main ${treeOpen ? 'has-tree' : ''} ${infoOpen ? 'has-info' : ''}`}>
         {/* SOL YAPI AĞACI */}
         <aside className={`threed-tree ${treeOpen ? 'open' : ''}`} aria-label="Tesis yapı ağacı">
           <div className="threed-panel-head">
             <h3>Tesis Bileşenleri</h3>
             <button type="button" className="btn ghost threed-mini" aria-label="Yapı ağacını kapat" onClick={() => setTreeOpen(false)}>
               <X size={15} aria-hidden="true" />
+            </button>
+          </div>
+          <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+            <button type="button" className="btn ghost" style={{ flex: 1, padding: '4px', fontSize: 12 }} onClick={() => setAllLayerVisibility(true)}>
+              Tümünü Aç
+            </button>
+            <button type="button" className="btn ghost" style={{ flex: 1, padding: '4px', fontSize: 12 }} onClick={() => setAllLayerVisibility(false)}>
+              Tümünü Kapat
             </button>
           </div>
           {structureTree.map((section) => {
@@ -847,6 +856,19 @@ export default function ThreeDPage({ site: propSite, dataLoading = false, dataEr
 
       {/* ALT İŞLETME ÇUBUĞU */}
       <div className="threed-bottombar">
+        <button
+          type="button"
+          className="btn ghost"
+          style={{ minHeight: 36, padding: '4px 8px' }}
+          aria-pressed={bottomOpen}
+          aria-label={bottomOpen ? 'Alt işletme çubuğunu gizle' : 'Alt işletme çubuğunu göster'}
+          title={bottomOpen ? 'Alt işletme çubuğunu gizle' : 'Alt işletme çubuğunu göster'}
+          onClick={() => setBottomOpen((open) => !open)}
+        >
+          {bottomOpen ? <ChevronDown size={16} aria-hidden="true" /> : <ChevronUp size={16} aria-hidden="true" />}
+        </button>
+        {bottomOpen && (
+          <>
         <div className="threed-controls">
           <button
             type="button"
@@ -910,6 +932,8 @@ export default function ThreeDPage({ site: propSite, dataLoading = false, dataEr
           <span>Debi <b>{snapshot.running && snapshot.flowCms <= 0 ? 'temsilî akış' : `${snapshot.flowCms.toFixed(1)} m³/s`}</b></span>
           <span>Net enerji <b>{energyMWh.toFixed(1)} MWh</b></span>
         </div>
+          </>
+        )}
       </div>
 
       {/* AÇILABİLİR GELİŞMİŞ AYARLAR */}
@@ -921,15 +945,10 @@ export default function ThreeDPage({ site: propSite, dataLoading = false, dataEr
               <X size={15} aria-hidden="true" />
             </button>
           </div>
-          <h4>Katman Görünürlüğü</h4>
-          <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
-            <button type="button" className="btn ghost" style={{ flex: 1, padding: '4px', fontSize: 12 }} onClick={() => setAllLayerVisibility(true)}>
-              Tümünü Aç
-            </button>
-            <button type="button" className="btn ghost" style={{ flex: 1, padding: '4px', fontSize: 12 }} onClick={() => setAllLayerVisibility(false)}>
-              Tümünü Kapat
-            </button>
-          </div>
+          <h4>Görünüm Katmanları</h4>
+          <p className="muted" style={{ fontSize: 12, margin: '0 0 8px' }}>
+            Bileşen katman gözleri sol yapı ağacındadır.
+          </p>
           <LayerToggle
             label={<><Mountain size={16} aria-hidden="true" /> {terrainLabel}</>}
             color="#4c6b45"
@@ -948,15 +967,6 @@ export default function ThreeDPage({ site: propSite, dataLoading = false, dataEr
             onChange={setShowLabels}
           />
           <div style={{ height: 8 }} />
-          {COMPONENTS.map(c => (
-            <LayerToggle
-              key={c.key}
-              label={c.label}
-              color={c.color}
-              active={!!layers[c.key]}
-              onChange={(v) => setComponentLayerVisibility(c.key, v)}
-            />
-          ))}
           <h4>Arazi Görünümü</h4>
           <ScenarioSlider
             label="Arazi Şeffaflığı"

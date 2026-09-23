@@ -67,7 +67,6 @@ describe('ThreeDPage controls', () => {
 
     expect(model.getAttribute('data-active')).toBe('upper_reservoir');
 
-    fireEvent.click(screen.getByRole('button', { name: 'Gelişmiş ayarları aç/kapat' }));
     // Toggle off everything
     const closeAllBtn = screen.getByRole('button', { name: 'Tümünü Kapat' });
     fireEvent.click(closeAllBtn);
@@ -84,7 +83,6 @@ describe('ThreeDPage controls', () => {
 
   it('handles fast layer toggling without throwing errors', () => {
     render(<ThreeDPage site={site} />);
-    fireEvent.click(screen.getByRole('button', { name: 'Gelişmiş ayarları aç/kapat' }));
     const closeAllBtn = screen.getByRole('button', { name: 'Tümünü Kapat' });
     const openAllBtn = screen.getByRole('button', { name: 'Tümünü Aç' });
     
@@ -531,6 +529,29 @@ describe('ThreeDPage controls', () => {
     expect(screen.getByText(/Seçili ünite 4\/4/)).toBeTruthy();
     fireEvent.click(screen.getByRole('tab', { name: 'Kaynak / Veri' }));
     expect(screen.getAllByText(/Koordinat güveni/).length).toBeGreaterThan(0);
+  });
+
+  it('collapses and reopens the tree, info and bottom panels', () => {
+    const { container } = render(<ThreeDPage site={site} />);
+    const main = () => container.querySelector('.threed-main') as HTMLElement;
+    const treeToggle = screen.getByRole('button', { name: 'Yapı ağacını aç/kapat' });
+    const infoToggle = screen.getByRole('button', { name: 'Bilgi panelini aç/kapat' });
+
+    fireEvent.click(treeToggle);
+    expect(main().className).toMatch(/has-tree/);
+    fireEvent.click(treeToggle);
+    expect(main().className).not.toMatch(/has-tree/);
+
+    fireEvent.click(infoToggle);
+    expect(main().className).toMatch(/has-info/);
+    fireEvent.click(infoToggle);
+    expect(main().className).not.toMatch(/has-info/);
+
+    expect(screen.getByLabelText('Simülasyon göstergeleri')).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Alt işletme çubuğunu gizle' }));
+    expect(screen.queryByLabelText('Simülasyon göstergeleri')).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Alt işletme çubuğunu göster' }));
+    expect(screen.getByLabelText('Simülasyon göstergeleri')).toBeTruthy();
   });
 });
 
