@@ -503,6 +503,25 @@ describe('ThreeDPage controls', () => {
     expect(screen.getByTestId('three-d-model').getAttribute('data-site-id')).toBe('site-b');
   });
 
+  it('supports arrow keys, Enter and Escape in site search', () => {
+    const siteA = makeTestSite({ id: 'site-a', name: 'Alfa PDHES' });
+    const siteB = makeTestSite({ id: 'site-b', name: 'Beta PDHES' });
+    useSiteStore.setState({ sites: [siteA, siteB], selectedId: 'site-a' });
+    render(<ThreeDPage />);
+    const searchbox = screen.getByRole('searchbox', { name: 'Tesis ara' });
+
+    fireEvent.focus(searchbox);
+    fireEvent.keyDown(searchbox, { key: 'ArrowDown' });
+    fireEvent.keyDown(searchbox, { key: 'Enter' });
+    expect(screen.getByTestId('three-d-model').getAttribute('data-site-id')).toBe('site-b');
+
+    fireEvent.focus(searchbox);
+    fireEvent.change(searchbox, { target: { value: 'zzz' } });
+    expect(screen.getByText(/Sonuç bulunamadı/)).toBeTruthy();
+    fireEvent.keyDown(searchbox, { key: 'Escape' });
+    expect((searchbox as HTMLInputElement).value).toBe('');
+  });
+
   it('shows technical and operation tabs for the selected component', () => {
     render(<ThreeDPage site={makeTestSite({
       components_detail: {
@@ -552,6 +571,23 @@ describe('ThreeDPage controls', () => {
     expect(screen.queryByLabelText('Simülasyon göstergeleri')).toBeNull();
     fireEvent.click(screen.getByRole('button', { name: 'Alt işletme çubuğunu göster' }));
     expect(screen.getByLabelText('Simülasyon göstergeleri')).toBeTruthy();
+  });
+
+  it('recovers hook order when site data arrives after a site-less first render', () => {
+    useSiteStore.setState({ sites: [], selectedId: 'missing-site' });
+    const { rerender } = render(<ThreeDPage />);
+
+    expect(screen.getByText(/Geçerli tesis verisi bulunamadı/)).toBeTruthy();
+    expect(screen.queryByTestId('three-d-model')).toBeNull();
+
+    const lateSite = makeTestSite({ id: 'late-site', name: 'Geç Gelen Tesis' });
+    act(() => {
+      useSiteStore.setState({ sites: [lateSite], selectedId: 'late-site' });
+    });
+    rerender(<ThreeDPage />);
+
+    expect(screen.getByTestId('three-d-model').getAttribute('data-site-id')).toBe('late-site');
+    expect(screen.getByText('Geç Gelen Tesis')).toBeTruthy();
   });
 });
 

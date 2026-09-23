@@ -1651,8 +1651,10 @@ function FlowArrows({ points, color }: {
  * Footprint cebri borusu: kaynak güzergâhı korunur, hacimli 3D boru
  * yalnızca görüntüleme geometrisidir (LOD amaçlı sadeleştirilebilir).
  */
-function PenstockTube({ points, active, selected, flowActive, quality, onClick }: {
+function PenstockTube({ points, flowPoints, active, selected, flowActive, quality, onClick }: {
   points: [number, number, number][];
+  /** Parçacık/ok yönü; tüp geometrisi yönden bağımsızdır. */
+  flowPoints: [number, number, number][];
   active: boolean;
   selected?: boolean;
   flowActive: boolean;
@@ -1685,7 +1687,7 @@ function PenstockTube({ points, active, selected, flowActive, quality, onClick }
           side={THREE.DoubleSide}
         />
       </mesh>
-      <FlowArrows points={points} color={flowActive ? FLOW_VISUAL.hydraulicBright : FLOW_VISUAL.idle} />
+      <FlowArrows points={flowPoints} color={flowActive ? FLOW_VISUAL.hydraulicBright : FLOW_VISUAL.idle} />
     </group>
   );
 }
@@ -1707,16 +1709,20 @@ const PenstockFlowItem = memo(function PenstockFlowItem({ item, planItems, layer
   particleCount: number;
   mode: 'generate' | 'pump';
 }) {
-  const points = useMemo(() => {
-    const generationPoints = generationWaterwayPoints(item, planItems);
-    return mode === 'generate' ? generationPoints : [...generationPoints].reverse();
-  }, [item, planItems, mode]);
+  // Tüp güzergâhı moddan bağımsızdır: üretim/pompalama değişiminde yalnız
+  // parçacık ve ok yönü değişir, TubeGeometry yeniden üretilmez.
+  const points = useMemo(() => generationWaterwayPoints(item, planItems), [item, planItems]);
+  const flowPoints = useMemo(
+    () => (mode === 'generate' ? points : [...points].reverse()),
+    [mode, points],
+  );
   const layerActive = activeComponent === item.component || activeComponent === layerKey;
 
   return (
     <group key={`hydraulic-${item.id}`}>
       <PenstockTube
         points={points}
+        flowPoints={flowPoints}
         active={selectedItemId ? false : layerActive}
         selected={selectedItemId === item.id}
         flowActive={flowActive}
@@ -1724,7 +1730,7 @@ const PenstockFlowItem = memo(function PenstockFlowItem({ item, planItems, layer
         onClick={() => onSelectItem?.(layerKey, item.id)}
       />
       <FlowParticles
-        points={points}
+        points={flowPoints}
         color={FLOW_VISUAL.hydraulicBright}
         active={flowActive}
         count={particleCount}
@@ -1811,12 +1817,13 @@ function HydraulicFlowLayer({ plan, topology, activeUnitIds, mode, isPlaying, qu
         }
         const generationPoints = generationWaterwayPoints(item, plan.items);
         const points = mode === 'generate' ? generationPoints : [...generationPoints].reverse();
+        const selected = selectedItemId === item.id;
         return (
           <group key={`hydraulic-${item.id}`}>
             <Line
               points={points}
-              color={flowActive ? FLOW_VISUAL.hydraulic : FLOW_VISUAL.idle}
-              lineWidth={(flowActive ? 3.5 : 1.4) + lineBoost}
+              color={selected ? FLOW_VISUAL.selected : flowActive ? FLOW_VISUAL.hydraulic : FLOW_VISUAL.idle}
+              lineWidth={(flowActive ? 3.5 : 1.4) + lineBoost + (selected ? 1 : 0)}
               dashed={item.material === 'tunnel_axis' || item.component.includes('tunnel')} dashSize={3} gapSize={1.5}
             />
             <Line

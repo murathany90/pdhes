@@ -412,6 +412,22 @@ export default function ThreeDPage({ site: propSite, dataLoading = false, dataEr
   const [bottomOpen, setBottomOpen] = useState(true);
   const [siteSearch, setSiteSearch] = useState('');
   const [searchFocus, setSearchFocus] = useState(false);
+  const [highlightedSiteIndex, setHighlightedSiteIndex] = useState(-1);
+
+  // Bütün Hook çağrıları erken dönüşten önce koşulsuz çalışır; site
+  // sonradan gelse de kanca sırası değişmez.
+  const structureTree = useMemo(
+    () => buildStructureTree(footprintPlan.items, topology, unitIds),
+    [footprintPlan, topology, unitIds],
+  );
+  const filteredSites = useMemo(() => {
+    const query = siteSearch.trim().toLocaleLowerCase('tr-TR');
+    if (!query) return sites;
+    return sites.filter((candidate) => (
+      candidate.name.toLocaleLowerCase('tr-TR').includes(query)
+      || candidate.province.toLocaleLowerCase('tr-TR').includes(query)
+    ));
+  }, [sites, siteSearch]);
 
   const footprintPendingForSite = Boolean(
     site?.layout3D?.useFootprintPolygons && footprintLoad.siteId !== site.id,
@@ -464,19 +480,6 @@ export default function ThreeDPage({ site: propSite, dataLoading = false, dataEr
     setIsPlaying(true);
     dispatchSimulation({ type: 'START', mode });
   };
-
-  const structureTree = useMemo(
-    () => buildStructureTree(footprintPlan.items, topology, unitIds),
-    [footprintPlan, topology, unitIds],
-  );
-  const filteredSites = useMemo(() => {
-    const query = siteSearch.trim().toLocaleLowerCase('tr-TR');
-    if (!query) return sites;
-    return sites.filter((candidate) => (
-      candidate.name.toLocaleLowerCase('tr-TR').includes(query)
-      || candidate.province.toLocaleLowerCase('tr-TR').includes(query)
-    ));
-  }, [sites, siteSearch]);
 
   const selectedFootprint = selectedItemId
     ? footprintPlan.items.find((item) => item.id === selectedItemId)
@@ -541,34 +544,65 @@ export default function ThreeDPage({ site: propSite, dataLoading = false, dataEr
           <input
             type="search"
             aria-label="Tesis ara"
+            aria-expanded={searchFocus}
+            aria-controls="threed-site-listbox"
+            aria-activedescendant={highlightedSiteIndex >= 0 && filteredSites[highlightedSiteIndex]
+              ? `threed-site-option-${filteredSites[highlightedSiteIndex].id}`
+              : undefined}
             placeholder="Tesis ara… (Gökçekaya, Sarıyar, Altınkaya)"
             value={siteSearch}
-            onChange={(event) => setSiteSearch(event.target.value)}
-            onFocus={() => setSearchFocus(true)}
-            onBlur={() => window.setTimeout(() => setSearchFocus(false), 150)}
+            onChange={(event) => { setSiteSearch(event.target.value); setHighlightedSiteIndex(-1); }}
+            onFocus={() => {
+              setSearchFocus(true);
+              setHighlightedSiteIndex(Math.max(0, filteredSites.findIndex((candidate) => candidate.id === site.id)));
+            }}
+            onBlur={() => window.setTimeout(() => { setSearchFocus(false); setHighlightedSiteIndex(-1); }, 150)}
             onKeyDown={(event) => {
-              if (event.key === 'Escape') {
+              if (event.key === 'ArrowDown') {
+                event.preventDefault();
+                setSearchFocus(true);
+                setHighlightedSiteIndex((index) => (filteredSites.length === 0 ? -1 : (index + 1) % filteredSites.length));
+              } else if (event.key === 'ArrowUp') {
+                event.preventDefault();
+                setSearchFocus(true);
+                setHighlightedSiteIndex((index) => (filteredSites.length === 0 ? -1 : (index - 1 + filteredSites.length) % filteredSites.length));
+              } else if (event.key === 'Enter') {
+                const target = filteredSites[highlightedSiteIndex]
+                  ?? (filteredSites.length === 1 ? filteredSites[0] : undefined);
+                if (target) {
+                  event.preventDefault();
+                  selectSite(target.id);
+                  setSiteSearch('');
+                  setSearchFocus(false);
+                  setHighlightedSiteIndex(-1);
+                  event.currentTarget.blur();
+                }
+              } else if (event.key === 'Escape') {
                 setSiteSearch('');
+                setSearchFocus(false);
+                setHighlightedSiteIndex(-1);
                 event.currentTarget.blur();
               }
             }}
           />
           {searchFocus && (
-            <div className="threed-site-results" role="listbox" aria-label="Tesis sonuçları">
+            <div id="threed-site-listbox" className="threed-site-results" role="listbox" aria-label="Tesis sonuçları">
               <p className="muted" style={{ padding: '4px 10px', fontSize: 12 }}>
                 {siteSearch ? `${filteredSites.length} sonuç` : `Tüm tesisler (${filteredSites.length})`}
               </p>
               {filteredSites.length === 0 && (
                 <p className="muted" style={{ padding: '8px 12px', fontSize: 13 }}>Sonuç bulunamadı.</p>
               )}
-              {filteredSites.map((candidate) => (
+              {filteredSites.map((candidate, index) => (
                 <button
                   key={candidate.id}
+                  id={`threed-site-option-${candidate.id}`}
                   type="button"
                   role="option"
-                  aria-selected={candidate.id === site.id}
-                  className={`threed-site-result ${candidate.id === site.id ? 'active' : ''}`}
-                  onClick={() => { selectSite(candidate.id); setSiteSearch(''); setSearchFocus(false); }}
+                  aria-selected={highlightedSiteIndex === index || (highlightedSiteIndex < 0 && candidate.id === site.id)}
+                  className={`threed-site-result ${highlightedSiteIndex === index ? 'highlighted' : ''} ${candidate.id === site.id ? 'active' : ''}`}
+                  onMouseEnter={() => setHighlightedSiteIndex(index)}
+                  onClick={() => { selectSite(candidate.id); setSiteSearch(''); setSearchFocus(false); setHighlightedSiteIndex(-1); }}
                 >
                   <b>{candidate.name}</b>
                   <span className="muted">

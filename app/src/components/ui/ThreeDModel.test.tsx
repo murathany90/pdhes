@@ -3,6 +3,7 @@
 import type React from 'react';
 import { act, cleanup, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import * as THREE from 'three';
 import { makeTestSite } from '../../test-utils/makeTestSite';
 import { useSettingsStore } from '../../stores/useSettingsStore';
 import { useSiteStore } from '../../stores/useSiteStore';
@@ -771,8 +772,7 @@ describe('ThreeDModel footprint source', () => {
     expect(hydraulic.getAttribute('data-penstock-tubes')).toBe('1');
   });
 
-  it('stops flow particles when the animation toggle is off without changing telemetry inputs', () => {
-    const site = makeTestSite({
+  it('stops flow particles when the animation toggle is off without changing telemetry inputs', () => {    const site = makeTestSite({
       projectFlowCms: 150,
       layout3D: {
         scale: 'macro',
@@ -833,5 +833,167 @@ describe('ThreeDModel footprint source', () => {
 
     expect(screen.getByTestId('hydraulic-flow-layer').getAttribute('data-flow-active')).toBe('false');
     expect(screen.getByTestId('electrical-flow-layer').getAttribute('data-flow-active')).toBe('false');
+  });
+
+  it('highlights only the selected penstock among same-layer tubes', () => {
+    const site = makeTestSite({
+      layout3D: {
+        scale: 'macro',
+        preferredBearing: 0,
+        terrainExaggeration: 1,
+        reservoirSurfaceMode: 'polygon',
+        useFootprintPolygons: true,
+        hideLegacySquareReservoir: true,
+        componentFootprints: [
+          {
+            id: 'penstock-1',
+            component: 'penstock',
+            kind: 'polyline',
+            material: 'shaft',
+            coords: [[32.015, 40.025], [32.02, 40.015]],
+            profileElevationM: [250, 100],
+          },
+          {
+            id: 'penstock-2',
+            component: 'penstock',
+            kind: 'polyline',
+            material: 'shaft',
+            coords: [[32.016, 40.026], [32.021, 40.016]],
+            profileElevationM: [250, 100],
+          },
+          {
+            id: 'powerhouse',
+            component: 'powerhouse',
+            kind: 'polygon',
+            material: 'industrial',
+            closed: true,
+            coords: [[32.018, 40.014], [32.022, 40.014], [32.022, 40.018], [32.018, 40.018], [32.018, 40.014]],
+            elevationM: 110,
+          },
+        ],
+      },
+    });
+
+    const { container } = render(
+      <ThreeDModel
+        siteId={site.id}
+        activeComponent="penstock"
+        selectedItemId="penstock-1"
+        onSelectComponent={vi.fn()}
+        onSelectItem={vi.fn()}
+        layers={{}}
+        mode="generate"
+        componentsDetail={{
+          upper_reservoir: {
+            elevation_m: 500,
+            active_volume_mcm: 2,
+            dam_height_m: 10,
+            lining: '',
+            geology_note: '',
+          },
+          lower_reservoir: { elevation_m: 90, min_level_m: 80, note: '' },
+          penstock: { diameter_m: 4, length_m: 100, material: '', pressure_class: '', count: 2 },
+          powerhouse: { cavern_width_m: 10, cavern_length_m: 20, cavern_height_m: 15, units: 2, turbine_type: '' },
+          surge_tank: { type: '', height_m: 20, diameter_m: 5 },
+          switchyard: { voltage_kv: 154, transformer_count: 1, connection_line_km: 1 },
+          tunnel: { length_m: 100, diameter_m: 4, excavation_type: '' },
+          intake_outfall: null,
+        }}
+        site={site}
+        isPlaying={false}
+        activeUnits={2}
+        activeUnitIds={['G1', 'G2']}
+        simulationState="IDLE"
+        quality="high"
+        upperSoc={0.5}
+        lowerSoc={0.5}
+        maxUnits={2}
+        showTerrain={false}
+        showLabels={false}
+        terrainOpacity={0.7}
+      />,
+    );
+
+    // Yalnız seçili boru güçlü vurgu rengini taşır; kardeş boru ve
+    // santral poligonu taşımaz.
+    expect(container.querySelectorAll('[emissive="#f5b50b"]').length).toBe(1);
+    expect(container.querySelectorAll('meshstandardmaterial[emissive="#000000"]').length).toBeGreaterThan(0);
+  });
+
+  it('reuses TubeGeometry across SOC updates and mode flips; disposes on quality change and unmount', () => {
+    const disposeSpy = vi.spyOn(THREE.BufferGeometry.prototype, 'dispose');
+    const site = makeTestSite({
+      layout3D: {
+        scale: 'macro',
+        preferredBearing: 0,
+        terrainExaggeration: 1,
+        reservoirSurfaceMode: 'polygon',
+        useFootprintPolygons: true,
+        hideLegacySquareReservoir: true,
+        componentFootprints: [{
+          id: 'penstock-a',
+          component: 'penstock',
+          kind: 'polyline',
+          material: 'shaft',
+          coords: [[32.015, 40.025], [32.02, 40.015]],
+          profileElevationM: [250, 100],
+        }],
+      },
+    });
+    const componentsDetail = {
+      upper_reservoir: {
+        elevation_m: 500,
+        active_volume_mcm: 2,
+        dam_height_m: 10,
+        lining: '',
+        geology_note: '',
+      },
+      lower_reservoir: { elevation_m: 90, min_level_m: 80, note: '' },
+      penstock: { diameter_m: 4, length_m: 100, material: '', pressure_class: '', count: 1 },
+      powerhouse: { cavern_width_m: 10, cavern_length_m: 20, cavern_height_m: 15, units: 1, turbine_type: '' },
+      surge_tank: { type: '', height_m: 20, diameter_m: 5 },
+      switchyard: { voltage_kv: 154, transformer_count: 1, connection_line_km: 1 },
+      tunnel: { length_m: 100, diameter_m: 4, excavation_type: '' },
+      intake_outfall: null,
+    } as const;
+    const baseProps = {
+      siteId: site.id,
+      activeComponent: 'penstock',
+      onSelectComponent: vi.fn(),
+      layers: {},
+      componentsDetail,
+      site,
+      isPlaying: false,
+      activeUnits: 1,
+      activeUnitIds: ['G1'],
+      simulationState: 'IDLE' as const,
+      upperSoc: 0.5,
+      lowerSoc: 0.5,
+      maxUnits: 1,
+      showTerrain: false,
+      showLabels: false,
+      terrainOpacity: 0.7,
+    };
+
+    const view = render(<ThreeDModel {...baseProps} mode="generate" quality="high" />);
+    const afterMount = disposeSpy.mock.calls.length;
+
+    // SOC güncellemesi geometriyi yeniden üretmemeli.
+    view.rerender(<ThreeDModel {...baseProps} mode="generate" quality="high" upperSoc={0.6} />);
+    expect(disposeSpy.mock.calls.length).toBe(afterMount);
+
+    // Mod değişimi yalnız akış yönünü değiştirir; tüp aynı kalır.
+    view.rerender(<ThreeDModel {...baseProps} mode="pump" quality="high" upperSoc={0.6} />);
+    expect(disposeSpy.mock.calls.length).toBe(afterMount);
+    expect(screen.getByTestId('hydraulic-flow-layer').getAttribute('data-flow-direction')).toBe('lower-to-upper');
+
+    // Kalite değişimi sadeleştirilmiş geometriyi yeniler ve eskiyi temizler.
+    view.rerender(<ThreeDModel {...baseProps} mode="pump" quality="low" upperSoc={0.6} />);
+    expect(disposeSpy.mock.calls.length).toBeGreaterThan(afterMount);
+
+    const beforeUnmount = disposeSpy.mock.calls.length;
+    view.unmount();
+    expect(disposeSpy.mock.calls.length).toBeGreaterThan(beforeUnmount);
+    disposeSpy.mockRestore();
   });
 });

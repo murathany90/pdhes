@@ -2008,7 +2008,7 @@ details.maplibregl-ctrl-attrib:not([open]) .maplibregl-ctrl-attrib-inner {
 .threed-site-search input { flex: 1; min-width: 0; background: transparent; border: none; outline: none; color: var(--text); font: inherit; font-size: 13px; }
 .threed-site-results { position: absolute; top: calc(100% + 6px); left: 0; right: 0; max-height: 320px; overflow: auto; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; z-index: 40; padding: 6px; }
 .threed-site-result { display: grid; gap: 2px; width: 100%; text-align: left; font: inherit; background: transparent; border: 1px solid transparent; border-radius: 10px; padding: 8px 10px; color: var(--text); cursor: pointer; }
-.threed-site-result:hover, .threed-site-result.active { border-color: rgba(57,213,255,.55); background: rgba(57,213,255,.08); }
+.threed-site-result:hover, .threed-site-result.active, .threed-site-result.highlighted { border-color: rgba(57,213,255,.55); background: rgba(57,213,255,.08); }
 .threed-site-result b { font-size: 13px; }
 .threed-site-result span { font-size: 12px; }
 .threed-site-meta { display: flex; align-items: baseline; gap: 8px; flex: 2; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
