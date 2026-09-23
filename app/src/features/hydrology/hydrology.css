@@ -205,3 +205,12 @@
   .hydrology-page .hes-toolbar-title > span:last-child { display: none; }
   .hydrology-page .hydro-status-badge { display: none; }
 }
+
+@media (max-width: 480px) {
+  .hydrology-page .hes-toolbar-title > span:nth-child(2) { display: none; }
+  .hydrology-page .hydro-kpis { flex: 0 0 auto; }
+  .hydrology-page .hydro-kpi:not(:first-child), .hydrology-page .hydro-kpi-info { display: none; }
+}
+@media (max-width: 360px) {
+  .hydrology-page .hydro-kpis { display: none; }
+}
