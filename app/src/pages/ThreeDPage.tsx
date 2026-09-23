@@ -10,6 +10,7 @@ import WarningBanner from '../components/ui/WarningBanner';
 import { buildComponentsDetail, COORDINATE_CONFIDENCE_LABELS } from '../utils/siteDerived';
 import { publicAssetUrl } from '../utils/publicUrl';
 import { buildLayout3DFootprintPlan, isValidLayout3DFootprint, shouldClearActiveFootprintComponent } from '../utils/layout3dFootprints';
+import { resolveLayout3DDisplayStatus } from '../utils/layout3dDisplayStatus';
 import {
   advanceReservoirSoc,
   deriveLayout3DTopology,
@@ -235,6 +236,16 @@ export default function ThreeDPage({ site: propSite, dataLoading = false, dataEr
     }
   }, [site?.id]);
 
+  // Son aktif ünite kapatıldığında simülasyonu durdur; ünite yeniden
+  // seçildiğinde kullanıcı komutu olmadan akışın kendiliğinden
+  // başlamasını önle.
+  useEffect(() => {
+    if (activeUnitIds.length === 0 && isPlaying) {
+      setIsPlaying(false);
+      dispatchSimulation({ type: 'STOP' });
+    }
+  }, [activeUnitIds, isPlaying]);
+
   useEffect(() => {
     if (!isPlaying || !simulationState.startsWith('STARTING')) return;
     // A UI transition only; no transient hydraulic process is calculated.
@@ -304,8 +315,15 @@ export default function ThreeDPage({ site: propSite, dataLoading = false, dataEr
     );
   }
   const detail = componentsDetail ?? buildComponentsDetail(site);
-  const footprintWarning = site.layout3D?.useFootprintPolygons && !['idle', 'loading', 'success'].includes(footprintLoad.status)
-    ? `Footprint verisi yüklenemedi; fallback model kullanılıyor (${footprintLoad.status}).`
+  // Aşama 2'de UI bu durumu doğrudan kullanabilir: footprint / yükleniyor /
+  // temsili / yüklenemeyen-geometri-geri-dönüşü.
+  const displayStatus = resolveLayout3DDisplayStatus({
+    useFootprintPolygons: site.layout3D?.useFootprintPolygons,
+    loadStatus: footprintLoad.siteId === site.id ? footprintLoad.status : 'loading',
+    hasFootprints: (footprintLoad.siteId === site.id ? footprintLoad.footprints : []).length > 0,
+  });
+  const footprintWarning = displayStatus === 'fallback'
+    ? `Footprint verisi yüklenemedi; temsili model gösteriliyor (${footprintLoad.status}). Doğrulanmış yerleşim gibi değerlendirme.`
     : '';
   const representationalWarning = `Kaynak footprint koordinatları korunur; ekipman kesitleri, bağlantılar ve su seviyesi hareketi temsilidir. Koordinat güveni: ${COORDINATE_CONFIDENCE_LABELS[site.coordinates.coordinateConfidence]}. DEM ve kot–hacim eğrisi bağlı değildir.`;
   const combinedWarning = [footprintWarning, representationalWarning].filter(Boolean).join(' ');
@@ -365,7 +383,7 @@ export default function ThreeDPage({ site: propSite, dataLoading = false, dataEr
             {footprintLoadingForSite && (
               <div className="threed-footprint-loading" role="status" aria-live="polite">
                 <strong>{site.name} yerleşim geometrisi yükleniyor</strong>
-                <span>Yeni tesise ait footprint verisi gelene kadar 3D çizim gizlenir.</span>
+                <span>Yeni tesise ait footprint verisi gelene kadar önceki tesisin geometrisi gösterilmez.</span>
               </div>
             )}
           </div>

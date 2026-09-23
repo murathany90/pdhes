@@ -31,7 +31,7 @@ describe('ThreeDModel performance contract', () => {
   });
 
   it('uses page SOC as the only legacy reservoir level input', () => {
-    expect(source).toContain('useSmoothedReservoirLevels(upperSoc, lowerSoc, isPlaying)');
+    expect(source).toContain('useSmoothedReservoirLevels(upperSoc, lowerSoc, scenePlaying)');
     expect(source).not.toContain('waterLevelRef.current = clamp');
   });
 

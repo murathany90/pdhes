@@ -2051,7 +2051,10 @@ function Scene({
   const snapshot = resolveSimulationSnapshot(topology, resolvedActiveUnitIds, mode, simulationState, isPlaying);
   const powerMW = snapshot.powerMW;
   const flowActive = snapshot.running && snapshot.flowCms > 0;
-  isPlaying = snapshot.running;
+  // Sahne animasyonları tek bir türetilmiş kaynaktan beslenir: ham `isPlaying`
+  // prop'u tek başına akış başlatmaz; snapshot kapıları (ünite seçimi, durum)
+  // sağlanmadan su/elektrik animasyonu çalışmaz.
+  const scenePlaying = snapshot.running;
 
   const cameraFrame = useMemo<CameraFrame>(() => {
     if (footprintPlan.enabled && footprintPlan.items.length > 0) {
@@ -2087,7 +2090,7 @@ function Scene({
   const fogFar = Math.max(fogNear + 1000, fogSpan * 10);
   const controlsRef = useRef<OrbitControlsImpl | null>(null);
   const userInteractedWithCameraRef = useRef(false);
-  const { upperLevelRef, lowerLevelRef } = useSmoothedReservoirLevels(upperSoc, lowerSoc, isPlaying);
+  const { upperLevelRef, lowerLevelRef } = useSmoothedReservoirLevels(upperSoc, lowerSoc, scenePlaying);
   const terrainAlpha = normalizeTerrainOpacity(terrainOpacity);
 
   // Dynamic Spacing Factors based on real site properties
@@ -2194,7 +2197,7 @@ function Scene({
             topology={topology}
             activeUnitIds={resolvedActiveUnitIds}
             mode={mode}
-            isPlaying={isPlaying}
+            isPlaying={scenePlaying}
             powerMW={powerMW}
             layers={layers}
           />
@@ -2211,7 +2214,7 @@ function Scene({
             plan={footprintPlan}
             topology={topology}
             activeUnitIds={resolvedActiveUnitIds}
-            isPlaying={isPlaying}
+            isPlaying={scenePlaying}
             showLabels={showLabels}
           />
         </>
@@ -2227,7 +2230,7 @@ function Scene({
           waterLevelRef={upperLevelRef}
           showLabels={showLabels} 
           isPresenzano={isPresenzano}
-          isPlaying={isPlaying}
+          isPlaying={scenePlaying}
           mode={mode}
           activeUnits={activeUnits}
           site={site}
@@ -2243,7 +2246,7 @@ function Scene({
             onClick={() => onSelectComponent('lower_reservoir')} 
             waterLevelRef={lowerLevelRef}
             showLabels={showLabels} 
-            isPlaying={isPlaying}
+            isPlaying={scenePlaying}
             mode={mode}
             activeUnits={activeUnits}
           />
@@ -2255,7 +2258,7 @@ function Scene({
             waterLevelRef={lowerLevelRef}
             showLabels={showLabels} 
             isPresenzano={isPresenzano}
-            isPlaying={isPlaying}
+            isPlaying={scenePlaying}
             mode={mode}
             activeUnits={activeUnits}
           />
@@ -2270,7 +2273,7 @@ function Scene({
           detail={d.powerhouse} 
           activeUnits={activeUnits}
           activeUnitIds={resolvedActiveUnitIds}
-          isPlaying={isPlaying} 
+          isPlaying={scenePlaying} 
           showLabels={showLabels} 
           isPresenzano={isPresenzano}
           mode={mode}
@@ -2285,7 +2288,7 @@ function Scene({
           detail={d.switchyard} 
           showLabels={showLabels} 
           isPresenzano={isPresenzano}
-          isPlaying={isPlaying}
+          isPlaying={scenePlaying}
           mode={mode}
           activeUnits={activeUnits}
           maxUnits={maxUnits}
@@ -2332,7 +2335,7 @@ function Scene({
           onClick={() => onSelectComponent('penstock')} 
           from={surgeTankPos} 
           to={penstockEnd}
-          isPlaying={isPlaying} 
+          isPlaying={scenePlaying} 
           mode={mode} 
           activeUnits={activeUnits}
           activeUnitIds={resolvedActiveUnitIds}
@@ -2358,7 +2361,7 @@ function Scene({
         <TailraceChannel 
           from={powerhousePos} 
           to={lowerPos}
-          isPlaying={isPlaying}
+          isPlaying={scenePlaying}
           mode={mode}
           activeUnits={activeUnits}
           active={activeComponent === 'tailrace'} 
@@ -2413,7 +2416,7 @@ function Scene({
       )}
 
       {/* Transmission pylons and lines */}
-      {layers.transmission && !footprintPlan.enabled && <TransmissionLine isPresenzano={isPresenzano} isPlaying={isPlaying} mode={mode} activeUnits={activeUnits} />}
+      {layers.transmission && !footprintPlan.enabled && <TransmissionLine isPresenzano={isPresenzano} isPlaying={scenePlaying} mode={mode} activeUnits={activeUnits} />}
 
       <OrbitControls ref={controlsRef} target={cameraFrame.target} onStart={() => { userInteractedWithCameraRef.current = true; }} makeDefault enableDamping dampingFactor={0.05} minDistance={20} maxDistance={Math.max(2500, fogSpan * 12)} />
     </>

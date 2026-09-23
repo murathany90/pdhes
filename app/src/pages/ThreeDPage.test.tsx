@@ -340,5 +340,77 @@ describe('ThreeDPage controls', () => {
     const layers = JSON.parse(model.getAttribute('data-layers') || '{}');
     expect(layers.upper_reservoir).toBe(false);
   });
+
+  it('stops the simulation when the last unit is deselected and does not resume on reselect', async () => {
+    vi.useFakeTimers();
+    render(<ThreeDPage site={makeTestSite({
+      projectFlowCms: 120,
+      components_detail: {
+        upper_reservoir: {
+          elevation_m: 100,
+          active_volume_mcm: 1,
+          dam_height_m: 10,
+          lining: '',
+          geology_note: '',
+        },
+        lower_reservoir: { elevation_m: 50, min_level_m: 40, note: '' },
+        penstock: { diameter_m: 4, length_m: 100, material: '', pressure_class: '', count: 2 },
+        powerhouse: { cavern_width_m: 10, cavern_length_m: 20, cavern_height_m: 15, units: 2, turbine_type: '' },
+        surge_tank: { type: '', height_m: 20, diameter_m: 5 },
+        switchyard: { voltage_kv: 154, transformer_count: 1, connection_line_km: 1 },
+        tunnel: { length_m: 100, diameter_m: 4, excavation_type: '' },
+        intake_outfall: null,
+      },
+    })} />);
+
+    const model = screen.getByTestId('three-d-model');
+    fireEvent.click(screen.getByRole('button', { name: /Sim/ }));
+    await act(async () => {
+      vi.advanceTimersByTime(400);
+    });
+    expect(model.getAttribute('data-simulation-state')).toBe('GENERATING');
+
+    fireEvent.click(screen.getByRole('button', { name: 'G1' }));
+    fireEvent.click(screen.getByRole('button', { name: 'G2' }));
+    expect(model.getAttribute('data-active-units')).toBe('0');
+    expect(model.getAttribute('data-simulation-state')).toBe('IDLE');
+    expect(screen.getByRole('button', { name: 'Simülasyonu başlat' })).toBeTruthy();
+
+    fireEvent.click(screen.getByRole('button', { name: 'G1' }));
+    expect(model.getAttribute('data-active-units')).toBe('1');
+    expect(model.getAttribute('data-simulation-state')).toBe('IDLE');
+    expect(screen.getByRole('button', { name: 'Simülasyonu başlat' })).toBeTruthy();
+  });
+
+  it('does not show the previous site footprint error while the next site is loading', async () => {
+    const pendingResponse = new Promise(() => undefined);
+    const fetchMock = vi.fn((url: string) => (
+      url.includes('site-a')
+        ? Promise.resolve({ ok: false, status: 404, json: async () => [] })
+        : pendingResponse
+    ));
+    vi.stubGlobal('fetch', fetchMock);
+
+    const layout3D = {
+      scale: 'macro' as const,
+      preferredBearing: 0,
+      terrainExaggeration: 1,
+      reservoirSurfaceMode: 'polygon' as const,
+      useFootprintPolygons: true,
+      hideLegacySquareReservoir: true,
+    };
+    const siteA = makeTestSite({ id: 'site-a', name: 'Site A', layout3D });
+    const siteB = makeTestSite({ id: 'site-b', name: 'Site B', layout3D });
+    const { rerender, container } = render(<ThreeDPage site={siteA} />);
+
+    await waitFor(() => {
+      expect(screen.getByRole('alert').textContent).toMatch(/footprint.*yüklenemedi|temsili model/i);
+    });
+
+    rerender(<ThreeDPage site={siteB} />);
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
+    expect(container.querySelector('.threed-footprint-loading')?.textContent).toMatch(/site b.*yükleniyor/i);
+    expect(screen.queryByText(/footprint.*yüklenemedi/i)).toBeNull();
+  });
 });
 
