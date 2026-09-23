@@ -15,7 +15,7 @@ vi.mock('@react-three/fiber', () => ({
   useFrame: vi.fn(),
   useThree: () => ({
     gl: { domElement: mockRendererCanvas },
-    camera: { fov: 45, position: { set: vi.fn() }, lookAt: vi.fn(), updateMatrixWorld: vi.fn(), updateProjectionMatrix: vi.fn() },
+    camera: { fov: 45, position: { set: vi.fn(), copy: vi.fn(), clone: vi.fn() }, lookAt: vi.fn(), updateMatrixWorld: vi.fn(), updateProjectionMatrix: vi.fn() },
     invalidate: vi.fn(),
     size: { width: 1200, height: 700 },
   }),
@@ -289,7 +289,9 @@ describe('ThreeDModel footprint source', () => {
     expect(screen.getByTestId('reservoir-level-layer').textContent).not.toMatch(/SOC/i);
     expect(screen.getByTestId('equipment-animation-layer').textContent).toBe('');
     expect(screen.queryByTestId('simulation-status-layer')).toBeNull();
-    expect(screen.getByRole('button', { name: 'Tesise odaklan' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Tesis' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Güzergâh' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Kesit' })).toBeTruthy();
   });
 
   it('uses compact friendly footprint labels instead of raw technical names', () => {
@@ -400,11 +402,18 @@ describe('ThreeDModel footprint source', () => {
     expect(screen.getByText('İletim Tüneli')).toBeTruthy();
     expect(screen.getByText('Basınç Tüneli')).toBeTruthy();
     expect(screen.getByText('Üst Rezervuar')).toBeTruthy();
-    const powerhouseLabel = screen.getByText('Santral') as HTMLElement;
+    // 'Santral'/'Şalt' adları kamera hazır-görünüm düğmelerinde de geçer;
+    // footprint etiketleri 9px etiket stiliyle ayırt edilir.
+    const powerhouseLabel = screen.getAllByText('Santral').find(
+      (node) => (node as HTMLElement).style.fontSize === '9px',
+    ) as HTMLElement;
     expect(powerhouseLabel).toBeTruthy();
     expect(powerhouseLabel.style.fontSize).toBe('9px');
     expect(powerhouseLabel.style.maxWidth).toBeTruthy();
-    expect(screen.getByText('Şalt')).toBeTruthy();
+    const switchyardLabel = screen.getAllByText('Şalt').find(
+      (node) => (node as HTMLElement).style.fontSize === '9px',
+    ) as HTMLElement;
+    expect(switchyardLabel).toBeTruthy();
   });
 
   it('renders reservoir footprint labels as names only when labels are enabled', () => {
@@ -694,5 +703,71 @@ describe('ThreeDModel footprint source', () => {
 
     expect(screen.getByTestId('hydraulic-flow-layer').getAttribute('data-flow-active')).toBe('false');
     expect(screen.getByTestId('electrical-flow-layer').getAttribute('data-flow-active')).toBe('false');
+  });
+
+  it('flags running water as representative when the site has no flow data', () => {
+    const site = makeTestSite({
+      projectFlowCms: null,
+      layout3D: {
+        scale: 'macro',
+        preferredBearing: 0,
+        terrainExaggeration: 1,
+        reservoirSurfaceMode: 'polygon',
+        useFootprintPolygons: true,
+        hideLegacySquareReservoir: true,
+        componentFootprints: [{
+          id: 'penstock-a',
+          component: 'penstock',
+          kind: 'polyline',
+          material: 'shaft',
+          coords: [[32.015, 40.025], [32.02, 40.015]],
+          profileElevationM: [250, 100],
+        }],
+      },
+    });
+
+    render(
+      <ThreeDModel
+        siteId={site.id}
+        activeComponent="penstock"
+        onSelectComponent={vi.fn()}
+        layers={{}}
+        mode="generate"
+        componentsDetail={{
+          upper_reservoir: {
+            elevation_m: 500,
+            active_volume_mcm: 2,
+            dam_height_m: 10,
+            lining: '',
+            geology_note: '',
+          },
+          lower_reservoir: { elevation_m: 90, min_level_m: 80, note: '' },
+          penstock: { diameter_m: 4, length_m: 100, material: '', pressure_class: '', count: 1 },
+          powerhouse: { cavern_width_m: 10, cavern_length_m: 20, cavern_height_m: 15, units: 2, turbine_type: '' },
+          surge_tank: { type: '', height_m: 20, diameter_m: 5 },
+          switchyard: { voltage_kv: 154, transformer_count: 1, connection_line_km: 1 },
+          tunnel: { length_m: 100, diameter_m: 4, excavation_type: '' },
+          intake_outfall: null,
+        }}
+        site={site}
+        isPlaying={true}
+        activeUnits={1}
+        activeUnitIds={['G1']}
+        simulationState="GENERATING"
+        quality="high"
+        upperSoc={0.5}
+        lowerSoc={0.5}
+        maxUnits={2}
+        showTerrain={false}
+        showLabels={true}
+        terrainOpacity={0.7}
+      />,
+    );
+
+    const hydraulic = screen.getByTestId('hydraulic-flow-layer');
+    expect(hydraulic.getAttribute('data-flow-active')).toBe('true');
+    expect(hydraulic.getAttribute('data-representative-flow')).toBe('true');
+    expect(hydraulic.getAttribute('data-flow-direction')).toBe('upper-to-lower');
+    expect(hydraulic.getAttribute('data-penstock-tubes')).toBe('1');
   });
 });

@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import {
+  isFootprintDisplay,
   isRepresentativeDisplay,
+  LAYOUT_3D_DISPLAY_STATUS_LABELS,
   resolveLayout3DDisplayStatus,
 } from './layout3dDisplayStatus';
 
@@ -66,10 +68,26 @@ describe('resolveLayout3DDisplayStatus', () => {
     }
   });
 
-  it('marks every non-footprint status as representative', () => {
+  it('marks only representative and fallback as representative', () => {
     expect(isRepresentativeDisplay('footprint')).toBe(false);
-    expect(isRepresentativeDisplay('loading')).toBe(true);
+    expect(isRepresentativeDisplay('loading')).toBe(false);
     expect(isRepresentativeDisplay('representative')).toBe(true);
     expect(isRepresentativeDisplay('fallback')).toBe(true);
+  });
+
+  it('marks only the footprint state as footprint display', () => {
+    expect(isFootprintDisplay('footprint')).toBe(true);
+    expect(isFootprintDisplay('loading')).toBe(false);
+    expect(isFootprintDisplay('representative')).toBe(false);
+    expect(isFootprintDisplay('fallback')).toBe(false);
+  });
+
+  it('labels every display status for the UI badge', () => {
+    expect(Object.keys(LAYOUT_3D_DISPLAY_STATUS_LABELS)).toEqual(
+      expect.arrayContaining(['footprint', 'loading', 'representative', 'fallback']),
+    );
+    for (const label of Object.values(LAYOUT_3D_DISPLAY_STATUS_LABELS)) {
+      expect(label.length).toBeGreaterThan(0);
+    }
   });
 });

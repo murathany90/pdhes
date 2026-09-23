@@ -5,12 +5,16 @@
  * bileşenleri ve sayfa uyarıları aynı kaynağa bakmalıdır.
  *
  * - `footprint`: doğrulanmış footprint poligonları sahnede aktiftir.
+ *   Bu yalnızca yerleşim geometrisinin kaynağını belirtir; koordinat
+ *   güven düzeyi (`site.coordinates.coordinateConfidence`) ayrı
+ *   gösterilmeli ve footprint varlığı doğrulanmış koordinat anlamında
+ *   kullanılmamalıdır.
  * - `loading`: footprint verisi bekleniyor; önceki tesise ait geometri
- *   gösterilmez.
+ *   gösterilmez. Bu durum temsili model değildir; bekleme durumudur.
  * - `representative`: tesis bilerek temsili modelle gösterilir
  *   (footprint modu kapalı).
  * - `fallback`: footprint hedeflendi ama yüklenemedi; ekrandaki model
- *   temsilidir ve doğrulanmış gibi gösterilmemelidir.
+ *   temsilidir ve doğrulanmış yerleşim gibi gösterilmemelidir.
  */
 
 export type Layout3DDisplayStatus =
@@ -50,7 +54,20 @@ export function resolveLayout3DDisplayStatus(input: {
   return 'loading';
 }
 
-/** Temsili niteliği taşıyan her durum için UI uyarı/etiket göstermelidir. */
+/** Yalnızca temsili nitelik taşıyan durumlar için UI uyarı/etiket göstermelidir. */
 export function isRepresentativeDisplay(status: Layout3DDisplayStatus): boolean {
-  return status !== 'footprint';
+  return status === 'representative' || status === 'fallback';
 }
+
+/** Footprint geometrisi sahnede aktiftir (koordinat güveninden bağımsız). */
+export function isFootprintDisplay(status: Layout3DDisplayStatus): boolean {
+  return status === 'footprint';
+}
+
+/** UI rozeti: footprint modeli ile koordinat güven düzeyi ayrı gösterilir. */
+export const LAYOUT_3D_DISPLAY_STATUS_LABELS: Record<Layout3DDisplayStatus, string> = {
+  footprint: 'Footprint tabanlı yerleşim',
+  loading: 'Yerleşim yükleniyor',
+  representative: 'Temsili 3D gösterim',
+  fallback: 'Temsili gösterim (footprint yüklenemedi)',
+};

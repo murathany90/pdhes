@@ -10,8 +10,8 @@ import { useSiteStore } from '../../stores/useSiteStore';
 import { useSettingsStore } from '../../stores/useSettingsStore';
 import { isSeaLowerReservoir } from '../../utils/siteDerived';
 import {
-  buildLayout3DFootprintPlan,
   LAYOUT_3D_MATERIAL_COLORS,
+  footprintLayerKey,
   type Layout3DProjectedFootprint,
   type Layout3DFootprintPlan,
   groupFootprintsByLayer,
@@ -19,12 +19,18 @@ import {
   isFootprintLayerVisible,
 } from '../../utils/layout3dFootprints';
 import {
-  resolveSimulationSnapshot,
-  deriveLayout3DTopology,
   type DerivedLayout3DTopology,
   type SimulationQuality,
   type SimulationState,
 } from '../../utils/layout3dSimulation';
+import { useLayout3DSnapshot } from '../../hooks/useLayout3DSnapshot';
+import {
+  CAMERA_VIEW_COMPONENTS,
+  CAMERA_VIEWS,
+  FLOW_VISUAL,
+  prefersReducedMotion,
+  type CameraViewId,
+} from '../../utils/layout3dVisual';
 import { useManualGeometryStore } from '../../stores/useManualGeometryStore';
 import { overrideSiteWithManualGeometries } from '../../utils/manualGeometryConverter';
 import { createFootprintPolygonGeometry, footprintRing, generationWaterwayPoints, representativeWaterwayLinks, reservoirSurfaceOffset } from '../../utils/layout3dGeometry';
@@ -51,7 +57,9 @@ interface ThreeDModelProps {
   showTerrain: boolean;
   showLabels: boolean;
   terrainOpacity: number;
-  cameraRequest?: { revision: number; selected: boolean };
+  /** Temsili kesit: arazi saydamlaştırılır, yeraltı su yolları vurgulanır. */
+  xray?: boolean;
+  cameraRequest?: { revision: number; selected: boolean; view?: CameraViewId };
 }
 
 const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
@@ -1387,7 +1395,7 @@ function labelPositionForFootprint(item: Layout3DProjectedFootprint): [number, n
   return [center[0] + dx, center[1] + dy, center[2] + dz];
 }
 
-const FootprintPolygon = memo(function FootprintPolygon({ item, layerKey, active, onSelectComponent, showLabels, waterOpening, soc }: {
+const FootprintPolygon = memo(function FootprintPolygon({ item, layerKey, active, onSelectComponent, showLabels, waterOpening, soc, running }: {
   waterOpening?: Layout3DProjectedFootprint;
   soc?: number;
   item: Layout3DProjectedFootprint;
@@ -1395,18 +1403,30 @@ const FootprintPolygon = memo(function FootprintPolygon({ item, layerKey, active
   active: boolean;
   onSelectComponent: (component: string) => void;
   showLabels: boolean;
+  /** İşletme akışı varken su yüzeyinde hafif hareket; duruşta sakin. */
+  running?: boolean;
 }) {
   const geometry = useMemo(() => createFootprintPolygonGeometry(item, waterOpening), [item, waterOpening]);
-  
+  const meshRef = useRef<THREE.Mesh>(null);
+  const isWater = item.material === 'water';
+  const reducedMotion = useMemo(() => prefersReducedMotion(), []);
+
   useEffect(() => {
     return () => {
       geometry.dispose();
     };
   }, [geometry]);
 
+  useFrame(({ clock }) => {
+    if (!isWater || !meshRef.current || reducedMotion) return;
+    const t = clock.getElapsedTime();
+    // Pahalı yansıma/shader yok: yalnızca düşey salınım + SOC ofseti.
+    meshRef.current.position.y = reservoirSurfaceOffset(soc ?? 1)
+      + Math.sin(t * (running ? 1.7 : 0.8)) * (running ? 0.22 : 0.08);
+  });
+
   const color = LAYOUT_3D_MATERIAL_COLORS[item.material] ?? '#9aa3ad';
-  const opacity = item.material === 'water' ? 0.9 : 1;
-  const waterOffset = item.material === 'water' ? reservoirSurfaceOffset(soc ?? 1) : 0;
+  const opacity = isWater ? 0.88 : 1;
   const outline = useMemo(() => [...footprintRing(item), footprintRing(item)[0]].map((p) => [p.x, item.topY + 0.12, p.z] as [number, number, number]), [item]);
   const labelPosition = labelPositionForFootprint(item);
 
@@ -1414,15 +1434,15 @@ const FootprintPolygon = memo(function FootprintPolygon({ item, layerKey, active
 
   return (
     <group onClick={(event) => { event.stopPropagation(); onSelectComponent(layerKey); }}>
-      <mesh geometry={geometry} position={[0, waterOffset, 0]} castShadow={item.material !== 'water'} receiveShadow>
+      <mesh ref={meshRef} geometry={geometry} position={[0, reservoirSurfaceOffset(soc ?? 1), 0]} castShadow={!isWater} receiveShadow>
         <meshStandardMaterial
           color={color}
-          transparent={item.material === 'water'}
+          transparent={isWater}
           emissive={active ? color : '#000000'}
           emissiveIntensity={active ? 0.28 : 0}
           opacity={opacity}
-          roughness={item.material === 'water' ? 0.18 : 0.8}
-          metalness={item.material === 'water' ? 0.04 : 0.02}
+          roughness={isWater ? 0.12 : 0.8}
+          metalness={isWater ? 0.08 : 0.02}
           side={THREE.DoubleSide}
         />
       </mesh>
@@ -1459,7 +1479,7 @@ const FootprintPolyline = memo(function FootprintPolyline({ item, layerKey, acti
   );
 });
 
-function FootprintSceneLayer({ items, layers, activeComponent, onSelectComponent, showLabels, upperSoc, lowerSoc }: {
+function FootprintSceneLayer({ items, layers, activeComponent, onSelectComponent, showLabels, upperSoc, lowerSoc, running }: {
   upperSoc: number;
   lowerSoc: number;
   items: Layout3DProjectedFootprint[];
@@ -1467,6 +1487,7 @@ function FootprintSceneLayer({ items, layers, activeComponent, onSelectComponent
   activeComponent: string;
   onSelectComponent: (component: string) => void;
   showLabels: boolean;
+  running: boolean;
 }) {
   const groupedItems = useMemo(() => groupFootprintsByLayer(items), [items]);
 
@@ -1483,6 +1504,7 @@ function FootprintSceneLayer({ items, layers, activeComponent, onSelectComponent
                   item={item}
                   waterOpening={item.material === 'embankment' ? items.find((water) => water.component === item.component && water.material === 'water') : undefined}
                   soc={item.component === 'upper_reservoir' ? upperSoc : lowerSoc}
+                  running={running}
                   layerKey={layerKey}
                   active={active}
                   onSelectComponent={onSelectComponent}
@@ -1610,6 +1632,71 @@ function FlowParticles({ points, color, active, count = 5, speed = 0.18, radius 
   );
 }
 
+/** Akış yönünü renkten bağımsız okunabilir kılan statik yön okları. */
+function FlowArrows({ points, color }: {
+  points: [number, number, number][];
+  color: string;
+}) {
+  const arrows = useMemo(() => [0.3, 0.55, 0.8].map((t) => {
+    const pos = pathPointAt(points, t);
+    const ahead = pathPointAt(points, Math.min(t + 0.02, 1));
+    const dir = new THREE.Vector3(ahead[0] - pos[0], ahead[1] - pos[1], ahead[2] - pos[2]);
+    if (dir.lengthSq() < 1e-6) dir.set(0, 1, 0);
+    dir.normalize();
+    const quat = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir);
+    return { pos, quat };
+  }), [points]);
+
+  return (
+    <group>
+      {arrows.map((arrow, index) => (
+        <mesh key={`flow-arrow-${index}`} position={arrow.pos} quaternion={arrow.quat}>
+          <coneGeometry args={[0.9, 2.6, 8]} />
+          <meshBasicMaterial color={color} transparent opacity={0.9} />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+/**
+ * Footprint cebri borusu: kaynak güzergâhı korunur, hacimli 3D boru
+ * yalnızca görüntüleme geometrisidir (LOD amaçlı sadeleştirilebilir).
+ */
+function PenstockTube({ points, active, flowActive, quality }: {
+  points: [number, number, number][];
+  active: boolean;
+  flowActive: boolean;
+  quality: SimulationQuality;
+}) {
+  const curve = useMemo(
+    () => new THREE.CatmullRomCurve3(points.map((p) => new THREE.Vector3(p[0], p[1], p[2]))),
+    [points],
+  );
+  const geometry = useMemo(
+    () => new THREE.TubeGeometry(curve, quality === 'low' ? 16 : 36, 1.0, 8, false),
+    [curve, quality],
+  );
+
+  useEffect(() => () => geometry.dispose(), [geometry]);
+
+  return (
+    <group>
+      <mesh geometry={geometry}>
+        <meshStandardMaterial
+          color={active ? '#f5b50b' : '#7d8aa0'}
+          metalness={0.65}
+          roughness={0.35}
+          transparent={flowActive}
+          opacity={flowActive ? 0.55 : 1}
+          side={THREE.DoubleSide}
+        />
+      </mesh>
+      <FlowArrows points={points} color={flowActive ? FLOW_VISUAL.hydraulicBright : FLOW_VISUAL.idle} />
+    </group>
+  );
+}
+
 function HiddenLayerMarker({ position, testId, attributes }: {
   position: [number, number, number];
   testId: string;
@@ -1622,7 +1709,7 @@ function HiddenLayerMarker({ position, testId, attributes }: {
   );
 }
 
-function HydraulicFlowLayer({ plan, topology, activeUnitIds, mode, isPlaying, quality, layers }: {
+function HydraulicFlowLayer({ plan, topology, activeUnitIds, mode, isPlaying, quality, layers, representative, xray, activeComponent }: {
   plan: Layout3DFootprintPlan;
   topology: DerivedLayout3DTopology;
   activeUnitIds: string[];
@@ -1630,6 +1717,11 @@ function HydraulicFlowLayer({ plan, topology, activeUnitIds, mode, isPlaying, qu
   isPlaying: boolean;
   quality: SimulationQuality;
   layers: Record<string, boolean>;
+  /** Debi verisi yokken animasyon yön gösterir, hız temsilidir. */
+  representative?: boolean;
+  /** Kesit görünümünde yeraltı su yolları vurgulanır. */
+  xray?: boolean;
+  activeComponent: string;
 }) {
   const flowActive = isPlaying && activeUnitIds.length > 0;
   const activePenstocks = activePenstockFootprintIds(topology, activeUnitIds);
@@ -1637,10 +1729,12 @@ function HydraulicFlowLayer({ plan, topology, activeUnitIds, mode, isPlaying, qu
   const flowItems = componentsInPlan(plan, ['headrace_tunnel', 'pressure_tunnel', 'penstock', 'tailrace_tunnel', 'tailrace_channel'])
     .filter((item) => item.kind === 'polyline' && isFootprintLayerVisible(item, layers))
     .filter((item) => item.component !== 'penstock' || activePenstocks.has(item.id));
+  const penstockTubeCount = flowItems.filter((item) => item.component === 'penstock').length;
   const sharedVisible = isLayerVisible('tunnel', layers) || isLayerVisible('tailrace', layers) || isLayerVisible('penstock', layers);
   const markerPosition = simulationLabelPosition(plan, 'hydraulic');
   const particleCount = quality === 'low' ? 3 : quality === 'high' ? 8 : 5;
   const direction = mode === 'generate' ? 'upper-to-lower' : 'lower-to-upper';
+  const lineBoost = xray ? 1 : 0;
 
   return (
     <group visible={sharedVisible}>
@@ -1650,30 +1744,47 @@ function HydraulicFlowLayer({ plan, topology, activeUnitIds, mode, isPlaying, qu
         attributes={{
           'data-flow-active': String(flowActive),
           'data-flow-direction': direction,
+          'data-representative-flow': String(Boolean(representative && flowActive)),
+          'data-penstock-tubes': String(penstockTubeCount),
         }}
       />
       {connections.filter((link) => isFootprintLayerVisible(link.from, layers) && isFootprintLayerVisible(link.to, layers)).map((link) => (
-        <Line key={link.id} points={link.points} color="#d6a85e" lineWidth={1.2} dashed dashSize={1.5} gapSize={2} />
+        <Line key={link.id} points={link.points} color={FLOW_VISUAL.representativeLink} lineWidth={1.2} dashed dashSize={1.5} gapSize={2} />
       ))}
       {flowItems.map((item) => {
         const generationPoints = generationWaterwayPoints(item, plan.items);
         const points = mode === 'generate' ? generationPoints : [...generationPoints].reverse();
+        if (item.component === 'penstock') {
+          return (
+            <group key={`hydraulic-${item.id}`}>
+              <PenstockTube points={points} active={activeComponent === item.component || activeComponent === footprintLayerKey(item.component)} flowActive={flowActive} quality={quality} />
+              <FlowParticles
+                points={points}
+                color={FLOW_VISUAL.hydraulicBright}
+                active={flowActive}
+                count={particleCount}
+                speed={mode === 'generate' ? 0.2 : 0.16}
+                radius={1.05}
+              />
+            </group>
+          );
+        }
         return (
           <group key={`hydraulic-${item.id}`}>
             <Line
               points={points}
-              color={flowActive ? '#22d3ee' : '#64748b'}
-              lineWidth={flowActive ? 3.5 : 1.4}
+              color={flowActive ? FLOW_VISUAL.hydraulic : FLOW_VISUAL.idle}
+              lineWidth={(flowActive ? 3.5 : 1.4) + lineBoost}
               dashed={item.material === 'tunnel_axis' || item.component.includes('tunnel')} dashSize={3} gapSize={1.5}
             />
             <Line
               points={points.map(([x, y, z]) => [x, y + 0.45, z] as [number, number, number])}
-              color={flowActive ? '#67e8f9' : '#475569'}
-              lineWidth={flowActive ? 1.2 : 0.8} dashed dashSize={1} gapSize={4}
+              color={flowActive ? FLOW_VISUAL.hydraulicBright : '#475569'}
+              lineWidth={(flowActive ? 1.2 : 0.8) + lineBoost} dashed dashSize={1} gapSize={4}
             />
             <FlowParticles
               points={points}
-              color="#67e8f9"
+              color={FLOW_VISUAL.hydraulicBright}
               active={flowActive}
               count={particleCount}
               speed={mode === 'generate' ? 0.2 : 0.16}
@@ -1700,8 +1811,8 @@ function ElectricalFlowLayer({ plan, topology, activeUnitIds, mode, isPlaying, p
   const switchyard = firstCenter(plan, ['switchyard', 'new_switchyard', 'existing_switchyard'], [80, 16, -20]);
   const grid: [number, number, number] = [switchyard[0] + 55, switchyard[1] + 8, switchyard[2] - 26];
   const points = mode === 'generate' ? [powerhouse, switchyard, grid] : [grid, switchyard, powerhouse];
-  const activeColor = mode === 'generate' ? '#22c55e' : '#ef4444';
-  const flowColor = flowActive ? activeColor : '#64748b';
+  const activeColor = mode === 'generate' ? FLOW_VISUAL.generate : FLOW_VISUAL.pump;
+  const flowColor = flowActive ? activeColor : FLOW_VISUAL.idle;
   const direction = mode === 'generate' ? 'powerhouse-to-grid' : 'grid-to-powerhouse';
 
   return (
@@ -1757,10 +1868,22 @@ function EquipmentUnit({ position, radius, active, mode }: { position: [number, 
     if (active && rotor.current) rotor.current.rotation.y += Math.min(delta, 0.1) * (mode === 'generate' ? 2 : -2);
   });
   return <group position={position}>
+    {/* Ünite kaidesi */}
+    <mesh position={[0, radius * 0.15, 0]}>
+      <boxGeometry args={[radius * 3, radius * 0.3, radius * 3]} />
+      <meshStandardMaterial color="#475569" roughness={0.8} />
+    </mesh>
     <mesh position={[0, radius * 1.8, 0]}>
       <cylinderGeometry args={[radius, radius, radius * 1.2, 16]} />
       <meshStandardMaterial color={active ? (mode === 'generate' ? '#34d399' : '#fb923c') : '#64748b'} metalness={0.35} roughness={0.5} />
     </mesh>
+    {/* Aktif ünite durum halkası: üretim yeşili / pompalama turuncusu */}
+    {active && (
+      <mesh position={[0, radius * 2.45, 0]} rotation={[Math.PI / 2, 0, 0]}>
+        <torusGeometry args={[radius * 1.15, radius * 0.12, 8, 24]} />
+        <meshBasicMaterial color={mode === 'generate' ? FLOW_VISUAL.generate : '#fb923c'} />
+      </mesh>
+    )}
     <mesh position={[0, radius * 0.7, 0]}>
       <cylinderGeometry args={[radius * 0.18, radius * 0.18, radius * 2, 10]} />
       <meshStandardMaterial color="#cbd5e1" metalness={0.6} roughness={0.3} />
@@ -1811,6 +1934,11 @@ function EquipmentAnimationLayer({ plan, topology, activeUnitIds, isPlaying, sho
         return <group key={transformer.id} position={transformers.positions[index]}>
           <mesh position={[0, r, 0]}><boxGeometry args={[r * 2, r * 2, r * 1.5]} /><meshStandardMaterial color={active ? '#34d399' : '#64748b'} roughness={0.65} /></mesh>
           {[-0.6, 0, 0.6].map((x) => <mesh key={x} position={[x * r, r * 2.5, 0]}><cylinderGeometry args={[r * 0.12, r * 0.16, r, 8]} /><meshStandardMaterial color="#dbeafe" /></mesh>)}
+          {/* Trafo durum lambası */}
+          <mesh position={[r * 1.2, r * 2.2, 0]}>
+            <sphereGeometry args={[r * 0.32, 10, 10]} />
+            <meshBasicMaterial color={active ? FLOW_VISUAL.generate : '#475569'} />
+          </mesh>
         </group>;
       })}
     </group>}
@@ -1901,10 +2029,20 @@ function useSmoothedReservoirLevels(upperSoc: number, lowerSoc: number, isPlayin
   return { upperLevelRef, lowerLevelRef };
 }
 
-function CameraTarget({ frame, controlsRef, userInteractedRef }: {
+interface CameraTween {
+  startTime: number;
+  duration: number;
+  fromPos: THREE.Vector3;
+  toPos: THREE.Vector3;
+  fromTarget: THREE.Vector3;
+  toTarget: THREE.Vector3;
+}
+
+function CameraTarget({ frame, controlsRef, userInteractedRef, tweenRef }: {
   frame: CameraFrame;
   controlsRef: MutableRefObject<OrbitControlsImpl | null>;
   userInteractedRef: MutableRefObject<boolean>;
+  tweenRef: MutableRefObject<CameraTween | null>;
 }) {
   const { camera, invalidate, size } = useThree();
   const appliedFrameKeyRef = useRef<string | null>(null);
@@ -1917,7 +2055,7 @@ function CameraTarget({ frame, controlsRef, userInteractedRef }: {
     const controls = controlsRef.current;
     if (isNewFrame || (sizeChanged && !userInteractedRef.current)) {
       if (isNewFrame) userInteractedRef.current = false;
-      if (controls) controls.target.set(...frame.target);
+      const toTarget = new THREE.Vector3(...frame.target);
       const distance = calculateCameraDistance(
         frame,
         (camera as THREE.PerspectiveCamera).fov,
@@ -1925,13 +2063,27 @@ function CameraTarget({ frame, controlsRef, userInteractedRef }: {
       );
       const direction = isNewFrame
         ? new THREE.Vector3(0.72, 0.42, 0.72).normalize()
-        : camera.position.clone().sub(new THREE.Vector3(...frame.target)).normalize();
-      camera.position.set(
+        : camera.position.clone().sub(toTarget).normalize();
+      const toPos = new THREE.Vector3(
         frame.target[0] + direction.x * distance,
         frame.target[1] + direction.y * distance,
         frame.target[2] + direction.z * distance,
       );
-      camera.lookAt(...frame.target);
+      if (appliedFrameKeyRef.current === null || prefersReducedMotion()) {
+        tweenRef.current = null;
+        if (controls) controls.target.copy(toTarget);
+        camera.position.copy(toPos);
+        camera.lookAt(toTarget);
+      } else {
+        tweenRef.current = {
+          startTime: performance.now(),
+          duration: 750,
+          fromPos: camera.position.clone(),
+          toPos,
+          fromTarget: controls ? controls.target.clone() : toTarget.clone(),
+          toTarget,
+        };
+      }
       appliedFrameKeyRef.current = frame.key;
     }
     appliedSizeRef.current = { width: size.width, height: size.height };
@@ -1939,33 +2091,67 @@ function CameraTarget({ frame, controlsRef, userInteractedRef }: {
     camera.updateMatrixWorld(true);
     camera.updateProjectionMatrix();
     invalidate();
-  }, [camera, controlsRef, frame, invalidate, size.height, size.width, userInteractedRef]);
+  }, [camera, controlsRef, frame, invalidate, size.height, size.width, tweenRef, userInteractedRef]);
+
+  useFrame(() => {
+    const tween = tweenRef.current;
+    if (!tween) return;
+    const t = Math.min(1, (performance.now() - tween.startTime) / tween.duration);
+    const eased = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    camera.position.lerpVectors(tween.fromPos, tween.toPos, eased);
+    const target = new THREE.Vector3().lerpVectors(tween.fromTarget, tween.toTarget, eased);
+    controlsRef.current?.target.copy(target);
+    camera.lookAt(target);
+    camera.updateMatrixWorld(true);
+    if (t >= 1) {
+      tweenRef.current = null;
+      controlsRef.current?.update?.();
+    } else {
+      invalidate();
+    }
+  });
 
   return null;
 }
 
 function RepresentativeFootprintTerrain({ opacity, theme }: { opacity: number; theme?: string }) {
   const normalizedOpacity = normalizeTerrainOpacity(opacity);
+  const dark = theme === 'dark';
   const geometry = useMemo(() => {
     const terrain = new THREE.PlaneGeometry(1000, 1000, 32, 32);
     terrain.rotateX(-Math.PI / 2);
     const positions = terrain.attributes.position as THREE.BufferAttribute;
+    let minY = Infinity;
+    let maxY = -Infinity;
     for (let index = 0; index < positions.count; index += 1) {
       const x = positions.getX(index);
       const z = positions.getZ(index);
       const ridge = Math.sin(x / 130) * 5.5 + Math.cos(z / 160) * 4;
       const basin = -8 * Math.exp(-(x * x + (z - 60) * (z - 60)) / 160000);
-      positions.setY(index, -6 + ridge + basin);
+      const y = -6 + ridge + basin;
+      positions.setY(index, y);
+      if (y < minY) minY = y;
+      if (y > maxY) maxY = y;
     }
+    // Yükselti kademesi: üst/alt kot farkı okunur; gerçek DEM değildir.
+    const valley = new THREE.Color(dark ? '#1a2418' : '#6f8a64');
+    const ridgeColor = new THREE.Color(dark ? '#3a4a38' : '#aebba0');
+    const colors = new Float32Array(positions.count * 3);
+    for (let index = 0; index < positions.count; index += 1) {
+      const t = (positions.getY(index) - minY) / Math.max(maxY - minY, 1e-6);
+      const c = valley.clone().lerp(ridgeColor, Math.max(0, Math.min(1, t)));
+      colors[index * 3] = c.r;
+      colors[index * 3 + 1] = c.g;
+      colors[index * 3 + 2] = c.b;
+    }
+    terrain.setAttribute('color', new THREE.BufferAttribute(colors, 3));
     positions.needsUpdate = true;
     terrain.computeVertexNormals();
     return terrain;
-  }, []);
+  }, [dark]);
 
   useEffect(() => () => geometry.dispose(), [geometry]);
 
-  const dark = theme === 'dark';
-  const baseColor = dark ? '#172015' : '#78936f';
   const gridColor = dark ? '#2dd4bf' : '#346b5e';
   const gridOpacity = dark ? 0.14 : 0.18;
   const guides = [-360, -240, -120, 0, 120, 240, 360];
@@ -1974,7 +2160,7 @@ function RepresentativeFootprintTerrain({ opacity, theme }: { opacity: number; t
     <group>
       <mesh geometry={geometry} receiveShadow>
         <meshStandardMaterial
-          color={baseColor}
+          vertexColors
           transparent
           opacity={normalizedOpacity * 0.82}
           roughness={0.96}
@@ -2024,6 +2210,7 @@ function Scene({
   showTerrain,
   showLabels,
   terrainOpacity,
+  xray,
   theme,
   cameraRequest,
 }: ThreeDModelProps & { theme?: string }) {
@@ -2032,33 +2219,37 @@ function Scene({
   const isSeaWater = site ? isSeaLowerReservoir(site) : false;
   const d = componentsDetail;
   const manualFeatures = useManualGeometryStore(useShallow(state => state.getFeaturesForSite(site?.id || '')));
-  const footprintPlan = useMemo(
-    () => {
-      if (!site) return { enabled: false, hideLegacySquareReservoir: false, items: [] };
-      const overriddenSite = overrideSiteWithManualGeometries(site, manualFeatures);
-      return buildLayout3DFootprintPlan(overriddenSite);
-    },
+  const effectiveSite = useMemo(
+    () => overrideSiteWithManualGeometries(site, manualFeatures),
     [site, manualFeatures],
   );
   const resolvedActiveUnitIds = useMemo(
     () => activeUnitIds ?? Array.from({ length: activeUnits }, (_, index) => `G${index + 1}`),
     [activeUnitIds, activeUnits],
   );
-  const topology = useMemo(
-    () => deriveLayout3DTopology(site, footprintPlan, componentsDetail),
-    [site, footprintPlan, componentsDetail],
-  );
-  const snapshot = resolveSimulationSnapshot(topology, resolvedActiveUnitIds, mode, simulationState, isPlaying);
+  // Telemetri ile aynı anlık görüntü: ThreeDPage'deki useLayout3DSnapshot
+  // çağrısıyla aynı girdiler (override'lı site + aynı ünite/mode/durum).
+  const { footprintPlan, topology: snapshotTopology, snapshot } = useLayout3DSnapshot({
+    site: effectiveSite,
+    componentsDetail,
+    activeUnitIds: resolvedActiveUnitIds,
+    mode,
+    simulationState,
+    isPlaying,
+  });
   const powerMW = snapshot.powerMW;
-  const flowActive = snapshot.running && snapshot.flowCms > 0;
   // Sahne animasyonları tek bir türetilmiş kaynaktan beslenir: ham `isPlaying`
   // prop'u tek başına akış başlatmaz; snapshot kapıları (ünite seçimi, durum)
   // sağlanmadan su/elektrik animasyonu çalışmaz.
   const scenePlaying = snapshot.running;
+  // Debi verisi yokken su animasyonu yön gösterir, hız temsilidir.
+  const representativeFlow = snapshot.running && snapshot.flowCms <= 0;
 
   const cameraFrame = useMemo<CameraFrame>(() => {
     if (footprintPlan.enabled && footprintPlan.items.length > 0) {
-      const frameItems = cameraRequest?.selected ? footprintPlan.items.filter((item) => isFootprintLayerVisible(item, { [activeComponent]: true }) && (item.component === activeComponent || groupFootprintsByLayer([item])[0]?.layerKey === activeComponent)) : footprintPlan.items;
+      const viewComponents = cameraRequest?.view ? CAMERA_VIEW_COMPONENTS[cameraRequest.view] : null;
+      const viewItems = viewComponents ? footprintPlan.items.filter((item) => viewComponents.includes(item.component)) : footprintPlan.items;
+      const frameItems = cameraRequest?.selected ? footprintPlan.items.filter((item) => isFootprintLayerVisible(item, { [activeComponent]: true }) && (item.component === activeComponent || groupFootprintsByLayer([item])[0]?.layerKey === activeComponent)) : (viewItems.length > 0 ? viewItems : footprintPlan.items);
       const points = (frameItems.length ? frameItems : footprintPlan.items).flatMap((item) => item.points).filter((point) => (
         Number.isFinite(point.x) && Number.isFinite(point.y) && Number.isFinite(point.z)
       ));
@@ -2090,8 +2281,9 @@ function Scene({
   const fogFar = Math.max(fogNear + 1000, fogSpan * 10);
   const controlsRef = useRef<OrbitControlsImpl | null>(null);
   const userInteractedWithCameraRef = useRef(false);
+  const cameraTweenRef = useRef<CameraTween | null>(null);
   const { upperLevelRef, lowerLevelRef } = useSmoothedReservoirLevels(upperSoc, lowerSoc, scenePlaying);
-  const terrainAlpha = normalizeTerrainOpacity(terrainOpacity);
+  const terrainAlpha = normalizeTerrainOpacity(terrainOpacity) * (xray ? 0.18 : 1);
 
   // Dynamic Spacing Factors based on real site properties
   const tunnelScale = site?.tunnelLengthKm ? Math.max(0.6, Math.min(1.8, site.tunnelLengthKm / 3)) : 1;
@@ -2142,9 +2334,14 @@ function Scene({
     return assets;
   }, [isPresenzano]);
 
+  // Girdi her zaman tanımlıdır (tesis + detay zorunludur); bu dal yalnızca
+  // tip daraltması içindir ve pratikte erişilmez.
+  const topology = snapshotTopology;
+  if (!topology) return null;
+
   return (
     <>
-      <CameraTarget frame={cameraFrame} controlsRef={controlsRef} userInteractedRef={userInteractedWithCameraRef} />
+      <CameraTarget frame={cameraFrame} controlsRef={controlsRef} userInteractedRef={userInteractedWithCameraRef} tweenRef={cameraTweenRef} />
       {footprintPlan.enabled ? (
         <color attach="background" args={[theme === 'dark' ? '#111c29' : '#d9e6ed']} />
       ) : theme === 'dark' ? (
@@ -2178,6 +2375,7 @@ function Scene({
             items={footprintPlan.items}
             upperSoc={upperSoc}
             lowerSoc={lowerSoc}
+            running={scenePlaying}
             layers={layers}
             activeComponent={activeComponent}
             onSelectComponent={onSelectComponent}
@@ -2188,9 +2386,12 @@ function Scene({
             topology={topology}
             activeUnitIds={resolvedActiveUnitIds}
             mode={mode}
-            isPlaying={flowActive}
+            isPlaying={scenePlaying}
             quality={quality}
             layers={layers}
+            representative={representativeFlow}
+            xray={xray}
+            activeComponent={activeComponent}
           />
           <ElectricalFlowLayer
             plan={footprintPlan}
@@ -2418,7 +2619,7 @@ function Scene({
       {/* Transmission pylons and lines */}
       {layers.transmission && !footprintPlan.enabled && <TransmissionLine isPresenzano={isPresenzano} isPlaying={scenePlaying} mode={mode} activeUnits={activeUnits} />}
 
-      <OrbitControls ref={controlsRef} target={cameraFrame.target} onStart={() => { userInteractedWithCameraRef.current = true; }} makeDefault enableDamping dampingFactor={0.05} minDistance={20} maxDistance={Math.max(2500, fogSpan * 12)} />
+      <OrbitControls ref={controlsRef} target={cameraFrame.target} onStart={() => { userInteractedWithCameraRef.current = true; cameraTweenRef.current = null; }} makeDefault enableDamping dampingFactor={0.05} minDistance={20} maxDistance={Math.max(2500, fogSpan * 12)} />
     </>
   );
 }
@@ -2440,13 +2641,23 @@ class ThreeDCanvasBoundary extends Component<{ children: React.ReactNode }, { er
 export default function ThreeDModel(props: ThreeDModelProps) {
   const theme = useSettingsStore(state => state.theme);
   const [webglContextLost, setWebglContextLost] = useState(false);
-  const [cameraRequest, setCameraRequest] = useState({ revision: 0, selected: false });
+  const [cameraRequest, setCameraRequest] = useState<{ revision: number; selected: boolean; view?: CameraViewId }>({ revision: 0, selected: false, view: 'site' });
   
   return (
     <div style={{ position: 'relative', width: '100%', height: '100%', minHeight: '50vh', borderRadius: 16, overflow: 'hidden', background: theme === 'dark' ? '#0a0c10' : '#d2e4f0' }}>
       <div className="threed-camera-controls" aria-label="Kamera kontrolleri">
-        <button type="button" className="btn ghost" onClick={() => setCameraRequest((v) => ({ revision: v.revision + 1, selected: false }))}><RotateCcw size={15} /> Tesise odaklan</button>
-        <button type="button" className="btn ghost" disabled={!props.activeComponent} onClick={() => setCameraRequest((v) => ({ revision: v.revision + 1, selected: true }))}><Focus size={15} /> Seçili bileşen</button>
+        {CAMERA_VIEWS.map((view) => (
+          <button
+            key={view.id}
+            type="button"
+            className={`btn ${cameraRequest.view === view.id && !cameraRequest.selected ? 'primary' : 'ghost'}`}
+            aria-pressed={cameraRequest.view === view.id && !cameraRequest.selected}
+            onClick={() => setCameraRequest((v) => ({ revision: v.revision + 1, selected: false, view: view.id }))}
+          >
+            {view.id === 'site' && <RotateCcw size={15} aria-hidden="true" />} {view.label}
+          </button>
+        ))}
+        <button type="button" className={`btn ${cameraRequest.selected ? 'primary' : 'ghost'}`} aria-pressed={cameraRequest.selected} disabled={!props.activeComponent} onClick={() => setCameraRequest((v) => ({ revision: v.revision + 1, selected: true }))}><Focus size={15} /> Seçili bileşen</button>
       </div>
       {webglContextLost && (
         <div role="alert" style={{ position: 'absolute', zIndex: 2, top: 16, left: 16, right: 16, padding: 12, borderRadius: 8, color: '#fff', background: 'rgba(153, 27, 27, 0.94)' }}>

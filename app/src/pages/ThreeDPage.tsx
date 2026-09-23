@@ -9,12 +9,15 @@ import ThreeDModel from '../components/ui/ThreeDModel';
 import WarningBanner from '../components/ui/WarningBanner';
 import { buildComponentsDetail, COORDINATE_CONFIDENCE_LABELS } from '../utils/siteDerived';
 import { publicAssetUrl } from '../utils/publicUrl';
-import { buildLayout3DFootprintPlan, isValidLayout3DFootprint, shouldClearActiveFootprintComponent } from '../utils/layout3dFootprints';
-import { resolveLayout3DDisplayStatus } from '../utils/layout3dDisplayStatus';
+import { isValidLayout3DFootprint, shouldClearActiveFootprintComponent } from '../utils/layout3dFootprints';
+import { resolveLayout3DDisplayStatus, LAYOUT_3D_DISPLAY_STATUS_LABELS } from '../utils/layout3dDisplayStatus';
+import { FLOW_VISUAL, resolveSceneQuality } from '../utils/layout3dVisual';
+import { useLayout3DSnapshot } from '../hooks/useLayout3DSnapshot';
+import { useManualGeometryStore } from '../stores/useManualGeometryStore';
+import { overrideSiteWithManualGeometries } from '../utils/manualGeometryConverter';
+import { useShallow } from 'zustand/react/shallow';
 import {
   advanceReservoirSoc,
-  deriveLayout3DTopology,
-  resolveSimulationSnapshot,
   SIMULATION_STATE_LABELS,
   transitionSimulationState,
   type SimulationQuality,
@@ -186,7 +189,7 @@ export default function ThreeDPage({ site: propSite, dataLoading = false, dataEr
   const [isPlaying, setIsPlaying] = useState(false);
   const [simulationState, dispatchSimulation] = useReducer(simulationReducer, 'IDLE');
   const [reservoirSoc, setReservoirSoc] = useState(INITIAL_RESERVOIR_SOC);
-  const [quality] = useState<SimulationQuality>('auto');
+  const [quality] = useState<SimulationQuality>(() => resolveSceneQuality());
   const componentsDetail = useMemo(() => (site ? buildComponentsDetail(site) : null), [site]);
   const unitIds = useMemo(() => site?.layout3D?.topology?.units?.map((unit) => unit.id) ?? makeUnitIds(componentsDetail?.powerhouse?.units || 4), [site, componentsDetail]);
   const maxUnits = unitIds.length;
@@ -196,8 +199,32 @@ export default function ThreeDPage({ site: propSite, dataLoading = false, dataEr
   const lowerSoc = reservoirSoc.lower;
   const reservoirRef = useRef(reservoirSoc);
   const [energyMWh, setEnergyMWh] = useState(0);
-  const topology = useMemo(() => site && componentsDetail ? deriveLayout3DTopology(site, buildLayout3DFootprintPlan(site), componentsDetail) : null, [site, componentsDetail]);
-  const snapshot = topology ? resolveSimulationSnapshot(topology, activeUnitIds, mode, simulationState, isPlaying) : { running: false, powerMW: 0, flowCms: 0 };
+  // Telemetri ile sahne aynı anlık görüntüyü kullanır: girdi her iki
+  // tarafta da manuel geometri override'lı efektif tesistir.
+  const manualFeatures = useManualGeometryStore(useShallow((state) => state.getFeaturesForSite(site?.id ?? '')));
+  const siteWithFootprints = useMemo(() => {
+    if (!site) return undefined;
+    const footprints = footprintLoad.siteId === site.id ? footprintLoad.footprints : [];
+    return {
+      ...site,
+      layout3D: site.layout3D ? {
+        ...site.layout3D,
+        componentFootprints: footprints,
+      } : undefined
+    };
+  }, [site, footprintLoad.siteId, footprintLoad.footprints]);
+  const effectiveSite = useMemo(
+    () => (siteWithFootprints ? overrideSiteWithManualGeometries(siteWithFootprints, manualFeatures) : undefined),
+    [siteWithFootprints, manualFeatures],
+  );
+  const { snapshot } = useLayout3DSnapshot({
+    site: effectiveSite,
+    componentsDetail,
+    activeUnitIds,
+    mode,
+    simulationState,
+    isPlaying,
+  });
 
 
   const setAllLayerVisibility = (visible: boolean) => {
@@ -280,19 +307,7 @@ export default function ThreeDPage({ site: propSite, dataLoading = false, dataEr
   const [showTerrain, setShowTerrain] = useState(true);
   const [showLabels, setShowLabels] = useState(false);
   const [terrainOpacity, setTerrainOpacity] = useState(70);
-
-  // Inject fetched footprints into site object temporarily for ThreeDModel.
-  const siteWithFootprints = useMemo(() => {
-    if (!site) return undefined;
-    const footprints = footprintLoad.siteId === site.id ? footprintLoad.footprints : [];
-    return {
-      ...site,
-      layout3D: site.layout3D ? {
-        ...site.layout3D,
-        componentFootprints: footprints,
-      } : undefined
-    };
-  }, [site, footprintLoad.siteId, footprintLoad.footprints]);
+  const [xray, setXray] = useState(false);
 
   const footprintPendingForSite = Boolean(
     site?.layout3D?.useFootprintPolygons && footprintLoad.siteId !== site.id,
@@ -356,7 +371,7 @@ export default function ThreeDPage({ site: propSite, dataLoading = false, dataEr
             <span>Üst SOC <b>%{(upperSoc * 100).toFixed(1)}</b></span>
             <span>Alt SOC <b>%{(lowerSoc * 100).toFixed(1)}</b></span>
             <span>Güç <b>{mode === 'pump' && snapshot.powerMW ? '−' : ''}{snapshot.powerMW.toFixed(1)} MW</b></span>
-            <span>Debi <b>{snapshot.flowCms.toFixed(1)} m³/s</b></span>
+            <span>Debi <b>{snapshot.running && snapshot.flowCms <= 0 ? 'temsilî akış' : `${snapshot.flowCms.toFixed(1)} m³/s`}</b></span>
             <span>Net enerji <b>{energyMWh.toFixed(1)} MWh</b></span>
           </div>
           <div className="threed-scene-stage">
@@ -379,6 +394,7 @@ export default function ThreeDPage({ site: propSite, dataLoading = false, dataEr
               showTerrain={showTerrain}
               showLabels={showLabels}
               terrainOpacity={terrainOpacity / 100}
+              xray={xray}
             />
             {footprintLoadingForSite && (
               <div className="threed-footprint-loading" role="status" aria-live="polite">
@@ -392,9 +408,13 @@ export default function ThreeDPage({ site: propSite, dataLoading = false, dataEr
         {/* Sağ Panel: Kontroller */}
         <div className="threed-right">
           <h2 style={{ marginBottom: 4 }}>PDHES Dijital İkiz</h2>
-          <p className="muted" style={{ marginBottom: 24 }}>Seçili saha: <b>{site.name}</b></p>
+          <p className="muted" style={{ marginBottom: 4 }}>Seçili saha: <b>{site.name}</b></p>
+          <p className="threed-data-note" style={{ marginTop: 0 }}>
+            Gösterim: <b>{LAYOUT_3D_DISPLAY_STATUS_LABELS[displayStatus]}</b>
+            {' '}· Koordinat güveni: <b>{COORDINATE_CONFIDENCE_LABELS[site.coordinates.coordinateConfidence]}</b> (yerleşim kaynağından ayrı değerlendirilir)
+          </p>
 
-          <p className="threed-data-note">Simülasyon · SCADA bağlantısı yok. 1 saniye = 1 model dakikası. SOC, aynı çevrim hacminin üst/alt depodaki payıdır; barajın ölçülen doluluk oranı değildir. Güç ve debi mevcut modelin sabit işletme kabulleridir; geçişler hidrolik hesap değildir.</p>
+          <p className="threed-data-note">Simülasyon · SCADA bağlantısı yok. 1 saniye = 1 model dakikası. SOC, aynı çevrim hacminin üst/alt depodaki payıdır; barajın ölçülen doluluk oranı değildir. Güç ve debi mevcut modelin sabit işletme kabulleridir; geçişler hidrolik hesap değildir.{site.projectFlowCms == null ? ' Debi kaynağı yok; su animasyonu akış yönünü gösterir, hız temsilidir.' : ''}</p>
           {footprintWarning && <button type="button" className="btn ghost" onClick={() => setFootprintRetry((v) => v + 1)}>Geometriyi yeniden yükle</button>}
           {/* Mode Toggle */}
           <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
@@ -505,6 +525,32 @@ export default function ThreeDPage({ site: propSite, dataLoading = false, dataEr
               min={0} max={100} step={5} unit="%" 
               onChange={setTerrainOpacity} 
             />
+            <div style={{ height: 8 }} />
+            <LayerToggle
+              label="Yeraltı / kesit görünümü (temsili)"
+              color="#36d6ff"
+              active={xray}
+              onChange={setXray}
+            />
+            <p className="muted" style={{ fontSize: 12, margin: '4px 0 0' }}>
+              Temsili kesit: arazi saydamlaştırılır, kaynak güzergâhları yer değiştirmez.
+            </p>
+          </div>
+
+          <h3 style={{ marginBottom: 12 }}>Görsel Dil</h3>
+          <div className="card" style={{ padding: 16, marginBottom: 24, display: 'grid', gap: 8, fontSize: 13 }}>
+            {[
+              { color: FLOW_VISUAL.water, text: 'Su yüzeyleri' },
+              { color: FLOW_VISUAL.hydraulic, text: 'Hidrolik akış (üstten alta / alttan üste)' },
+              { color: FLOW_VISUAL.generate, text: 'Elektrik akışı · üretim (santral → şebeke)' },
+              { color: FLOW_VISUAL.pump, text: 'Elektrik akışı · pompalama (şebeke → santral)' },
+              { color: FLOW_VISUAL.representativeLink, text: 'Temsili bağlantı (kesikli çizgi)' },
+            ].map((row) => (
+              <div key={row.text} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span aria-hidden="true" style={{ width: 14, height: 14, borderRadius: 4, background: row.color, flexShrink: 0 }} />
+                <span>{row.text}</span>
+              </div>
+            ))}
           </div>
 
           <h3 style={{ marginBottom: 12 }}>
