@@ -12,6 +12,7 @@ vi.mock('../components/ui/ThreeDModel', () => ({
       data-testid="three-d-model"
       data-site-id={props.site.id}
       data-active={props.activeComponent}
+      data-selected-item={props.selectedItemId ?? ''}
       data-active-units={props.activeUnits}
       data-active-unit-ids={JSON.stringify(props.activeUnitIds ?? [])}
       data-max-units={props.maxUnits}
@@ -63,9 +64,10 @@ describe('ThreeDPage controls', () => {
   it('hides all layers and clears activeComponent when "Tümünü Kapat" is clicked', () => {
     render(<ThreeDPage site={site} />);
     const model = screen.getByTestId('three-d-model');
-    
+
     expect(model.getAttribute('data-active')).toBe('upper_reservoir');
-    
+
+    fireEvent.click(screen.getByRole('button', { name: 'Gelişmiş ayarları aç/kapat' }));
     // Toggle off everything
     const closeAllBtn = screen.getByRole('button', { name: 'Tümünü Kapat' });
     fireEvent.click(closeAllBtn);
@@ -82,6 +84,7 @@ describe('ThreeDPage controls', () => {
 
   it('handles fast layer toggling without throwing errors', () => {
     render(<ThreeDPage site={site} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Gelişmiş ayarları aç/kapat' }));
     const closeAllBtn = screen.getByRole('button', { name: 'Tümünü Kapat' });
     const openAllBtn = screen.getByRole('button', { name: 'Tümünü Aç' });
     
@@ -441,8 +444,88 @@ describe('ThreeDPage controls', () => {
       vi.advanceTimersByTime(400);
     });
     expect(model.getAttribute('data-simulation-state')).toBe('GENERATING');
-    expect(screen.getByText('temsilî akış')).toBeTruthy();
+    expect(screen.getAllByText('temsilî akış').length).toBeGreaterThan(0);
+    fireEvent.click(screen.getByRole('button', { name: 'Gelişmiş ayarları aç/kapat' }));
     expect(screen.getByText(/Debi kaynağı yok/)).toBeTruthy();
+  });
+
+  it('selects a single penstock from the structure tree and shows it in the info panel', () => {
+    const footprintSite = makeTestSite({
+      id: 'penstock-site',
+      layout3D: {
+        scale: 'macro',
+        preferredBearing: 0,
+        terrainExaggeration: 1,
+        reservoirSurfaceMode: 'polygon',
+        useFootprintPolygons: true,
+        hideLegacySquareReservoir: true,
+        componentFootprints: [
+          {
+            id: 'penstock-1',
+            component: 'penstock',
+            kind: 'polyline',
+            material: 'shaft',
+            coords: [[32.015, 40.025], [32.02, 40.015]],
+            profileElevationM: [250, 100],
+          },
+          {
+            id: 'penstock-2',
+            component: 'penstock',
+            kind: 'polyline',
+            material: 'shaft',
+            coords: [[32.016, 40.026], [32.021, 40.016]],
+            profileElevationM: [250, 100],
+          },
+        ],
+      },
+    });
+    render(<ThreeDPage site={footprintSite} />);
+    const model = screen.getByTestId('three-d-model');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Cebri Boru -1' }));
+    expect(model.getAttribute('data-selected-item')).toBe('penstock-1');
+    expect(model.getAttribute('data-active')).toBe('penstock');
+    expect(screen.getByRole('button', { name: 'Cebri Boru -2', pressed: false })).toBeTruthy();
+  });
+
+  it('switches sites through the top search selector', () => {
+    const siteA = makeTestSite({ id: 'site-a', name: 'Alfa PDHES' });
+    const siteB = makeTestSite({ id: 'site-b', name: 'Beta PDHES' });
+    useSiteStore.setState({ sites: [siteA, siteB], selectedId: 'site-a' });
+    render(<ThreeDPage />);
+
+    expect(screen.getByTestId('three-d-model').getAttribute('data-site-id')).toBe('site-a');
+    fireEvent.change(screen.getByRole('searchbox', { name: 'Tesis ara' }), { target: { value: 'beta' } });
+    fireEvent.click(screen.getByRole('option', { name: /Beta PDHES/ }));
+    expect(screen.getByTestId('three-d-model').getAttribute('data-site-id')).toBe('site-b');
+  });
+
+  it('shows technical and operation tabs for the selected component', () => {
+    render(<ThreeDPage site={makeTestSite({
+      components_detail: {
+        upper_reservoir: {
+          elevation_m: 889,
+          active_volume_mcm: 10.84,
+          dam_height_m: 55,
+          lining: 'Beton',
+          geology_note: '',
+        },
+        lower_reservoir: { elevation_m: 421, min_level_m: 413, note: '' },
+        penstock: { diameter_m: 6.6, length_m: 4050, material: '', pressure_class: '', count: 4 },
+        powerhouse: { cavern_width_m: 36, cavern_length_m: 266, cavern_height_m: 39, units: 4, turbine_type: '' },
+        surge_tank: { type: '', height_m: 112, diameter_m: 33 },
+        switchyard: { voltage_kv: 380, transformer_count: 3, connection_line_km: 7.1 },
+        tunnel: { length_m: 4050, diameter_m: 8.2, excavation_type: '' },
+        intake_outfall: null,
+      },
+    })} />);
+
+    fireEvent.click(screen.getByRole('tab', { name: 'Teknik Veri' }));
+    expect(screen.getByText(/Kaynak kotu/)).toBeTruthy();
+    fireEvent.click(screen.getByRole('tab', { name: 'İşletme' }));
+    expect(screen.getByText(/Seçili ünite 4\/4/)).toBeTruthy();
+    fireEvent.click(screen.getByRole('tab', { name: 'Kaynak / Veri' }));
+    expect(screen.getAllByText(/Koordinat güveni/).length).toBeGreaterThan(0);
   });
 });
 

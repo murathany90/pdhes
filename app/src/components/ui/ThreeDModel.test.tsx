@@ -770,4 +770,68 @@ describe('ThreeDModel footprint source', () => {
     expect(hydraulic.getAttribute('data-flow-direction')).toBe('upper-to-lower');
     expect(hydraulic.getAttribute('data-penstock-tubes')).toBe('1');
   });
+
+  it('stops flow particles when the animation toggle is off without changing telemetry inputs', () => {
+    const site = makeTestSite({
+      projectFlowCms: 150,
+      layout3D: {
+        scale: 'macro',
+        preferredBearing: 0,
+        terrainExaggeration: 1,
+        reservoirSurfaceMode: 'polygon',
+        useFootprintPolygons: true,
+        hideLegacySquareReservoir: true,
+        componentFootprints: [{
+          id: 'penstock-a',
+          component: 'penstock',
+          kind: 'polyline',
+          material: 'shaft',
+          coords: [[32.015, 40.025], [32.02, 40.015]],
+          profileElevationM: [250, 100],
+        }],
+      },
+    });
+
+    render(
+      <ThreeDModel
+        siteId={site.id}
+        activeComponent="penstock"
+        onSelectComponent={vi.fn()}
+        layers={{}}
+        mode="generate"
+        componentsDetail={{
+          upper_reservoir: {
+            elevation_m: 500,
+            active_volume_mcm: 2,
+            dam_height_m: 10,
+            lining: '',
+            geology_note: '',
+          },
+          lower_reservoir: { elevation_m: 90, min_level_m: 80, note: '' },
+          penstock: { diameter_m: 4, length_m: 100, material: '', pressure_class: '', count: 1 },
+          powerhouse: { cavern_width_m: 10, cavern_length_m: 20, cavern_height_m: 15, units: 2, turbine_type: '' },
+          surge_tank: { type: '', height_m: 20, diameter_m: 5 },
+          switchyard: { voltage_kv: 154, transformer_count: 1, connection_line_km: 1 },
+          tunnel: { length_m: 100, diameter_m: 4, excavation_type: '' },
+          intake_outfall: null,
+        }}
+        site={site}
+        isPlaying={true}
+        activeUnits={1}
+        activeUnitIds={['G1']}
+        simulationState="GENERATING"
+        quality="high"
+        upperSoc={0.5}
+        lowerSoc={0.5}
+        maxUnits={2}
+        showTerrain={false}
+        showLabels={false}
+        terrainOpacity={0.7}
+        fxEnabled={false}
+      />,
+    );
+
+    expect(screen.getByTestId('hydraulic-flow-layer').getAttribute('data-flow-active')).toBe('false');
+    expect(screen.getByTestId('electrical-flow-layer').getAttribute('data-flow-active')).toBe('false');
+  });
 });

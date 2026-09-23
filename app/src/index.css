@@ -2000,3 +2000,50 @@ details.maplibregl-ctrl-attrib:not([open]) .maplibregl-ctrl-attrib-inner {
 .threed-render-error { padding: 72px 24px 24px; color: var(--text); background: var(--panel); height: 100%; overflow: auto; }
 
 @media (min-width: 601px) and (max-width: 1100px) { .threed-telemetry { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+
+/* ── ThreeD Shell: üst bar + ağaç + sahne + bilgi + alt bar (Aşama 3) ── */
+.threed-shell { display: flex; flex-direction: column; position: relative; }
+.threed-topbar { display: flex; gap: 8px; align-items: center; padding: 10px 12px; border-bottom: 1px solid var(--line); background: var(--panel); flex-shrink: 0; }
+.threed-site-search { position: relative; display: flex; align-items: center; gap: 6px; flex: 1; max-width: 340px; min-width: 140px; background: var(--panel3); border: 1px solid var(--line); border-radius: 10px; padding: 6px 10px; color: var(--muted); }
+.threed-site-search input { flex: 1; min-width: 0; background: transparent; border: none; outline: none; color: var(--text); font: inherit; font-size: 13px; }
+.threed-site-results { position: absolute; top: calc(100% + 6px); left: 0; right: 0; max-height: 320px; overflow: auto; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; z-index: 40; padding: 6px; }
+.threed-site-result { display: grid; gap: 2px; width: 100%; text-align: left; font: inherit; background: transparent; border: 1px solid transparent; border-radius: 10px; padding: 8px 10px; color: var(--text); cursor: pointer; }
+.threed-site-result:hover, .threed-site-result.active { border-color: rgba(57,213,255,.55); background: rgba(57,213,255,.08); }
+.threed-site-result b { font-size: 13px; }
+.threed-site-result span { font-size: 12px; }
+.threed-site-meta { display: flex; align-items: baseline; gap: 8px; flex: 2; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.threed-site-meta b { font-size: 14px; }
+.threed-site-meta span { font-size: 12px; overflow: hidden; text-overflow: ellipsis; }
+.threed-main { display: grid; grid-template-columns: 290px minmax(0, 1fr) 350px; flex: 1; min-height: 0; position: relative; }
+.threed-tree { border-right: 1px solid var(--line); background: var(--panel); padding: 16px; overflow: auto; }
+.threed-info { border-left: 1px solid var(--line); background: var(--panel); padding: 16px; overflow: auto; }
+.threed-stage { position: relative; min-width: 0; min-height: 420px; display: flex; background: #030504; }
+.threed-stage .threed-scene-stage { flex: 1; min-height: 420px; }
+.threed-panel-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 12px; }
+.threed-panel-head h3 { margin: 0; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.threed-mini { padding: 4px 8px; min-height: 30px; font-size: 12px; }
+.threed-tree-section { margin-bottom: 14px; }
+.threed-tree-section-head { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; font-size: 13px; font-weight: 700; color: var(--text); }
+.threed-tree-items { display: grid; gap: 4px; margin: 2px 0 8px 14px; }
+.threed-tree-item { display: flex; align-items: center; gap: 8px; width: 100%; text-align: left; font: inherit; font-size: 13px; color: var(--text); background: transparent; border: 1px solid transparent; border-radius: 10px; padding: 7px 10px; cursor: pointer; }
+.threed-tree-item:hover { border-color: var(--line); }
+.threed-tree-item.active { border-color: rgba(57,213,255,.6); background: rgba(57,213,255,.08); }
+.threed-tree-dot { width: 8px; height: 8px; border-radius: 999px; flex-shrink: 0; }
+.threed-tabs { display: flex; gap: 4px; margin-bottom: 12px; flex-wrap: wrap; }
+.threed-tab { font: inherit; font-size: 12px; padding: 6px 10px; border-radius: 10px; border: 1px solid var(--line); background: transparent; color: var(--muted); cursor: pointer; }
+.threed-tab.active { color: var(--text); border-color: rgba(57,213,255,.6); background: rgba(57,213,255,.08); }
+.threed-bottombar { display: flex; gap: 12px; align-items: center; padding: 10px 12px; border-top: 1px solid var(--line); background: var(--panel); flex-shrink: 0; flex-wrap: wrap; }
+.threed-controls { display: flex; gap: 8px; flex-wrap: wrap; }
+.threed-units { display: flex; gap: 4px; flex-wrap: wrap; }
+.threed-bottombar .threed-telemetry { flex: 1; min-width: 240px; border-bottom: none; padding: 6px 8px; }
+.threed-settings { position: absolute; top: 0; right: 0; bottom: 0; width: min(390px, 94vw); z-index: 30; overflow: auto; background: var(--panel); border-left: 1px solid var(--line); padding: 16px; box-shadow: -12px 0 32px rgba(0,0,0,.35); }
+.threed-settings h4 { margin: 16px 0 8px; font-size: 13px; }
+
+@media (max-width: 1100px) {
+  .threed-main { grid-template-columns: minmax(0, 1fr); }
+  .threed-tree, .threed-info { position: absolute; top: 0; bottom: 0; width: min(330px, 88vw); z-index: 25; transition: transform .2s ease; box-shadow: 0 0 32px rgba(0,0,0,.4); }
+  .threed-tree { left: 0; transform: translateX(-110%); }
+  .threed-info { right: 0; border-left: 1px solid var(--line); border-right: none; transform: translateX(110%); }
+  .threed-tree.open, .threed-info.open { transform: none; }
+  .threed-site-meta span { display: none; }
+}
