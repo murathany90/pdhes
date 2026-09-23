@@ -9,7 +9,7 @@ import { damIconBucket, displayName, getBasinColor, getDamColor } from '../data/
 import { fullnessRecordsByHes, fullnessSourceLabel, preferredFullnessRecord, resolveHistoricalFullness, resolveHesFullness } from '../data/fullnessSources';
 import { getBasemapBootstrapStyle, getBasemapStyle, THEME_BACKGROUND } from './mapStyles';
 import { HES_PIE_LAYER_ID, ensureHydrologyOverlay, type OverlayCollections, type OverlayOptions } from './mapLayers';
-import { focusSelectedEntity } from './mapCamera';
+import { focusSelectedEntity, hasFocusableSelectedEntity } from './mapCamera';
 import { advanceFlowDistance, createCascadeFlowGuides, createFlowParticleCollection, createFlowParticlePlans, emptyFlowParticles, hasVerifiedFlowRouteDirection } from './flowParticles';
 import { emptyFeatureCollection } from '../types/hydrology';
 
@@ -140,6 +140,7 @@ function bindHesPopupActions(popup: maplibregl.Popup, hesId: string): void {
 export function BaseMap() {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
+  const focusedSelectionRef = useRef<string | null>(null);
   const initialBasemapRef = useRef(useHydrologyStore.getState().basemap);
   const themeRef = useRef(useHydrologyStore.getState().theme);
   const dataRef = useRef<OverlayCollections | null>(null);
@@ -176,6 +177,10 @@ export function BaseMap() {
   const basemap = useHydrologyStore((state) => state.basemap);
   const theme = useHydrologyStore((state) => state.theme);
   const selectedEntity = useHydrologyStore((state) => state.selectedEntity);
+  const selectionKey = selectedEntity ? `${selectedEntity.type}:${selectedEntity.id}` : null;
+  const selectedEntityAvailable = selectedEntity ? hasFocusableSelectedEntity(selectedEntity, {
+    rivers, basins, dams: damStations, hes177, cascades,
+  }) : false;
   const timelineIndex = useHydrologyStore((state) => state.timelineIndex);
   const dataMode = useHydrologyStore((state) => state.dataMode);
   const flowAnimationEnabled = useHydrologyStore((state) => state.flowAnimationEnabled);
@@ -461,15 +466,22 @@ export function BaseMap() {
 
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || !selectedEntity) return;
+    if (!selectedEntity || !selectionKey) {
+      focusedSelectionRef.current = null;
+      return;
+    }
+    if (!map || !selectedEntityAvailable || focusedSelectionRef.current === selectionKey) return;
+    focusedSelectionRef.current = selectionKey;
     let retryTimer: ReturnType<typeof setTimeout> | null = null;
+    let cancelled = false;
     const focus = () => {
+      if (cancelled || mapRef.current !== map) return;
       if (!map.getStyle()) { retryTimer = setTimeout(focus, 250); return; }
       if (dataRef.current) focusSelectedEntity(map, selectedEntity, dataRef.current);
     };
     focus();
-    return () => { if (retryTimer) clearTimeout(retryTimer); };
-  }, [basins, damStations, hes177, reservoirs, rivers, selectedEntity]);
+    return () => { cancelled = true; if (retryTimer) clearTimeout(retryTimer); };
+  }, [selectedEntity, selectedEntityAvailable, selectionKey]);
 
   useEffect(() => {
     let cancelled = false;

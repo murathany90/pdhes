@@ -1901,22 +1901,31 @@ function useSmoothedReservoirLevels(upperSoc: number, lowerSoc: number, isPlayin
   return { upperLevelRef, lowerLevelRef };
 }
 
-function CameraTarget({ frame, controlsRef }: { frame: CameraFrame; controlsRef: MutableRefObject<OrbitControlsImpl | null> }) {
+function CameraTarget({ frame, controlsRef, userInteractedRef }: {
+  frame: CameraFrame;
+  controlsRef: MutableRefObject<OrbitControlsImpl | null>;
+  userInteractedRef: MutableRefObject<boolean>;
+}) {
   const { camera, invalidate, size } = useThree();
   const appliedFrameKeyRef = useRef<string | null>(null);
+  const appliedSizeRef = useRef({ width: 0, height: 0 });
 
   useLayoutEffect(() => {
     const aspect = size.height > 0 ? size.width / size.height : 1;
     const isNewFrame = appliedFrameKeyRef.current !== frame.key;
+    const sizeChanged = appliedSizeRef.current.width !== size.width || appliedSizeRef.current.height !== size.height;
     const controls = controlsRef.current;
-    if (isNewFrame) {
+    if (isNewFrame || (sizeChanged && !userInteractedRef.current)) {
+      if (isNewFrame) userInteractedRef.current = false;
       if (controls) controls.target.set(...frame.target);
       const distance = calculateCameraDistance(
         frame,
         (camera as THREE.PerspectiveCamera).fov,
         aspect,
       );
-      const direction = new THREE.Vector3(0.72, 0.52, 0.72).normalize();
+      const direction = isNewFrame
+        ? new THREE.Vector3(0.72, 0.52, 0.72).normalize()
+        : camera.position.clone().sub(new THREE.Vector3(...frame.target)).normalize();
       camera.position.set(
         frame.target[0] + direction.x * distance,
         frame.target[1] + direction.y * distance,
@@ -1925,11 +1934,12 @@ function CameraTarget({ frame, controlsRef }: { frame: CameraFrame; controlsRef:
       camera.lookAt(...frame.target);
       appliedFrameKeyRef.current = frame.key;
     }
+    appliedSizeRef.current = { width: size.width, height: size.height };
     controls?.update?.();
     camera.updateMatrixWorld(true);
     camera.updateProjectionMatrix();
     invalidate();
-  }, [camera, controlsRef, frame, invalidate, size.height, size.width]);
+  }, [camera, controlsRef, frame, invalidate, size.height, size.width, userInteractedRef]);
 
   return null;
 }
@@ -2076,6 +2086,7 @@ function Scene({
   const fogNear = Math.max(600, fogSpan * 3);
   const fogFar = Math.max(fogNear + 1000, fogSpan * 10);
   const controlsRef = useRef<OrbitControlsImpl | null>(null);
+  const userInteractedWithCameraRef = useRef(false);
   const { upperLevelRef, lowerLevelRef } = useSmoothedReservoirLevels(upperSoc, lowerSoc, isPlaying);
   const terrainAlpha = normalizeTerrainOpacity(terrainOpacity);
 
@@ -2130,7 +2141,7 @@ function Scene({
 
   return (
     <>
-      <CameraTarget frame={cameraFrame} controlsRef={controlsRef} />
+      <CameraTarget frame={cameraFrame} controlsRef={controlsRef} userInteractedRef={userInteractedWithCameraRef} />
       {footprintPlan.enabled ? (
         <color attach="background" args={[theme === 'dark' ? '#111c29' : '#d9e6ed']} />
       ) : theme === 'dark' ? (
@@ -2404,7 +2415,7 @@ function Scene({
       {/* Transmission pylons and lines */}
       {layers.transmission && !footprintPlan.enabled && <TransmissionLine isPresenzano={isPresenzano} isPlaying={isPlaying} mode={mode} activeUnits={activeUnits} />}
 
-      <OrbitControls ref={controlsRef} target={cameraFrame.target} makeDefault enableDamping dampingFactor={0.05} minDistance={20} maxDistance={Math.max(2500, fogSpan * 12)} />
+      <OrbitControls ref={controlsRef} target={cameraFrame.target} onStart={() => { userInteractedWithCameraRef.current = true; }} makeDefault enableDamping dampingFactor={0.05} minDistance={20} maxDistance={Math.max(2500, fogSpan * 12)} />
     </>
   );
 }

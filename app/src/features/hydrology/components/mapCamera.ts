@@ -57,6 +57,11 @@ function findFeature(selection: Selection, datasets: FocusDatasets): Feature<Geo
   return collection?.features.find((feature) => (selection.type === 'basin' ? basinFeatureId(feature) : featureId(feature)) === selection.id) ?? null;
 }
 
+export function hasFocusableSelectedEntity(selection: Selection, datasets: FocusDatasets): boolean {
+  const feature = findFeature(selection, datasets);
+  return Boolean(feature && positions(feature.geometry).length > 0);
+}
+
 function boundsFor(points: Position[]): [[number, number], [number, number]] | null {
   if (!points.length) return null;
   let minX = Infinity; let minY = Infinity; let maxX = -Infinity; let maxY = -Infinity;
