@@ -38,9 +38,15 @@ const STATIC_FILES = {
 
 async function readJson<T>(path: string): Promise<T> {
   const requestPath = dataUrl(path);
-  const response = await fetch(requestPath, { cache: 'no-cache' });
-  if (!response.ok) throw new Error(`${requestPath}: HTTP ${response.status}`);
-  return response.json() as Promise<T>;
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 15_000);
+  try {
+    const response = await fetch(requestPath, { cache: 'no-cache', signal: controller.signal });
+    if (!response.ok) throw new Error(`${requestPath}: HTTP ${response.status}`);
+    return await response.json() as T;
+  } finally {
+    clearTimeout(timeout);
+  }
 }
 
 function versionedPath(path: string, version: string | number | null | undefined): string {

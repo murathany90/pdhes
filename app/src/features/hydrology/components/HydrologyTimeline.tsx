@@ -30,8 +30,14 @@ export const Timeline: React.FC = () => {
   }, [index, isPlaying, setIndex, timestamps.length, togglePlayback]);
   useEffect(() => {
     if (!isPlaying || timestamps.length < 2) return;
-    const timer = window.setInterval(() => setIndex((useHydrologyStore.getState().timelineIndex + 1) % timestamps.length), 1200);
-    return () => window.clearInterval(timer);
+    let timer: number | undefined;
+    const syncPlayback = () => {
+      window.clearInterval(timer);
+      if (document.visibilityState === 'visible') timer = window.setInterval(() => setIndex((useHydrologyStore.getState().timelineIndex + 1) % timestamps.length), 1200);
+    };
+    syncPlayback();
+    document.addEventListener('visibilitychange', syncPlayback);
+    return () => { window.clearInterval(timer); document.removeEventListener('visibilitychange', syncPlayback); };
   }, [isPlaying, setIndex, timestamps.length]);
 
   const panel = 'border-[var(--line)] bg-[var(--panel)] text-[var(--text)]';

@@ -1,7 +1,7 @@
-import { memo, useRef, useMemo, useEffect, useLayoutEffect, useState, type Dispatch, type MutableRefObject, type SetStateAction } from 'react';
+import { Component, memo, useRef, useMemo, useEffect, useLayoutEffect, useState, type Dispatch, type MutableRefObject, type SetStateAction } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls, Html, Line, Sky, MeshDistortMaterial } from '@react-three/drei';
-import { BatteryCharging, Zap } from 'lucide-react';
+import { RotateCcw, Focus, BatteryCharging, Zap } from 'lucide-react';
 import * as THREE from 'three';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import { COMPONENTS } from '../../utils/constants';
@@ -16,11 +16,10 @@ import {
   type Layout3DFootprintPlan,
   groupFootprintsByLayer,
   isLayerVisible,
+  isFootprintLayerVisible,
 } from '../../utils/layout3dFootprints';
 import {
-  calculateActiveFlowCms,
-  calculateGenerationPowerMW,
-  calculatePumpingPowerMW,
+  resolveSimulationSnapshot,
   deriveLayout3DTopology,
   type DerivedLayout3DTopology,
   type SimulationQuality,
@@ -28,6 +27,7 @@ import {
 } from '../../utils/layout3dSimulation';
 import { useManualGeometryStore } from '../../stores/useManualGeometryStore';
 import { overrideSiteWithManualGeometries } from '../../utils/manualGeometryConverter';
+import { createFootprintPolygonGeometry, footprintRing, generationWaterwayPoints, representativeWaterwayLinks, reservoirSurfaceOffset } from '../../utils/layout3dGeometry';
 import { useShallow } from 'zustand/react/shallow';
 
 
@@ -51,6 +51,7 @@ interface ThreeDModelProps {
   showTerrain: boolean;
   showLabels: boolean;
   terrainOpacity: number;
+  cameraRequest?: { revision: number; selected: boolean };
 }
 
 const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
@@ -154,20 +155,11 @@ function RealisticTerrain({ opacity, isPresenzano }: { opacity: number; isPresen
     return g;
   }, [isPresenzano]);
 
-  const material = useMemo(() => {
-    return new THREE.MeshStandardMaterial({
-      vertexColors: true,
-      roughness: 0.85,
-      metalness: 0.1,
-      flatShading: true,
-      transparent: true,
-      opacity: normalizedOpacity,
-    });
-  }, [normalizedOpacity]);
+  useEffect(() => () => geometry.dispose(), [geometry]);
 
   return (
     <group rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]}>
-      <mesh ref={mesh} geometry={geometry} material={material} receiveShadow />
+      <mesh ref={mesh} geometry={geometry} receiveShadow><meshStandardMaterial vertexColors roughness={0.85} metalness={0.1} flatShading transparent opacity={normalizedOpacity} /></mesh>
       {/* Topographic grid overlay to make the 3D surface obvious */}
       <mesh geometry={geometry}>
         <meshBasicMaterial 
@@ -425,7 +417,7 @@ function SeaWaterReservoir({ position, active, onClick, waterLevelRef, showLabel
 /* ─────────────────────────────────────────────
    Realistic Powerhouse (Cavern Cutaway / Well Shafts)
    ───────────────────────────────────────────── */
-function RealisticPowerhouse({ active, onClick, detail, activeUnits, isPlaying, showLabels, isPresenzano, mode }: any) {
+function RealisticPowerhouse({ active, onClick, detail, activeUnits, activeUnitIds, isPlaying, showLabels, isPresenzano, mode }: any) {
   const w = logScale(detail.cavern_width_m, 20, 3, 6);
   const l = logScale(detail.cavern_length_m, 100, 6, 12);
   const h = logScale(detail.cavern_height_m, 20, 3, 6);
@@ -438,7 +430,7 @@ function RealisticPowerhouse({ active, onClick, detail, activeUnits, isPlaying, 
     // Rotation direction switches based on mode: clockwise for generation, counter-clockwise for pumping
     const spinSpeed = mode === 'generate' ? 0.16 : -0.16;
     turbineRefs.current.forEach((ref, index) => {
-      if (ref && index < activeUnits) {
+      if (ref && (activeUnitIds ? activeUnitIds.includes(`G${index + 1}`) : index < activeUnits)) {
         ref.rotation.y += spinSpeed;
       }
     });
@@ -501,7 +493,7 @@ function RealisticPowerhouse({ active, onClick, detail, activeUnits, isPlaying, 
       {isPresenzano ? (
         /* Centrale a Pozzo: 4 Silindirik Dikey Şaft (Well) */
         Array.from({ length: 4 }).map((_, i) => {
-          const isUnitActive = i < activeUnits && isPlaying;
+          const isUnitActive = (activeUnitIds ? activeUnitIds.includes(`G${i + 1}`) : i < activeUnits) && isPlaying;
           // Space wells 40m apart (equivalent to l/5 intervals)
           const zPos = -l/2 + (l / 5) * (i + 1);
           const wellH = h - 0.4;
@@ -561,7 +553,7 @@ function RealisticPowerhouse({ active, onClick, detail, activeUnits, isPlaying, 
       ) : (
         /* Standard Cavern Generator Units */
         Array.from({ length: Math.min(detail.units, 8) }).map((_, i) => {
-          const isUnitActive = i < activeUnits && isPlaying;
+          const isUnitActive = (activeUnitIds ? activeUnitIds.includes(`G${i + 1}`) : i < activeUnits) && isPlaying;
           const zPos = -l/2 + (l / (detail.units + 1)) * (i + 1);
           
           return (
@@ -617,8 +609,8 @@ function RealisticPowerhouse({ active, onClick, detail, activeUnits, isPlaying, 
 /* ─────────────────────────────────────────────
    Realistic Switchyard (Substation detailed components)
    ───────────────────────────────────────────── */
-function RealisticSwitchyard({ active, onClick, detail, showLabels, isPresenzano, isPlaying, mode, activeUnits, maxUnits, powerMW }: any) {
-  const currentMW = powerMW ? (powerMW / maxUnits) * activeUnits : 0;
+function RealisticSwitchyard({ active, onClick, detail, showLabels, isPresenzano, isPlaying, mode, activeUnits, powerMW }: any) {
+  const currentMW = powerMW ?? 0;
   const pos: [number, number, number] = [75, getTerrainHeight(75, -25, isPresenzano) - 1, -25];
   const transformerCount = isPresenzano ? 4 : 3;
   
@@ -901,7 +893,7 @@ function TransmissionLine({ isPresenzano, isPlaying, mode, activeUnits }: any) {
 /* ─────────────────────────────────────────────
    Steel Penstocks with Concrete Anchor Blocks (4 Lines for Presenzano)
    ───────────────────────────────────────────── */
-function RealisticPenstock({ active, onClick, from, to, isPlaying, mode, activeUnits, maxUnits = 2, showLabels, isPresenzano }: any) {
+function RealisticPenstock({ active, onClick, from, to, isPlaying, mode, activeUnits, activeUnitIds, maxUnits = 2, showLabels, isPresenzano }: any) {
   const linesData = useMemo(() => {
     // Spacing offsets along Z-axis dynamically calculated based on maxUnits
     const spacing = isPresenzano ? 1.4 : 2.2;
@@ -962,7 +954,7 @@ function RealisticPenstock({ active, onClick, from, to, isPlaying, mode, activeU
       if (!mesh) return;
 
       // Each pipe corresponds to one turbine.
-      if (pipeIndex >= activeUnits) {
+      if (activeUnitIds ? !activeUnitIds.includes(`G${pipeIndex + 1}`) : pipeIndex >= activeUnits) {
         mesh.visible = false;
         return;
       }
@@ -997,6 +989,7 @@ function RealisticPenstock({ active, onClick, from, to, isPlaying, mode, activeU
     wireframe: false,
     side: THREE.DoubleSide
   }), [active, isPlaying]);
+  useEffect(() => () => steelMat.dispose(), [steelMat]);
 
   return (
     <group>
@@ -1051,6 +1044,7 @@ function UndergroundTunnel({ from, to, active, onClick, showLabels }: any) {
     const geo = new THREE.TubeGeometry(c, 20, 0.95, 12, false);
     return { geometry: geo };
   }, [from, to]);
+  useEffect(() => () => geometry.dispose(), [geometry]);
 
   return (
     <group onClick={(e) => { e.stopPropagation(); onClick(); }}>
@@ -1085,6 +1079,7 @@ function TailraceChannel({ from, to, active, onClick, showLabels, isPlaying, mod
     return { channelGeo: channel, waterGeo: water, curve: c };
   }, [from, to]);
 
+  useEffect(() => () => { channelGeo.dispose(); waterGeo.dispose(); }, [channelGeo, waterGeo]);
   const particleCount = 30;
   const meshRef = useRef<THREE.InstancedMesh>(null);
   const dummy = useMemo(() => new THREE.Object3D(), []);
@@ -1352,7 +1347,7 @@ function footprintTooltip(item: Layout3DProjectedFootprint): string {
 }
 
 function footprintCenter(item: Layout3DProjectedFootprint): [number, number, number] {
-  const points = item.points.slice(0, item.closed ? -1 : undefined);
+  const points = footprintRing(item);
   const count = Math.max(1, points.length);
   const sum = points.reduce((acc, point) => ({
     x: acc.x + point.x,
@@ -1392,104 +1387,16 @@ function labelPositionForFootprint(item: Layout3DProjectedFootprint): [number, n
   return [center[0] + dx, center[1] + dy, center[2] + dz];
 }
 
-function closestPointOnSegment2D(
-  point: [number, number, number],
-  a: { x: number; y: number; z: number },
-  b: { x: number; y: number; z: number },
-): [number, number, number] {
-  const abx = b.x - a.x;
-  const abz = b.z - a.z;
-  const apx = point[0] - a.x;
-  const apz = point[2] - a.z;
-  const denom = abx * abx + abz * abz || 1;
-  const t = clamp((apx * abx + apz * abz) / denom, 0, 1);
-  return [a.x + abx * t, a.y + (b.y - a.y) * t, a.z + abz * t];
-}
-
-function nearestWaterwayAnchor(item: Layout3DProjectedFootprint, items: Layout3DProjectedFootprint[]): [number, number, number] | null {
-  const center = footprintCenter(item);
-  let best: [number, number, number] | null = null;
-  let bestDistance = Number.POSITIVE_INFINITY;
-  const waterwayComponents = new Set(['headrace_tunnel', 'pressure_tunnel', 'penstock', 'tailrace_tunnel']);
-
-  for (const candidate of items) {
-    if (!waterwayComponents.has(candidate.component) || candidate.points.length < 2) continue;
-    for (let index = 1; index < candidate.points.length; index += 1) {
-      const projected = closestPointOnSegment2D(center, candidate.points[index - 1], candidate.points[index]);
-      const distance = Math.hypot(projected[0] - center[0], projected[2] - center[2]);
-      if (distance < bestDistance) {
-        bestDistance = distance;
-        best = projected;
-      }
-    }
-  }
-
-  return best;
-}
-
-function alignFootprintsForDisplay(items: Layout3DProjectedFootprint[]): Layout3DProjectedFootprint[] {
-  return items.map((item) => {
-    if (!['surge_tank', 'portal'].includes(item.component)) return item;
-    const anchor = nearestWaterwayAnchor(item, items);
-    if (!anchor) return item;
-    const center = footprintCenter(item);
-    const dx = anchor[0] - center[0];
-    const dz = anchor[2] - center[2];
-    return {
-      ...item,
-      points: item.points.map((point) => ({ ...point, x: point.x + dx, z: point.z + dz })),
-    };
-  });
-}
-
-function createFootprintPolygonGeometry(item: Layout3DProjectedFootprint): THREE.BufferGeometry {
-  const points = item.points.filter((point) => (
-    Number.isFinite(point.x) && Number.isFinite(point.y) && Number.isFinite(point.z)
-  ));
-  const first = points[0];
-  const last = points.at(-1);
-  const hasRepeatedClosingPoint = Boolean(
-    first && last && first.x === last.x && first.z === last.z,
-  );
-  const ring = hasRepeatedClosingPoint ? points.slice(0, -1) : points;
-  if (ring.length < 3) return new THREE.BufferGeometry();
-
-  const shapePoints = ring.map((point) => new THREE.Vector2(point.x, point.z));
-  const triangles = THREE.ShapeUtils.triangulateShape(shapePoints, []);
-  if (triangles.length === 0) return new THREE.BufferGeometry();
-  const vertices: number[] = [];
-  const indices: number[] = [];
-
-  ring.forEach((point) => vertices.push(point.x, item.topY, point.z));
-  if (item.extrudeY > 0) {
-    ring.forEach((point) => vertices.push(point.x, item.baseY, point.z));
-  }
-
-  triangles.forEach(([a, b, c]) => indices.push(a, b, c));
-  if (item.extrudeY > 0) {
-    const offset = ring.length;
-    triangles.forEach(([a, b, c]) => indices.push(offset + c, offset + b, offset + a));
-    for (let i = 0; i < ring.length; i += 1) {
-      const next = (i + 1) % ring.length;
-      indices.push(i, next, offset + next, i, offset + next, offset + i);
-    }
-  }
-
-  const geometry = new THREE.BufferGeometry();
-  geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
-  geometry.setIndex(indices);
-  geometry.computeVertexNormals();
-  return geometry;
-}
-
-const FootprintPolygon = memo(function FootprintPolygon({ item, layerKey, active, onSelectComponent, showLabels }: {
+const FootprintPolygon = memo(function FootprintPolygon({ item, layerKey, active, onSelectComponent, showLabels, waterOpening, soc }: {
+  waterOpening?: Layout3DProjectedFootprint;
+  soc?: number;
   item: Layout3DProjectedFootprint;
   layerKey: string;
   active: boolean;
   onSelectComponent: (component: string) => void;
   showLabels: boolean;
 }) {
-  const geometry = useMemo(() => createFootprintPolygonGeometry(item), [item]);
+  const geometry = useMemo(() => createFootprintPolygonGeometry(item, waterOpening), [item, waterOpening]);
   
   useEffect(() => {
     return () => {
@@ -1498,23 +1405,28 @@ const FootprintPolygon = memo(function FootprintPolygon({ item, layerKey, active
   }, [geometry]);
 
   const color = LAYOUT_3D_MATERIAL_COLORS[item.material] ?? '#9aa3ad';
-  const opacity = item.material === 'water' ? 0.82 : item.material === 'embankment' ? 0.74 : 0.9;
+  const opacity = item.material === 'water' ? 0.9 : 1;
+  const waterOffset = item.material === 'water' ? reservoirSurfaceOffset(soc ?? 1) : 0;
+  const outline = useMemo(() => [...footprintRing(item), footprintRing(item)[0]].map((p) => [p.x, item.topY + 0.12, p.z] as [number, number, number]), [item]);
   const labelPosition = labelPositionForFootprint(item);
 
   if (!geometry.getAttribute('position')) return null;
 
   return (
     <group onClick={(event) => { event.stopPropagation(); onSelectComponent(layerKey); }}>
-      <mesh geometry={geometry} castShadow receiveShadow>
+      <mesh geometry={geometry} position={[0, waterOffset, 0]} castShadow={item.material !== 'water'} receiveShadow>
         <meshStandardMaterial
           color={color}
-          transparent
+          transparent={item.material === 'water'}
+          emissive={active ? color : '#000000'}
+          emissiveIntensity={active ? 0.28 : 0}
           opacity={opacity}
           roughness={item.material === 'water' ? 0.18 : 0.8}
           metalness={item.material === 'water' ? 0.04 : 0.02}
           side={THREE.DoubleSide}
         />
       </mesh>
+      <Line points={outline} color={active ? '#f8fafc' : color} lineWidth={active ? 2 : 0.8} />
       <Html position={labelPosition} center style={{ display: showLabels ? 'block' : 'none' }} zIndexRange={[100, 0]}>
         <div style={labelStyle(active, color)} title={footprintTooltip(item)}>{compactFootprintLabel(item)}</div>
       </Html>
@@ -1539,7 +1451,7 @@ const FootprintPolyline = memo(function FootprintPolyline({ item, layerKey, acti
 
   return (
     <group onClick={(event) => { event.stopPropagation(); onSelectComponent(layerKey); }}>
-      <Line points={points} color={color} lineWidth={item.material === 'crest_road' ? 3 : 4} />
+      <Line points={points} color={active ? '#f8fafc' : color} lineWidth={active ? 5 : 3} dashed={item.material === 'tunnel_axis' || item.component.includes('tunnel')} dashSize={3} gapSize={1.5} />
       <Html position={labelPosition} center style={{ display: showLabels ? 'block' : 'none' }} zIndexRange={[100, 0]}>
         <div style={labelStyle(active, color)} title={footprintTooltip(item)}>{compactFootprintLabel(item)}</div>
       </Html>
@@ -1547,15 +1459,16 @@ const FootprintPolyline = memo(function FootprintPolyline({ item, layerKey, acti
   );
 });
 
-function FootprintSceneLayer({ items, layers, activeComponent, onSelectComponent, showLabels }: {
+function FootprintSceneLayer({ items, layers, activeComponent, onSelectComponent, showLabels, upperSoc, lowerSoc }: {
+  upperSoc: number;
+  lowerSoc: number;
   items: Layout3DProjectedFootprint[];
   layers: Record<string, boolean>;
   activeComponent: string;
   onSelectComponent: (component: string) => void;
   showLabels: boolean;
 }) {
-  const displayItems = useMemo(() => alignFootprintsForDisplay(items), [items]);
-  const groupedItems = useMemo(() => groupFootprintsByLayer(displayItems), [displayItems]);
+  const groupedItems = useMemo(() => groupFootprintsByLayer(items), [items]);
 
   return (
     <group>
@@ -1568,10 +1481,12 @@ function FootprintSceneLayer({ items, layers, activeComponent, onSelectComponent
                 <FootprintPolygon
                   key={item.id}
                   item={item}
+                  waterOpening={item.material === 'embankment' ? items.find((water) => water.component === item.component && water.material === 'water') : undefined}
+                  soc={item.component === 'upper_reservoir' ? upperSoc : lowerSoc}
                   layerKey={layerKey}
                   active={active}
                   onSelectComponent={onSelectComponent}
-                  showLabels={showLabels}
+                  showLabels={showLabels && isLayerVisible(layerKey, layers)}
                 />
               );
             }
@@ -1582,7 +1497,7 @@ function FootprintSceneLayer({ items, layers, activeComponent, onSelectComponent
                 layerKey={layerKey}
                 active={active}
                 onSelectComponent={onSelectComponent}
-                showLabels={showLabels}
+                showLabels={showLabels && isLayerVisible(layerKey, layers)}
               />
             );
           })}
@@ -1590,10 +1505,6 @@ function FootprintSceneLayer({ items, layers, activeComponent, onSelectComponent
       ))}
     </group>
   );
-}
-
-function scenePoints(item: Layout3DProjectedFootprint): [number, number, number][] {
-  return item.points.map((point) => [point.x, point.y + 2, point.z]);
 }
 
 function componentsInPlan(plan: Layout3DFootprintPlan, components: string[]): Layout3DProjectedFootprint[] {
@@ -1620,12 +1531,6 @@ function simulationLabelPosition(plan: Layout3DFootprintPlan, anchor: 'hydraulic
   }
   const base = firstCenter(plan, ['penstock', 'pressure_tunnel', 'headrace_tunnel'], [0, 20, 0]);
   return [base[0] + 18, base[1] + 14, base[2] + 10];
-}
-
-function formatPower(powerMW: number, mode: 'generate' | 'pump'): string {
-  if (powerMW <= 0) return '0 MW';
-  const sign = mode === 'generate' ? '+' : '-';
-  return `${sign}${powerMW.toFixed(1)} MW`;
 }
 
 function activePenstockFootprintIds(topology: DerivedLayout3DTopology, activeUnitIds: string[]): Set<string> {
@@ -1674,10 +1579,12 @@ function FlowParticles({ points, color, active, count = 5, speed = 0.18, radius 
   const refs = useRef<Array<THREE.Mesh | null>>([]);
   const offsets = useMemo(() => Array.from({ length: count }, (_, index) => index / count), [count]);
 
-  useFrame(({ clock }) => {
+  const phase = useRef(0);
+  useFrame((_state, delta) => {
     if (!active) return;
+    phase.current += Math.min(delta, 0.1) * speed;
     offsets.forEach((offset, index) => {
-      const position = pathPointAt(points, offset + clock.elapsedTime * speed);
+      const position = pathPointAt(points, offset + phase.current);
       refs.current[index]?.position.set(position[0], position[1], position[2]);
     });
   });
@@ -1726,7 +1633,9 @@ function HydraulicFlowLayer({ plan, topology, activeUnitIds, mode, isPlaying, qu
 }) {
   const flowActive = isPlaying && activeUnitIds.length > 0;
   const activePenstocks = activePenstockFootprintIds(topology, activeUnitIds);
-  const flowItems = componentsInPlan(plan, ['headrace_tunnel', 'pressure_tunnel', 'surge_tank', 'penstock', 'tailrace_tunnel'])
+  const connections = useMemo(() => representativeWaterwayLinks(plan.items), [plan.items]);
+  const flowItems = componentsInPlan(plan, ['headrace_tunnel', 'pressure_tunnel', 'penstock', 'tailrace_tunnel', 'tailrace_channel'])
+    .filter((item) => item.kind === 'polyline' && isFootprintLayerVisible(item, layers))
     .filter((item) => item.component !== 'penstock' || activePenstocks.has(item.id));
   const sharedVisible = isLayerVisible('tunnel', layers) || isLayerVisible('tailrace', layers) || isLayerVisible('penstock', layers);
   const markerPosition = simulationLabelPosition(plan, 'hydraulic');
@@ -1743,19 +1652,24 @@ function HydraulicFlowLayer({ plan, topology, activeUnitIds, mode, isPlaying, qu
           'data-flow-direction': direction,
         }}
       />
+      {connections.filter((link) => isFootprintLayerVisible(link.from, layers) && isFootprintLayerVisible(link.to, layers)).map((link) => (
+        <Line key={link.id} points={link.points} color="#d6a85e" lineWidth={1.2} dashed dashSize={1.5} gapSize={2} />
+      ))}
       {flowItems.map((item) => {
-        const points = mode === 'generate' ? scenePoints(item) : [...scenePoints(item)].reverse();
+        const generationPoints = generationWaterwayPoints(item, plan.items);
+        const points = mode === 'generate' ? generationPoints : [...generationPoints].reverse();
         return (
           <group key={`hydraulic-${item.id}`}>
             <Line
               points={points}
               color={flowActive ? '#22d3ee' : '#64748b'}
-              lineWidth={flowActive ? 5.5 : 1.4}
+              lineWidth={flowActive ? 3.5 : 1.4}
+              dashed={item.material === 'tunnel_axis' || item.component.includes('tunnel')} dashSize={3} gapSize={1.5}
             />
             <Line
               points={points.map(([x, y, z]) => [x, y + 0.45, z] as [number, number, number])}
               color={flowActive ? '#67e8f9' : '#475569'}
-              lineWidth={flowActive ? 2.4 : 0.8}
+              lineWidth={flowActive ? 1.2 : 0.8} dashed dashSize={1} gapSize={4}
             />
             <FlowParticles
               points={points}
@@ -1791,8 +1705,8 @@ function ElectricalFlowLayer({ plan, topology, activeUnitIds, mode, isPlaying, p
   const direction = mode === 'generate' ? 'powerhouse-to-grid' : 'grid-to-powerhouse';
 
   return (
-    <group visible={isLayerVisible('switchyard', layers) || isLayerVisible('transmission', layers)}>
-      <Line points={points} color={flowColor} lineWidth={flowActive ? 5 : 1.6} />
+    <group visible={isLayerVisible('transmission', layers)}>
+      <Line points={points} color={flowColor} lineWidth={flowActive ? 3 : 1.6} dashed dashSize={4} gapSize={2} />
       <Line
         points={points.map(([x, y, z]) => [x, y + 0.75, z] as [number, number, number])}
         color={flowActive ? activeColor : '#475569'}
@@ -1822,7 +1736,7 @@ function ReservoirLevelLayer({ plan, upperSoc, lowerSoc, showLabels }: {
 }) {
   void showLabels;
   const upper = simulationLabelPosition(plan, 'reservoir');
-  const lower = firstCenter(plan, ['lower_reservoir'], [80, 16, 30]);
+
   return (
     <group>
       <HiddenLayerMarker
@@ -1833,91 +1747,74 @@ function ReservoirLevelLayer({ plan, upperSoc, lowerSoc, showLabels }: {
           'data-lower-soc': String(Math.round(lowerSoc * 100)),
         }}
       />
-      <mesh position={[upper[0], upper[1] - 6 + upperSoc * 5, upper[2]]} rotation={[-Math.PI / 2, 0, 0]}>
-        <circleGeometry args={[8, 32]} />
-        <meshStandardMaterial color="#38bdf8" transparent opacity={0.28} />
-      </mesh>
-      <mesh position={[lower[0], lower[1] - 6 + lowerSoc * 5, lower[2]]} rotation={[-Math.PI / 2, 0, 0]}>
-        <circleGeometry args={[8, 32]} />
-        <meshStandardMaterial color="#0ea5e9" transparent opacity={0.22} />
-      </mesh>
     </group>
   );
 }
 
-function EquipmentAnimationLayer({ plan, topology, activeUnitIds, isPlaying, showLabels }: {
-  plan: Layout3DFootprintPlan;
-  topology: DerivedLayout3DTopology;
-  activeUnitIds: string[];
-  isPlaying: boolean;
-  showLabels: boolean;
-}) {
-  void showLabels;
-  const powerhouse = firstCenter(plan, ['powerhouse'], [0, 18, 0]);
-  const transformerIds = topology.transformers
-    .filter((transformer) => transformer.connectedUnitIds.some((unitId) => activeUnitIds.includes(unitId)))
-    .map((transformer) => transformer.id);
-  const active = isPlaying && activeUnitIds.length > 0;
-
-  return (
-    <group>
-      <HiddenLayerMarker
-        position={simulationLabelPosition(plan, 'equipment')}
-        testId="equipment-animation-layer"
-        attributes={{
-          'data-active-unit-count': String(activeUnitIds.length),
-          'data-active-transformer-count': String(transformerIds.length),
-        }}
-      />
-      {active && (
-        <mesh position={[powerhouse[0], powerhouse[1] + 5, powerhouse[2]]}>
-          <sphereGeometry args={[5, 16, 16]} />
-          <meshBasicMaterial color="#a78bfa" transparent opacity={0.24} />
-        </mesh>
-      )}
+function EquipmentUnit({ position, radius, active, mode }: { position: [number, number, number]; radius: number; active: boolean; mode: 'generate' | 'pump' }) {
+  const rotor = useRef<THREE.Group>(null);
+  useFrame((_state, delta) => {
+    if (active && rotor.current) rotor.current.rotation.y += Math.min(delta, 0.1) * (mode === 'generate' ? 2 : -2);
+  });
+  return <group position={position}>
+    <mesh position={[0, radius * 1.8, 0]}>
+      <cylinderGeometry args={[radius, radius, radius * 1.2, 16]} />
+      <meshStandardMaterial color={active ? (mode === 'generate' ? '#34d399' : '#fb923c') : '#64748b'} metalness={0.35} roughness={0.5} />
+    </mesh>
+    <mesh position={[0, radius * 0.7, 0]}>
+      <cylinderGeometry args={[radius * 0.18, radius * 0.18, radius * 2, 10]} />
+      <meshStandardMaterial color="#cbd5e1" metalness={0.6} roughness={0.3} />
+    </mesh>
+    <group ref={rotor}>
+      {[0, 1, 2, 3].map((blade) => <mesh key={blade} rotation={[0, blade * Math.PI / 2, 0]}>
+        <boxGeometry args={[radius * 2.2, radius * 0.3, radius * 0.35]} />
+        <meshStandardMaterial color={active ? '#38bdf8' : '#94a3b8'} />
+      </mesh>)}
     </group>
-  );
+  </group>;
 }
 
-function SimulationStatusLayer({ plan, state, mode, activeUnits, maxUnits, powerMW, flowCms, upperSoc, topology }: {
-  plan: Layout3DFootprintPlan;
-  state: SimulationState;
-  mode: 'generate' | 'pump';
-  activeUnits: number;
-  maxUnits: number;
-  powerMW: number;
-  flowCms: number;
-  upperSoc: number;
-  topology: DerivedLayout3DTopology;
+function equipmentSlots(item: Layout3DProjectedFootprint, count: number) {
+  const ring = footprintRing(item);
+  const edges = ring.map((p, i) => ({ a: p, b: ring[(i + 1) % ring.length] }))
+    .sort((a, b) => Math.hypot(b.a.x - b.b.x, b.a.z - b.b.z) - Math.hypot(a.a.x - a.b.x, a.a.z - a.b.z));
+  const edge = edges[0];
+  const length = Math.hypot(edge.b.x - edge.a.x, edge.b.z - edge.a.z) || 1;
+  const width = Math.hypot(edges.at(-1)!.b.x - edges.at(-1)!.a.x, edges.at(-1)!.b.z - edges.at(-1)!.a.z) || 1;
+  const center = footprintCenter(item);
+  const radius = Math.max(0.3, Math.min(width * 0.23, length / Math.max(count, 1) * 0.24));
+  return { radius, positions: Array.from({ length: count }, (_, index) => {
+    const offset = ((index + 0.5) / count - 0.5) * length * 0.8;
+    return [center[0] + (edge.b.x - edge.a.x) / length * offset, item.topY + radius * 0.5, center[2] + (edge.b.z - edge.a.z) / length * offset] as [number, number, number];
+  }) };
+}
+
+function EquipmentAnimationLayer({ plan, topology, activeUnitIds, isPlaying, showLabels, mode, layers, onSelectComponent }: {
+  plan: Layout3DFootprintPlan; topology: DerivedLayout3DTopology; activeUnitIds: string[];
+  isPlaying: boolean; showLabels: boolean; mode: 'generate' | 'pump'; layers: Record<string, boolean>;
+  onSelectComponent: (component: string) => void;
 }) {
-  {
-    const position = simulationLabelPosition(plan, 'switchyard');
-    const dataStatus = topology.estimated ? 'Temsili' : 'Doğrulanmış';
-    return (
-      <Html position={position} center zIndexRange={[140, 0]}>
-        <div data-testid="simulation-status-layer" data-label-anchor="switchyard" style={{ ...labelStyle(true, '#14b8a6'), minWidth: 170, maxWidth: 190, textAlign: 'left' }}>
-          <div>{state} · {mode === 'generate' ? 'ÜRETİM' : 'POMPA'}</div>
-          <div>Gruplar {activeUnits}/{maxUnits}</div>
-          <div>Güç {formatPower(powerMW, mode)}</div>
-          <div>Debi {flowCms.toFixed(1)} m³/s · SOC %{Math.round(upperSoc * 100)}</div>
-          <div>{dataStatus}</div>
-        </div>
-      </Html>
-    );
-  }
-  const position = firstCenter(plan, ['powerhouse', 'switchyard', 'penstock'], [0, 42, 0]);
-  const dataStatus = topology.estimated ? 'Temsili dağılım' : 'Doğrulanmış topoloji';
-  return (
-    <Html position={[position[0], position[1] + 20, position[2]]} center zIndexRange={[140, 0]}>
-      <div data-testid="simulation-status-layer" style={{ ...labelStyle(true, '#14b8a6'), minWidth: 230, textAlign: 'left' }}>
-        <div>{state} · {mode === 'generate' ? 'ÜRETİM' : 'POMPA'}</div>
-        <div>Aktif gruplar {activeUnits}/{maxUnits}</div>
-        <div>Şebeke gücü {formatPower(powerMW, mode)}</div>
-        <div>Toplam debi {flowCms.toFixed(1)} m³/s · Üst SOC %{Math.round(upperSoc * 100)}</div>
-        <div>{dataStatus}</div>
-      </div>
-    </Html>
-  );
+  const powerhouse = componentsInPlan(plan, ['powerhouse'])[0];
+  const switchyard = componentsInPlan(plan, ['switchyard', 'new_switchyard', 'existing_switchyard'])[0];
+  const units = useMemo(() => powerhouse ? equipmentSlots(powerhouse, topology.units.length) : null, [powerhouse, topology.units.length]);
+  const transformers = useMemo(() => switchyard ? equipmentSlots(switchyard, topology.transformers.length) : null, [switchyard, topology.transformers.length]);
+  return <group>
+    <HiddenLayerMarker position={simulationLabelPosition(plan, 'equipment')} testId="equipment-animation-layer" attributes={{ 'data-active-unit-count': String(isPlaying ? activeUnitIds.length : 0) }} />
+    {units && <group visible={isLayerVisible('powerhouse', layers)} onClick={(event) => { event.stopPropagation(); onSelectComponent('powerhouse'); }}>
+      {topology.units.map((unit, index) => <EquipmentUnit key={unit.id} position={units.positions[index]} radius={units.radius} active={isPlaying && activeUnitIds.includes(unit.id)} mode={mode} />)}
+      {showLabels && isLayerVisible('powerhouse', layers) && <Html position={simulationLabelPosition(plan, 'equipment')} center><div style={labelStyle(false, '#a78bfa')}>Pompa-türbin / motor-jeneratör · temsili kesit</div></Html>}
+    </group>}
+    {transformers && <group visible={isLayerVisible('switchyard', layers)} onClick={(event) => { event.stopPropagation(); onSelectComponent('switchyard'); }}>
+      {topology.transformers.map((transformer, index) => {
+        const active = isPlaying && transformer.connectedUnitIds.some((id) => activeUnitIds.includes(id));
+        const r = transformers.radius;
+        return <group key={transformer.id} position={transformers.positions[index]}>
+          <mesh position={[0, r, 0]}><boxGeometry args={[r * 2, r * 2, r * 1.5]} /><meshStandardMaterial color={active ? '#34d399' : '#64748b'} roughness={0.65} /></mesh>
+          {[-0.6, 0, 0.6].map((x) => <mesh key={x} position={[x * r, r * 2.5, 0]}><cylinderGeometry args={[r * 0.12, r * 0.16, r, 8]} /><meshStandardMaterial color="#dbeafe" /></mesh>)}
+        </group>;
+      })}
+    </group>}
+  </group>;
 }
 
 interface CameraFrame {
@@ -1937,11 +1834,10 @@ export function calculateCameraDistance(
   const safeAspect = Math.max(0.25, Number.isFinite(aspect) && aspect > 0 ? aspect : 1);
   const verticalFov = THREE.MathUtils.degToRad(safeFov);
   const horizontalFov = 2 * Math.atan(Math.tan(verticalFov / 2) * safeAspect);
-  const padding = 1.2;
-  const verticalDistance = (Math.max(frame.verticalSpan, 1) / 2 * padding) / Math.tan(verticalFov / 2);
-  const horizontalDistance = (Math.max(frame.horizontalSpan, 1) / 2 * padding) / Math.tan(horizontalFov / 2);
-  const depthDistance = Math.max(frame.depthSpan, 1) * 0.75 * padding;
-  return Math.max(verticalDistance, horizontalDistance, depthDistance, 120);
+  // Fit the whole 3D bounding sphere for the oblique view, including depth.
+  // Fitting X and Y independently clipped the lower reservoir at this angle.
+  const radius = Math.hypot(frame.horizontalSpan, frame.verticalSpan, frame.depthSpan) / 2;
+  return Math.max(120, radius * 1.12 / Math.sin(Math.min(verticalFov, horizontalFov) / 2));
 }
 
 function WebGLContextMonitor({ setContextLost }: { setContextLost: Dispatch<SetStateAction<boolean>> }) {
@@ -2013,7 +1909,6 @@ function CameraTarget({ frame, controlsRef }: { frame: CameraFrame; controlsRef:
     const aspect = size.height > 0 ? size.width / size.height : 1;
     const isNewFrame = appliedFrameKeyRef.current !== frame.key;
     const controls = controlsRef.current;
-    const target = controls?.target ?? new THREE.Vector3(...frame.target);
     if (isNewFrame) {
       if (controls) controls.target.set(...frame.target);
       const distance = calculateCameraDistance(
@@ -2029,19 +1924,6 @@ function CameraTarget({ frame, controlsRef }: { frame: CameraFrame; controlsRef:
       );
       camera.lookAt(...frame.target);
       appliedFrameKeyRef.current = frame.key;
-    } else {
-      const direction = new THREE.Vector3().subVectors(camera.position, target);
-      const currentDistance = direction.length();
-      const requiredDistance = calculateCameraDistance(
-        frame,
-        (camera as THREE.PerspectiveCamera).fov,
-        aspect,
-      );
-      if (currentDistance > 0 && currentDistance < requiredDistance) {
-        direction.normalize().multiplyScalar(requiredDistance);
-        const nextPosition = target.clone().add(direction);
-        camera.position.set(nextPosition.x, nextPosition.y, nextPosition.z);
-      }
     }
     controls?.update?.();
     camera.updateMatrixWorld(true);
@@ -2133,6 +2015,7 @@ function Scene({
   showLabels,
   terrainOpacity,
   theme,
+  cameraRequest,
 }: ThreeDModelProps & { theme?: string }) {
   const worldExampleFocusId = useSiteStore(state => state.worldExampleFocusId);
   const isPresenzano = worldExampleFocusId === 'presenzano';
@@ -2155,20 +2038,15 @@ function Scene({
     () => deriveLayout3DTopology(site, footprintPlan, componentsDetail),
     [site, footprintPlan, componentsDetail],
   );
-  const powerMW = useMemo(
-    () => mode === 'generate'
-      ? calculateGenerationPowerMW(topology, resolvedActiveUnitIds)
-      : calculatePumpingPowerMW(topology, resolvedActiveUnitIds),
-    [mode, topology, resolvedActiveUnitIds],
-  );
-  const flowCms = useMemo(
-    () => calculateActiveFlowCms(topology, resolvedActiveUnitIds, mode),
-    [mode, topology, resolvedActiveUnitIds],
-  );
+  const snapshot = resolveSimulationSnapshot(topology, resolvedActiveUnitIds, mode, simulationState, isPlaying);
+  const powerMW = snapshot.powerMW;
+  const flowActive = snapshot.running && snapshot.flowCms > 0;
+  isPlaying = snapshot.running;
 
   const cameraFrame = useMemo<CameraFrame>(() => {
     if (footprintPlan.enabled && footprintPlan.items.length > 0) {
-      const points = footprintPlan.items.flatMap((item) => item.points).filter((point) => (
+      const frameItems = cameraRequest?.selected ? footprintPlan.items.filter((item) => isFootprintLayerVisible(item, { [activeComponent]: true }) && (item.component === activeComponent || groupFootprintsByLayer([item])[0]?.layerKey === activeComponent)) : footprintPlan.items;
+      const points = (frameItems.length ? frameItems : footprintPlan.items).flatMap((item) => item.points).filter((point) => (
         Number.isFinite(point.x) && Number.isFinite(point.y) && Number.isFinite(point.z)
       ));
       if (points.length > 0) {
@@ -2188,15 +2066,15 @@ function Scene({
           horizontalSpan,
           verticalSpan,
           depthSpan,
-          key: `${site.id}:${target.join(',')}:${horizontalSpan}:${verticalSpan}:${depthSpan}`,
+          key: `${site.id}:${cameraRequest?.revision ?? 0}:${target.join(',')}:${horizontalSpan}:${verticalSpan}:${depthSpan}`,
         };
       }
     }
-    return { target: [0, 20, 0], horizontalSpan: 120, verticalSpan: 40, depthSpan: 120, key: `${site.id}:fallback` };
-  }, [footprintPlan, site.id]);
+    return { target: [0, 20, 0], horizontalSpan: 120, verticalSpan: 40, depthSpan: 120, key: `${site.id}:fallback:${cameraRequest?.revision ?? 0}` };
+  }, [footprintPlan, site.id, cameraRequest, activeComponent]);
   const fogSpan = Math.max(cameraFrame.horizontalSpan, cameraFrame.verticalSpan, cameraFrame.depthSpan);
-  const fogNear = Math.max(80, fogSpan * 0.55);
-  const fogFar = Math.max(fogNear + 320, fogSpan * 6);
+  const fogNear = Math.max(600, fogSpan * 3);
+  const fogFar = Math.max(fogNear + 1000, fogSpan * 10);
   const controlsRef = useRef<OrbitControlsImpl | null>(null);
   const { upperLevelRef, lowerLevelRef } = useSmoothedReservoirLevels(upperSoc, lowerSoc, isPlaying);
   const terrainAlpha = normalizeTerrainOpacity(terrainOpacity);
@@ -2208,6 +2086,7 @@ function Scene({
   const upperPos = useMemo(() => placeOnTerrain(-140 * tunnelScale, -15, 0, isPresenzano), [tunnelScale, isPresenzano]);
   const surgeTankPos = useMemo(() => placeOnTerrain(-30 * tunnelScale, 0, 0, isPresenzano), [tunnelScale, isPresenzano]);
   const powerhousePos = useMemo(() => placeOnTerrain(45, 15, -2, isPresenzano), [isPresenzano]);
+  const penstockEnd = useMemo(() => new THREE.Vector3(powerhousePos.x, powerhousePos.y - 1.5, powerhousePos.z), [powerhousePos]);
   const lowerPos = useMemo(() => isSeaWater ? new THREE.Vector3(80, 0, 0) : placeOnTerrain(80, 30, 0, isPresenzano), [isPresenzano, isSeaWater]);
   const portalUpperPos = useMemo(() => placeOnTerrain(-100 * tunnelScale, -10, 0, isPresenzano), [tunnelScale, isPresenzano]);
   const portalLowerPos = useMemo(() => isSeaWater ? new THREE.Vector3(60, 0, 0) : placeOnTerrain(60, 20, 0, isPresenzano), [isPresenzano, isSeaWater]);
@@ -2252,15 +2131,19 @@ function Scene({
   return (
     <>
       <CameraTarget frame={cameraFrame} controlsRef={controlsRef} />
-      {theme === 'dark' ? (
+      {footprintPlan.enabled ? (
+        <color attach="background" args={[theme === 'dark' ? '#111c29' : '#d9e6ed']} />
+      ) : theme === 'dark' ? (
         <Sky sunPosition={[0, -10, -50]} turbidity={10} rayleigh={0.1} mieCoefficient={0.005} />
       ) : (
         <Sky sunPosition={[120, 30, 90]} turbidity={0.2} rayleigh={1.0} />
       )}
-      <ambientLight intensity={theme === 'dark' ? 0.15 : 0.45} />
+      <hemisphereLight args={['#dceeff', '#53644c', 1.1]} />
+      <ambientLight intensity={theme === 'dark' ? 0.8 : 0.9} />
       <directionalLight 
-        position={[120, 150, 100]} intensity={theme === 'dark' ? 0.2 : 1.8} castShadow 
+        position={[120, 150, 100]} intensity={theme === 'dark' ? 1.5 : 1.8} castShadow
         shadow-mapSize={[2048, 2048]}
+        shadow-bias={-0.0003} shadow-normalBias={0.2}
         shadow-camera-left={-200} shadow-camera-right={200}
         shadow-camera-top={200} shadow-camera-bottom={-200}
       />
@@ -2279,6 +2162,8 @@ function Scene({
         <>
           <FootprintSceneLayer
             items={footprintPlan.items}
+            upperSoc={upperSoc}
+            lowerSoc={lowerSoc}
             layers={layers}
             activeComponent={activeComponent}
             onSelectComponent={onSelectComponent}
@@ -2289,7 +2174,7 @@ function Scene({
             topology={topology}
             activeUnitIds={resolvedActiveUnitIds}
             mode={mode}
-            isPlaying={isPlaying}
+            isPlaying={flowActive}
             quality={quality}
             layers={layers}
           />
@@ -2309,28 +2194,20 @@ function Scene({
             showLabels={showLabels}
           />
           <EquipmentAnimationLayer
+            mode={mode}
+            layers={layers}
+            onSelectComponent={onSelectComponent}
             plan={footprintPlan}
             topology={topology}
             activeUnitIds={resolvedActiveUnitIds}
             isPlaying={isPlaying}
             showLabels={showLabels}
           />
-          <SimulationStatusLayer
-            plan={footprintPlan}
-            state={simulationState}
-            mode={mode}
-            activeUnits={resolvedActiveUnitIds.length}
-            maxUnits={maxUnits}
-            powerMW={powerMW}
-            flowCms={flowCms}
-            upperSoc={upperSoc}
-            topology={topology}
-          />
         </>
       )}
 
       {/* Upper Reservoir & Dam */}
-      {layers.upper_reservoir && !(footprintPlan.enabled && footprintPlan.hideLegacySquareReservoir) && (
+      {layers.upper_reservoir && !(footprintPlan.enabled && footprintPlan.items.some((item) => item.component === 'upper_reservoir' && item.material === 'water')) && (
         <RealisticUpperReservoir 
           position={upperPos}
           active={activeComponent === 'upper_reservoir'} 
@@ -2380,7 +2257,8 @@ function Scene({
           active={activeComponent === 'powerhouse'} 
           onClick={() => onSelectComponent('powerhouse')} 
           detail={d.powerhouse} 
-          activeUnits={activeUnits} 
+          activeUnits={activeUnits}
+          activeUnitIds={resolvedActiveUnitIds}
           isPlaying={isPlaying} 
           showLabels={showLabels} 
           isPresenzano={isPresenzano}
@@ -2400,7 +2278,7 @@ function Scene({
           mode={mode}
           activeUnits={activeUnits}
           maxUnits={maxUnits}
-          powerMW={site?.capacityMW}
+          powerMW={powerMW}
         />
       )}
 
@@ -2442,10 +2320,11 @@ function Scene({
           active={activeComponent === 'penstock'} 
           onClick={() => onSelectComponent('penstock')} 
           from={surgeTankPos} 
-          to={new THREE.Vector3(powerhousePos.x, powerhousePos.y - 1.5, powerhousePos.z)} 
+          to={penstockEnd}
           isPlaying={isPlaying} 
           mode={mode} 
-          activeUnits={activeUnits} 
+          activeUnits={activeUnits}
+          activeUnitIds={resolvedActiveUnitIds}
           maxUnits={maxUnits}
           showLabels={showLabels} 
           isPresenzano={isPresenzano}
@@ -2467,7 +2346,10 @@ function Scene({
       {layers.tailrace && !(footprintPlan.enabled) && (
         <TailraceChannel 
           from={powerhousePos} 
-          to={lowerPos} 
+          to={lowerPos}
+          isPlaying={isPlaying}
+          mode={mode}
+          activeUnits={activeUnits}
           active={activeComponent === 'tailrace'} 
           onClick={() => onSelectComponent('tailrace')} 
           showLabels={showLabels} 
@@ -2527,28 +2409,49 @@ function Scene({
   );
 }
 
+class ThreeDCanvasBoundary extends Component<{ children: React.ReactNode }, { error: Error | null }> {
+  state: { error: Error | null } = { error: null };
+  static getDerivedStateFromError(error: Error) { return { error }; }
+  render() {
+    if (!this.state.error) return this.props.children;
+    const webgl = /webgl|context/i.test(this.state.error.message);
+    return <div role="alert" className="threed-render-error">
+      <p>{webgl ? 'WebGL başlatılamadı. Bu tarayıcıda 3D çizim kullanılamıyor.' : '3D sahnesi yüklenemedi.'}</p>
+      <p>{this.state.error.message}</p>
+      <button type="button" className="btn ghost" onClick={() => this.setState({ error: null })}>3D görünümü yeniden dene</button>
+    </div>;
+  }
+}
+
 export default function ThreeDModel(props: ThreeDModelProps) {
   const theme = useSettingsStore(state => state.theme);
   const [webglContextLost, setWebglContextLost] = useState(false);
+  const [cameraRequest, setCameraRequest] = useState({ revision: 0, selected: false });
   
   return (
     <div style={{ position: 'relative', width: '100%', height: '100%', minHeight: '50vh', borderRadius: 16, overflow: 'hidden', background: theme === 'dark' ? '#0a0c10' : '#d2e4f0' }}>
+      <div className="threed-camera-controls" aria-label="Kamera kontrolleri">
+        <button type="button" className="btn ghost" onClick={() => setCameraRequest((v) => ({ revision: v.revision + 1, selected: false }))}><RotateCcw size={15} /> Tesise odaklan</button>
+        <button type="button" className="btn ghost" disabled={!props.activeComponent} onClick={() => setCameraRequest((v) => ({ revision: v.revision + 1, selected: true }))}><Focus size={15} /> Seçili bileşen</button>
+      </div>
       {webglContextLost && (
         <div role="alert" style={{ position: 'absolute', zIndex: 2, top: 16, left: 16, right: 16, padding: 12, borderRadius: 8, color: '#fff', background: 'rgba(153, 27, 27, 0.94)' }}>
           WebGL görüntü bağlamı kaybedildi. Tarayıcı bağlamı geri yüklemeye çalışıyor; sorun sürerse sayfayı yenileyin.
         </div>
       )}
+      <ThreeDCanvasBoundary>
       <Canvas
         shadows="basic"
         dpr={[1, 1.5]}
         frameloop={props.isPlaying ? 'always' : 'demand'}
         gl={{ antialias: false, powerPreference: 'high-performance' }}
-        camera={{ position: [150, 120, 180], fov: 45 }}
+        camera={{ position: [150, 120, 180], fov: 45, far: 30000 }}
         fallback={<div role="alert" style={{ padding: 24, color: '#f8fafc' }}>WebGL başlatılamadı. 3D görünüm bu tarayıcıda kullanılamıyor.</div>}
       >
         <WebGLContextMonitor setContextLost={setWebglContextLost} />
-        <Scene {...props} theme={theme} />
+        <Scene {...props} theme={theme} cameraRequest={cameraRequest} />
       </Canvas>
+      </ThreeDCanvasBoundary>
     </div>
   );
 }

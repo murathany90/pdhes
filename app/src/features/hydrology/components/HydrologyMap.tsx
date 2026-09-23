@@ -149,9 +149,10 @@ export function BaseMap() {
   const frameRef = useRef<number | null>(null);
   const flowAnimationRef = useRef<number | null>(null);
   const flowAnimationSpeedRef = useRef(1);
+  const flowDistanceRef = useRef(0);
   const popupRef = useRef<maplibregl.Popup | null>(null);
   const clickPopupRef = useRef<maplibregl.Popup | null>(null);
-  const basemapFallbackRef = useRef(false);
+  const basemapFallbackRef = useRef<'none' | 'vector' | 'local'>('none');
   // A `setStyle` call discards every application source and layer. Do not try
   // to restore the overlay from intermediate `styledata` events; wait for the
   // matching style to be ready instead.
@@ -292,7 +293,11 @@ export function BaseMap() {
     if (!force && lastSyncedDataRef.current === dataRef.current && lastSyncedOptionsRef.current === optionsRef.current) return;
     const needsInitialRefresh = lastSyncedDataRef.current !== dataRef.current || lastSyncedOptionsRef.current !== optionsRef.current;
     try {
-      const synced = ensureHydrologyOverlay(map, dataRef.current, optionsRef.current, () => { requestAnimationFrame(() => syncOverlay(true)); });
+      const synced = ensureHydrologyOverlay(map, dataRef.current, optionsRef.current, () => {
+        if (mapRef.current !== map) return;
+        if (frameRef.current !== null) cancelAnimationFrame(frameRef.current);
+        frameRef.current = requestAnimationFrame(() => { frameRef.current = null; syncOverlay(true); });
+      });
       if (!synced) {
         if (overlayRetryRef.current === null) {
           overlayRetryRef.current = setTimeout(() => {
@@ -366,16 +371,16 @@ export function BaseMap() {
       scheduleOverlaySync(true);
     };
     const fallbackToVector = () => {
-      if (basemapFallbackRef.current) return;
-      basemapFallbackRef.current = true;
+      if (basemapFallbackRef.current !== 'none') return;
+      basemapFallbackRef.current = 'vector';
       styleReadyRef.current = false;
       lastSyncedDataRef.current = null;
       lastSyncedOptionsRef.current = null;
       map.setStyle(getBasemapStyle(themeRef.current === 'light' ? 'light' : 'dark'), { diff: false });
     };
     const fallbackToLocal = () => {
-      if (basemapFallbackRef.current) return;
-      basemapFallbackRef.current = true;
+      if (basemapFallbackRef.current === 'local') return;
+      basemapFallbackRef.current = 'local';
       styleReadyRef.current = false;
       lastSyncedDataRef.current = null;
       lastSyncedOptionsRef.current = null;
@@ -423,10 +428,16 @@ export function BaseMap() {
     return () => {
       if (frameRef.current !== null) cancelAnimationFrame(frameRef.current);
       if (overlayRetryRef.current !== null) clearTimeout(overlayRetryRef.current);
+      overlayRetryRef.current = null;
+      frameRef.current = null;
+      styleReadyRef.current = false;
+      lastSyncedDataRef.current = null;
+      lastSyncedOptionsRef.current = null;
       stopOverlayBootstrap();
       map.off('load', onLoad); map.off('style.load', onStyleLoad); map.off('error', onMapError);
       popupRef.current?.remove();
       map.remove(); mapRef.current = null;
+      delete (window as unknown as { __hydroMap?: MapLibreMap }).__hydroMap;
       clickPopupRef.current?.remove();
     };
   }, [scheduleOverlaySync, syncOverlay]);
@@ -434,14 +445,14 @@ export function BaseMap() {
   useEffect(() => {
     const map = mapRef.current;
     if (!map || basemap === initialBasemapRef.current) return;
-    if ((basemap === 'dark' || basemap === 'light') && map.getLayer('basemap-background')) {
+    if ((basemap === 'dark' || basemap === 'light') && map.getSource('openmaptiles') && !map.getSource('basemap-raster')) {
       initialBasemapRef.current = basemap;
       applyVectorBasemapPalette(map, basemap);
       map.triggerRepaint();
       return;
     }
     initialBasemapRef.current = basemap;
-    basemapFallbackRef.current = false;
+    basemapFallbackRef.current = 'none';
     styleReadyRef.current = false;
     lastSyncedDataRef.current = null;
     lastSyncedOptionsRef.current = null;
@@ -454,14 +465,16 @@ export function BaseMap() {
     let retryTimer: ReturnType<typeof setTimeout> | null = null;
     const focus = () => {
       if (!map.getStyle()) { retryTimer = setTimeout(focus, 250); return; }
-      focusSelectedEntity(map, selectedEntity, collections);
+      if (dataRef.current) focusSelectedEntity(map, selectedEntity, dataRef.current);
     };
     focus();
     return () => { if (retryTimer) clearTimeout(retryTimer); };
-  }, [collections, selectedEntity]);
+  }, [basins, damStations, hes177, reservoirs, rivers, selectedEntity]);
 
   useEffect(() => {
     let cancelled = false;
+    const controller = new AbortController();
+    setCatchment(emptyFeatureCollection());
     if (!activeCatchmentHesId) {
       setCatchment(emptyFeatureCollection());
       return;
@@ -472,12 +485,12 @@ export function BaseMap() {
       setCatchment(emptyFeatureCollection());
       return;
     }
-    fetch(url, { cache: 'force-cache' }).then(async (response) => {
+    fetch(url, { cache: 'force-cache', signal: controller.signal }).then(async (response) => {
       if (!response.ok) throw new Error(`catchment ${response.status}`);
       const value = await response.json() as { type?: string; features?: unknown[] };
       if (!cancelled && value.type === 'FeatureCollection' && Array.isArray(value.features)) setCatchment(value as typeof catchment);
     }).catch(() => { if (!cancelled) setCatchment(emptyFeatureCollection()); });
-    return () => { cancelled = true; };
+    return () => { cancelled = true; controller.abort(); };
   }, [activeCatchmentHesId, hes177.features]);
 
   useEffect(() => {
@@ -517,7 +530,7 @@ export function BaseMap() {
     let active = true;
     let lastTickAt: number | null = null;
     let lastPaintAt = 0;
-    let traveledDistanceKm = 0;
+    let traveledDistanceKm = flowDistanceRef.current;
     const selectedHes = selectedEntity?.type === 'hes'
       ? collections.hes177.features.find((feature) => String(feature.properties?.id ?? feature.id ?? '') === selectedEntity.id)
       : null;
@@ -537,6 +550,7 @@ export function BaseMap() {
       if (lastTickAt !== null) {
         traveledDistanceKm = advanceFlowDistance(traveledDistanceKm, (now - lastTickAt) / 1000, flowAnimationSpeedRef.current);
       }
+      flowDistanceRef.current = traveledDistanceKm;
       lastTickAt = now;
       if (now - lastPaintAt >= 33) {
         const source = map.getSource('rivers-flow-particles') as GeoJSONSource | undefined;

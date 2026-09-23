@@ -288,7 +288,8 @@ describe('ThreeDModel footprint source', () => {
     expect(screen.getByTestId('electrical-flow-layer').textContent).toBe('');
     expect(screen.getByTestId('reservoir-level-layer').textContent).not.toMatch(/SOC/i);
     expect(screen.getByTestId('equipment-animation-layer').textContent).toBe('');
-    expect(screen.getByTestId('simulation-status-layer').textContent).toMatch(/GENERATING/);
+    expect(screen.queryByTestId('simulation-status-layer')).toBeNull();
+    expect(screen.getByRole('button', { name: 'Tesise odaklan' })).toBeTruthy();
   });
 
   it('uses compact friendly footprint labels instead of raw technical names', () => {
@@ -481,7 +482,7 @@ describe('ThreeDModel footprint source', () => {
     expect(screen.getByTestId('reservoir-level-layer').textContent).toBe('');
   });
 
-  it('anchors simulation status and electrical labels to the switchyard for four Gokcekaya groups', () => {
+  it('keeps electrical labels at the switchyard and telemetry outside the scene', () => {
     const site = makeTestSite({
       capacityMW: 1400,
       projectFlowCms: 270,
@@ -553,9 +554,7 @@ describe('ThreeDModel footprint source', () => {
       />,
     );
 
-    expect(screen.getByTestId('simulation-status-layer').getAttribute('data-label-anchor')).toBe('switchyard');
-    expect(screen.getByTestId('simulation-status-layer').textContent).toMatch(/4\/4/);
-    expect(screen.getByTestId('simulation-status-layer').textContent).toMatch(/\+1400\.0 MW/);
+    expect(screen.queryByTestId('simulation-status-layer')).toBeNull();
     expect(screen.getByTestId('electrical-flow-layer').getAttribute('data-label-anchor')).toBe('switchyard');
     expect(screen.getByTestId('electrical-flow-layer').getAttribute('data-flow-color')).toBe('#22c55e');
     expect(screen.getByTestId('electrical-flow-layer').textContent).toBe('');
