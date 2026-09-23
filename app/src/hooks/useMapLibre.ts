@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type RefObject } from 'react';
 import * as maplibregl from 'maplibre-gl';
+import maplibreWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url';
 import type { FeatureCollection } from 'geojson';
 import type { Site } from '../types/site';
 import { escapeHtml } from '../utils/format';
@@ -191,6 +192,7 @@ export function useMapLibre({
   const candidateMarkersRef = useRef<Map<string, CachedMarker>>(new Map());
   const worldMarkersRef = useRef<Map<string, CachedMarker>>(new Map());
   const activePopupRef = useRef<maplibregl.Popup | null>(null);
+  const [mapInstance, setMapInstance] = useState<maplibregl.Map | null>(null);
   const [osmPowerGridData, setOsmPowerGridData] = useState<FeatureCollection | null>(null);
   const [osmPowerGridStatus, setOsmPowerGridStatus] = useState<OSMGridLoadStatus>('idle');
   const [osmPowerGridError, setOsmPowerGridError] = useState<string | null>(null);
@@ -460,7 +462,7 @@ export function useMapLibre({
       const shouldKeepOsmPowerGrid = showPowerGrid || Boolean(map.getSource('osm-power-grid'));
       if (shouldKeepOsmPowerGrid && osmPowerGridData) {
         ensureGeoJsonSource(map, 'osm-power-grid', osmPowerGridData);
-        
+
         const getVoltageProp = (prop: 'color' | 'width'): any => {
           const group = ['coalesce', ['get', 'voltageGroup'], 'unknown'];
           return [
@@ -763,6 +765,7 @@ export function useMapLibre({
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current || !site) return;
+    maplibregl.setWorkerUrl(maplibreWorkerUrl);
     const map = new maplibregl.Map({
       container: containerRef.current,
       style: getMapStyleSpecification(mapStyle),
@@ -780,6 +783,7 @@ export function useMapLibre({
     }, 200);
     map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'bottom-right');
     mapRef.current = map;
+    setMapInstance(map);
     mapStyleRef.current = mapStyle;
     useMapToolsStore.getState().setMap(map);
     
@@ -845,7 +849,8 @@ export function useMapLibre({
       (map as any)._pgPopup?.remove?.();
       useMapToolsStore.getState().setMap(null);
       map.remove();
-      mapRef.current = null;
+      if (mapRef.current === map) mapRef.current = null;
+      setMapInstance((current) => current === map ? null : current);
     };
     // Map creation is intentionally tied only to first data availability.
     // Site/style updates redraw layers without recreating the map instance.
@@ -883,5 +888,5 @@ export function useMapLibre({
     });
   }, [selectedId, site?.id, worldExampleFocusId]);
 
-  return { mapRef, osmPowerGridStatus, osmPowerGridError, retryOsmPowerGrid };
+  return { mapRef, map: mapInstance, osmPowerGridStatus, osmPowerGridError, retryOsmPowerGrid };
 }

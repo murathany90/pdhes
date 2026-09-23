@@ -152,6 +152,10 @@ export function BaseMap() {
   const popupRef = useRef<maplibregl.Popup | null>(null);
   const clickPopupRef = useRef<maplibregl.Popup | null>(null);
   const basemapFallbackRef = useRef(false);
+  // A `setStyle` call discards every application source and layer. Do not try
+  // to restore the overlay from intermediate `styledata` events; wait for the
+  // matching style to be ready instead.
+  const styleReadyRef = useRef(false);
   const overlayRetryRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const overlayBootstrapRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [catchment, setCatchment] = useState(emptyFeatureCollection());
@@ -284,7 +288,7 @@ export function BaseMap() {
 
   const syncOverlay = useCallback(function syncOverlay(force = false) {
     const map = mapRef.current;
-    if (!map || !dataRef.current || !optionsRef.current || !map.getStyle()) return;
+    if (!map || !styleReadyRef.current || !dataRef.current || !optionsRef.current || !map.getStyle()) return;
     if (!force && lastSyncedDataRef.current === dataRef.current && lastSyncedOptionsRef.current === optionsRef.current) return;
     const needsInitialRefresh = lastSyncedDataRef.current !== dataRef.current || lastSyncedOptionsRef.current !== optionsRef.current;
     try {
@@ -336,29 +340,35 @@ export function BaseMap() {
   useEffect(() => { dataRef.current = collections; optionsRef.current = overlayOptions; scheduleOverlaySync(); }, [collections, overlayOptions, scheduleOverlaySync]);
 
   useEffect(() => {
-    // P0: map initialization must NOT wait for canonical data. The bootstrap
-    // style is fully local (background + empty GeoJSON sources), so the base
-    // map renders instantly; overlays sync in when data arrives via dataRef.
+    // P0: map initialization must NOT wait for canonical data. The requested
+    // basemap and the application overlay both initialize independently; the
+    // overlay syncs in when canonical data arrives via dataRef.
     if (!mapContainerRef.current || mapRef.current) return;
-    const initialStyle = getBasemapBootstrapStyle(themeRef.current);
     maplibregl.setWorkerUrl(maplibreWorkerUrl);
-    const map = new maplibregl.Map({ container: mapContainerRef.current, style: initialStyle, center: [35.3, 39], zoom: 5.5, attributionControl: false, renderWorldCopies: false });
+    // Starting with the requested basemap avoids the old bootstrap -> setStyle
+    // swap during the first paint. That swap could remove HES sources after a
+    // `styledata` handler had already restored them, leaving an empty map until
+    // the next page load.
+    const map = new maplibregl.Map({ container: mapContainerRef.current, style: getBasemapStyle(initialBasemapRef.current), center: [35.3, 39], zoom: 5.5, attributionControl: false, renderWorldCopies: false });
     mapRef.current = map;
     // Support/deep-diagnosis handle (allows console inspection of live map state).
     (window as unknown as { __hydroMap?: MapLibreMap }).__hydroMap = map;
     const loggedMapErrors = new Set<string>();
-    let initialBasemapApplied = false;
-    const applyInitialBasemap = () => {
-      if (initialBasemapApplied) return;
-      initialBasemapApplied = true;
-      map.setStyle(getBasemapStyle(initialBasemapRef.current), { diff: false });
+    const onLoad = () => {
+      map.resize();
+      if (map.isStyleLoaded()) {
+        styleReadyRef.current = true;
+        scheduleOverlaySync(true);
+      }
     };
-    const onStyleData = () => { scheduleOverlaySync(); };
-    const onLoad = () => { map.resize(); applyInitialBasemap(); };
-    const onStyleLoad = () => { scheduleOverlaySync(true); };
+    const onStyleLoad = () => {
+      styleReadyRef.current = true;
+      scheduleOverlaySync(true);
+    };
     const fallbackToVector = () => {
       if (basemapFallbackRef.current) return;
       basemapFallbackRef.current = true;
+      styleReadyRef.current = false;
       lastSyncedDataRef.current = null;
       lastSyncedOptionsRef.current = null;
       map.setStyle(getBasemapStyle(themeRef.current === 'light' ? 'light' : 'dark'), { diff: false });
@@ -366,6 +376,7 @@ export function BaseMap() {
     const fallbackToLocal = () => {
       if (basemapFallbackRef.current) return;
       basemapFallbackRef.current = true;
+      styleReadyRef.current = false;
       lastSyncedDataRef.current = null;
       lastSyncedOptionsRef.current = null;
       map.setStyle(getBasemapBootstrapStyle(themeRef.current), { diff: false });
@@ -386,7 +397,6 @@ export function BaseMap() {
     };
     map.on('load', onLoad);
     map.on('style.load', onStyleLoad);
-    map.on('styledata', onStyleData);
     map.on('error', onMapError);
     // Bounded first-paint bootstrap: retry overlay sync a few times until the
     // key layers exist. No render-loop listener — a render->sync->repaint
@@ -414,7 +424,7 @@ export function BaseMap() {
       if (frameRef.current !== null) cancelAnimationFrame(frameRef.current);
       if (overlayRetryRef.current !== null) clearTimeout(overlayRetryRef.current);
       stopOverlayBootstrap();
-      map.off('load', onLoad); map.off('style.load', onStyleLoad); map.off('styledata', onStyleData); map.off('error', onMapError);
+      map.off('load', onLoad); map.off('style.load', onStyleLoad); map.off('error', onMapError);
       popupRef.current?.remove();
       map.remove(); mapRef.current = null;
       clickPopupRef.current?.remove();
@@ -432,10 +442,10 @@ export function BaseMap() {
     }
     initialBasemapRef.current = basemap;
     basemapFallbackRef.current = false;
+    styleReadyRef.current = false;
     lastSyncedDataRef.current = null;
     lastSyncedOptionsRef.current = null;
     map.setStyle(getBasemapStyle(basemap), { diff: false });
-    scheduleOverlaySync();
   }, [basemap, scheduleOverlaySync]);
 
   useEffect(() => {

@@ -11,7 +11,7 @@ import MapPage from './MapPage';
 const mapRefMock = vi.hoisted(() => ({ current: null as any }));
 
 vi.mock('../hooks/useMapLibre', () => ({
-  useMapLibre: vi.fn(() => ({ mapRef: mapRefMock })),
+  useMapLibre: vi.fn(() => ({ mapRef: mapRefMock, map: mapRefMock.current })),
 }));
 
 vi.mock('../components/ManualGeometryLayer', () => ({

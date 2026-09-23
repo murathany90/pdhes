@@ -14,8 +14,11 @@ export default function HesPage() {
   const theme = useSettingsStore((state) => state.theme);
   const setHydrologyTheme = useHydrologyStore((state) => state.setTheme);
   const loadHydroData = useHydrologyStore((state) => state.loadHydroData);
+  const refreshHydroData = useHydrologyStore((state) => state.refreshHydroData);
   const setSelectedEntity = useHydrologyStore((state) => state.setSelectedEntity);
   const hesCount = useHydrologyStore((state) => state.hes177.features.length);
+  const hydroDataStatus = useHydrologyStore((state) => state.hydroDataStatus);
+  const hydroDataError = useHydrologyStore((state) => state.hydroDataError);
   const isSidebarOpen = useHydrologyStore((state) => state.isSidebarOpen);
   const isTimelineOpen = useHydrologyStore((state) => state.isTimelineOpen);
 
@@ -34,7 +37,13 @@ export default function HesPage() {
         <div className="hydrology-map-panel">
           <HydrologyMap />
           {isTimelineOpen && <div className="hydrology-timeline"><HydrologyTimeline /></div>}
-          {hesCount === 0 && <div className="hydrology-empty-state">Kanonik HES verisi yükleniyor…</div>}
+          {hesCount === 0 && hydroDataStatus !== 'failed' && <div className="hydrology-empty-state">Kanonik HES verisi yükleniyor…</div>}
+          {hydroDataStatus === 'failed' && (
+            <div className="hydrology-empty-state hydrology-load-error" role="alert">
+              <span>HES verisi yüklenemedi. {hydroDataError ?? 'Lütfen bağlantınızı kontrol edin.'}</span>
+              <button type="button" onClick={() => { void refreshHydroData(); }}>Yeniden Dene</button>
+            </div>
+          )}
         </div>
       </div>
     </section>

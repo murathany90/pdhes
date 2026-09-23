@@ -26,6 +26,9 @@
 .hydrology-page .hydrology-timeline { position: absolute; right: 12px; bottom: 12px; z-index: 4; width: min(350px, calc(100% - 24px)); pointer-events: none; }
 .hydrology-page .hydrology-timeline > * { pointer-events: auto; }
 .hydrology-page .hydrology-empty-state { position: absolute; inset: 50% auto auto 50%; transform: translate(-50%, -50%); padding: 12px 16px; border: 1px solid var(--hydro-line); border-radius: 10px; background: color-mix(in srgb, var(--hydro-panel) 92%, transparent); color: var(--hydro-muted); pointer-events: none; }
+.hydrology-page .hydrology-load-error { z-index: 5; display: grid; min-width: min(340px, calc(100vw - 32px)); max-width: min(520px, calc(100vw - 32px)); gap: 9px; color: var(--hydro-text); pointer-events: auto; }
+.hydrology-page .hydrology-load-error button { justify-self: start; min-height: 30px; padding: 5px 10px; border: 1px solid var(--hydro-primary); border-radius: 6px; color: var(--hydro-text); background: color-mix(in srgb, var(--hydro-primary) 14%, var(--hydro-panel)); cursor: pointer; font-size: 11px; }
+.hydrology-page .hydrology-load-error button:hover { background: color-mix(in srgb, var(--hydro-primary) 24%, var(--hydro-panel)); }
 
 /* Compact one-line toolbar. The detail KPI is available through the info tooltip. */
 .hydrology-page .hes-toolbar {

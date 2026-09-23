@@ -162,6 +162,7 @@ vi.mock('maplibre-gl', () => {
 
   return {
     Map: FakeMap,
+    setWorkerUrl: vi.fn(),
     Marker: FakeMarker,
     Popup: FakePopup,
     AttributionControl: class {},
@@ -207,7 +208,7 @@ function Harness({
   selectedId?: string;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const { osmPowerGridStatus, osmPowerGridError, retryOsmPowerGrid } = useMapLibre({
+  const { map, osmPowerGridStatus, osmPowerGridError, retryOsmPowerGrid } = useMapLibre({
     containerRef,
     site,
     sites,
@@ -220,6 +221,7 @@ function Harness({
   });
   return (
     <div ref={containerRef}>
+      <span data-testid="map-instance-status">{map ? 'ready' : 'pending'}</span>
       <span data-testid="osm-grid-status">{osmPowerGridStatus}:{osmPowerGridError ?? ''}</span>
       <button type="button" data-testid="osm-grid-retry" onClick={retryOsmPowerGrid}>Yeniden Dene</button>
     </div>
@@ -399,6 +401,13 @@ describe('useMapLibre performance behavior', () => {
     act(() => map.fire('styledata'));
 
     expect(map.setTerrain).toHaveBeenLastCalledWith({ source: 'terrainSource', exaggeration: 1.1 * 1.3 });
+  });
+
+  it('exposes the created map instance for ref-dependent map layers', () => {
+    const site = makeTestSite();
+    render(<Harness site={site} layers={DEFAULT_LAYERS} />);
+
+    expect(screen.getByTestId('map-instance-status').textContent).toBe('ready');
   });
 
   it('keeps 2D camera pitch at zero and uses the selected site pitch in 3D', () => {

@@ -120,7 +120,7 @@ export default function MapPage() {
     return sites.map((item) => (item.id === siteWithFootprints.id ? siteWithFootprints : item));
   }, [siteWithFootprints, sites]);
 
-  const { mapRef, osmPowerGridStatus, osmPowerGridError, retryOsmPowerGrid } = useMapLibre({
+  const { mapRef, map, osmPowerGridStatus, osmPowerGridError, retryOsmPowerGrid } = useMapLibre({
     containerRef: mapContainer,
     site: siteWithFootprints,
     sites: sitesWithSelectedFootprints,
@@ -211,7 +211,7 @@ export default function MapPage() {
 
           <MapContextMenu />
           <MeasurementUI />
-          <ManualGeometryLayer map={mapRef.current} siteId={site.id} />
+          <ManualGeometryLayer map={map} siteId={site.id} />
 
           <FabPopover 
             mapStyle={mapStyle} 
