@@ -94,8 +94,10 @@ export default function ThreeDPage({ site: propSite, dataLoading = false, dataEr
     const requestId = footprintRequestRef.current + 1;
     footprintRequestRef.current = requestId;
     const requestSiteId = site?.id ?? null;
+    let disposed = false;
+    let timedOut = false;
     const applyResult = (result: Omit<FootprintLoadState, 'siteId'>) => {
-      if (requestId !== footprintRequestRef.current) return;
+      if (disposed || requestId !== footprintRequestRef.current) return;
       setFootprintLoad({ ...result, siteId: requestSiteId });
     };
 
@@ -115,7 +117,10 @@ export default function ThreeDPage({ site: propSite, dataLoading = false, dataEr
     }
 
     const controller = new AbortController();
-    const timeout = window.setTimeout(() => controller.abort(), 10_000);
+    const timeout = window.setTimeout(() => {
+      timedOut = true;
+      controller.abort();
+    }, 10_000);
     applyResult({ status: 'loading', footprints: [] });
     fetch(publicAssetUrl(`/footprints/${requestSiteId}.json`), { signal: controller.signal })
       .then(async (res) => {
@@ -143,15 +148,17 @@ export default function ThreeDPage({ site: propSite, dataLoading = false, dataEr
         applyResult({ status: 'success', footprints: data });
       })
       .catch((err) => {
-        if (requestId !== footprintRequestRef.current) return;
+        if (disposed || requestId !== footprintRequestRef.current) return;
+        if (err?.name === 'AbortError' && !timedOut) return;
         console.error('Failed to load footprints:', err);
         applyResult({
-          status: err?.name === 'AbortError' ? 'timeout' : 'network-error',
+          status: err?.name === 'AbortError' && timedOut ? 'timeout' : 'network-error',
           footprints: [],
           error: String(err?.message || err),
         });
       });
     return () => {
+      disposed = true;
       window.clearTimeout(timeout);
       controller.abort();
     };

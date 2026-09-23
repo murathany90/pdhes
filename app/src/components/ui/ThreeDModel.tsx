@@ -1,4 +1,4 @@
-import { memo, useRef, useMemo, useEffect, useLayoutEffect, type MutableRefObject } from 'react';
+import { memo, useRef, useMemo, useEffect, useLayoutEffect, useState, type Dispatch, type MutableRefObject, type SetStateAction } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls, Html, Line, Sky, MeshDistortMaterial } from '@react-three/drei';
 import { BatteryCharging, Zap } from 'lucide-react';
@@ -57,6 +57,11 @@ const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v
 const logScale = (v: number, base: number, min: number, max: number) =>
   clamp(Math.log(v / base + 1) * 2, min, max);
 
+/** The 3D scene receives terrain opacity as a unit value, never as a percentage. */
+export function normalizeTerrainOpacity(value: number): number {
+  return clamp(Number.isFinite(value) ? value : 0, 0, 1);
+}
+
 const pseudoRandom = (seed: number) => {
   const x = Math.sin(seed) * 10000;
   return x - Math.floor(x);
@@ -103,6 +108,7 @@ const placeOnTerrain = (x: number, z: number, offsetY: number, isPresenzano?: bo
    ───────────────────────────────────────────── */
 function RealisticTerrain({ opacity, isPresenzano }: { opacity: number; isPresenzano?: boolean }) {
   const mesh = useRef<THREE.Mesh>(null);
+  const normalizedOpacity = normalizeTerrainOpacity(opacity);
 
   const geometry = useMemo(() => {
     const g = new THREE.PlaneGeometry(450, 450, 200, 200);
@@ -155,9 +161,9 @@ function RealisticTerrain({ opacity, isPresenzano }: { opacity: number; isPresen
       metalness: 0.1,
       flatShading: true,
       transparent: true,
-      opacity: opacity,
+      opacity: normalizedOpacity,
     });
-  }, [opacity]);
+  }, [normalizedOpacity]);
 
   return (
     <group rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]}>
@@ -288,7 +294,7 @@ function RealisticLowerReservoir({ position, active, onClick, waterLevelRef, sho
   useFrame(({ clock }) => {
     if (!waterMesh.current) return;
     const t = clock.getElapsedTime();
-    waterMesh.current.position.y = -depth/2 + (depth * 0.8) * (1 - waterLevelRef.current) + 0.15;
+    waterMesh.current.position.y = -depth/2 + (depth * 0.8) * waterLevelRef.current + 0.15;
     const wave = Math.cos(t * 1.1) * 0.015;
     waterMesh.current.scale.set(1 + wave, 1, 1 + wave);
     
@@ -1189,8 +1195,13 @@ function Portal({ position, rotation, active, onClick, showLabels, label }: any)
    Instanced Environment (Performance Optimization)
    ───────────────────────────────────────────── */
 function InstancedEnvironment({ assets, opacity }: { assets: Array<{ type: 'tree' | 'rock'; pos: [number, number, number]; scale: number; rot: [number, number, number] }>; opacity: number }) {
-  const trees = assets.filter(a => a.type === 'tree');
-  const rocks = assets.filter(a => a.type === 'rock');
+  // `assets` is generated once per terrain variant. Keep these lists stable so
+  // simulation/UI renders do not rewrite every instance matrix.
+  const { trees, rocks } = useMemo(() => ({
+    trees: assets.filter((asset) => asset.type === 'tree'),
+    rocks: assets.filter((asset) => asset.type === 'rock'),
+  }), [assets]);
+  const normalizedOpacity = normalizeTerrainOpacity(opacity);
 
   const treeTrunkRef = useRef<THREE.InstancedMesh>(null);
   const treeFoliage1Ref = useRef<THREE.InstancedMesh>(null);
@@ -1199,7 +1210,7 @@ function InstancedEnvironment({ assets, opacity }: { assets: Array<{ type: 'tree
 
   const dummy = useMemo(() => new THREE.Object3D(), []);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     trees.forEach((tree, i) => {
       dummy.position.set(...tree.pos);
       dummy.rotation.set(...tree.rot);
@@ -1241,22 +1252,22 @@ function InstancedEnvironment({ assets, opacity }: { assets: Array<{ type: 'tree
         <>
           <instancedMesh ref={treeTrunkRef} args={[undefined, undefined, trees.length]} castShadow>
             <cylinderGeometry args={[0.12, 0.2, 1.0, 5]} />
-            <meshStandardMaterial color="#422b1c" roughness={0.95} transparent opacity={opacity} />
+            <meshStandardMaterial color="#422b1c" roughness={0.95} transparent opacity={normalizedOpacity} />
           </instancedMesh>
           <instancedMesh ref={treeFoliage1Ref} args={[undefined, undefined, trees.length]} castShadow>
             <coneGeometry args={[0.7, 1.2, 5]} />
-            <meshStandardMaterial color="#1a3f24" roughness={0.8} flatShading transparent opacity={opacity} />
+            <meshStandardMaterial color="#1a3f24" roughness={0.8} flatShading transparent opacity={normalizedOpacity} />
           </instancedMesh>
           <instancedMesh ref={treeFoliage2Ref} args={[undefined, undefined, trees.length]} castShadow>
             <coneGeometry args={[0.5, 0.8, 5]} />
-            <meshStandardMaterial color="#225430" roughness={0.8} flatShading transparent opacity={opacity} />
+            <meshStandardMaterial color="#225430" roughness={0.8} flatShading transparent opacity={normalizedOpacity} />
           </instancedMesh>
         </>
       )}
       {rocks.length > 0 && (
         <instancedMesh ref={rockRef} args={[undefined, undefined, rocks.length]} castShadow receiveShadow>
           <dodecahedronGeometry args={[0.7, 0]} />
-          <meshStandardMaterial color="#504c46" roughness={0.88} flatShading transparent opacity={opacity} />
+          <meshStandardMaterial color="#504c46" roughness={0.88} flatShading transparent opacity={normalizedOpacity} />
         </instancedMesh>
       )}
     </group>
@@ -1933,6 +1944,67 @@ export function calculateCameraDistance(
   return Math.max(verticalDistance, horizontalDistance, depthDistance, 120);
 }
 
+function WebGLContextMonitor({ setContextLost }: { setContextLost: Dispatch<SetStateAction<boolean>> }) {
+  const { gl, invalidate } = useThree();
+
+  useEffect(() => {
+    const canvas = gl.domElement;
+    let disposed = false;
+    const handleContextLost = (event: Event) => {
+      if (disposed) return;
+      // Keep the browser eligible to restore the existing renderer. This is an
+      // active drawing failure, not the normal listener cleanup on unmount.
+      event.preventDefault();
+      setContextLost(true);
+    };
+    const handleContextRestored = () => {
+      if (disposed) return;
+      setContextLost(false);
+      invalidate();
+    };
+
+    canvas.addEventListener('webglcontextlost', handleContextLost);
+    canvas.addEventListener('webglcontextrestored', handleContextRestored);
+    return () => {
+      disposed = true;
+      canvas.removeEventListener('webglcontextlost', handleContextLost);
+      canvas.removeEventListener('webglcontextrestored', handleContextRestored);
+    };
+  }, [gl, invalidate, setContextLost]);
+
+  return null;
+}
+
+function useSmoothedReservoirLevels(upperSoc: number, lowerSoc: number, isPlaying: boolean) {
+  const upperLevelRef = useRef(normalizeTerrainOpacity(upperSoc));
+  const lowerLevelRef = useRef(normalizeTerrainOpacity(lowerSoc));
+
+  useEffect(() => {
+    if (isPlaying) return;
+    upperLevelRef.current = normalizeTerrainOpacity(upperSoc);
+    lowerLevelRef.current = normalizeTerrainOpacity(lowerSoc);
+  }, [isPlaying, lowerSoc, upperSoc]);
+
+  useFrame((_state, delta) => {
+    if (!isPlaying) return;
+    // SOC is the only level source. Interpolation affects only visual
+    // smoothness and never advances or synthesizes a hydraulic state.
+    const blend = 1 - Math.exp(-Math.max(delta, 0) * 8);
+    upperLevelRef.current = THREE.MathUtils.lerp(
+      upperLevelRef.current,
+      normalizeTerrainOpacity(upperSoc),
+      blend,
+    );
+    lowerLevelRef.current = THREE.MathUtils.lerp(
+      lowerLevelRef.current,
+      normalizeTerrainOpacity(lowerSoc),
+      blend,
+    );
+  });
+
+  return { upperLevelRef, lowerLevelRef };
+}
+
 function CameraTarget({ frame, controlsRef }: { frame: CameraFrame; controlsRef: MutableRefObject<OrbitControlsImpl | null> }) {
   const { camera, invalidate, size } = useThree();
   const appliedFrameKeyRef = useRef<string | null>(null);
@@ -1981,6 +2053,7 @@ function CameraTarget({ frame, controlsRef }: { frame: CameraFrame; controlsRef:
 }
 
 function RepresentativeFootprintTerrain({ opacity, theme }: { opacity: number; theme?: string }) {
+  const normalizedOpacity = normalizeTerrainOpacity(opacity);
   const geometry = useMemo(() => {
     const terrain = new THREE.PlaneGeometry(1000, 1000, 32, 32);
     terrain.rotateX(-Math.PI / 2);
@@ -2011,7 +2084,7 @@ function RepresentativeFootprintTerrain({ opacity, theme }: { opacity: number; t
         <meshStandardMaterial
           color={baseColor}
           transparent
-          opacity={Math.max(0.12, opacity * 0.82)}
+          opacity={normalizedOpacity * 0.82}
           roughness={0.96}
           metalness={0}
           flatShading
@@ -2024,7 +2097,7 @@ function RepresentativeFootprintTerrain({ opacity, theme }: { opacity: number; t
           color={gridColor}
           lineWidth={0.35}
           transparent
-          opacity={gridOpacity}
+          opacity={gridOpacity * normalizedOpacity}
         />
       ))}
       {guides.map((offset) => (
@@ -2034,7 +2107,7 @@ function RepresentativeFootprintTerrain({ opacity, theme }: { opacity: number; t
           color={gridColor}
           lineWidth={0.28}
           transparent
-          opacity={gridOpacity * 0.8}
+          opacity={gridOpacity * normalizedOpacity * 0.8}
         />
       ))}
     </group>
@@ -2125,20 +2198,8 @@ function Scene({
   const fogNear = Math.max(80, fogSpan * 0.55);
   const fogFar = Math.max(fogNear + 320, fogSpan * 6);
   const controlsRef = useRef<OrbitControlsImpl | null>(null);
-  
-  // Shared Simulation Water Levels
-  const waterLevelRef = useRef(0.85);
-  
-  useFrame((_state, delta) => {
-    if (isPlaying && activeUnits > 0) {
-      const rate = 0.04 * (activeUnits / maxUnits) * delta;
-      if (mode === 'generate') {
-        waterLevelRef.current = clamp(waterLevelRef.current - rate, 0.05, 0.95);
-      } else {
-        waterLevelRef.current = clamp(waterLevelRef.current + rate, 0.05, 0.95);
-      }
-    }
-  });
+  const { upperLevelRef, lowerLevelRef } = useSmoothedReservoirLevels(upperSoc, lowerSoc, isPlaying);
+  const terrainAlpha = normalizeTerrainOpacity(terrainOpacity);
 
   // Dynamic Spacing Factors based on real site properties
   const tunnelScale = site?.tunnelLengthKm ? Math.max(0.6, Math.min(1.8, site.tunnelLengthKm / 3)) : 1;
@@ -2205,13 +2266,13 @@ function Scene({
       />
       <fog attach="fog" args={[theme === 'dark' ? '#0a0c10' : '#a2adb9', fogNear, fogFar]} />
 
-      {showTerrain && !footprintPlan.enabled && <RealisticTerrain opacity={terrainOpacity} isPresenzano={isPresenzano} />}
+      {showTerrain && !footprintPlan.enabled && <RealisticTerrain opacity={terrainAlpha} isPresenzano={isPresenzano} />}
 
       {/* Scattered Vegetation and Rocks (Instanced for Performance) */}
-      {showTerrain && terrainOpacity > 0 && !footprintPlan.enabled && <InstancedEnvironment assets={environmentAssets} opacity={terrainOpacity / 100} />}
+      {showTerrain && terrainAlpha > 0 && !footprintPlan.enabled && <InstancedEnvironment assets={environmentAssets} opacity={terrainAlpha} />}
 
       {showTerrain && footprintPlan.enabled && (
-        <RepresentativeFootprintTerrain opacity={terrainOpacity} theme={theme} />
+        <RepresentativeFootprintTerrain opacity={terrainAlpha} theme={theme} />
       )}
 
       {footprintPlan.enabled && (
@@ -2275,7 +2336,7 @@ function Scene({
           active={activeComponent === 'upper_reservoir'} 
           onClick={() => onSelectComponent('upper_reservoir')} 
           detail={d.upper_reservoir} 
-          waterLevelRef={waterLevelRef} 
+          waterLevelRef={upperLevelRef}
           showLabels={showLabels} 
           isPresenzano={isPresenzano}
           isPlaying={isPlaying}
@@ -2292,7 +2353,7 @@ function Scene({
             position={lowerPos}
             active={activeComponent === 'lower_reservoir'} 
             onClick={() => onSelectComponent('lower_reservoir')} 
-            waterLevelRef={waterLevelRef} 
+            waterLevelRef={lowerLevelRef}
             showLabels={showLabels} 
             isPlaying={isPlaying}
             mode={mode}
@@ -2303,7 +2364,7 @@ function Scene({
             position={lowerPos}
             active={activeComponent === 'lower_reservoir'} 
             onClick={() => onSelectComponent('lower_reservoir')} 
-            waterLevelRef={waterLevelRef} 
+            waterLevelRef={lowerLevelRef}
             showLabels={showLabels} 
             isPresenzano={isPresenzano}
             isPlaying={isPlaying}
@@ -2468,9 +2529,15 @@ function Scene({
 
 export default function ThreeDModel(props: ThreeDModelProps) {
   const theme = useSettingsStore(state => state.theme);
+  const [webglContextLost, setWebglContextLost] = useState(false);
   
   return (
-    <div style={{ width: '100%', height: '100%', minHeight: '50vh', borderRadius: 16, overflow: 'hidden', background: theme === 'dark' ? '#0a0c10' : '#d2e4f0' }}>
+    <div style={{ position: 'relative', width: '100%', height: '100%', minHeight: '50vh', borderRadius: 16, overflow: 'hidden', background: theme === 'dark' ? '#0a0c10' : '#d2e4f0' }}>
+      {webglContextLost && (
+        <div role="alert" style={{ position: 'absolute', zIndex: 2, top: 16, left: 16, right: 16, padding: 12, borderRadius: 8, color: '#fff', background: 'rgba(153, 27, 27, 0.94)' }}>
+          WebGL görüntü bağlamı kaybedildi. Tarayıcı bağlamı geri yüklemeye çalışıyor; sorun sürerse sayfayı yenileyin.
+        </div>
+      )}
       <Canvas
         shadows="basic"
         dpr={[1, 1.5]}
@@ -2479,6 +2546,7 @@ export default function ThreeDModel(props: ThreeDModelProps) {
         camera={{ position: [150, 120, 180], fov: 45 }}
         fallback={<div role="alert" style={{ padding: 24, color: '#f8fafc' }}>WebGL başlatılamadı. 3D görünüm bu tarayıcıda kullanılamıyor.</div>}
       >
+        <WebGLContextMonitor setContextLost={setWebglContextLost} />
         <Scene {...props} theme={theme} />
       </Canvas>
     </div>

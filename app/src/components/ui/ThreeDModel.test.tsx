@@ -1,17 +1,20 @@
 // @vitest-environment jsdom
 
 import type React from 'react';
-import { cleanup, render, screen } from '@testing-library/react';
+import { act, cleanup, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { makeTestSite } from '../../test-utils/makeTestSite';
 import { useSettingsStore } from '../../stores/useSettingsStore';
 import { useSiteStore } from '../../stores/useSiteStore';
 import ThreeDModel, { calculateCameraDistance } from './ThreeDModel';
 
+const mockRendererCanvas = new EventTarget();
+
 vi.mock('@react-three/fiber', () => ({
   Canvas: ({ children }: { children?: React.ReactNode }) => <div data-testid="mock-canvas">{children}</div>,
   useFrame: vi.fn(),
   useThree: () => ({
+    gl: { domElement: mockRendererCanvas },
     camera: { fov: 45, position: { set: vi.fn() }, lookAt: vi.fn(), updateMatrixWorld: vi.fn(), updateProjectionMatrix: vi.fn() },
     invalidate: vi.fn(),
     size: { width: 1200, height: 700 },
@@ -44,6 +47,48 @@ describe('ThreeDModel footprint source', () => {
 
     expect(wideViewportDistance).toBeGreaterThan(700);
     expect(narrowViewportDistance).toBeGreaterThan(wideViewportDistance);
+  });
+
+  it('shows an active WebGL context-loss state and clears it after restoration', () => {
+    const site = makeTestSite();
+    render(
+      <ThreeDModel
+        siteId={site.id}
+        activeComponent="upper_reservoir"
+        onSelectComponent={vi.fn()}
+        layers={{}}
+        mode="generate"
+        componentsDetail={{
+          upper_reservoir: { elevation_m: 100, active_volume_mcm: 1, dam_height_m: 10, lining: '', geology_note: '' },
+          lower_reservoir: { elevation_m: 50, min_level_m: 40, note: '' },
+          penstock: { diameter_m: 4, length_m: 100, material: '', pressure_class: '', count: 1 },
+          powerhouse: { cavern_width_m: 10, cavern_length_m: 20, cavern_height_m: 15, units: 1, turbine_type: '' },
+          surge_tank: { type: '', height_m: 20, diameter_m: 5 },
+          switchyard: { voltage_kv: 154, transformer_count: 1, connection_line_km: 1 },
+          tunnel: { length_m: 100, diameter_m: 4, excavation_type: '' },
+          intake_outfall: null,
+        }}
+        site={site}
+        isPlaying={false}
+        activeUnits={1}
+        maxUnits={1}
+        showTerrain={false}
+        showLabels={false}
+        terrainOpacity={0.7}
+      />,
+    );
+
+    const contextLost = new Event('webglcontextlost', { cancelable: true });
+    act(() => {
+      mockRendererCanvas.dispatchEvent(contextLost);
+    });
+    expect(contextLost.defaultPrevented).toBe(true);
+    expect(screen.getByText(/WebGL görüntü bağlamı kaybedildi/i)).toBeTruthy();
+
+    act(() => {
+      mockRendererCanvas.dispatchEvent(new Event('webglcontextrestored'));
+    });
+    expect(screen.queryByText(/WebGL görüntü bağlamı kaybedildi/i)).toBeNull();
   });
 
   it('renders footprint data from the explicit site prop instead of stale store data', () => {

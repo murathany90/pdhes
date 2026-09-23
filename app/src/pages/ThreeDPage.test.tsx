@@ -150,6 +150,36 @@ describe('ThreeDPage controls', () => {
     expect(screen.queryByText(/Footprint verisi yüklenemedi/i)).toBeNull();
   });
 
+  it('silently ignores an aborted footprint request during unmount', async () => {
+    let rejectRequest!: (reason?: unknown) => void;
+    const request = new Promise((_, reject) => {
+      rejectRequest = reject;
+    });
+    vi.stubGlobal('fetch', vi.fn(() => request));
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const footprintSite = makeTestSite({
+      layout3D: {
+        scale: 'macro',
+        preferredBearing: 0,
+        terrainExaggeration: 1,
+        reservoirSurfaceMode: 'polygon',
+        useFootprintPolygons: true,
+        hideLegacySquareReservoir: true,
+      },
+    });
+
+    const view = render(<ThreeDPage site={footprintSite} />);
+    await waitFor(() => expect(fetch).toHaveBeenCalledTimes(1));
+    view.unmount();
+    rejectRequest(new DOMException('Request aborted', 'AbortError'));
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+    expect(consoleError).not.toHaveBeenCalled();
+    consoleError.mockRestore();
+  });
+
   it('uses independent group toggles and allows zero active units', () => {
     render(<ThreeDPage site={makeTestSite({
       components_detail: {
