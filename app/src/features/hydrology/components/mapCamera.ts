@@ -107,3 +107,16 @@ export function focusSelectedEntity(map: MapLibreMap, selection: Selection, data
   map.fitBounds(bounds, { padding: FOCUS_PADDING, maxZoom: selection.type === 'basin' ? 8.2 : selection.type === 'river' ? 9.5 : 10.5, duration: 950, essential: true });
   return true;
 }
+
+export function focusSelectedEntityOnce(
+  focusedSelection: { current: string | null },
+  selectionKey: string,
+  map: MapLibreMap,
+  selection: Selection,
+  datasets: FocusDatasets,
+): boolean {
+  if (focusedSelection.current === selectionKey) return true;
+  if (!focusSelectedEntity(map, selection, datasets)) return false;
+  focusedSelection.current = selectionKey;
+  return true;
+}

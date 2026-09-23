@@ -3,12 +3,14 @@
 import { act, cleanup, render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { makeTestSite } from '../test-utils/makeTestSite';
+import { DEFAULT_SITE_ID, useSiteStore } from '../stores/useSiteStore';
 import ThreeDPage from './ThreeDPage';
 
 vi.mock('../components/ui/ThreeDModel', () => ({
   default: (props: any) => (
     <div
       data-testid="three-d-model"
+      data-site-id={props.site.id}
       data-active={props.activeComponent}
       data-active-units={props.activeUnits}
       data-active-unit-ids={JSON.stringify(props.activeUnitIds ?? [])}
@@ -34,6 +36,16 @@ describe('ThreeDPage controls', () => {
     cleanup();
     vi.useRealTimers();
     vi.unstubAllGlobals();
+  });
+
+  it('uses Gökçekaya as the initial site when no selected site is available', () => {
+    const defaultSite = makeTestSite({ id: DEFAULT_SITE_ID, name: 'Gökçekaya PDHES' });
+    useSiteStore.setState({ sites: [makeTestSite({ id: 'other-site' }), defaultSite], selectedId: 'missing-site' });
+
+    render(<ThreeDPage />);
+
+    expect(screen.getByTestId('three-d-model').getAttribute('data-site-id')).toBe(DEFAULT_SITE_ID);
+    expect(screen.getByText('Gökçekaya PDHES')).toBeTruthy();
   });
 
   it('uses consistent icons and exposes toggle states', () => {
@@ -124,13 +136,17 @@ describe('ThreeDPage controls', () => {
       useFootprintPolygons: true,
       hideLegacySquareReservoir: true,
     };
-    const siteA = makeTestSite({ id: 'site-a', layout3D });
-    const siteB = makeTestSite({ id: 'site-b', layout3D });
-    const { rerender } = render(<ThreeDPage site={siteA} />);
+    const siteA = makeTestSite({ id: 'site-a', name: 'Site A', layout3D });
+    const siteB = makeTestSite({ id: 'site-b', name: 'Site B', layout3D });
+    const { rerender, container } = render(<ThreeDPage site={siteA} />);
 
     await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1));
+    const mountedModel = screen.getByTestId('three-d-model');
+    expect(container.querySelector('.threed-footprint-loading')?.textContent).toMatch(/site a.*yükleniyor/i);
     rerender(<ThreeDPage site={siteB} />);
     await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
+    expect(screen.getByTestId('three-d-model')).toBe(mountedModel);
+    expect(container.querySelector('.threed-footprint-loading')?.textContent).toMatch(/site b.*yükleniyor/i);
 
     resolveFirst({ ok: false, status: 404, json: async () => [] });
     resolveSecond({
@@ -147,6 +163,8 @@ describe('ThreeDPage controls', () => {
     });
 
     await waitFor(() => expect(screen.getByTestId('three-d-model')).toBeTruthy());
+    expect(screen.getByTestId('three-d-model')).toBe(mountedModel);
+    expect(container.querySelector('.threed-footprint-loading')).toBeNull();
     expect(screen.queryByText(/Footprint verisi yüklenemedi/i)).toBeNull();
   });
 

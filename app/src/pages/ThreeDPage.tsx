@@ -286,6 +286,10 @@ export default function ThreeDPage({ site: propSite, dataLoading = false, dataEr
   const footprintPendingForSite = Boolean(
     site?.layout3D?.useFootprintPolygons && footprintLoad.siteId !== site.id,
   );
+  const footprintLoadingForSite = Boolean(
+    site?.layout3D?.useFootprintPolygons
+    && (footprintPendingForSite || (footprintLoad.siteId === site.id && footprintLoad.status === 'loading')),
+  );
   if (!site) {
     return (
       <section className="panel active">
@@ -299,10 +303,6 @@ export default function ThreeDPage({ site: propSite, dataLoading = false, dataEr
       </section>
     );
   }
-  if (site.layout3D?.useFootprintPolygons && (footprintPendingForSite || footprintLoad.status === 'loading')) {
-    return <section className="panel active"><p className="muted">Veri yükleniyor...</p></section>;
-  }
-
   const detail = componentsDetail ?? buildComponentsDetail(site);
   const footprintWarning = site.layout3D?.useFootprintPolygons && !['idle', 'loading', 'success'].includes(footprintLoad.status)
     ? `Footprint verisi yüklenemedi; fallback model kullanılıyor (${footprintLoad.status}).`
@@ -341,26 +341,34 @@ export default function ThreeDPage({ site: propSite, dataLoading = false, dataEr
             <span>Debi <b>{snapshot.flowCms.toFixed(1)} m³/s</b></span>
             <span>Net enerji <b>{energyMWh.toFixed(1)} MWh</b></span>
           </div>
-          <ThreeDModel
-            siteId={site.id}
-            activeComponent={activeComponent}
-            onSelectComponent={selectComponent}
-            layers={layers}
-            mode={mode}
-            componentsDetail={detail}
-            site={siteWithFootprints ?? site}
-            isPlaying={isPlaying}
-            activeUnits={activeUnits}
-            activeUnitIds={activeUnitIds}
-            simulationState={simulationState}
-            quality={quality}
-            upperSoc={upperSoc}
-            lowerSoc={lowerSoc}
-            maxUnits={maxUnits}
-            showTerrain={showTerrain}
-            showLabels={showLabels}
-            terrainOpacity={terrainOpacity / 100}
-          />
+          <div className="threed-scene-stage">
+            <ThreeDModel
+              siteId={site.id}
+              activeComponent={activeComponent}
+              onSelectComponent={selectComponent}
+              layers={layers}
+              mode={mode}
+              componentsDetail={detail}
+              site={siteWithFootprints ?? site}
+              isPlaying={isPlaying}
+              activeUnits={activeUnits}
+              activeUnitIds={activeUnitIds}
+              simulationState={simulationState}
+              quality={quality}
+              upperSoc={upperSoc}
+              lowerSoc={lowerSoc}
+              maxUnits={maxUnits}
+              showTerrain={showTerrain}
+              showLabels={showLabels}
+              terrainOpacity={terrainOpacity / 100}
+            />
+            {footprintLoadingForSite && (
+              <div className="threed-footprint-loading" role="status" aria-live="polite">
+                <strong>{site.name} yerleşim geometrisi yükleniyor</strong>
+                <span>Yeni tesise ait footprint verisi gelene kadar 3D çizim gizlenir.</span>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Sağ Panel: Kontroller */}

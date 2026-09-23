@@ -1924,7 +1924,7 @@ function CameraTarget({ frame, controlsRef, userInteractedRef }: {
         aspect,
       );
       const direction = isNewFrame
-        ? new THREE.Vector3(0.72, 0.52, 0.72).normalize()
+        ? new THREE.Vector3(0.72, 0.42, 0.72).normalize()
         : camera.position.clone().sub(new THREE.Vector3(...frame.target)).normalize();
       camera.position.set(
         frame.target[0] + direction.x * distance,

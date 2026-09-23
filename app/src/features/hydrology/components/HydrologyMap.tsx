@@ -9,7 +9,7 @@ import { damIconBucket, displayName, getBasinColor, getDamColor } from '../data/
 import { fullnessRecordsByHes, fullnessSourceLabel, preferredFullnessRecord, resolveHistoricalFullness, resolveHesFullness } from '../data/fullnessSources';
 import { getBasemapBootstrapStyle, getBasemapStyle, THEME_BACKGROUND } from './mapStyles';
 import { HES_PIE_LAYER_ID, ensureHydrologyOverlay, type OverlayCollections, type OverlayOptions } from './mapLayers';
-import { focusSelectedEntity, hasFocusableSelectedEntity } from './mapCamera';
+import { focusSelectedEntityOnce, hasFocusableSelectedEntity } from './mapCamera';
 import { advanceFlowDistance, createCascadeFlowGuides, createFlowParticleCollection, createFlowParticlePlans, emptyFlowParticles, hasVerifiedFlowRouteDirection } from './flowParticles';
 import { emptyFeatureCollection } from '../types/hydrology';
 
@@ -471,13 +471,19 @@ export function BaseMap() {
       return;
     }
     if (!map || !selectedEntityAvailable || focusedSelectionRef.current === selectionKey) return;
-    focusedSelectionRef.current = selectionKey;
     let retryTimer: ReturnType<typeof setTimeout> | null = null;
     let cancelled = false;
+    let attempts = 0;
     const focus = () => {
       if (cancelled || mapRef.current !== map) return;
-      if (!map.getStyle()) { retryTimer = setTimeout(focus, 250); return; }
-      if (dataRef.current) focusSelectedEntity(map, selectedEntity, dataRef.current);
+      const datasets = dataRef.current;
+      if (!map.getStyle() || !datasets) {
+        retryTimer = setTimeout(focus, 250);
+        return;
+      }
+      if (!focusSelectedEntityOnce(focusedSelectionRef, selectionKey, map, selectedEntity, datasets) && attempts++ < 40) {
+        retryTimer = setTimeout(focus, 250);
+      }
     };
     focus();
     return () => { cancelled = true; if (retryTimer) clearTimeout(retryTimer); };
