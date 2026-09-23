@@ -8,6 +8,7 @@ import {
   calculatePumpingPowerMW,
   deriveLayout3DTopology,
   transitionSimulationState,
+  resolveSimulationSnapshot,
 } from './layout3dSimulation';
 
 function makeComponentsDetail(overrides: Partial<ComponentsDetail> = {}): ComponentsDetail {
@@ -107,6 +108,24 @@ describe('layout3d simulation topology', () => {
 });
 
 describe('layout3d simulation physics', () => {
+  it('gates telemetry during stops, transitions and zero-unit operation; uses selected unit flow', () => {
+    const topology = deriveLayout3DTopology(makeTestSite({ projectFlowCms: 200 }), makeFootprintPlan(4), makeComponentsDetail());
+    for (const state of ['IDLE', 'STARTING_GENERATION', 'RESERVOIR_EMPTY'] as const) {
+      expect(resolveSimulationSnapshot(topology, ['G1'], 'generate', state, true)).toMatchObject({ running: false, powerMW: 0, flowCms: 0 });
+    }
+    expect(resolveSimulationSnapshot(topology, [], 'generate', 'GENERATING', true).powerMW).toBe(0);
+    expect(resolveSimulationSnapshot(topology, ['G1', 'G1', 'unknown'], 'generate', 'GENERATING', true)).toMatchObject({ powerMW: 350, flowCms: 50 });
+    expect(resolveSimulationSnapshot(topology, ['G1'], 'pump', 'GENERATING', true).running).toBe(false);
+    expect(resolveSimulationSnapshot(topology, ['G1'], 'pump', 'PUMPING', true).powerMW).toBeGreaterThan(350);
+  });
+
+  it('stops at either reservoir limit without creating or losing transferred volume', () => {
+    const result = advanceReservoirSoc({ upperSoc: 0.7, lowerSoc: 0.94, mode: 'generate', flowCms: 1000, deltaSeconds: 1000, activeVolumeHm3: 1 });
+    expect(result.lowerSoc).toBeCloseTo(0.95);
+    expect(result.upperSoc).toBeCloseTo(0.69);
+    expect(result.upperSoc + result.lowerSoc).toBeCloseTo(1.64);
+    expect(result.limitState).toBe('RESERVOIR_EMPTY');
+  });
   it('calculates generation and pumping power from active units with a separate estimated pump rating', () => {
     const topology = deriveLayout3DTopology(
       makeTestSite({ capacityMW: 1400, projectFlowCms: 193 }),

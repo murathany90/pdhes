@@ -2,6 +2,7 @@ import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { execFileSync } from 'node:child_process';
 
 const maplibreWorkerAssets = () => ({
   name: 'maplibre-worker-assets',
@@ -18,5 +19,12 @@ const maplibreWorkerAssets = () => ({
 
 export default defineConfig({
   base: process.env.VITE_BASE_PATH || '/',
-  plugins: [react(), maplibreWorkerAssets()],
+  plugins: [react(), maplibreWorkerAssets(), {
+    name: 'release-metadata',
+    generateBundle() {
+      this.emitFile({ type: 'asset', fileName: 'version.json', source: JSON.stringify({
+        version: '2.4.6', commit: execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(),
+      }) });
+    },
+  }],
 });

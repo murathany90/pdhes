@@ -362,9 +362,14 @@ export function useMapLibre({
           surge_tank: 'surgeTank',
           penstock: 'waterPath',
           headrace_tunnel: 'waterPath',
+          pressure_tunnel: 'waterPath',
           tailrace_tunnel: 'waterPath',
+          tailrace_channel: 'waterPath',
           switchyard: 'switchyard3d',
+          existing_switchyard: 'switchyard3d',
+          new_switchyard: 'switchyard3d',
           portal: 'portal',
+          service_portal: 'portal',
         };
         const isProjectBlockVisible = (feature: any) => {
           const component = String(feature.properties?.component ?? '');
@@ -777,8 +782,8 @@ export function useMapLibre({
       maxZoom: 22,
     });
     map.addControl(new maplibregl.AttributionControl({ compact: true, customAttribution: 'Şebeke verileri: OSM Grid' }), 'bottom-right');
-    setTimeout(() => {
-      const details = document.querySelector('details.maplibregl-ctrl-attrib');
+    const attributionTimer = setTimeout(() => {
+      const details = containerRef.current?.querySelector('details.maplibregl-ctrl-attrib');
       if (details) details.removeAttribute('open');
     }, 200);
     map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'bottom-right');
@@ -827,6 +832,8 @@ export function useMapLibre({
     });
 
     return () => {
+      clearTimeout(attributionTimer);
+      clearTimeout(moveEndTimeout);
       drawRequestRef.current += 1;
       waitingForStyleRef.current = false;
       activePopupRef.current?.remove();

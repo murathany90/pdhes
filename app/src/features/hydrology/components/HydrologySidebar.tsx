@@ -260,12 +260,12 @@ export const Sidebar: React.FC = () => {
           <div className="hydro-layer-grid">{layerControls.map(({ key, label }) => <button key={key} onClick={() => toggleLayer(key)} className={layers[key] ? 'active' : ''} aria-pressed={layers[key]}>{layers[key] ? <Eye className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />}{label}</button>)}</div>
           <div className="hydro-flow-control">
             <div className="hydro-flow-control-row">
-              <span className="hydro-flow-label"><Waves className="h-3 w-3" />Akış animasyonu <span className="hydro-flow-info" title="Sarı hareket, kot verisiyle doğrulanan kaskatlarda yüksekten düşük kota ilerler. Cyan hareket yön iddiası taşımayan temsili akıştır. Hız ayarı gerçek debi değildir." aria-label="Akış animasyonu bilgisi"><Info className="h-3 w-3" /></span></span>
+              <span className="hydro-flow-label"><Waves className="h-3 w-3" />Akış animasyonu <span className="hydro-flow-info" title="Sarı hareket, kaskat kot farkından türetilen yüksekten düşük kota yönü gösterir; akarsu yön ölçümü değildir. Cyan hareket yön iddiası taşımayan temsili akıştır. Hız ayarı gerçek debi değildir." aria-label="Akış animasyonu bilgisi"><Info className="h-3 w-3" /></span></span>
               <button type="button" onClick={toggleFlowAnimation} className={`hydro-flow-switch ${flowAnimationEnabled ? 'active' : ''}`} role="switch" aria-checked={flowAnimationEnabled} aria-label="Akış animasyonunu aç veya kapat"><span /></button>
             </div>
             {flowAnimationEnabled && <label className="hydro-flow-speed"><span>Hız</span><span className="hydro-flow-speed-range"><small>Yavaş</small><input type="range" min="0.25" max="3" step="0.25" value={flowAnimationSpeed} onChange={(event) => setFlowAnimationSpeed(Number(event.target.value))} aria-label="Akış animasyonu hızı" /><small>Hızlı</small></span><output>{flowAnimationSpeed.toLocaleString('tr-TR', { maximumFractionDigits: 2 })}×</output></label>}
             {flowAnimationEnabled && <div className="hydro-flow-legend" aria-label="Akış animasyonu göstergeleri"><span><i className="cascade" />Kaskat: yüksek → düşük</span><span><i />Temsili</span></div>}
-            {flowAnimationEnabled && selectedCascadeDirection && <div className="hydro-flow-mode verified">Kaskat yönü kot verisiyle doğrulandı</div>}
+            {flowAnimationEnabled && selectedCascadeDirection && <div className="hydro-flow-mode verified">Kaskat yönü kot farkından türetildi</div>}
             {flowAnimationEnabled && selectedRiverIds.length > 0 && !selectedCascadeDirection && !selectedFlowDirectionVerified && <div className="hydro-flow-mode">Temsili animasyon – akış yönü doğrulanmadı</div>}
           </div>
         </div>}

@@ -45,7 +45,7 @@ describe('ThreeDPage controls', () => {
     expect(screen.getByRole('button', { name: 'Simülasyonu başlat' }).getAttribute('aria-pressed')).toBe('false');
     expect(model.getAttribute('data-show-labels')).toBe('false');
     expect(document.body.textContent).not.toMatch(/[\u26a1\ud83d\udca7\u26f0\ufe0f\ud83c\udff7\ufe0f\u25b6\ufe0f\u23f9\u26a0\ufe0f]/u);
-    expect(screen.getByRole('alert').textContent).toMatch(/3D konumlar temsilidir/i);
+    expect(screen.getByRole('alert').textContent).toMatch(/su seviyesi hareketi temsilidir/i);
   });
 
   it('hides all layers and clears activeComponent when "Tümünü Kapat" is clicked', () => {
@@ -150,6 +150,36 @@ describe('ThreeDPage controls', () => {
     expect(screen.queryByText(/Footprint verisi yüklenemedi/i)).toBeNull();
   });
 
+  it('silently ignores an aborted footprint request during unmount', async () => {
+    let rejectRequest!: (reason?: unknown) => void;
+    const request = new Promise((_, reject) => {
+      rejectRequest = reject;
+    });
+    vi.stubGlobal('fetch', vi.fn(() => request));
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const footprintSite = makeTestSite({
+      layout3D: {
+        scale: 'macro',
+        preferredBearing: 0,
+        terrainExaggeration: 1,
+        reservoirSurfaceMode: 'polygon',
+        useFootprintPolygons: true,
+        hideLegacySquareReservoir: true,
+      },
+    });
+
+    const view = render(<ThreeDPage site={footprintSite} />);
+    await waitFor(() => expect(fetch).toHaveBeenCalledTimes(1));
+    view.unmount();
+    rejectRequest(new DOMException('Request aborted', 'AbortError'));
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+    expect(consoleError).not.toHaveBeenCalled();
+    consoleError.mockRestore();
+  });
+
   it('uses independent group toggles and allows zero active units', () => {
     render(<ThreeDPage site={makeTestSite({
       components_detail: {
@@ -245,7 +275,7 @@ describe('ThreeDPage controls', () => {
     fireEvent.click(screen.getByRole('button', { name: /Sim/ }));
 
     await act(async () => {
-      await Promise.resolve();
+      vi.advanceTimersByTime(400);
     });
     expect(model.getAttribute('data-simulation-state')).toBe('GENERATING');
     act(() => {
@@ -286,7 +316,7 @@ describe('ThreeDPage controls', () => {
     const model = screen.getByTestId('three-d-model');
 
     expect(model.getAttribute('data-active')).toBe('upper_reservoir');
-    fireEvent.click(screen.getByText('Üst Rezervuar').closest('label')!);
+    fireEvent.click(screen.getByRole('checkbox', { name: /^Üst Rezervuar$/ }));
 
     expect(model.getAttribute('data-active')).toBe('tunnel');
     const layers = JSON.parse(model.getAttribute('data-layers') || '{}');

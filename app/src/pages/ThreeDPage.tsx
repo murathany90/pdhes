@@ -9,13 +9,27 @@ import ThreeDModel from '../components/ui/ThreeDModel';
 import WarningBanner from '../components/ui/WarningBanner';
 import { buildComponentsDetail, COORDINATE_CONFIDENCE_LABELS } from '../utils/siteDerived';
 import { publicAssetUrl } from '../utils/publicUrl';
-import { isValidLayout3DFootprint, shouldClearActiveFootprintComponent } from '../utils/layout3dFootprints';
+import { buildLayout3DFootprintPlan, isValidLayout3DFootprint, shouldClearActiveFootprintComponent } from '../utils/layout3dFootprints';
 import {
   advanceReservoirSoc,
+  deriveLayout3DTopology,
+  resolveSimulationSnapshot,
+  SIMULATION_STATE_LABELS,
   transitionSimulationState,
   type SimulationQuality,
   type SimulationState,
 } from '../utils/layout3dSimulation';
+
+const DETAIL_LABELS: Record<string, string> = {
+  elevation_m: 'Kaynak kotu (m)', active_volume_mcm: 'Aktif hacim (hm³)', dam_height_m: 'Set yüksekliği (m)',
+  lining: 'Kaplama', geology_note: 'Jeoloji notu', shape_note: 'Geometri kaynağı', render_mode: 'Gösterim yöntemi',
+  min_level_m: 'Alt seviye (m)', note: 'Not', diameter_m: 'Çap (m)', length_m: 'Uzunluk (m)', material: 'Malzeme',
+  pressure_class: 'Basınç sınıfı', count: 'Adet', units: 'Ünite sayısı', unitPowerMW: 'Ünite üretim gücü (MW)',
+  unitPumpMW: 'Ünite pompa gücü (MW)', cavern_width_m: 'Genişlik (m)', cavern_length_m: 'Uzunluk (m)',
+  cavern_height_m: 'Yükseklik (m)', turbine_type: 'Makine tipi', type: 'Tür', height_m: 'Yükseklik (m)',
+  voltage_kv: 'Gerilim (kV)', transformer_count: 'Trafo sayısı', connection_line_km: 'Bağlantı uzunluğu (km)',
+  excavation_type: 'Kazı yöntemi', visualization_note: 'Gösterim notu',
+};
 
 function createLayerVisibilityState(visible: boolean): Record<string, boolean> {
   return COMPONENTS.reduce<Record<string, boolean>>((acc, component) => {
@@ -88,14 +102,17 @@ export default function ThreeDPage({ site: propSite, dataLoading = false, dataEr
     footprints: [],
   });
   const footprintRequestRef = useRef(0);
+  const [footprintRetry, setFootprintRetry] = useState(0);
 
   // Lazy load footprints
   useEffect(() => {
     const requestId = footprintRequestRef.current + 1;
     footprintRequestRef.current = requestId;
     const requestSiteId = site?.id ?? null;
+    let disposed = false;
+    let timedOut = false;
     const applyResult = (result: Omit<FootprintLoadState, 'siteId'>) => {
-      if (requestId !== footprintRequestRef.current) return;
+      if (disposed || requestId !== footprintRequestRef.current) return;
       setFootprintLoad({ ...result, siteId: requestSiteId });
     };
 
@@ -115,7 +132,10 @@ export default function ThreeDPage({ site: propSite, dataLoading = false, dataEr
     }
 
     const controller = new AbortController();
-    const timeout = window.setTimeout(() => controller.abort(), 10_000);
+    const timeout = window.setTimeout(() => {
+      timedOut = true;
+      controller.abort();
+    }, 10_000);
     applyResult({ status: 'loading', footprints: [] });
     fetch(publicAssetUrl(`/footprints/${requestSiteId}.json`), { signal: controller.signal })
       .then(async (res) => {
@@ -143,19 +163,21 @@ export default function ThreeDPage({ site: propSite, dataLoading = false, dataEr
         applyResult({ status: 'success', footprints: data });
       })
       .catch((err) => {
-        if (requestId !== footprintRequestRef.current) return;
+        if (disposed || requestId !== footprintRequestRef.current) return;
+        if (err?.name === 'AbortError' && !timedOut) return;
         console.error('Failed to load footprints:', err);
         applyResult({
-          status: err?.name === 'AbortError' ? 'timeout' : 'network-error',
+          status: err?.name === 'AbortError' && timedOut ? 'timeout' : 'network-error',
           footprints: [],
           error: String(err?.message || err),
         });
-      });
+      }).finally(() => window.clearTimeout(timeout));
     return () => {
+      disposed = true;
       window.clearTimeout(timeout);
       controller.abort();
     };
-  }, [site?.id, site?.layout3D?.useFootprintPolygons, site?.layout3D?.componentFootprints]);
+  }, [site?.id, site?.layout3D?.useFootprintPolygons, site?.layout3D?.componentFootprints, footprintRetry]);
 
   const [activeComponent, setActiveComponent] = useState('upper_reservoir');
   const [mode, setMode] = useState<'generate' | 'pump'>('generate');
@@ -165,11 +187,17 @@ export default function ThreeDPage({ site: propSite, dataLoading = false, dataEr
   const [reservoirSoc, setReservoirSoc] = useState(INITIAL_RESERVOIR_SOC);
   const [quality] = useState<SimulationQuality>('auto');
   const componentsDetail = useMemo(() => (site ? buildComponentsDetail(site) : null), [site]);
-  const maxUnits = componentsDetail?.powerhouse?.units || 4;
-  const [activeUnitIds, setActiveUnitIds] = useState<string[]>(() => makeUnitIds(maxUnits));
+  const unitIds = useMemo(() => site?.layout3D?.topology?.units?.map((unit) => unit.id) ?? makeUnitIds(componentsDetail?.powerhouse?.units || 4), [site, componentsDetail]);
+  const maxUnits = unitIds.length;
+  const [activeUnitIds, setActiveUnitIds] = useState<string[]>(() => unitIds);
   const activeUnits = activeUnitIds.length;
   const upperSoc = reservoirSoc.upper;
   const lowerSoc = reservoirSoc.lower;
+  const reservoirRef = useRef(reservoirSoc);
+  const [energyMWh, setEnergyMWh] = useState(0);
+  const topology = useMemo(() => site && componentsDetail ? deriveLayout3DTopology(site, buildLayout3DFootprintPlan(site), componentsDetail) : null, [site, componentsDetail]);
+  const snapshot = topology ? resolveSimulationSnapshot(topology, activeUnitIds, mode, simulationState, isPlaying) : { running: false, powerMW: 0, flowCms: 0 };
+
 
   const setAllLayerVisibility = (visible: boolean) => {
     const nextLayers = createLayerVisibilityState(visible);
@@ -201,46 +229,42 @@ export default function ThreeDPage({ site: propSite, dataLoading = false, dataEr
       setIsPlaying(false);
       dispatchSimulation({ type: 'STOP' });
       setReservoirSoc(INITIAL_RESERVOIR_SOC);
-      setActiveUnitIds(makeUnitIds(buildComponentsDetail(site).powerhouse.units || 4));
+      reservoirRef.current = INITIAL_RESERVOIR_SOC;
+      setEnergyMWh(0);
+      setActiveUnitIds(unitIds);
     }
   }, [site?.id]);
 
   useEffect(() => {
-    if (isPlaying) dispatchSimulation({ type: 'TICK' });
-  }, [isPlaying, mode]);
+    if (!isPlaying || !simulationState.startsWith('STARTING')) return;
+    // A UI transition only; no transient hydraulic process is calculated.
+    const timer = window.setTimeout(() => dispatchSimulation({ type: 'TICK' }), 400);
+    return () => window.clearTimeout(timer);
+  }, [isPlaying, simulationState]);
 
   useEffect(() => {
-    const running = simulationState === 'GENERATING' || simulationState === 'PUMPING';
-    if (!site || !componentsDetail || !isPlaying || !running || activeUnits <= 0) return undefined;
+    if (!snapshot.running || !componentsDetail || snapshot.flowCms <= 0) return;
     const interval = window.setInterval(() => {
-      setReservoirSoc((current) => {
-        const activeRatio = maxUnits > 0 ? activeUnits / maxUnits : 0;
-        const flowCms = (site.projectFlowCms ?? 0) * activeRatio;
-        const next = advanceReservoirSoc({
-          upperSoc: current.upper,
-          lowerSoc: current.lower,
-          mode,
-          flowCms,
-          deltaSeconds: SIMULATION_STEP_SECONDS,
-          activeVolumeHm3: componentsDetail.upper_reservoir.active_volume_mcm,
-        });
-        if (next.limitState) {
-          dispatchSimulation({ type: next.limitState });
-          setIsPlaying(false);
-        }
-        return { upper: next.upperSoc, lower: next.lowerSoc };
+      if (document.visibilityState === 'hidden') return;
+      const current = reservoirRef.current;
+      const volume = componentsDetail.upper_reservoir.active_volume_mcm;
+      const next = advanceReservoirSoc({
+        upperSoc: current.upper, lowerSoc: current.lower, mode,
+        flowCms: snapshot.flowCms, deltaSeconds: SIMULATION_STEP_SECONDS,
+        activeVolumeHm3: volume,
       });
+      const transferredM3 = Math.abs(next.upperSoc - current.upper) * volume * 1_000_000;
+      const actualSeconds = transferredM3 / snapshot.flowCms;
+      setEnergyMWh((energy) => energy + (mode === 'generate' ? 1 : -1) * snapshot.powerMW * actualSeconds / 3600);
+      reservoirRef.current = { upper: next.upperSoc, lower: next.lowerSoc };
+      setReservoirSoc(reservoirRef.current);
+      if (next.limitState) {
+        dispatchSimulation({ type: next.limitState });
+        setIsPlaying(false);
+      }
     }, 1000);
     return () => window.clearInterval(interval);
-  }, [
-    activeUnits,
-    componentsDetail,
-    isPlaying,
-    maxUnits,
-    mode,
-    simulationState,
-    site,
-  ]);
+  }, [componentsDetail, mode, snapshot.running, snapshot.flowCms, snapshot.powerMW]);
 
   const [showTerrain, setShowTerrain] = useState(true);
   const [showLabels, setShowLabels] = useState(false);
@@ -283,10 +307,10 @@ export default function ThreeDPage({ site: propSite, dataLoading = false, dataEr
   const footprintWarning = site.layout3D?.useFootprintPolygons && !['idle', 'loading', 'success'].includes(footprintLoad.status)
     ? `Footprint verisi yüklenemedi; fallback model kullanılıyor (${footprintLoad.status}).`
     : '';
-  const representationalWarning = `Bu değerler ve 3D konumlar temsilidir. Koordinat güveni: ${COORDINATE_CONFIDENCE_LABELS[site.coordinates.coordinateConfidence]}.`;
+  const representationalWarning = `Kaynak footprint koordinatları korunur; ekipman kesitleri, bağlantılar ve su seviyesi hareketi temsilidir. Koordinat güveni: ${COORDINATE_CONFIDENCE_LABELS[site.coordinates.coordinateConfidence]}. DEM ve kot–hacim eğrisi bağlı değildir.`;
   const combinedWarning = [footprintWarning, representationalWarning].filter(Boolean).join(' ');
   const isFootprintMode = Boolean(site.layout3D?.useFootprintPolygons);
-  const terrainLabel = isFootprintMode ? 'Temsili zemin' : '3D Arazi (Terrain)';
+  const terrainLabel = 'Temsili arazi';
   const selectedComponent = COMPONENTS.find(c => c.key === activeComponent);
   const toggleUnit = (id: string) => {
     setActiveUnitIds((current) => (
@@ -299,6 +323,7 @@ export default function ThreeDPage({ site: propSite, dataLoading = false, dataEr
       dispatchSimulation({ type: 'STOP' });
       return;
     }
+    if (activeUnits === 0) return;
     setIsPlaying(true);
     dispatchSimulation({ type: 'START', mode });
   };
@@ -308,6 +333,14 @@ export default function ThreeDPage({ site: propSite, dataLoading = false, dataEr
       <div className="threed-layout">
         
         <div className="threed-left" style={{ padding: 0 }}>
+          <div className="threed-telemetry" aria-label="Simülasyon göstergeleri" data-state={simulationState}>
+            <span className="threed-mode">{activeUnits === 0 ? 'Duruş · ünite seçilmedi' : SIMULATION_STATE_LABELS[simulationState]}</span>
+            <span>Üst SOC <b>%{(upperSoc * 100).toFixed(1)}</b></span>
+            <span>Alt SOC <b>%{(lowerSoc * 100).toFixed(1)}</b></span>
+            <span>Güç <b>{mode === 'pump' && snapshot.powerMW ? '−' : ''}{snapshot.powerMW.toFixed(1)} MW</b></span>
+            <span>Debi <b>{snapshot.flowCms.toFixed(1)} m³/s</b></span>
+            <span>Net enerji <b>{energyMWh.toFixed(1)} MWh</b></span>
+          </div>
           <ThreeDModel
             siteId={site.id}
             activeComponent={activeComponent}
@@ -332,9 +365,11 @@ export default function ThreeDPage({ site: propSite, dataLoading = false, dataEr
 
         {/* Sağ Panel: Kontroller */}
         <div className="threed-right">
-          <h2 style={{ marginBottom: 4 }}>Kavramsal Tesis Yerleşimi</h2>
+          <h2 style={{ marginBottom: 4 }}>PDHES Dijital İkiz</h2>
           <p className="muted" style={{ marginBottom: 24 }}>Seçili saha: <b>{site.name}</b></p>
 
+          <p className="threed-data-note">Simülasyon · SCADA bağlantısı yok. 1 saniye = 1 model dakikası. SOC, aynı çevrim hacminin üst/alt depodaki payıdır; barajın ölçülen doluluk oranı değildir. Güç ve debi mevcut modelin sabit işletme kabulleridir; geçişler hidrolik hesap değildir.</p>
+          {footprintWarning && <button type="button" className="btn ghost" onClick={() => setFootprintRetry((v) => v + 1)}>Geometriyi yeniden yükle</button>}
           {/* Mode Toggle */}
           <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
             <button
@@ -343,6 +378,7 @@ export default function ThreeDPage({ site: propSite, dataLoading = false, dataEr
               aria-pressed={mode === 'generate'}
               style={{ flex: 1, minHeight: 36, fontSize: 13 }}
               onClick={() => {
+                if (mode === 'generate') return;
                 setMode('generate');
                 if (isPlaying) dispatchSimulation({ type: 'START', mode: 'generate' });
               }}
@@ -356,6 +392,7 @@ export default function ThreeDPage({ site: propSite, dataLoading = false, dataEr
               aria-pressed={mode === 'pump'}
               style={{ flex: 1, minHeight: 36, fontSize: 13 }}
               onClick={() => {
+                if (mode === 'pump') return;
                 setMode('pump');
                 if (isPlaying) dispatchSimulation({ type: 'START', mode: 'pump' });
               }}
@@ -371,6 +408,7 @@ export default function ThreeDPage({ site: propSite, dataLoading = false, dataEr
               className={`btn ${isPlaying ? 'danger-solid' : 'ghost'}`}
               aria-pressed={isPlaying}
               style={{ flex: 1, minHeight: 36, fontSize: 13 }}
+              disabled={!isPlaying && activeUnits === 0}
               onClick={startOrStopSimulation}
             >
               {isPlaying ? <Square size={16} aria-hidden="true" /> : <Play size={16} aria-hidden="true" />}
@@ -380,7 +418,7 @@ export default function ThreeDPage({ site: propSite, dataLoading = false, dataEr
           
           <h3 style={{ marginBottom: 12 }}>Aktif Gruplar ({activeUnits}/{maxUnits})</h3>
           <div style={{ display: 'flex', gap: 4, marginBottom: 24, flexWrap: 'wrap' }}>
-            {makeUnitIds(maxUnits).map((unitId) => (
+            {unitIds.map((unitId) => (
                <button
                 type="button"
                 key={unitId}
@@ -412,7 +450,7 @@ export default function ThreeDPage({ site: propSite, dataLoading = false, dataEr
             />
             {isFootprintMode && (
               <p className="muted" style={{ fontSize: 12, margin: '4px 0 8px' }}>
-                Gerçek DEM bağlı değil; zemin footprint sahnesinde referans düzlemi olarak gösterilir.
+                Gerçek DEM bağlı değil; zemin footprint sahnesinde temsili yüzey olarak gösterilir.
               </p>
             )}
             <LayerToggle 
@@ -452,11 +490,19 @@ export default function ThreeDPage({ site: propSite, dataLoading = false, dataEr
               {selectedComponent?.description || 'Görünür bir katman seçildiğinde bileşen detayları burada gösterilir.'}
             </p>
 
-            {/* Dynamic data from site details */}
-            {Object.entries((detail as any)[activeComponent] || {}).map(([k, v]) => (
+            <p className="threed-data-note">İşletme: {SIMULATION_STATE_LABELS[simulationState]} · Seçili ünite {activeUnits}/{maxUnits}. Ekipman yerleşimi ve grup bağlantıları temsili gösterimdir.</p>
+            <label className="threed-component-picker">Bileşen seçimi
+              <select value={activeComponent} onChange={(event) => selectComponent(event.target.value)}>
+                <option value="">Katman seçilmedi</option>
+                {COMPONENTS.filter((c) => layers[c.key]).map((c) => <option key={c.key} value={c.key}>{c.label}</option>)}
+              </select>
+            </label>
+            {/* Source values and generated assumptions have distinct labels. */}
+            {Object.entries((detail as unknown as Record<string, Record<string, unknown>>)[activeComponent] || {}).map(([k, v]) => (
               <p key={k} style={{ marginBottom: 8, fontSize: 14 }}>
-                <b style={{ color: 'var(--text)' }}>{k.replace(/_/g, ' ').toUpperCase()}:</b>{' '}
-                <span className="muted">{String(v)}</span>
+                <b style={{ color: 'var(--text)' }}>{DETAIL_LABELS[k] ?? k.replace(/_/g, ' ')}:</b>{' '}
+                <span className="muted">{typeof v === 'number' ? v.toLocaleString('tr-TR', { maximumFractionDigits: 3 }) : String(v)}</span>
+                <small className="threed-provenance">{Object.hasOwn((site.components_detail as unknown as Record<string, object> | undefined)?.[activeComponent] ?? {}, k) ? 'Kaynak dosyası değeri · doğrulama düzeyi tesis notundadır' : 'Türetilmiş / temsili ön kabul'}</small>
               </p>
             ))}
             
@@ -465,7 +511,9 @@ export default function ThreeDPage({ site: propSite, dataLoading = false, dataEr
             </div>
           </div>
 
-          <h3 style={{ marginTop: 16, marginBottom: 12 }}>Fare (Mouse) Kontrolleri</h3>
+          <p className="threed-data-note">Kesikli su yolu: yeraltı/eksen gösterimi. Sarı kesikli bağlantılar, elektrik hattı ve ekipman bağlantıları temsilidir. Su yüzeyleri footprint sınırını korur; kıyı çekilmesi hesaplanmaz. Kotlar farklı kaynaklarda uyuşmayabilir; sahne footprint kotunu kullanır.</p>
+          <h3 style={{ marginTop: 16, marginBottom: 12 }}>Kamera Kontrolleri</h3>
+          <p className="muted">Dokunmatik: tek parmakla döndürün, iki parmakla yakınlaştırın ve kaydırın.</p>
           <div className="card" style={{ padding: 16, backgroundColor: 'var(--surface-sunken)', border: '1px solid var(--border)' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8, fontSize: 13, color: 'var(--text)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>

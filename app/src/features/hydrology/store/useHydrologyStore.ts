@@ -137,7 +137,10 @@ export const useHydrologyStore = create<AppState>((set) => ({
   setHistoricalDate: (historicalDate) => set({ historicalDate }),
   toggleCatchment: (hesId) => set((state) => ({ activeCatchmentHesId: state.activeCatchmentHesId === hesId ? null : hesId })),
   loadHydroData: async () => {
-    if (useHydrologyStore.getState().hydroDataStatus === 'loading') return;
+    const current = useHydrologyStore.getState();
+    if (current.hydroDataStatus === 'loading') return;
+    if (['ready', 'partial'].includes(current.hydroDataStatus) && current.lastRefreshAt
+      && Date.now() - Date.parse(current.lastRefreshAt) < 300_000) return;
     set({ hydroDataStatus: 'loading', hydroDataError: null });
     try {
       const data = await fetchHydroData();
@@ -169,6 +172,7 @@ export const useHydrologyStore = create<AppState>((set) => ({
     }
   },
   refreshHydroData: async () => {
+    if (useHydrologyStore.getState().hydroDataStatus === 'loading') return;
     set({ hydroDataStatus: 'idle' });
     await useHydrologyStore.getState().loadHydroData();
   },

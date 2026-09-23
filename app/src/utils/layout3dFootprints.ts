@@ -185,7 +185,10 @@ export function footprintLayerKey(component: string): string {
   const map: Record<string, string> = {
     'intake': 'upper_reservoir',
     'headrace_tunnel': 'tunnel',
+    'pressure_tunnel': 'tunnel',
     'tailrace_tunnel': 'tailrace',
+    'tailrace_channel': 'tailrace',
+    'service_portal': 'portal',
     'tailrace_surge_tank': 'surge_tank',
     'existing_switchyard': 'switchyard',
     'new_switchyard': 'switchyard',

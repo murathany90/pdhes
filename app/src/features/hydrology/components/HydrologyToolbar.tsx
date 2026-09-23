@@ -78,9 +78,9 @@ export const HesToolbar: React.FC = () => {
       <div className="hes-toolbar-actions">
         <span className="hydro-status-badge" title={hydroDataError ?? 'Doluluk, kanonik resolver ve mevcut doğrulanmış kaynaklara göre gösterilir'}>{statusLabel}</span>
         <button type="button" onClick={() => void refreshHydroData()} disabled={dataStatus === 'loading'} className="hidden items-center gap-1.5 rounded-lg border border-cyan-500/35 px-2 py-1.5 text-[10px] font-medium text-[var(--primary)] transition hover:bg-cyan-500/8 disabled:opacity-50 sm:flex"><RefreshCw className={`h-3.5 w-3.5 ${dataStatus === 'loading' ? 'animate-spin' : ''}`} />Yenile</button>
-        <div className="relative">
-          <button type="button" onClick={() => setBasemapMenuOpen((open) => !open)} className="hydro-basemap-button" title={`Altlık: ${basemapLabels[basemap]}`}><MapIcon className="h-3.5 w-3.5 text-[var(--primary)]" /><span>Altlık</span><ChevronDown className="h-3 w-3" /></button>
-          {basemapMenuOpen && <div className="absolute right-0 top-9 z-50 w-28 rounded-lg border border-[var(--line)] bg-[var(--panel)] p-1 shadow-lg">{Object.entries(basemapLabels).map(([value, label]) => <button type="button" key={value} onClick={() => { setBasemap(value as typeof basemap); setBasemapMenuOpen(false); }} className={`block w-full rounded-md px-2 py-1.5 text-left text-[10px] ${basemap === value ? 'bg-cyan-500/10 text-[var(--primary)]' : 'text-[var(--muted)] hover:bg-[var(--panel2)]'}`}>{label}</button>)}</div>}
+        <div className="hydro-basemap-picker">
+          <button type="button" onClick={() => setBasemapMenuOpen((open) => !open)} className="hydro-basemap-button" aria-expanded={basemapMenuOpen} aria-controls="hydro-basemap-menu" title={`Altlık: ${basemapLabels[basemap]}`}><MapIcon className="h-3.5 w-3.5 text-[var(--primary)]" /><span>Altlık</span><ChevronDown className="h-3 w-3" /></button>
+          {basemapMenuOpen && <div id="hydro-basemap-menu" className="hydro-basemap-menu" role="group" aria-label="Harita altlığı">{Object.entries(basemapLabels).map(([value, label]) => <button type="button" key={value} aria-pressed={basemap === value} onClick={() => { setBasemap(value as typeof basemap); setBasemapMenuOpen(false); }}>{label}</button>)}</div>}
         </div>
       </div>
     </section>

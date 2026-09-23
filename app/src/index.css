@@ -143,7 +143,7 @@ html[data-theme="light"] .btn.ghost { background: rgba(240,244,242,.6); }
 .btn.danger { border-color: var(--red); color: var(--red); }
 .btn.danger:hover { background: rgba(255,92,115,.15); }
 .btn.danger-solid { background: #b91c1c; border-color: #b91c1c; color: #fff; }
-.btn.danger-solid:hover { background: #991b1b; }
+.btn.danger-solid:hover, html[data-theme="light"] .btn.danger-solid:hover { background: #991b1b; }
 
 /* ── Pills & Tags ── */
 .pill {
@@ -1970,3 +1970,29 @@ details.maplibregl-ctrl-attrib:not([open]) .maplibregl-ctrl-attrib-inner {
 .maplibregl-ctrl-attrib.maplibregl-compact .maplibregl-ctrl-attrib-inner {
   display: none !important;
 }
+
+/* Digital twin: telemetry occupies its own row, outside the drawing area. */
+.threed-left { min-width: 0; min-height: 520px; align-items: stretch; justify-content: flex-start; }
+.threed-left > div:last-child { flex: 1; min-height: 440px; }
+.threed-telemetry { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px 16px; padding: 14px 18px; background: var(--panel); border-bottom: 1px solid var(--line); color: var(--text); font-size: 12px; }
+.threed-telemetry span { min-width: 0; }
+.threed-telemetry b { display: block; font-size: 16px; font-variant-numeric: tabular-nums; }
+.threed-telemetry .threed-mode { grid-column: 1 / -1; color: var(--accent); font-weight: 700; }
+.threed-camera-controls { position: absolute; z-index: 2; left: 12px; top: 12px; right: 12px; display: flex; gap: 8px; flex-wrap: wrap; pointer-events: none; }
+.threed-camera-controls button { pointer-events: auto; background: var(--panel); min-height: 36px; font-size: 12px; }
+.threed-data-note { font-size: 12px; line-height: 1.6; color: var(--muted); margin: 10px 0 16px; }
+.threed-provenance { display: block; font-size: 11px; color: var(--muted); margin-top: 3px; }
+.threed-component-picker { display: grid; gap: 6px; margin-bottom: 16px; font-size: 12px; }
+.threed-component-picker select { width: 100%; min-width: 0; }
+.threed-right { overflow-wrap: anywhere; }
+@media (max-width: 1100px) {
+  .threed-left > div:last-child { height: 56vh !important; min-height: 380px !important; flex: none; }
+}
+@media (max-width: 600px) {
+  .threed-telemetry { grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 12px; }
+  .threed-right { padding: 16px; }
+}
+
+.threed-render-error { padding: 72px 24px 24px; color: var(--text); background: var(--panel); height: 100%; overflow: auto; }
+
+@media (min-width: 601px) and (max-width: 1100px) { .threed-telemetry { grid-template-columns: repeat(3, minmax(0, 1fr)); } }

@@ -203,6 +203,34 @@ export function calculateActiveFlowCms(
   }, 0);
 }
 
+/** One operating snapshot for the indicators, mass balance and scene. */
+export function resolveSimulationSnapshot(
+  topology: DerivedLayout3DTopology,
+  unitIds: string[],
+  mode: SimulationMode,
+  state: SimulationState,
+  isPlaying: boolean,
+) {
+  const ids = [...new Set(unitIds)].filter((id) => topology.units.some((unit) => unit.id === id));
+  const running = isPlaying && ids.length > 0
+    && state === (mode === 'generate' ? 'GENERATING' : 'PUMPING');
+  return {
+    running,
+    activeUnitIds: ids,
+    powerMW: running ? (mode === 'generate'
+      ? calculateGenerationPowerMW(topology, ids)
+      : calculatePumpingPowerMW(topology, ids)) : 0,
+    flowCms: running ? calculateActiveFlowCms(topology, ids, mode) : 0,
+  };
+}
+
+export const SIMULATION_STATE_LABELS: Record<SimulationState, string> = {
+  IDLE: 'Duruş', STARTING_GENERATION: 'Üretime geçiş', GENERATING: 'Üretim',
+  STOPPING_GENERATION: 'Üretim durduruluyor', STARTING_PUMP: 'Pompalamaya geçiş',
+  PUMPING: 'Pompalama', STOPPING_PUMP: 'Pompalama durduruluyor',
+  RESERVOIR_EMPTY: 'Alt SOC sınırı', RESERVOIR_FULL: 'Üst SOC sınırı', FAULT: 'Hata',
+};
+
 export function advanceReservoirSoc(input: ReservoirSocInput): ReservoirSocResult {
   const minSoc = input.minSoc ?? DEFAULT_MIN_SOC;
   const maxSoc = input.maxSoc ?? DEFAULT_MAX_SOC;
@@ -215,14 +243,19 @@ export function advanceReservoirSoc(input: ReservoirSocInput): ReservoirSocResul
     };
   }
 
-  const deltaSoc = (input.flowCms * input.deltaSeconds) / activeVolumeM3;
+  // Both SOCs refer to the same modeled transferable volume, not to the
+  // measured total fullness of two differently sized reservoirs.
+  const available = input.mode === 'generate'
+    ? Math.min(input.upperSoc - minSoc, maxSoc - input.lowerSoc)
+    : Math.min(maxSoc - input.upperSoc, input.lowerSoc - minSoc);
+  const requested = (input.flowCms * input.deltaSeconds) / activeVolumeM3;
+  const deltaSoc = Math.max(0, Math.min(requested, available));
   const rawUpper = input.mode === 'generate' ? input.upperSoc - deltaSoc : input.upperSoc + deltaSoc;
   const rawLower = input.mode === 'generate' ? input.lowerSoc + deltaSoc : input.lowerSoc - deltaSoc;
   const upperSoc = clamp(rawUpper, minSoc, maxSoc);
   const lowerSoc = clamp(rawLower, minSoc, maxSoc);
   let limitState: ReservoirSocResult['limitState'] = null;
-  if (input.mode === 'generate' && rawUpper <= minSoc) limitState = 'RESERVOIR_EMPTY';
-  if (input.mode === 'pump' && rawUpper >= maxSoc) limitState = 'RESERVOIR_FULL';
+  if (requested >= available) limitState = input.mode === 'generate' ? 'RESERVOIR_EMPTY' : 'RESERVOIR_FULL';
   return { upperSoc, lowerSoc, limitState };
 }
 

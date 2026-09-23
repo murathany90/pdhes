@@ -23,8 +23,8 @@ export function buildLayout(site: Site, hScale: number): LayoutBundle {
 
   const formatNum = (num: number) => num.toLocaleString('tr-TR', { maximumFractionDigits: 0 });
   const getUpperLabel = (coords?: [number, number][]) => {
-    let area = site.components_detail?.upper_reservoir?.active_volume_mcm ? site.components_detail.upper_reservoir.active_volume_mcm * 1000000 / 25 : 0;
-    if (area === 0 && coords && coords.length > 2) {
+    let area = 0;
+    if (coords && coords.length > 2) {
       try {
         const closed = [...coords];
         if (closed[0][0] !== closed[closed.length - 1][0] || closed[0][1] !== closed[closed.length - 1][1]) {
@@ -33,12 +33,8 @@ export function buildLayout(site: Site, hScale: number): LayoutBundle {
         area = turf.area(turf.polygon([closed]));
       } catch(e) {}
     }
-    const volume = site.components_detail?.upper_reservoir?.active_volume_mcm ? site.components_detail.upper_reservoir.active_volume_mcm * 1000000 : area * 25;
-    
-    if (area > 0) {
-      return `Üst Rezervuar\n(${formatNum(area)} m²)\n(${formatNum(volume)} m³)`;
-    }
-    return 'Üst Rezervuar';
+    const volume = site.components_detail?.upper_reservoir?.active_volume_mcm;
+    return ['Üst Rezervuar', area > 0 ? `(${formatNum(area)} m² · poligon)` : '', volume ? `(${formatNum(volume * 1000000)} m³ · kaynak)` : ''].filter(Boolean).join('\n');
   };
 
   const calcDimensions = (defaultW: number, defaultL: number) => {
@@ -62,6 +58,8 @@ export function buildLayout(site: Site, hScale: number): LayoutBundle {
     portal: '#ff944d',
     industrial: '#b277ff',
     switchyard: '#48f49a',
+    switchyard_existing: '#8bc34a',
+    switchyard_new: '#48f49a',
   };
   const footprintLabels: Record<string, string> = {
     upperReservoirWater: getUpperLabel(footprintById.get('upperReservoirWater')?.coords),
@@ -117,9 +115,14 @@ export function buildLayout(site: Site, hScale: number): LayoutBundle {
           ?? (footprint.baseElevationM !== undefined && footprint.topElevationM !== undefined
             ? Math.max(0, footprint.topElevationM - footprint.baseElevationM)
             : 6);
+        const opening = footprint.material === 'embankment'
+          ? site.layout3D?.componentFootprints?.find((candidate) => candidate.kind === 'polygon' && candidate.material === 'water' && candidate.component === footprint.component)
+          : undefined;
         blocks.push({
           type: 'Feature',
-          geometry: { type: 'Polygon', coordinates: [footprint.coords] },
+          // MapLibre heights are terrain-relative. Keep source rings fixed and
+          // leave the reservoir open instead of covering it with a solid cap.
+          geometry: { type: 'Polygon', coordinates: opening ? [footprint.coords, opening.coords] : [footprint.coords] },
           properties: {
             key: footprint.id,
             component: footprint.component,
@@ -127,7 +130,7 @@ export function buildLayout(site: Site, hScale: number): LayoutBundle {
             label: footprintLabels[footprint.id] ?? COMPONENTS.find(c => c.key === footprint.component)?.label ?? footprint.component,
             width: 0,
             length: 0,
-            height: Math.max(1, extrude) * hScale,
+            height: 2 + Math.max(1, extrude * hScale),
             base: 2,
             color: materialColor[footprint.material] ?? '#9aa3ad',
           },
@@ -137,7 +140,7 @@ export function buildLayout(site: Site, hScale: number): LayoutBundle {
 
   if (footprintMode) {
     addFootprintBlocks();
-    if (!footprintById.has('lowerReservoirFootprint')) {
+    if (!site.layout3D?.componentFootprints?.some((fp) => fp.kind === 'polygon' && fp.component === 'lower_reservoir')) {
       addRect('lower_reservoir', `Alt Rezervuar (${site.lowerReservoirName})`, layout.lower, 900, 500, 16, '#1fb6ff', bearing - 10);
     }
   } else {
@@ -147,7 +150,7 @@ export function buildLayout(site: Site, hScale: number): LayoutBundle {
       const embankmentCoords = scalePolygon(coords, 1.05);
       blocks.push({
         type: 'Feature',
-        geometry: { type: 'Polygon', coordinates: [embankmentCoords] },
+        geometry: { type: 'Polygon', coordinates: [embankmentCoords, coords] },
         properties: { key: 'upper_reservoir_embankment', component: 'upper_reservoir', label: 'Üst Rezervuar Gövdesi', width: 0, length: 0, height: 38 * hScale, base: 2, color: '#9aa3ad' },
       });
       blocks.push({
@@ -237,7 +240,7 @@ export function buildLayout(site: Site, hScale: number): LayoutBundle {
     features: blocks
       .filter((feature) => {
         const k = feature.properties?.key || '';
-        return ['upper_reservoir', 'lower_reservoir', 'upperReservoirWater', 'lowerReservoirFootprint'].includes(k);
+        return ['upper_reservoir', 'lower_reservoir', 'upperReservoirWater', 'lowerReservoirFootprint', 'lowerReservoirWater'].includes(k);
       })
       .map((feature) => ({
         type: 'Feature',

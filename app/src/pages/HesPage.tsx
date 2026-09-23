@@ -37,7 +37,7 @@ export default function HesPage() {
         <div className="hydrology-map-panel">
           <HydrologyMap />
           {isTimelineOpen && <div className="hydrology-timeline"><HydrologyTimeline /></div>}
-          {hesCount === 0 && hydroDataStatus !== 'failed' && <div className="hydrology-empty-state">Kanonik HES verisi yükleniyor…</div>}
+          {hesCount === 0 && hydroDataStatus !== 'failed' && <div className="hydrology-empty-state" role="status">{['idle', 'loading'].includes(hydroDataStatus) ? 'Kanonik HES verisi yükleniyor…' : 'Gösterilecek HES verisi bulunamadı.'}</div>}
           {hydroDataStatus === 'failed' && (
             <div className="hydrology-empty-state hydrology-load-error" role="alert">
               <span>HES verisi yüklenemedi. {hydroDataError ?? 'Lütfen bağlantınızı kontrol edin.'}</span>
