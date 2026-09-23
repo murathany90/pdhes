@@ -2002,7 +2002,7 @@ details.maplibregl-ctrl-attrib:not([open]) .maplibregl-ctrl-attrib-inner {
 @media (min-width: 601px) and (max-width: 1100px) { .threed-telemetry { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 
 /* ── ThreeD Shell: üst bar + ağaç + sahne + bilgi + alt bar (Aşama 3) ── */
-.threed-shell { display: flex; flex-direction: column; position: relative; }
+.threed-page.threed-shell { display: flex; flex-direction: column; position: relative; height: 100%; min-height: 0; }
 .threed-topbar { display: flex; gap: 8px; align-items: center; padding: 10px 12px; border-bottom: 1px solid var(--line); background: var(--panel); flex-shrink: 0; }
 .threed-site-search { position: relative; display: flex; align-items: center; gap: 6px; flex: 1; max-width: 340px; min-width: 140px; background: var(--panel3); border: 1px solid var(--line); border-radius: 10px; padding: 6px 10px; color: var(--muted); }
 .threed-site-search input { flex: 1; min-width: 0; background: transparent; border: none; outline: none; color: var(--text); font: inherit; font-size: 13px; }
@@ -2014,11 +2014,11 @@ details.maplibregl-ctrl-attrib:not([open]) .maplibregl-ctrl-attrib-inner {
 .threed-site-meta { display: flex; align-items: baseline; gap: 8px; flex: 2; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 .threed-site-meta b { font-size: 14px; }
 .threed-site-meta span { font-size: 12px; overflow: hidden; text-overflow: ellipsis; }
-.threed-main { display: grid; grid-template-columns: 290px minmax(0, 1fr) 350px; flex: 1; min-height: 0; position: relative; }
-.threed-tree { border-right: 1px solid var(--line); background: var(--panel); padding: 16px; overflow: auto; }
-.threed-info { border-left: 1px solid var(--line); background: var(--panel); padding: 16px; overflow: auto; }
-.threed-stage { position: relative; min-width: 0; min-height: 420px; display: flex; background: #030504; }
-.threed-stage .threed-scene-stage { flex: 1; min-height: 420px; }
+.threed-main { display: grid; grid-template-columns: 290px minmax(0, 1fr) 350px; flex: 1; min-height: 0; overflow: hidden; position: relative; }
+.threed-tree { border-right: 1px solid var(--line); background: var(--panel); padding: 16px; overflow: auto; min-height: 0; }
+.threed-info { border-left: 1px solid var(--line); background: var(--panel); padding: 16px; overflow: auto; min-height: 0; }
+.threed-stage { position: relative; min-width: 0; min-height: 0; display: flex; background: #030504; overflow: hidden; }
+.threed-stage .threed-scene-stage { flex: 1; min-height: 0; height: 100%; }
 .threed-panel-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 12px; }
 .threed-panel-head h3 { margin: 0; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .threed-mini { padding: 4px 8px; min-height: 30px; font-size: 12px; }
@@ -2046,4 +2046,9 @@ details.maplibregl-ctrl-attrib:not([open]) .maplibregl-ctrl-attrib-inner {
   .threed-info { right: 0; border-left: 1px solid var(--line); border-right: none; transform: translateX(110%); }
   .threed-tree.open, .threed-info.open { transform: none; }
   .threed-site-meta span { display: none; }
+}
+
+@media (max-width: 600px) {
+  .threed-site-meta { display: none; }
+  .threed-site-search { max-width: none; }
 }

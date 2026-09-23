@@ -1477,7 +1477,9 @@ function FootprintSceneLayer({ items, layers, activeComponent, selectedItemId, o
       {groupedItems.map(({ layerKey, items: layerItems }) => (
         <group key={layerKey} visible={isLayerVisible(layerKey, layers)}>
           {layerItems.map((item) => {
-            const active = activeComponent === item.component || activeComponent === layerKey;
+            const layerActive = activeComponent === item.component || activeComponent === layerKey;
+            // Tekil seçim varken yalnız seçili nesne vurgulanır.
+            const active = selectedItemId ? false : layerActive;
             const selected = selectedItemId === item.id;
             if (item.kind === 'polygon') {
               return (
@@ -1709,12 +1711,13 @@ const PenstockFlowItem = memo(function PenstockFlowItem({ item, planItems, layer
     const generationPoints = generationWaterwayPoints(item, planItems);
     return mode === 'generate' ? generationPoints : [...generationPoints].reverse();
   }, [item, planItems, mode]);
+  const layerActive = activeComponent === item.component || activeComponent === layerKey;
 
   return (
     <group key={`hydraulic-${item.id}`}>
       <PenstockTube
         points={points}
-        active={activeComponent === item.component || activeComponent === layerKey}
+        active={selectedItemId ? false : layerActive}
         selected={selectedItemId === item.id}
         flowActive={flowActive}
         quality={quality}

@@ -14,7 +14,7 @@ import { publicAssetUrl } from '../utils/publicUrl';
 import { footprintLayerKey, groupFootprintsByLayer, isValidLayout3DFootprint, shouldClearActiveFootprintComponent } from '../utils/layout3dFootprints';
 import { resolveLayout3DDisplayStatus, LAYOUT_3D_DISPLAY_STATUS_LABELS } from '../utils/layout3dDisplayStatus';
 import { FLOW_VISUAL, resolveSceneQuality } from '../utils/layout3dVisual';
-import { componentDescription, componentLabel, footprintItemLabel } from '../utils/layout3dLabels';
+import { componentDescription, componentLabel, footprintItemDetailLabel, footprintItemLabel } from '../utils/layout3dLabels';
 import { useLayout3DSnapshot } from '../hooks/useLayout3DSnapshot';
 import { useManualGeometryStore } from '../stores/useManualGeometryStore';
 import { overrideSiteWithManualGeometries } from '../utils/manualGeometryConverter';
@@ -95,7 +95,7 @@ function buildStructureTree(
         sectionItems.push({ id: `layer:${layerKey}`, label: componentLabel(layerKey), layerKey, kind: 'layer' });
       } else {
         for (const footprint of footprints) {
-          sectionItems.push({ id: footprint.id, label: footprintItemLabel(footprint), layerKey, kind: 'footprint' });
+          sectionItems.push({ id: footprint.id, label: footprintItemDetailLabel(footprint), layerKey, kind: 'footprint' });
         }
       }
     }
@@ -405,10 +405,12 @@ export default function ThreeDPage({ site: propSite, dataLoading = false, dataEr
   const [xray, setXray] = useState(false);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [infoTab, setInfoTab] = useState<InfoTab>('general');
-  const [treeOpen, setTreeOpen] = useState(true);
-  const [infoOpen, setInfoOpen] = useState(true);
+  // Dar ekranda çekmeceler kapalı açılır; sahne görünür kalır.
+  const [treeOpen, setTreeOpen] = useState(() => (typeof window === 'undefined' ? true : window.innerWidth > 1100));
+  const [infoOpen, setInfoOpen] = useState(() => (typeof window === 'undefined' ? true : window.innerWidth > 1100));
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [siteSearch, setSiteSearch] = useState('');
+  const [searchFocus, setSearchFocus] = useState(false);
 
   const footprintPendingForSite = Boolean(
     site?.layout3D?.useFootprintPolygons && footprintLoad.siteId !== site.id,
@@ -494,7 +496,7 @@ export default function ThreeDPage({ site: propSite, dataLoading = false, dataEr
     : selectedTransformer
       ? `${selectedTransformer.id} · Trafo`
       : selectedFootprint
-        ? footprintItemLabel(selectedFootprint)
+        ? footprintItemDetailLabel(selectedFootprint)
         : selectedComponent?.label ?? 'Seçim yok';
 
   const DETAIL_KEY_BY_LAYER: Record<string, string> = {
@@ -541,9 +543,20 @@ export default function ThreeDPage({ site: propSite, dataLoading = false, dataEr
             placeholder="Tesis ara… (Gökçekaya, Sarıyar, Altınkaya)"
             value={siteSearch}
             onChange={(event) => setSiteSearch(event.target.value)}
+            onFocus={() => setSearchFocus(true)}
+            onBlur={() => window.setTimeout(() => setSearchFocus(false), 150)}
+            onKeyDown={(event) => {
+              if (event.key === 'Escape') {
+                setSiteSearch('');
+                event.currentTarget.blur();
+              }
+            }}
           />
-          {siteSearch && (
+          {searchFocus && (
             <div className="threed-site-results" role="listbox" aria-label="Tesis sonuçları">
+              <p className="muted" style={{ padding: '4px 10px', fontSize: 12 }}>
+                {siteSearch ? `${filteredSites.length} sonuç` : `Tüm tesisler (${filteredSites.length})`}
+              </p>
               {filteredSites.length === 0 && (
                 <p className="muted" style={{ padding: '8px 12px', fontSize: 13 }}>Sonuç bulunamadı.</p>
               )}
@@ -554,7 +567,7 @@ export default function ThreeDPage({ site: propSite, dataLoading = false, dataEr
                   role="option"
                   aria-selected={candidate.id === site.id}
                   className={`threed-site-result ${candidate.id === site.id ? 'active' : ''}`}
-                  onClick={() => { selectSite(candidate.id); setSiteSearch(''); }}
+                  onClick={() => { selectSite(candidate.id); setSiteSearch(''); setSearchFocus(false); }}
                 >
                   <b>{candidate.name}</b>
                   <span className="muted">

@@ -55,6 +55,32 @@ export function componentLabel(key: string): string {
   return COMPONENTS.find((c) => c.key === key)?.label ?? key;
 }
 
+const MATERIAL_LABELS: Record<string, string> = {
+  water: 'su yüzeyi',
+  embankment: 'set',
+  crest_road: 'kret yolu',
+  concrete: 'beton',
+  tunnel_axis: 'eksen',
+  shaft: 'şaft',
+  portal: 'portal yapısı',
+  industrial: 'yapı',
+  tailrace_channel: 'kanal',
+  switchyard: 'şalt',
+  switchyard_existing: 'mevcut şalt',
+  switchyard_new: 'yeni şalt',
+};
+
+/**
+ * Yapı ağacı ve bilgi başlığı için malzeme ayrımlı etiket: aynı bileşenin
+ * birden fazla poligonu (set / su / beton) birbirinden ayırt edilir.
+ * Sahne etiketleri kısa tutulur, burada kesinlik önceliklidir.
+ */
+export function footprintItemDetailLabel(item: Pick<Layout3DProjectedFootprint, 'id' | 'component' | 'material'>): string {
+  const base = footprintItemLabel(item);
+  const material = MATERIAL_LABELS[item.material];
+  return material ? `${base} · ${material}` : base;
+}
+
 export function componentDescription(key: string): string {
   return COMPONENTS.find((c) => c.key === key)?.description ?? '';
 }

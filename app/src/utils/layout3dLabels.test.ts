@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { componentDescription, componentLabel, footprintItemLabel } from './layout3dLabels';
+import { componentDescription, componentLabel, footprintItemDetailLabel, footprintItemLabel } from './layout3dLabels';
 
 describe('layout3d labels', () => {
   it('labels penstock footprints by id without inventing data', () => {
@@ -17,5 +17,14 @@ describe('layout3d labels', () => {
   it('resolves known component labels and descriptions', () => {
     expect(componentLabel('powerhouse')).toMatch(/Santral|Powerhouse/);
     expect(componentDescription('powerhouse').length).toBeGreaterThan(0);
+  });
+
+  it('disambiguates polygons of the same component by material', () => {
+    expect(footprintItemDetailLabel({ id: 'u-w', component: 'upper_reservoir', material: 'water' }))
+      .toBe('Üst Rezervuar · su yüzeyi');
+    expect(footprintItemDetailLabel({ id: 'u-e', component: 'upper_reservoir', material: 'embankment' }))
+      .toBe('Üst Rezervuar · set');
+    expect(footprintItemDetailLabel({ id: 'penstock-1', component: 'penstock', material: 'shaft' }))
+      .toBe('Cebri Boru -1 · şaft');
   });
 });

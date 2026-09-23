@@ -482,10 +482,10 @@ describe('ThreeDPage controls', () => {
     render(<ThreeDPage site={footprintSite} />);
     const model = screen.getByTestId('three-d-model');
 
-    fireEvent.click(screen.getByRole('button', { name: 'Cebri Boru -1' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Cebri Boru -1 · şaft' }));
     expect(model.getAttribute('data-selected-item')).toBe('penstock-1');
     expect(model.getAttribute('data-active')).toBe('penstock');
-    expect(screen.getByRole('button', { name: 'Cebri Boru -2', pressed: false })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Cebri Boru -2 · şaft', pressed: false })).toBeTruthy();
   });
 
   it('switches sites through the top search selector', () => {
@@ -495,7 +495,12 @@ describe('ThreeDPage controls', () => {
     render(<ThreeDPage />);
 
     expect(screen.getByTestId('three-d-model').getAttribute('data-site-id')).toBe('site-a');
-    fireEvent.change(screen.getByRole('searchbox', { name: 'Tesis ara' }), { target: { value: 'beta' } });
+    const searchbox = screen.getByRole('searchbox', { name: 'Tesis ara' });
+    fireEvent.focus(searchbox);
+    expect(screen.getByRole('option', { name: /Alfa PDHES/ })).toBeTruthy();
+    expect(screen.getByRole('option', { name: /Beta PDHES/ })).toBeTruthy();
+    fireEvent.change(searchbox, { target: { value: 'beta' } });
+    expect(screen.queryByRole('option', { name: /Alfa PDHES/ })).toBeNull();
     fireEvent.click(screen.getByRole('option', { name: /Beta PDHES/ }));
     expect(screen.getByTestId('three-d-model').getAttribute('data-site-id')).toBe('site-b');
   });
