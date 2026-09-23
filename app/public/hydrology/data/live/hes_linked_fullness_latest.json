@@ -1,8 +1,8 @@
 {
   "dataVersion": "hes177-v9",
-  "pipelineRunAt": "2026-09-23T04:08:36Z",
+  "pipelineRunAt": "2026-09-23T07:53:49Z",
   "latestObservationAt": "2026-09-13T00:00:00Z",
-  "generatedAt": "2026-09-23T04:08:36Z",
+  "generatedAt": "2026-09-23T07:53:49Z",
   "status": "partial",
   "coverage": {
     "hesCount": 129,
@@ -63,7 +63,7 @@
       "observationErrorCode": "credentials_missing",
       "observationCount": 0,
       "latestObservationAt": null,
-      "downloadedAt": "2026-09-22T07:51:02Z"
+      "downloadedAt": "2026-09-23T07:53:06Z"
     },
     "hydroweb": {
       "status": "catalog_available",
@@ -73,9 +73,9 @@
       "dataAccess": "requires_api_key",
       "etag": null,
       "credentialsConfigured": false,
-      "downloadedAt": "2026-09-22T07:51:02Z",
+      "downloadedAt": "2026-09-23T07:53:06Z",
       "version": "HYDROWEB_LAKES_OPE",
-      "checksum": "3f354fb72de0c87d99d9260a2e8e6b2e9e4344fff42885b6e5763360001a5295",
+      "checksum": "fda805205af02247364f5d6419605ead496f2afef466323047e46f38188bb723",
       "observationFile": "app/public/hydrology/data/live/providers/hydroweb_levels.json",
       "observationStatus": "skipped",
       "observationErrorCode": "credentials_missing",
@@ -90,9 +90,9 @@
       "dataAccess": "requires_access_token",
       "etag": null,
       "credentialsConfigured": false,
-      "downloadedAt": "2026-09-22T07:51:02Z",
+      "downloadedAt": "2026-09-23T07:53:06Z",
       "version": "wl-lakes_global_vector_daily_v2",
-      "checksum": "c5cb76b6addb97a10b2edeee2de11e138eef33697ee3c0e6648aad6fe3c2129a",
+      "checksum": "eb116a27850eca1b4835c856f265bf05e3ab8f98a197bb1c61039daf26c11dc3",
       "observationFile": "app/public/hydrology/data/live/providers/copernicus_lwl.json",
       "observationStatus": "skipped",
       "observationErrorCode": "credentials_missing",
@@ -109,7 +109,7 @@
       "observationErrorCode": "credentials_missing",
       "observationCount": 0,
       "latestObservationAt": null,
-      "downloadedAt": "2026-09-22T07:51:02Z"
+      "downloadedAt": "2026-09-23T07:53:06Z"
     },
     "g_realm": {
       "status": "not_queried",
@@ -125,7 +125,7 @@
       "observationErrorCode": "credentials_missing",
       "observationCount": 0,
       "latestObservationAt": null,
-      "downloadedAt": "2026-09-22T07:51:02Z"
+      "downloadedAt": "2026-09-23T07:53:06Z"
     }
   },
   "quality": {
@@ -145,7 +145,7 @@
       "method": "active-volume/(max-volume-min-volume)",
       "observedAt": "2026-09-13",
       "sourcePublishedAt": null,
-      "fetchedAt": "2026-09-23T04:08:36Z",
+      "fetchedAt": "2026-09-23T07:53:49Z",
       "freshnessDays": 10,
       "freshnessLabel": "fresh",
       "confidence": "medium",
@@ -194,7 +194,7 @@
       "method": "active-volume/(max-volume-min-volume)",
       "observedAt": "2026-09-13",
       "sourcePublishedAt": null,
-      "fetchedAt": "2026-09-23T04:08:36Z",
+      "fetchedAt": "2026-09-23T07:53:49Z",
       "freshnessDays": 10,
       "freshnessLabel": "fresh",
       "confidence": "medium",
@@ -243,7 +243,7 @@
       "method": "active-volume/(max-volume-min-volume)",
       "observedAt": "2026-09-13",
       "sourcePublishedAt": null,
-      "fetchedAt": "2026-09-23T04:08:36Z",
+      "fetchedAt": "2026-09-23T07:53:49Z",
       "freshnessDays": 10,
       "freshnessLabel": "fresh",
       "confidence": "medium",
