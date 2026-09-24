@@ -1,8 +1,8 @@
 # Fullness source audit
 
-Pipeline run: `2026-09-23T21:21:04Z`
+Pipeline run: `2026-09-24T04:03:56Z`
 Latest observation: `2026-09-13T00:00:00Z`
-Status: `partial`
+Status: `degraded`
 New observations: `0`
 
 Total HES: `129`
@@ -43,8 +43,8 @@ Total HES: `129`
 
 | Metric | Count |
 |---|---:|
-| available | 55 |
-| stale | 0 |
+| available | 0 |
+| stale | 55 |
 | notApplicable | 0 |
 | unavailable | 74 |
 | officialLive | 0 |
@@ -54,8 +54,8 @@ Total HES: `129`
 | mock | 0 |
 | estimated | 55 |
 | measured | 0 |
-| fresh | 55 |
-| staleLabel | 0 |
+| fresh | 0 |
+| staleLabel | 55 |
 | old | 0 |
 | confidenceHigh | 0 |
 | confidenceMedium | 55 |
