@@ -1,8 +1,8 @@
 {
   "version": 2,
   "dataVersion": "hes177-v9",
-  "generatedAt": "2026-09-25T21:21:39Z",
-  "pipelineRunAt": "2026-09-25T21:21:39Z",
+  "generatedAt": "2026-09-26T04:22:21Z",
+  "pipelineRunAt": "2026-09-26T04:22:21Z",
   "latestObservationAt": "2026-09-13T00:00:00Z",
   "records": [
     {
@@ -10,7 +10,7 @@
       "dataVersion": "hes177-v9",
       "observedAt": "2026-09-13",
       "observationTimestamp": "2026-09-13",
-      "fetchedAt": "2026-09-25T21:21:39Z",
+      "fetchedAt": "2026-09-26T04:22:21Z",
       "properties": {
         "id": "hes177-014",
         "entityId": "hes177-014",
@@ -30,7 +30,7 @@
       "dataVersion": "hes177-v9",
       "observedAt": "2026-09-13",
       "observationTimestamp": "2026-09-13",
-      "fetchedAt": "2026-09-25T21:21:39Z",
+      "fetchedAt": "2026-09-26T04:22:21Z",
       "properties": {
         "id": "hes177-073",
         "entityId": "hes177-073",
@@ -50,7 +50,7 @@
       "dataVersion": "hes177-v9",
       "observedAt": "2026-09-13",
       "observationTimestamp": "2026-09-13",
-      "fetchedAt": "2026-09-25T21:21:39Z",
+      "fetchedAt": "2026-09-26T04:22:21Z",
       "properties": {
         "id": "hes177-140",
         "entityId": "hes177-140",
