@@ -1,5 +1,5 @@
 {
-  "pipelineRunAt": "2026-09-29T08:50:16Z",
+  "pipelineRunAt": "2026-09-29T12:30:05Z",
   "hesCount": 129,
   "mappedReservoirs": 55,
   "records": [
@@ -68,7 +68,7 @@
       "hesName": "AKKÖY1 HES",
       "damName": "AKKÖY 1",
       "reservoirName": null,
-      "river": "Harşit Çayı",
+      "river": null,
       "basin": "Doğu Karadeniz",
       "province": "GÜMÜŞHANE",
       "coordinates": [
@@ -88,7 +88,7 @@
       "hesName": "AKKÖY2 HES",
       "damName": "AKKÖY2",
       "reservoirName": null,
-      "river": "Harşit Çayı",
+      "river": null,
       "basin": "Doğu Karadeniz",
       "province": "GÜMÜŞHANE",
       "coordinates": [
@@ -605,7 +605,7 @@
       "hesName": "BÜYÜKDÜZ HES",
       "damName": "BÜYÜKDÜZ",
       "reservoirName": null,
-      "river": "Harşit Çayı",
+      "river": null,
       "basin": "Doğu Karadeniz",
       "province": "GÜMÜŞHANE",
       "coordinates": [
@@ -765,7 +765,7 @@
       "hesName": "DARICA2 HES",
       "damName": "DARICA2",
       "reservoirName": null,
-      "river": "Melet",
+      "river": null,
       "basin": "Doğu Karadeniz",
       "province": "ORDU",
       "coordinates": [
@@ -1853,7 +1853,7 @@
       "hesName": "KÜRTÜN HES",
       "damName": "KÜRTÜN",
       "reservoirName": "Kurtun",
-      "river": "Harşit Çayı",
+      "river": null,
       "basin": "Doğu Karadeniz",
       "province": "GÜMÜŞHANE",
       "coordinates": [
@@ -2318,7 +2318,7 @@
       "hesName": "TOPÇAM HES",
       "damName": "TOPÇAM-ORDU",
       "reservoirName": "Topcam",
-      "river": "Melet",
+      "river": null,
       "basin": "Doğu Karadeniz",
       "province": "ORDU",
       "coordinates": [
@@ -2355,7 +2355,7 @@
       "hesName": "TORUL HES",
       "damName": "TORUL",
       "reservoirName": "Torul",
-      "river": "Harşit Çayı",
+      "river": null,
       "basin": "Doğu Karadeniz",
       "province": "GÜMÜŞHANE",
       "coordinates": [
