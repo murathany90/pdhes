@@ -1,6 +1,6 @@
 # Fullness source audit
 
-Pipeline run: `2026-09-30T04:55:47Z`
+Pipeline run: `2026-09-30T08:49:33Z`
 Latest observation: `2026-09-13T00:00:00Z`
 Status: `degraded`
 New observations: `0`
