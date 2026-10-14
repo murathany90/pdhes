@@ -1,5 +1,5 @@
 {
-  "pipelineRunAt": "2026-10-14T07:53:30Z",
+  "pipelineRunAt": "2026-10-14T11:32:07Z",
   "hesCount": 129,
   "mappedReservoirs": 55,
   "records": [
@@ -68,7 +68,7 @@
       "hesName": "AKKÖY1 HES",
       "damName": "AKKÖY 1",
       "reservoirName": null,
-      "river": "Harşit Çayı",
+      "river": null,
       "basin": "Doğu Karadeniz",
       "province": "GÜMÜŞHANE",
       "coordinates": [
