@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-13T09:37:38Z",
+  "generatedAt": "2026-10-14T07:52:20Z",
   "sourceRegistry": {
     "dsi": {
       "status": "public_aggregates",
@@ -11,7 +11,7 @@
       "observationErrorCode": "endpoint_error",
       "observationCount": 0,
       "latestObservationAt": null,
-      "downloadedAt": "2026-10-13T00:23:54Z"
+      "downloadedAt": "2026-10-14T04:17:23Z"
     },
     "dahiti": {
       "status": "requires_access",
@@ -23,7 +23,7 @@
       "observationErrorCode": "credentials_missing",
       "observationCount": 0,
       "latestObservationAt": null,
-      "downloadedAt": "2026-10-12T09:32:02Z"
+      "downloadedAt": "2026-10-13T09:37:42Z"
     },
     "swot": {
       "status": "requires_access",
@@ -35,7 +35,7 @@
       "observationErrorCode": "credentials_missing",
       "observationCount": 0,
       "latestObservationAt": null,
-      "downloadedAt": "2026-10-12T09:32:02Z"
+      "downloadedAt": "2026-10-13T09:37:42Z"
     },
     "g_realm": {
       "status": "not_queried",
@@ -51,7 +51,7 @@
       "observationErrorCode": "credentials_missing",
       "observationCount": 0,
       "latestObservationAt": null,
-      "downloadedAt": "2026-10-12T09:32:02Z"
+      "downloadedAt": "2026-10-13T09:37:42Z"
     },
     "hydroweb": {
       "status": "catalog_available",
@@ -61,9 +61,9 @@
       "dataAccess": "requires_api_key",
       "etag": null,
       "credentialsConfigured": false,
-      "downloadedAt": "2026-10-12T09:32:02Z",
+      "downloadedAt": "2026-10-13T09:37:42Z",
       "version": "HYDROWEB_LAKES_OPE",
-      "checksum": "6717d2b3d8db5585d6bb168da14aa0e343b4e47f521d0650c164f7b0c47f6a2f",
+      "checksum": "d9689f3fccbd86994f991176966f80cf842cc385be4b485cf8eb4ae90f83bafb",
       "observationFile": "app/public/hydrology/data/live/providers/hydroweb_levels.json",
       "observationStatus": "skipped",
       "observationErrorCode": "credentials_missing",
@@ -74,13 +74,13 @@
       "status": "catalog_available",
       "sourceUrl": "https://catalogue.dataspace.copernicus.eu/odata/v1/Products?%24filter=Collection%2FName+eq+%27CLMS%27+and+Attributes%2FOData.CSC.StringAttribute%2Fany%28att%3A+att%2FName+eq+%27datasetIdentifier%27+and+att%2FValue+eq+%27wl-lakes_global_vector_daily_v2%27%29+and+OData.CSC.Intersects%28area%3Dgeography%27SRID%3D4326%3BPOLYGON+%28%2825+35%2C45+35%2C45+43%2C25+43%2C25+35%29%29%27%29&%24top=1000&%24expand=Attributes",
       "dataset": "wl-lakes_global_vector_daily_v2",
-      "recordCount": 154,
+      "recordCount": 156,
       "dataAccess": "requires_access_token",
       "etag": null,
       "credentialsConfigured": false,
-      "downloadedAt": "2026-10-12T09:32:02Z",
+      "downloadedAt": "2026-10-13T09:37:42Z",
       "version": "wl-lakes_global_vector_daily_v2",
-      "checksum": "bfd6a0eda652fe427d72c9cf1397c050474ba925b2a5084e7fdd85246341683a",
+      "checksum": "04e4ab8582f320d249ca49945b409bbfdec4bd6b62364bd3e7df17f9c486c56b",
       "observationFile": "app/public/hydrology/data/live/providers/copernicus_lwl.json",
       "observationStatus": "skipped",
       "observationErrorCode": "credentials_missing",
@@ -96,17 +96,17 @@
   "cacheMetadata": {
     "hydroweb": {
       "source": "hydroweb",
-      "downloadedAt": "2026-10-13T09:37:38Z",
+      "downloadedAt": "2026-10-14T07:52:20Z",
       "version": "HYDROWEB_LAKES_OPE",
       "etag": null,
-      "checksum": "6717d2b3d8db5585d6bb168da14aa0e343b4e47f521d0650c164f7b0c47f6a2f"
+      "checksum": "d9689f3fccbd86994f991176966f80cf842cc385be4b485cf8eb4ae90f83bafb"
     },
     "copernicus": {
       "source": "copernicus",
-      "downloadedAt": "2026-10-13T09:37:38Z",
+      "downloadedAt": "2026-10-14T07:52:20Z",
       "version": "wl-lakes_global_vector_daily_v2",
       "etag": null,
-      "checksum": "bfd6a0eda652fe427d72c9cf1397c050474ba925b2a5084e7fdd85246341683a"
+      "checksum": "04e4ab8582f320d249ca49945b409bbfdec4bd6b62364bd3e7df17f9c486c56b"
     }
   },
   "records": [
@@ -117,7 +117,7 @@
       "name": "L_aslantas@hysope2:fe6f40f0-6e42-36d4-b064-16299bab2d17:V1",
       "lon": 36.27,
       "lat": 37.27,
-      "observedAt": "2026-09-18T12:30:33.736573Z",
+      "observedAt": "2026-10-13T12:30:34.472425Z",
       "variables": [
         "hydroprd_L_aslantas.txt"
       ],
@@ -162,7 +162,7 @@
       "name": "L_beysehir@hysope2:e363e8d2-7036-3571-a987-d767d7e07ac4:V1",
       "lon": 31.55,
       "lat": 37.78,
-      "observedAt": "2026-10-12T12:30:58.747946Z",
+      "observedAt": "2026-10-13T12:30:59.279817Z",
       "variables": [
         "hydroprd_L_beysehir.txt"
       ],
@@ -192,7 +192,7 @@
       "name": "L_van@hysope2:d991fa79-bc26-304d-a1c3-d5a5c02584f9:V1",
       "lon": 42.9,
       "lat": 38.65,
-      "observedAt": "2026-10-12T12:32:45.142444Z",
+      "observedAt": "2026-10-13T12:32:59.182068Z",
       "variables": [
         "hydroprd_L_van.txt"
       ],
@@ -252,8 +252,10 @@
       "name": "L_karaidemir@hysope2:b826b32a-34fd-3383-8ab4-ac534fbb182a:V1",
       "lon": 27.01,
       "lat": 40.95,
-      "observedAt": "2026-10-11T12:31:34.94292Z",
-      "variables": [],
+      "observedAt": "2026-10-13T12:31:46.502014Z",
+      "variables": [
+        "hydroprd_L_karaidemir.txt"
+      ],
       "catalogUrl": "https://hydroweb.next.theia-land.fr/api/catalog/stac/collections/HYDROWEB_LAKES_OPE/items/L_karaidemir%40hysope2%3Ab826b32a-34fd-3383-8ab4-ac534fbb182a%3AV1",
       "dataAccess": "requires_api_key",
       "observationAvailable": false
@@ -355,8 +357,10 @@
       "name": "L_salda@hysope2:4a6cfc3c-ae86-3507-933a-d045293b9251:V1",
       "lon": 29.69,
       "lat": 37.55,
-      "observedAt": "2026-10-12T12:32:27.574792Z",
-      "variables": [],
+      "observedAt": "2026-10-13T12:32:35.31108Z",
+      "variables": [
+        "hydroprd_L_salda.txt"
+      ],
       "catalogUrl": "https://hydroweb.next.theia-land.fr/api/catalog/stac/collections/HYDROWEB_LAKES_OPE/items/L_salda%40hysope2%3A4a6cfc3c-ae86-3507-933a-d045293b9251%3AV1",
       "dataAccess": "requires_api_key",
       "observationAvailable": false
@@ -383,7 +387,7 @@
       "name": "L_mossoul@hysope2:178199e7-a9cc-33f4-b99a-6e4c7f6ab712:V1",
       "lon": 42.9,
       "lat": 36.68,
-      "observedAt": "2026-10-12T12:31:58.254832Z",
+      "observedAt": "2026-10-13T12:32:05.975933Z",
       "variables": [
         "hydroprd_L_mossoul.txt"
       ],
@@ -1273,6 +1277,21 @@
         "lake_water_level"
       ],
       "catalogUrl": "https://catalogue.dataspace.copernicus.eu/odata/v1/Products(23cc40e0-9d4e-4078-ae18-da7b12c41fb0)",
+      "dataAccess": "requires_access_token",
+      "observationAvailable": false
+    },
+    {
+      "source": "copernicus",
+      "sourceId": "107f7ce0-64b8-430d-b036-f9e729acd4cf",
+      "catalogCollection": "CLMS/wl-lakes_global_vector_daily_v2",
+      "name": "c_gls_WL_202610111843_1300000014657_ALTI_V2.2.2_geojson",
+      "lon": 42.34,
+      "lat": 38.85,
+      "observedAt": "2019-03-01T18:41:00.000000Z",
+      "variables": [
+        "lake_water_level"
+      ],
+      "catalogUrl": "https://catalogue.dataspace.copernicus.eu/odata/v1/Products(107f7ce0-64b8-430d-b036-f9e729acd4cf)",
       "dataAccess": "requires_access_token",
       "observationAvailable": false
     },
@@ -2628,6 +2647,21 @@
     },
     {
       "source": "copernicus",
+      "sourceId": "dfe3932d-b8e0-42fe-b7df-72a4dee0b7a1",
+      "catalogCollection": "CLMS/wl-lakes_global_vector_daily_v2",
+      "name": "c_gls_WL_202610111843_1300000000141_ALTI_V2.2.2_geojson",
+      "lon": 42.9,
+      "lat": 38.65,
+      "observedAt": "1995-05-30T15:51:00.000000Z",
+      "variables": [
+        "lake_water_level"
+      ],
+      "catalogUrl": "https://catalogue.dataspace.copernicus.eu/odata/v1/Products(dfe3932d-b8e0-42fe-b7df-72a4dee0b7a1)",
+      "dataAccess": "requires_access_token",
+      "observationAvailable": false
+    },
+    {
+      "source": "copernicus",
       "sourceId": "ee6e359a-cd7c-48e8-9e31-fd27433a52ed",
       "catalogCollection": "CLMS/wl-lakes_global_vector_daily_v2",
       "name": "c_gls_WL_202609281841_1300000000141_ALTI_V2.2.2_geojson",
@@ -2702,5 +2736,5 @@
       "observationAvailable": false
     }
   ],
-  "recordCount": 173
+  "recordCount": 175
 }
