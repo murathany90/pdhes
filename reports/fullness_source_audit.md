@@ -1,6 +1,6 @@
 # Fullness source audit
 
-Pipeline run: `2026-10-13T22:29:04Z`
+Pipeline run: `2026-10-14T04:18:56Z`
 Latest observation: `2026-09-13T00:00:00Z`
 Status: `degraded`
 New observations: `0`
@@ -55,8 +55,8 @@ Total HES: `129`
 | estimated | 55 |
 | measured | 0 |
 | fresh | 0 |
-| staleLabel | 55 |
-| old | 0 |
+| staleLabel | 0 |
+| old | 55 |
 | confidenceHigh | 0 |
 | confidenceMedium | 55 |
 | confidenceLow | 0 |
