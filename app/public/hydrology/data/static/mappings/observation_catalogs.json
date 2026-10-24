@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-23T07:48:20Z",
+  "generatedAt": "2026-10-24T07:29:52Z",
   "sourceRegistry": {
     "dsi": {
       "status": "public_aggregates",
@@ -11,7 +11,7 @@
       "observationErrorCode": "endpoint_error",
       "observationCount": 0,
       "latestObservationAt": null,
-      "downloadedAt": "2026-10-23T04:06:50Z"
+      "downloadedAt": "2026-10-24T04:00:18Z"
     },
     "dahiti": {
       "status": "requires_access",
@@ -23,7 +23,7 @@
       "observationErrorCode": "credentials_missing",
       "observationCount": 0,
       "latestObservationAt": null,
-      "downloadedAt": "2026-10-22T07:48:57Z"
+      "downloadedAt": "2026-10-23T07:48:25Z"
     },
     "swot": {
       "status": "requires_access",
@@ -35,7 +35,7 @@
       "observationErrorCode": "credentials_missing",
       "observationCount": 0,
       "latestObservationAt": null,
-      "downloadedAt": "2026-10-22T07:48:57Z"
+      "downloadedAt": "2026-10-23T07:48:25Z"
     },
     "g_realm": {
       "status": "not_queried",
@@ -51,7 +51,7 @@
       "observationErrorCode": "credentials_missing",
       "observationCount": 0,
       "latestObservationAt": null,
-      "downloadedAt": "2026-10-22T07:48:57Z"
+      "downloadedAt": "2026-10-23T07:48:25Z"
     },
     "hydroweb": {
       "status": "catalog_available",
@@ -61,9 +61,9 @@
       "dataAccess": "requires_api_key",
       "etag": null,
       "credentialsConfigured": false,
-      "downloadedAt": "2026-10-22T07:48:56Z",
+      "downloadedAt": "2026-10-23T07:48:24Z",
       "version": "HYDROWEB_LAKES_OPE",
-      "checksum": "893e7864f25883713766232d31e7d896b4bbc3739c5b9c42d87d6d42db80c293",
+      "checksum": "36d56f8d60de538c9c24d51c979b32d023a454759d7ac64a0324953c00000b82",
       "observationFile": "app/public/hydrology/data/live/providers/hydroweb_levels.json",
       "observationStatus": "skipped",
       "observationErrorCode": "credentials_missing",
@@ -74,13 +74,13 @@
       "status": "catalog_available",
       "sourceUrl": "https://catalogue.dataspace.copernicus.eu/odata/v1/Products?%24filter=Collection%2FName+eq+%27CLMS%27+and+Attributes%2FOData.CSC.StringAttribute%2Fany%28att%3A+att%2FName+eq+%27datasetIdentifier%27+and+att%2FValue+eq+%27wl-lakes_global_vector_daily_v2%27%29+and+OData.CSC.Intersects%28area%3Dgeography%27SRID%3D4326%3BPOLYGON+%28%2825+35%2C45+35%2C45+43%2C25+43%2C25+35%29%29%27%29&%24top=1000&%24expand=Attributes",
       "dataset": "wl-lakes_global_vector_daily_v2",
-      "recordCount": 163,
+      "recordCount": 164,
       "dataAccess": "requires_access_token",
       "etag": null,
       "credentialsConfigured": false,
-      "downloadedAt": "2026-10-22T07:48:57Z",
+      "downloadedAt": "2026-10-23T07:48:25Z",
       "version": "wl-lakes_global_vector_daily_v2",
-      "checksum": "e3c96612271fbc0e305b0217c03140b247212be4f07b74001661d52c76736aa9",
+      "checksum": "a83f35bde676df49e90d6ff6b315d80f6a41dedcd8ac8d3778be6309135761a5",
       "observationFile": "app/public/hydrology/data/live/providers/copernicus_lwl.json",
       "observationStatus": "skipped",
       "observationErrorCode": "credentials_missing",
@@ -96,17 +96,17 @@
   "cacheMetadata": {
     "hydroweb": {
       "source": "hydroweb",
-      "downloadedAt": "2026-10-23T07:48:20Z",
+      "downloadedAt": "2026-10-24T07:29:52Z",
       "version": "HYDROWEB_LAKES_OPE",
       "etag": null,
-      "checksum": "893e7864f25883713766232d31e7d896b4bbc3739c5b9c42d87d6d42db80c293"
+      "checksum": "36d56f8d60de538c9c24d51c979b32d023a454759d7ac64a0324953c00000b82"
     },
     "copernicus": {
       "source": "copernicus",
-      "downloadedAt": "2026-10-23T07:48:20Z",
+      "downloadedAt": "2026-10-24T07:29:52Z",
       "version": "wl-lakes_global_vector_daily_v2",
       "etag": null,
-      "checksum": "e3c96612271fbc0e305b0217c03140b247212be4f07b74001661d52c76736aa9"
+      "checksum": "a83f35bde676df49e90d6ff6b315d80f6a41dedcd8ac8d3778be6309135761a5"
     }
   },
   "records": [
@@ -132,7 +132,7 @@
       "name": "L_iznik@hysope2:f3cc3bae-2aee-3fa7-b74c-63d233e99e7a:V1",
       "lon": 29.53,
       "lat": 40.44,
-      "observedAt": "2026-10-18T12:31:40.994556Z",
+      "observedAt": "2026-10-23T12:31:43.008706Z",
       "variables": [
         "hydroprd_L_iznik.txt"
       ],
@@ -387,7 +387,7 @@
       "name": "L_mossoul@hysope2:178199e7-a9cc-33f4-b99a-6e4c7f6ab712:V1",
       "lon": 42.9,
       "lat": 36.68,
-      "observedAt": "2026-10-22T12:32:15.902589Z",
+      "observedAt": "2026-10-23T12:32:10.50375Z",
       "variables": [
         "hydroprd_L_mossoul.txt"
       ],
@@ -2362,6 +2362,51 @@
     },
     {
       "source": "copernicus",
+      "sourceId": "28ba784c-49d8-4243-9733-c1c0e49f6e49",
+      "catalogCollection": "CLMS/wl-lakes_global_vector_daily_v2",
+      "name": "c_gls_WL_202608310828_1300000014590_ALTI_V2.2.2_geojson",
+      "lon": 30.28,
+      "lat": 39.64,
+      "observedAt": "2017-07-28T08:26:00.000000Z",
+      "variables": [
+        "lake_water_level"
+      ],
+      "catalogUrl": "https://catalogue.dataspace.copernicus.eu/odata/v1/Products(28ba784c-49d8-4243-9733-c1c0e49f6e49)",
+      "dataAccess": "requires_access_token",
+      "observationAvailable": false
+    },
+    {
+      "source": "copernicus",
+      "sourceId": "dc46a4da-e466-46b0-9f83-21dc97e8fa6c",
+      "catalogCollection": "CLMS/wl-lakes_global_vector_daily_v2",
+      "name": "c_gls_WL_202607171912_1300000014767_ALTI_V2.2.2_geojson",
+      "lon": 35.28,
+      "lat": 37.2,
+      "observedAt": "2017-08-06T19:12:00.000000Z",
+      "variables": [
+        "lake_water_level"
+      ],
+      "catalogUrl": "https://catalogue.dataspace.copernicus.eu/odata/v1/Products(dc46a4da-e466-46b0-9f83-21dc97e8fa6c)",
+      "dataAccess": "requires_access_token",
+      "observationAvailable": false
+    },
+    {
+      "source": "copernicus",
+      "sourceId": "cb711545-6e01-4fc1-b8be-8bd80b776532",
+      "catalogCollection": "CLMS/wl-lakes_global_vector_daily_v2",
+      "name": "c_gls_WL_202607211908_1300000014763_ALTI_V2.2.2_geojson",
+      "lon": 36.27,
+      "lat": 37.27,
+      "observedAt": "2017-07-14T19:07:00.000000Z",
+      "variables": [
+        "lake_water_level"
+      ],
+      "catalogUrl": "https://catalogue.dataspace.copernicus.eu/odata/v1/Products(cb711545-6e01-4fc1-b8be-8bd80b776532)",
+      "dataAccess": "requires_access_token",
+      "observationAvailable": false
+    },
+    {
+      "source": "copernicus",
       "sourceId": "d2bc3f43-fe5d-430d-8aa0-ca13ba068bad",
       "catalogCollection": "CLMS/wl-lakes_global_vector_daily_v2",
       "name": "c_gls_WL_202608281924_1300000014558_ALTI_V2.2.2_geojson",
@@ -2387,21 +2432,6 @@
         "lake_water_level"
       ],
       "catalogUrl": "https://catalogue.dataspace.copernicus.eu/odata/v1/Products(ffa2185e-255d-46a2-a45e-745834fb4473)",
-      "dataAccess": "requires_access_token",
-      "observationAvailable": false
-    },
-    {
-      "source": "copernicus",
-      "sourceId": "28ba784c-49d8-4243-9733-c1c0e49f6e49",
-      "catalogCollection": "CLMS/wl-lakes_global_vector_daily_v2",
-      "name": "c_gls_WL_202608310828_1300000014590_ALTI_V2.2.2_geojson",
-      "lon": 30.28,
-      "lat": 39.64,
-      "observedAt": "2017-07-28T08:26:00.000000Z",
-      "variables": [
-        "lake_water_level"
-      ],
-      "catalogUrl": "https://catalogue.dataspace.copernicus.eu/odata/v1/Products(28ba784c-49d8-4243-9733-c1c0e49f6e49)",
       "dataAccess": "requires_access_token",
       "observationAvailable": false
     },
@@ -2482,21 +2512,6 @@
     },
     {
       "source": "copernicus",
-      "sourceId": "dc46a4da-e466-46b0-9f83-21dc97e8fa6c",
-      "catalogCollection": "CLMS/wl-lakes_global_vector_daily_v2",
-      "name": "c_gls_WL_202607171912_1300000014767_ALTI_V2.2.2_geojson",
-      "lon": 35.28,
-      "lat": 37.2,
-      "observedAt": "2017-08-06T19:12:00.000000Z",
-      "variables": [
-        "lake_water_level"
-      ],
-      "catalogUrl": "https://catalogue.dataspace.copernicus.eu/odata/v1/Products(dc46a4da-e466-46b0-9f83-21dc97e8fa6c)",
-      "dataAccess": "requires_access_token",
-      "observationAvailable": false
-    },
-    {
-      "source": "copernicus",
       "sourceId": "0f13f0ed-bda7-43ef-8f7d-c8f0bfa95454",
       "catalogCollection": "CLMS/wl-lakes_global_vector_daily_v2",
       "name": "c_gls_WL_202607080828_1300000014590_ALTI_V2.2.2_geojson",
@@ -2527,21 +2542,6 @@
     },
     {
       "source": "copernicus",
-      "sourceId": "cb711545-6e01-4fc1-b8be-8bd80b776532",
-      "catalogCollection": "CLMS/wl-lakes_global_vector_daily_v2",
-      "name": "c_gls_WL_202607211908_1300000014763_ALTI_V2.2.2_geojson",
-      "lon": 36.27,
-      "lat": 37.27,
-      "observedAt": "2017-07-14T19:07:00.000000Z",
-      "variables": [
-        "lake_water_level"
-      ],
-      "catalogUrl": "https://catalogue.dataspace.copernicus.eu/odata/v1/Products(cb711545-6e01-4fc1-b8be-8bd80b776532)",
-      "dataAccess": "requires_access_token",
-      "observationAvailable": false
-    },
-    {
-      "source": "copernicus",
       "sourceId": "eae351cf-1adc-4fb6-bfff-85c6e456c870",
       "catalogCollection": "CLMS/wl-lakes_global_vector_daily_v2",
       "name": "c_gls_WL_202607100735_1300000014454_ALTI_V2.2.2_geojson",
@@ -2552,6 +2552,36 @@
         "lake_water_level"
       ],
       "catalogUrl": "https://catalogue.dataspace.copernicus.eu/odata/v1/Products(eae351cf-1adc-4fb6-bfff-85c6e456c870)",
+      "dataAccess": "requires_access_token",
+      "observationAvailable": false
+    },
+    {
+      "source": "copernicus",
+      "sourceId": "de8b6ea9-ce14-43fc-9d8f-411f5b1f4ff1",
+      "catalogCollection": "CLMS/wl-lakes_global_vector_daily_v2",
+      "name": "c_gls_WL_202608230835_1300000001321_ALTI_V2.2.2_geojson",
+      "lon": 28.46,
+      "lat": 40.21,
+      "observedAt": "2017-07-20T08:35:00.000000Z",
+      "variables": [
+        "lake_water_level"
+      ],
+      "catalogUrl": "https://catalogue.dataspace.copernicus.eu/odata/v1/Products(de8b6ea9-ce14-43fc-9d8f-411f5b1f4ff1)",
+      "dataAccess": "requires_access_token",
+      "observationAvailable": false
+    },
+    {
+      "source": "copernicus",
+      "sourceId": "075d86af-8028-440b-9777-a896b8cf7d0b",
+      "catalogCollection": "CLMS/wl-lakes_global_vector_daily_v2",
+      "name": "c_gls_WL_202608171908_1300000014763_ALTI_V2.2.2_geojson",
+      "lon": 36.27,
+      "lat": 37.27,
+      "observedAt": "2017-07-14T19:07:00.000000Z",
+      "variables": [
+        "lake_water_level"
+      ],
+      "catalogUrl": "https://catalogue.dataspace.copernicus.eu/odata/v1/Products(075d86af-8028-440b-9777-a896b8cf7d0b)",
       "dataAccess": "requires_access_token",
       "observationAvailable": false
     },
@@ -2692,36 +2722,6 @@
     },
     {
       "source": "copernicus",
-      "sourceId": "de8b6ea9-ce14-43fc-9d8f-411f5b1f4ff1",
-      "catalogCollection": "CLMS/wl-lakes_global_vector_daily_v2",
-      "name": "c_gls_WL_202608230835_1300000001321_ALTI_V2.2.2_geojson",
-      "lon": 28.46,
-      "lat": 40.21,
-      "observedAt": "2017-07-20T08:35:00.000000Z",
-      "variables": [
-        "lake_water_level"
-      ],
-      "catalogUrl": "https://catalogue.dataspace.copernicus.eu/odata/v1/Products(de8b6ea9-ce14-43fc-9d8f-411f5b1f4ff1)",
-      "dataAccess": "requires_access_token",
-      "observationAvailable": false
-    },
-    {
-      "source": "copernicus",
-      "sourceId": "075d86af-8028-440b-9777-a896b8cf7d0b",
-      "catalogCollection": "CLMS/wl-lakes_global_vector_daily_v2",
-      "name": "c_gls_WL_202608171908_1300000014763_ALTI_V2.2.2_geojson",
-      "lon": 36.27,
-      "lat": 37.27,
-      "observedAt": "2017-07-14T19:07:00.000000Z",
-      "variables": [
-        "lake_water_level"
-      ],
-      "catalogUrl": "https://catalogue.dataspace.copernicus.eu/odata/v1/Products(075d86af-8028-440b-9777-a896b8cf7d0b)",
-      "dataAccess": "requires_access_token",
-      "observationAvailable": false
-    },
-    {
-      "source": "copernicus",
       "sourceId": "af43fc1b-5dc2-4b71-9ee2-24416d7814ca",
       "catalogCollection": "CLMS/wl-lakes_global_vector_daily_v2",
       "name": "c_gls_WL_202609241924_1300000014558_ALTI_V2.2.2_geojson",
@@ -2812,6 +2812,21 @@
     },
     {
       "source": "copernicus",
+      "sourceId": "0b81c634-2bcc-4f3b-a649-3027930517b5",
+      "catalogCollection": "CLMS/wl-lakes_global_vector_daily_v2",
+      "name": "c_gls_WL_202610211924_1300000014558_ALTI_V2.2.2_geojson",
+      "lon": 31.41,
+      "lat": 40.04,
+      "observedAt": "2017-07-25T19:24:00.000000Z",
+      "variables": [
+        "lake_water_level"
+      ],
+      "catalogUrl": "https://catalogue.dataspace.copernicus.eu/odata/v1/Products(0b81c634-2bcc-4f3b-a649-3027930517b5)",
+      "dataAccess": "requires_access_token",
+      "observationAvailable": false
+    },
+    {
+      "source": "copernicus",
       "sourceId": "aa4d5038-69e8-4dc5-9f84-96c799cc5a29",
       "catalogCollection": "CLMS/wl-lakes_global_vector_daily_v2",
       "name": "c_gls_WL_202610061912_1300000014767_ALTI_V2.2.2_geojson",
@@ -2841,5 +2856,5 @@
       "observationAvailable": false
     }
   ],
-  "recordCount": 182
+  "recordCount": 183
 }

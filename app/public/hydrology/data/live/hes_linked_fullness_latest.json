@@ -1,8 +1,8 @@
 {
   "dataVersion": "hes177-v9",
-  "pipelineRunAt": "2026-10-24T04:01:48Z",
+  "pipelineRunAt": "2026-10-24T07:30:37Z",
   "latestObservationAt": "2026-09-13T00:00:00Z",
-  "generatedAt": "2026-10-24T04:01:48Z",
+  "generatedAt": "2026-10-24T07:30:37Z",
   "status": "degraded",
   "coverage": {
     "hesCount": 129,
@@ -63,7 +63,7 @@
       "observationErrorCode": "credentials_missing",
       "observationCount": 0,
       "latestObservationAt": null,
-      "downloadedAt": "2026-10-23T07:48:25Z"
+      "downloadedAt": "2026-10-24T07:29:56Z"
     },
     "hydroweb": {
       "status": "catalog_available",
@@ -73,9 +73,9 @@
       "dataAccess": "requires_api_key",
       "etag": null,
       "credentialsConfigured": false,
-      "downloadedAt": "2026-10-23T07:48:24Z",
+      "downloadedAt": "2026-10-24T07:29:56Z",
       "version": "HYDROWEB_LAKES_OPE",
-      "checksum": "893e7864f25883713766232d31e7d896b4bbc3739c5b9c42d87d6d42db80c293",
+      "checksum": "36d56f8d60de538c9c24d51c979b32d023a454759d7ac64a0324953c00000b82",
       "observationFile": "app/public/hydrology/data/live/providers/hydroweb_levels.json",
       "observationStatus": "skipped",
       "observationErrorCode": "credentials_missing",
@@ -86,13 +86,13 @@
       "status": "catalog_available",
       "sourceUrl": "https://catalogue.dataspace.copernicus.eu/odata/v1/Products?%24filter=Collection%2FName+eq+%27CLMS%27+and+Attributes%2FOData.CSC.StringAttribute%2Fany%28att%3A+att%2FName+eq+%27datasetIdentifier%27+and+att%2FValue+eq+%27wl-lakes_global_vector_daily_v2%27%29+and+OData.CSC.Intersects%28area%3Dgeography%27SRID%3D4326%3BPOLYGON+%28%2825+35%2C45+35%2C45+43%2C25+43%2C25+35%29%29%27%29&%24top=1000&%24expand=Attributes",
       "dataset": "wl-lakes_global_vector_daily_v2",
-      "recordCount": 163,
+      "recordCount": 164,
       "dataAccess": "requires_access_token",
       "etag": null,
       "credentialsConfigured": false,
-      "downloadedAt": "2026-10-23T07:48:25Z",
+      "downloadedAt": "2026-10-24T07:29:56Z",
       "version": "wl-lakes_global_vector_daily_v2",
-      "checksum": "e3c96612271fbc0e305b0217c03140b247212be4f07b74001661d52c76736aa9",
+      "checksum": "a83f35bde676df49e90d6ff6b315d80f6a41dedcd8ac8d3778be6309135761a5",
       "observationFile": "app/public/hydrology/data/live/providers/copernicus_lwl.json",
       "observationStatus": "skipped",
       "observationErrorCode": "credentials_missing",
@@ -109,7 +109,7 @@
       "observationErrorCode": "credentials_missing",
       "observationCount": 0,
       "latestObservationAt": null,
-      "downloadedAt": "2026-10-23T07:48:25Z"
+      "downloadedAt": "2026-10-24T07:29:56Z"
     },
     "g_realm": {
       "status": "not_queried",
@@ -125,7 +125,7 @@
       "observationErrorCode": "credentials_missing",
       "observationCount": 0,
       "latestObservationAt": null,
-      "downloadedAt": "2026-10-23T07:48:25Z"
+      "downloadedAt": "2026-10-24T07:29:56Z"
     }
   },
   "quality": {
@@ -145,7 +145,7 @@
       "method": "active-volume/(max-volume-min-volume)",
       "observedAt": "2026-09-13",
       "sourcePublishedAt": null,
-      "fetchedAt": "2026-10-24T04:01:48Z",
+      "fetchedAt": "2026-10-24T07:30:37Z",
       "freshnessDays": 41,
       "freshnessLabel": "old",
       "confidence": "medium",
@@ -194,7 +194,7 @@
       "method": "active-volume/(max-volume-min-volume)",
       "observedAt": "2026-09-13",
       "sourcePublishedAt": null,
-      "fetchedAt": "2026-10-24T04:01:48Z",
+      "fetchedAt": "2026-10-24T07:30:37Z",
       "freshnessDays": 41,
       "freshnessLabel": "old",
       "confidence": "medium",
@@ -243,7 +243,7 @@
       "method": "active-volume/(max-volume-min-volume)",
       "observedAt": "2026-09-13",
       "sourcePublishedAt": null,
-      "fetchedAt": "2026-10-24T04:01:48Z",
+      "fetchedAt": "2026-10-24T07:30:37Z",
       "freshnessDays": 41,
       "freshnessLabel": "old",
       "confidence": "medium",
