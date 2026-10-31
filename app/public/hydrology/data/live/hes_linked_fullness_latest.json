@@ -1,8 +1,8 @@
 {
   "dataVersion": "hes177-v9",
-  "pipelineRunAt": "2026-10-30T22:13:51Z",
+  "pipelineRunAt": "2026-10-31T05:00:35Z",
   "latestObservationAt": "2026-09-13T00:00:00Z",
-  "generatedAt": "2026-10-30T22:13:51Z",
+  "generatedAt": "2026-10-31T05:00:35Z",
   "status": "degraded",
   "coverage": {
     "hesCount": 129,
@@ -51,7 +51,7 @@
       "observationErrorCode": "endpoint_error",
       "observationCount": 0,
       "latestObservationAt": null,
-      "downloadedAt": "2026-10-30T22:06:23Z"
+      "downloadedAt": "2026-10-31T04:53:17Z"
     },
     "dahiti": {
       "status": "requires_access",
@@ -145,8 +145,8 @@
       "method": "active-volume/(max-volume-min-volume)",
       "observedAt": "2026-09-13",
       "sourcePublishedAt": null,
-      "fetchedAt": "2026-10-30T22:13:51Z",
-      "freshnessDays": 47,
+      "fetchedAt": "2026-10-31T05:00:35Z",
+      "freshnessDays": 48,
       "freshnessLabel": "old",
       "confidence": "medium",
       "isEstimated": true,
@@ -194,8 +194,8 @@
       "method": "active-volume/(max-volume-min-volume)",
       "observedAt": "2026-09-13",
       "sourcePublishedAt": null,
-      "fetchedAt": "2026-10-30T22:13:51Z",
-      "freshnessDays": 47,
+      "fetchedAt": "2026-10-31T05:00:35Z",
+      "freshnessDays": 48,
       "freshnessLabel": "old",
       "confidence": "medium",
       "isEstimated": true,
@@ -243,8 +243,8 @@
       "method": "active-volume/(max-volume-min-volume)",
       "observedAt": "2026-09-13",
       "sourcePublishedAt": null,
-      "fetchedAt": "2026-10-30T22:13:51Z",
-      "freshnessDays": 47,
+      "fetchedAt": "2026-10-31T05:00:35Z",
+      "freshnessDays": 48,
       "freshnessLabel": "old",
       "confidence": "medium",
       "isEstimated": true,
