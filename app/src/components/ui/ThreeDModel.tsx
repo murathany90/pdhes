@@ -2003,6 +2003,7 @@ interface CameraFrame {
   verticalSpan: number;
   depthSpan: number;
   key: string;
+  zoomFactor?: number;
 }
 
 export function calculateCameraDistance(
@@ -2135,7 +2136,7 @@ function CameraTarget({ frame, controlsRef, userInteractedRef, tweenRef }: {
         frame,
         (camera as THREE.PerspectiveCamera).fov,
         aspect,
-      );
+      ) * (frame.zoomFactor ?? 1);
       const direction = isNewFrame
         ? new THREE.Vector3(0.72, 0.42, 0.72).normalize()
         : camera.position.clone().sub(toTarget).normalize();
@@ -2373,6 +2374,7 @@ function Scene({
         verticalSpan,
         depthSpan,
         key: `${site.id}:${revision}:${keySuffix}:${target.join(',')}:${horizontalSpan}:${verticalSpan}:${depthSpan}`,
+        zoomFactor: keySuffix === 'view:site' ? 0.78 : 1,
       };
     };
 
@@ -2391,7 +2393,19 @@ function Scene({
         if (itemFrame) return itemFrame;
       }
       const viewComponents = cameraRequest?.view ? CAMERA_VIEW_COMPONENTS[cameraRequest.view] : null;
-      const viewItems = viewComponents ? footprintPlan.items.filter((item) => viewComponents.includes(item.component)) : footprintPlan.items;
+      // The default 3D opening should frame the hydraulic plant, not distant
+      // off-site switchyards/portals that reduce the whole scene to a dot.
+      // Those elements remain selectable via their own camera presets.
+      const isSiteOverview = (cameraRequest?.view ?? 'site') === 'site' && !cameraRequest?.selected;
+      const overviewCore = isSiteOverview
+        ? footprintPlan.items.filter((item) => ![
+          'switchyard', 'new_switchyard', 'existing_switchyard',
+          'transmission', 'portal', 'service_portal',
+        ].includes(item.component))
+        : footprintPlan.items;
+      const viewItems = viewComponents
+        ? footprintPlan.items.filter((item) => viewComponents.includes(item.component))
+        : (overviewCore.length ? overviewCore : footprintPlan.items);
       const frameItems = cameraRequest?.selected ? footprintPlan.items.filter((item) => isFootprintLayerVisible(item, { [activeComponent]: true }) && (item.component === activeComponent || groupFootprintsByLayer([item])[0]?.layerKey === activeComponent)) : (viewItems.length > 0 ? viewItems : footprintPlan.items);
       const frame = frameFromPoints(
         (frameItems.length ? frameItems : footprintPlan.items).flatMap((item) => item.points),
