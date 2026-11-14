@@ -2393,7 +2393,7 @@ function Scene({
         verticalSpan,
         depthSpan,
         key: `${site.id}:${revision}:${keySuffix}:${target.join(',')}:${horizontalSpan}:${verticalSpan}:${depthSpan}`,
-        zoomFactor: keySuffix === 'view:site' ? 0.78 : 1,
+        zoomFactor: keySuffix === 'view:site' ? 0.52 : 1,
         viewingDirection: lateralCameraDirection,
       };
     };
