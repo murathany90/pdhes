@@ -37,7 +37,7 @@ describe('HES snapshot freshness', () => {
 
     render(<HesToolbar />);
 
-    expect(screen.getByTitle(/Güncel doluluk 0\/2/)).toBeTruthy();
+    expect(screen.getAllByTitle(/Güncel doluluk 0\/2/).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/Eski gözlem/).length).toBeGreaterThan(0);
     expect(screen.getByText('0/2')).toBeTruthy();
   });
