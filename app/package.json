@@ -34,7 +34,7 @@
     "@react-three/fiber": "^9.6.1",
     "@types/dompurify": "^3.0.5",
     "@types/three": "^0.184.1",
-    "dompurify": "^3.4.15",
+    "dompurify": "3.4.17",
     "lucide-react": "^1.17.0",
     "maplibre-gl": "^6.10.0",
     "react": "^19.2.7",
@@ -51,6 +51,7 @@
   "overrides": {
     "three-stdlib": {
       "fflate": "0.8.3"
-    }
+    },
+    "katex": "0.18.2"
   }
 }
