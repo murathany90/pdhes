@@ -58,7 +58,7 @@ describe('ThreeDPage controls', () => {
 
     expect(main.className).not.toContain('has-tree');
     expect(main.className).not.toContain('has-info');
-    expect(Number(scene.getAttribute('data-terrain-opacity'))).toBeCloseTo(0.14);
+    expect(Number(scene.getAttribute('data-terrain-opacity'))).toBeCloseTo(0.55);
     expect(screen.getByRole('button', { name: 'Yapı ağacını aç/kapat' }).getAttribute('aria-pressed')).toBe('false');
     expect(screen.getByRole('button', { name: 'Bilgi panelini aç/kapat' }).getAttribute('aria-pressed')).toBe('false');
 
@@ -165,11 +165,11 @@ describe('ThreeDPage controls', () => {
     const { rerender, container } = render(<ThreeDPage site={siteA} />);
 
     await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1));
-    const mountedModel = screen.getByTestId('three-d-model');
+    expect(screen.queryByTestId('three-d-model')).toBeNull();
     expect(container.querySelector('.threed-footprint-loading')?.textContent).toMatch(/site a.*yükleniyor/i);
     rerender(<ThreeDPage site={siteB} />);
     await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
-    expect(screen.getByTestId('three-d-model')).toBe(mountedModel);
+    expect(screen.queryByTestId('three-d-model')).toBeNull();
     expect(container.querySelector('.threed-footprint-loading')?.textContent).toMatch(/site b.*yükleniyor/i);
 
     resolveFirst({ ok: false, status: 404, json: async () => [] });
@@ -187,7 +187,7 @@ describe('ThreeDPage controls', () => {
     });
 
     await waitFor(() => expect(screen.getByTestId('three-d-model')).toBeTruthy());
-    expect(screen.getByTestId('three-d-model')).toBe(mountedModel);
+    expect(screen.getByTestId('three-d-model').getAttribute('data-site-id')).toBe('site-b');
     expect(container.querySelector('.threed-footprint-loading')).toBeNull();
     expect(screen.queryByText(/Footprint verisi yüklenemedi/i)).toBeNull();
   });
