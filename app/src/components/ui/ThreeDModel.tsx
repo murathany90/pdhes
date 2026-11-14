@@ -34,7 +34,7 @@ import {
 import { footprintItemLabel } from '../../utils/layout3dLabels';
 import { useManualGeometryStore } from '../../stores/useManualGeometryStore';
 import { overrideSiteWithManualGeometries } from '../../utils/manualGeometryConverter';
-import { createFootprintPolygonGeometry, footprintRing, footprintSurfacePositionOffset, footprintTerrainSize, generationWaterwayPoints, representativeWaterwayLinks, reservoirSurfaceOffset } from '../../utils/layout3dGeometry';
+import { createFootprintPolygonGeometry, footprintRing, footprintSurfacePositionOffset, footprintTerrainSize, generationWaterwayPoints, representativeWaterwayLinks, reservoirSurfaceOffset, schematicTerrainGuide, schematicTerrainHeight } from '../../utils/layout3dGeometry';
 import { useShallow } from 'zustand/react/shallow';
 
 
@@ -2003,6 +2003,8 @@ interface CameraFrame {
   verticalSpan: number;
   depthSpan: number;
   key: string;
+  zoomFactor?: number;
+  viewingDirection?: [number, number, number];
 }
 
 export function calculateCameraDistance(
@@ -2135,9 +2137,9 @@ function CameraTarget({ frame, controlsRef, userInteractedRef, tweenRef }: {
         frame,
         (camera as THREE.PerspectiveCamera).fov,
         aspect,
-      );
+      ) * (frame.zoomFactor ?? 1);
       const direction = isNewFrame
-        ? new THREE.Vector3(0.72, 0.42, 0.72).normalize()
+        ? new THREE.Vector3(...(frame.viewingDirection ?? [0.72, 0.42, 0.72])).normalize()
         : camera.position.clone().sub(toTarget).normalize();
       const toPos = new THREE.Vector3(
         frame.target[0] + direction.x * distance,
@@ -2189,12 +2191,13 @@ function CameraTarget({ frame, controlsRef, userInteractedRef, tweenRef }: {
   return null;
 }
 
-function RepresentativeFootprintTerrain({ opacity, theme, quality, size }: { opacity: number; theme?: string; quality?: SimulationQuality; size: number }) {
+function RepresentativeFootprintTerrain({ opacity, theme, quality, size, items }: { opacity: number; theme?: string; quality?: SimulationQuality; size: number; items: Layout3DProjectedFootprint[] }) {
   const normalizedOpacity = normalizeTerrainOpacity(opacity);
   const dark = theme === 'dark';
   // Büyük rezervuarlarda düşük kalitede sadeleştirilmiş görüntüleme
   // geometrisi; kaynak footprint halkaları değişmez.
-  const segments = quality === 'low' ? 20 : 32;
+  const segments = quality === 'low' ? 32 : quality === 'high' ? 96 : 64;
+  const elevationGuide = useMemo(() => schematicTerrainGuide(items), [items]);
   const geometry = useMemo(() => {
     const terrain = new THREE.PlaneGeometry(size, size, segments, segments);
     terrain.rotateX(-Math.PI / 2);
@@ -2204,9 +2207,7 @@ function RepresentativeFootprintTerrain({ opacity, theme, quality, size }: { opa
     for (let index = 0; index < positions.count; index += 1) {
       const x = positions.getX(index);
       const z = positions.getZ(index);
-      const ridge = Math.sin(x / 130) * 5.5 + Math.cos(z / 160) * 4;
-      const basin = -8 * Math.exp(-(x * x + (z - 60) * (z - 60)) / 160000);
-      const y = -6 + ridge + basin;
+      const y = schematicTerrainHeight(x, z, elevationGuide);
       positions.setY(index, y);
       if (y < minY) minY = y;
       if (y > maxY) maxY = y;
@@ -2226,7 +2227,7 @@ function RepresentativeFootprintTerrain({ opacity, theme, quality, size }: { opa
     positions.needsUpdate = true;
     terrain.computeVertexNormals();
     return terrain;
-  }, [dark, segments, size]);
+  }, [dark, segments, size, elevationGuide]);
 
   useEffect(() => () => geometry.dispose(), [geometry]);
 
@@ -2244,7 +2245,7 @@ function RepresentativeFootprintTerrain({ opacity, theme, quality, size }: { opa
           opacity={normalizedOpacity * 0.82}
           roughness={0.96}
           metalness={0}
-          flatShading
+          side={THREE.DoubleSide}
         />
       </mesh>
       {guides.map((offset) => (
@@ -2348,6 +2349,24 @@ function Scene({
 
   const cameraFrame = useMemo<CameraFrame>(() => {
     const revision = cameraRequest?.revision ?? 0;
+    // Orient the camera SIDEWAYS to the upper-to-lower hydraulic axis.
+    // The former diagonal camera direction followed that axis, visually
+    // collapsing the entire plant into a narrow vertical strip.
+    const upper = footprintPlan.items.find((item) => item.component === 'upper_reservoir' && item.material === 'water');
+    const lower = footprintPlan.items.find((item) => item.component === 'lower_reservoir' && item.material === 'water');
+    const centerXZ = (item: Layout3DProjectedFootprint) => {
+      const count = Math.max(1, item.points.length);
+      return { x: item.points.reduce((sum, point) => sum + point.x, 0) / count,
+        z: item.points.reduce((sum, point) => sum + point.z, 0) / count };
+    };
+    const a = upper ? centerXZ(upper) : null;
+    const b = lower ? centerXZ(lower) : null;
+    const dx = a && b ? b.x - a.x : 0;
+    const dz = a && b ? b.z - a.z : 0;
+    const axisLength = Math.hypot(dx, dz);
+    const lateralCameraDirection: [number, number, number] | undefined = axisLength > 0.01
+      ? [-dz / axisLength * 0.78, 0.62, dx / axisLength * 0.78]
+      : undefined;
     const frameFromPoints = (
       pts: Array<{ x: number; y: number; z: number }>,
       keySuffix: string,
@@ -2373,6 +2392,8 @@ function Scene({
         verticalSpan,
         depthSpan,
         key: `${site.id}:${revision}:${keySuffix}:${target.join(',')}:${horizontalSpan}:${verticalSpan}:${depthSpan}`,
+        zoomFactor: keySuffix === 'view:site' ? 0.52 : 1,
+        viewingDirection: lateralCameraDirection,
       };
     };
 
@@ -2391,7 +2412,19 @@ function Scene({
         if (itemFrame) return itemFrame;
       }
       const viewComponents = cameraRequest?.view ? CAMERA_VIEW_COMPONENTS[cameraRequest.view] : null;
-      const viewItems = viewComponents ? footprintPlan.items.filter((item) => viewComponents.includes(item.component)) : footprintPlan.items;
+      // The default 3D opening should frame the hydraulic plant, not distant
+      // off-site switchyards/portals that reduce the whole scene to a dot.
+      // Those elements remain selectable via their own camera presets.
+      const isSiteOverview = (cameraRequest?.view ?? 'site') === 'site' && !cameraRequest?.selected;
+      const overviewCore = isSiteOverview
+        ? footprintPlan.items.filter((item) => ![
+          'switchyard', 'new_switchyard', 'existing_switchyard',
+          'transmission', 'portal', 'service_portal',
+        ].includes(item.component))
+        : footprintPlan.items;
+      const viewItems = viewComponents
+        ? footprintPlan.items.filter((item) => viewComponents.includes(item.component))
+        : (overviewCore.length ? overviewCore : footprintPlan.items);
       const frameItems = cameraRequest?.selected ? footprintPlan.items.filter((item) => isFootprintLayerVisible(item, { [activeComponent]: true }) && (item.component === activeComponent || groupFootprintsByLayer([item])[0]?.layerKey === activeComponent)) : (viewItems.length > 0 ? viewItems : footprintPlan.items);
       const frame = frameFromPoints(
         (frameItems.length ? frameItems : footprintPlan.items).flatMap((item) => item.points),
@@ -2532,7 +2565,7 @@ function Scene({
       {showTerrain && terrainAlpha > 0 && !footprintPlan.enabled && <InstancedEnvironment assets={environmentAssets} opacity={terrainAlpha} />}
 
       {showTerrain && footprintPlan.enabled && (
-        <RepresentativeFootprintTerrain opacity={terrainAlpha} theme={theme} quality={quality} size={footprintGroundSize} />
+        <RepresentativeFootprintTerrain opacity={terrainAlpha} theme={theme} quality={quality} size={footprintGroundSize} items={footprintPlan.items} />
       )}
 
       {footprintPlan.enabled && (
@@ -2813,6 +2846,7 @@ class ThreeDCanvasBoundary extends Component<{ children: React.ReactNode }, { er
 export default function ThreeDModel(props: ThreeDModelProps) {
   const theme = useSettingsStore(state => state.theme);
   const [webglContextLost, setWebglContextLost] = useState(false);
+  const [rendererAttempt, setRendererAttempt] = useState(0);
   const [cameraRequest, setCameraRequest] = useState<{ revision: number; selected: boolean; view?: CameraViewId; itemId?: string }>({ revision: 0, selected: false, view: 'site' });
   
   return (
@@ -2833,15 +2867,19 @@ export default function ThreeDModel(props: ThreeDModelProps) {
       </div>
       {webglContextLost && (
         <div role="alert" style={{ position: 'absolute', zIndex: 2, top: 16, left: 16, right: 16, padding: 12, borderRadius: 8, color: '#fff', background: 'rgba(153, 27, 27, 0.94)' }}>
-          WebGL görüntü bağlamı kaybedildi. Tarayıcı bağlamı geri yüklemeye çalışıyor; sorun sürerse sayfayı yenileyin.
+          WebGL görüntü bağlamı kaybedildi. Bağlam geri gelmezse 3D sahnesini yeniden başlatın.
+          <button type="button" className="btn ghost" style={{ marginLeft: 12, background: '#fff', color: '#7f1d1d' }}
+            onClick={() => { setWebglContextLost(false); setRendererAttempt((value) => value + 1); }}>
+            3D sahnesini yeniden başlat
+          </button>
         </div>
       )}
-      <ThreeDCanvasBoundary>
+      <ThreeDCanvasBoundary key={rendererAttempt}>
       <Canvas
         shadows="basic"
         dpr={[1, 1.5]}
         frameloop={props.isPlaying ? 'always' : 'demand'}
-        gl={{ antialias: false, powerPreference: 'high-performance' }}
+        gl={{ antialias: true, powerPreference: 'high-performance', alpha: false }}
         camera={{ position: [150, 120, 180], fov: 45, far: 30000 }}
         fallback={<div role="alert" style={{ padding: 24, color: '#f8fafc' }}>WebGL başlatılamadı. 3D görünüm bu tarayıcıda kullanılamıyor.</div>}
       >

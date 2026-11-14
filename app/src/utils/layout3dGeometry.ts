@@ -145,3 +145,49 @@ export function footprintTerrainSize(items: Layout3DProjectedFootprint[]): numbe
     ), 0);
   return Math.ceil(Math.max(1000, (maxRadius + 100) * 2) / 100) * 100;
 }
+
+/** A visualization-only elevation guide anchored to the input footprint
+ * reservoir levels. This is NOT a DEM, a measured contour set, or a replacement
+ * for surveyed hydraulic/ground elevations. The source features stay intact.
+ */
+export interface SchematicTerrainGuide {
+  upper: { x: number; z: number; y: number };
+  lower: { x: number; z: number; y: number };
+}
+
+export function schematicTerrainGuide(items: Layout3DProjectedFootprint[]): SchematicTerrainGuide | null {
+  const upper = items.find((item) => item.component === 'upper_reservoir' && item.material === 'water');
+  const lower = items.find((item) => item.component === 'lower_reservoir' && item.material === 'water');
+  if (!upper || !lower) return null;
+  const center = (item: Layout3DProjectedFootprint) => {
+    const points = footprintRing(item);
+    if (points.length === 0) return null;
+    const x = points.reduce((sum, point) => sum + point.x, 0) / points.length;
+    const z = points.reduce((sum, point) => sum + point.z, 0) / points.length;
+    return Number.isFinite(x) && Number.isFinite(z) && Number.isFinite(item.topY)
+      ? { x, z, y: item.topY } : null;
+  };
+  const a = center(upper), b = center(lower);
+  return a && b && Math.hypot(a.x - b.x, a.z - b.z) >= 5
+    ? { upper: a, lower: b } : null;
+}
+
+export function schematicTerrainHeight(x: number, z: number, guide: SchematicTerrainGuide | null): number {
+  const baseRelief = Math.sin(x / 130) * 5.5 + Math.cos(z / 160) * 4
+    - 8 * Math.exp(-(x * x + (z - 60) * (z - 60)) / 160000);
+  if (!guide) return -6 + baseRelief;
+  const dx = guide.upper.x - guide.lower.x;
+  const dz = guide.upper.z - guide.lower.z;
+  const distance2 = dx * dx + dz * dz;
+  const distance = Math.sqrt(distance2);
+  // Along the hydraulic corridor the schematic ground rises gradually
+  // toward the upper reservoir. Perpendicular relief adds a gentle valley.
+  const t = THREE.MathUtils.clamp(
+    ((x - guide.lower.x) * dx + (z - guide.lower.z) * dz) / distance2, 0, 1,
+  );
+  const eased = t * t * (3 - 2 * t);
+  const flankMetersInScene = Math.abs((x - guide.lower.x) * dz - (z - guide.lower.z) * dx) / distance;
+  const flank = Math.min(27, flankMetersInScene * 0.09);
+  return guide.lower.y - 5 + (guide.upper.y - guide.lower.y) * eased
+    + flank + baseRelief * 0.55;
+}

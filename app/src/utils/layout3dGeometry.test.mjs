@@ -3,7 +3,7 @@ import * as THREE from 'three';
 import { readFileSync } from 'node:fs';
 import { makeTestSite } from '../test-utils/makeTestSite';
 import { buildLayout3DFootprintPlan, isFootprintLayerVisible } from './layout3dFootprints';
-import { auditWaterwayConnections, createFootprintPolygonGeometry, footprintSurfacePositionOffset, generationWaterwayPoints, representativeWaterwayLinks, reservoirSurfaceOffset } from './layout3dGeometry';
+import { auditWaterwayConnections, createFootprintPolygonGeometry, footprintSurfacePositionOffset, generationWaterwayPoints, representativeWaterwayLinks, reservoirSurfaceOffset, schematicTerrainGuide, schematicTerrainHeight } from './layout3dGeometry';
 
 describe('source footprint rendering', () => {
   it.each(['kamu-gokcekaya-pspp', 'kamu-sariyar-pspp'])('keeps %s coordinates and exposes the water through the embankment', (id) => {
@@ -69,6 +69,17 @@ describe('reference site hydraulic source continuity', () => {
     expect(audit).toHaveLength(2);
     expect(audit.every((row) => row.status === 'connected')).toBe(true);
     expect(representativeWaterwayLinks(plan.items)).toEqual([]);
+  });
+
+  it.each(['kamu-gokcekaya-pspp', 'kamu-sariyar-pspp'])('builds a schematic elevation gradient for %s without moving source geometry', (id) => {
+    const { footprints, plan } = load(id);
+    const before = JSON.stringify(footprints);
+    const guide = schematicTerrainGuide(plan.items);
+    expect(guide).toBeTruthy();
+    expect(schematicTerrainHeight(guide.upper.x, guide.upper.z, guide)).toBeGreaterThan(
+      schematicTerrainHeight(guide.lower.x, guide.lower.z, guide) + 10,
+    );
+    expect(JSON.stringify(footprints)).toBe(before);
   });
 
   it('never moves dam embankments or powerhouse footprints with simulated SOC', () => {

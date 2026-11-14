@@ -412,7 +412,9 @@ export default function ThreeDPage({ site: propSite, dataLoading = false, dataEr
   const [showTerrain, setShowTerrain] = useState(true);
   const [showLabels, setShowLabels] = useState(false);
   // Transparent by default: preserve the context without hiding underground works.
-  const [terrainOpacity, setTerrainOpacity] = useState(14);
+  // Restore readable schematic topography while retaining real translucency.
+  // The terrain layer is deliberately not treated as surveyed DEM.
+  const [terrainOpacity, setTerrainOpacity] = useState(55);
   const [xray, setXray] = useState(false);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [infoTab, setInfoTab] = useState<InfoTab>('general');
@@ -771,6 +773,10 @@ export default function ThreeDPage({ site: propSite, dataLoading = false, dataEr
                 <AlertTriangle size={14} aria-hidden="true" /> {unresolvedWaterway.length} açık bağlantı
               </button>
             )}
+            {/* Avoid mounting the heavy procedural WebGL scene and then swapping
+                it for async footprint geometry. That first render/camera transition
+                caused a blank first frame and could transiently double GPU memory. */}
+            {!footprintLoadingForSite && (
             <ThreeDModel
               siteId={site.id}
               activeComponent={activeComponent}
@@ -795,6 +801,7 @@ export default function ThreeDPage({ site: propSite, dataLoading = false, dataEr
               xray={xray}
               fxEnabled={fxEnabled}
             />
+            )}
             {footprintLoadingForSite && (
               <div className="threed-footprint-loading" role="status" aria-live="polite">
                 <strong>{site.name} yerleşim geometrisi yükleniyor</strong>
