@@ -8,6 +8,19 @@ describe('ThreeDModel performance contract', () => {
     expect(source).toContain("frameloop={props.isPlaying ? 'always' : 'demand'}");
   });
 
+  it('requests a bounded number of initial frames after async scene attachment without switching idle scenes to always-on rendering', () => {
+    expect(source).toContain('function SceneFirstPaint({ sceneKey }');
+    expect(source).toContain('remainingFrames.current = 6');
+    expect(source).toContain('<SceneFirstPaint sceneKey={');
+    expect(source).toContain("frameloop={props.isPlaying ? 'always' : 'demand'}");
+  });
+
+  it('draws footprint terrain translucently without writing depth over underground works', () => {
+    expect(source).toContain('depthWrite={false}');
+    expect(source).toContain('renderOrder={-20}');
+    expect(source).toContain("height: '100%', minHeight: 0");
+  });
+
   it('caps WebGL pixel work for the 3D placement view', () => {
     expect(source).toContain('dpr={[1, 1.5]}');
     expect(source).toContain("powerPreference: 'high-performance'");
