@@ -2019,6 +2019,29 @@ export function calculateCameraDistance(
   return Math.max(120, radius * 1.12 / Math.sin(Math.min(verticalFov, horizontalFov) / 2));
 }
 
+/**
+ * A demand-rendered Canvas can first paint before the async footprint scene
+ * finishes attaching its Three.js objects. Request a bounded number of
+ * follow-up frames after mount / site geometry changes so the first visit
+ * does not stay on a blank background until the user clicks a camera view.
+ * No timer or continuous idle render loop is introduced.
+ */
+function SceneFirstPaint({ sceneKey }: { sceneKey: string }) {
+  const { invalidate } = useThree();
+  const remainingFrames = useRef(0);
+  useLayoutEffect(() => {
+    remainingFrames.current = 6;
+    invalidate();
+  }, [invalidate, sceneKey]);
+  useFrame(() => {
+    if (remainingFrames.current > 0) {
+      remainingFrames.current -= 1;
+      invalidate();
+    }
+  });
+  return null;
+}
+
 function WebGLContextMonitor({ setContextLost }: { setContextLost: Dispatch<SetStateAction<boolean>> }) {
   const { gl, invalidate } = useThree();
 
@@ -2212,10 +2235,11 @@ function RepresentativeFootprintTerrain({ opacity, theme, quality, size }: { opa
 
   return (
     <group>
-      <mesh geometry={geometry} receiveShadow>
+      <mesh geometry={geometry} receiveShadow={false} renderOrder={-20}>
         <meshStandardMaterial
           vertexColors
           transparent
+          depthWrite={false}
           opacity={normalizedOpacity * 0.82}
           roughness={0.96}
           metalness={0}
@@ -2791,7 +2815,7 @@ export default function ThreeDModel(props: ThreeDModelProps) {
   const [cameraRequest, setCameraRequest] = useState<{ revision: number; selected: boolean; view?: CameraViewId; itemId?: string }>({ revision: 0, selected: false, view: 'site' });
   
   return (
-    <div style={{ position: 'relative', width: '100%', height: '100%', minHeight: '50vh', borderRadius: 16, overflow: 'hidden', background: theme === 'dark' ? '#0a0c10' : '#d2e4f0' }}>
+    <div style={{ position: 'relative', width: '100%', height: '100%', minHeight: 0, borderRadius: 12, overflow: 'hidden', background: theme === 'dark' ? '#0a0c10' : '#d2e4f0' }}>
       <div className="threed-camera-controls" aria-label="Kamera kontrolleri">
         {CAMERA_VIEWS.map((view) => (
           <button
@@ -2821,6 +2845,7 @@ export default function ThreeDModel(props: ThreeDModelProps) {
         fallback={<div role="alert" style={{ padding: 24, color: '#f8fafc' }}>WebGL başlatılamadı. 3D görünüm bu tarayıcıda kullanılamıyor.</div>}
       >
         <WebGLContextMonitor setContextLost={setWebglContextLost} />
+        <SceneFirstPaint sceneKey={`${props.site.id}:${props.site.layout3D?.componentFootprints?.length ?? 0}:${props.quality ?? 'auto'}`} />
         <Scene {...props} theme={theme} cameraRequest={cameraRequest} />
       </Canvas>
       </ThreeDCanvasBoundary>
