@@ -32,7 +32,13 @@ jobs:
       - name: Build production app
         run: npm run build
       - name: Install isolated visual QA dependencies
-        run: npm install --no-save --package-lock=false playwright pngjs
+        run: |
+          # Do not re-resolve the application's locked dependency graph:
+          # npm 11 can throw Arborist edgesOut while mixing --no-save installs.
+          mkdir -p /tmp/pdhes-visual-tooling
+          npm install --prefix /tmp/pdhes-visual-tooling --no-audit --no-fund playwright pngjs
+          ln -s /tmp/pdhes-visual-tooling/node_modules/playwright node_modules/playwright
+          ln -s /tmp/pdhes-visual-tooling/node_modules/pngjs node_modules/pngjs
       - name: Install Chromium and runtime libraries
         run: npx playwright install --with-deps chromium
       - name: Start local production preview
