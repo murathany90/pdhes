@@ -1,17 +1,18 @@
 // @vitest-environment jsdom
-import { readFileSync } from 'node:fs';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import ThreeDPage from './ThreeDPage';
 import { makeTestSite } from '../test-utils/makeTestSite';
 import type { Layout3DFootprint } from '../types/site';
+import gokcekayaFootprints from '../../public/footprints/kamu-gokcekaya-pspp.json';
+import sariyarFootprints from '../../public/footprints/kamu-sariyar-pspp.json';
 
 vi.mock('../components/ui/ThreeDModel', () => ({
   default: () => <div data-testid="three-d-model" />,
 }));
 
 const loadSite = (id: string) => {
-  const footprints = JSON.parse(readFileSync(new URL(`../../public/footprints/${id}.json`, import.meta.url), 'utf8')) as Layout3DFootprint[];
+  const footprints = (id === 'kamu-gokcekaya-pspp' ? gokcekayaFootprints : sariyarFootprints) as unknown as Layout3DFootprint[];
   return makeTestSite({
     id,
     layout3D: {
