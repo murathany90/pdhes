@@ -18,6 +18,7 @@ vi.mock('../components/ui/ThreeDModel', () => ({
       data-max-units={props.maxUnits}
       data-layers={JSON.stringify(props.layers)}
       data-show-labels={String(props.showLabels)}
+      data-terrain-opacity={props.terrainOpacity}
       data-simulation-state={props.simulationState}
       data-upper-soc={props.upperSoc}
       data-lower-soc={props.lowerSoc}
@@ -47,6 +48,28 @@ describe('ThreeDPage controls', () => {
 
     expect(screen.getByTestId('three-d-model').getAttribute('data-site-id')).toBe(DEFAULT_SITE_ID);
     expect(screen.getByText('Gökçekaya PDHES')).toBeTruthy();
+  });
+
+  it('opens as a scene-first workspace with transparent terrain and optional overlay drawers', () => {
+    const { container } = render(<ThreeDPage site={site} />);
+    const shell = container.querySelector('.threed-page') as HTMLElement;
+    const main = container.querySelector('.threed-main') as HTMLElement;
+    const scene = screen.getByTestId('three-d-model');
+
+    expect(main.className).not.toContain('has-tree');
+    expect(main.className).not.toContain('has-info');
+    expect(Number(scene.getAttribute('data-terrain-opacity'))).toBeCloseTo(0.14);
+    expect(screen.getByRole('button', { name: 'Yapı ağacını aç/kapat' }).getAttribute('aria-pressed')).toBe('false');
+    expect(screen.getByRole('button', { name: 'Bilgi panelini aç/kapat' }).getAttribute('aria-pressed')).toBe('false');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Sahneye odaklan' }));
+    expect(shell.className).toContain('threed-focus');
+    fireEvent.click(screen.getByRole('button', { name: 'Odak görünümünden çık' }));
+    expect(shell.className).not.toContain('threed-focus');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Bilgi panelini aç/kapat' }));
+    expect(main.className).toContain('has-info');
+    expect(screen.getByText('Model ve veri sınırlamaları')).toBeTruthy();
   });
 
   it('uses consistent icons and exposes toggle states', () => {
