@@ -2004,6 +2004,7 @@ interface CameraFrame {
   depthSpan: number;
   key: string;
   zoomFactor?: number;
+  viewingDirection?: [number, number, number];
 }
 
 export function calculateCameraDistance(
@@ -2138,7 +2139,7 @@ function CameraTarget({ frame, controlsRef, userInteractedRef, tweenRef }: {
         aspect,
       ) * (frame.zoomFactor ?? 1);
       const direction = isNewFrame
-        ? new THREE.Vector3(0.72, 0.42, 0.72).normalize()
+        ? new THREE.Vector3(...(frame.viewingDirection ?? [0.72, 0.42, 0.72])).normalize()
         : camera.position.clone().sub(toTarget).normalize();
       const toPos = new THREE.Vector3(
         frame.target[0] + direction.x * distance,
@@ -2349,6 +2350,24 @@ function Scene({
 
   const cameraFrame = useMemo<CameraFrame>(() => {
     const revision = cameraRequest?.revision ?? 0;
+    // Orient the camera SIDEWAYS to the upper-to-lower hydraulic axis.
+    // The former diagonal camera direction followed that axis, visually
+    // collapsing the entire plant into a narrow vertical strip.
+    const upper = footprintPlan.items.find((item) => item.component === 'upper_reservoir' && item.material === 'water');
+    const lower = footprintPlan.items.find((item) => item.component === 'lower_reservoir' && item.material === 'water');
+    const centerXZ = (item: Layout3DProjectedFootprint) => {
+      const count = Math.max(1, item.points.length);
+      return { x: item.points.reduce((sum, point) => sum + point.x, 0) / count,
+        z: item.points.reduce((sum, point) => sum + point.z, 0) / count };
+    };
+    const a = upper ? centerXZ(upper) : null;
+    const b = lower ? centerXZ(lower) : null;
+    const dx = a && b ? b.x - a.x : 0;
+    const dz = a && b ? b.z - a.z : 0;
+    const axisLength = Math.hypot(dx, dz);
+    const lateralCameraDirection: [number, number, number] | undefined = axisLength > 0.01
+      ? [-dz / axisLength * 0.78, 0.62, dx / axisLength * 0.78]
+      : undefined;
     const frameFromPoints = (
       pts: Array<{ x: number; y: number; z: number }>,
       keySuffix: string,
@@ -2375,6 +2394,7 @@ function Scene({
         depthSpan,
         key: `${site.id}:${revision}:${keySuffix}:${target.join(',')}:${horizontalSpan}:${verticalSpan}:${depthSpan}`,
         zoomFactor: keySuffix === 'view:site' ? 0.78 : 1,
+        viewingDirection: lateralCameraDirection,
       };
     };
 
