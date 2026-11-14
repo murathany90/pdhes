@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useReducer, useRef } from 'react';
-import { Droplets, Mountain, Play, Square, Tag, Zap, Search, Settings2, PanelLeft, PanelRight, Eye, EyeOff, X, ChevronDown, ChevronUp } from 'lucide-react';
+import { Droplets, Mountain, Play, Square, Tag, Zap, Search, Settings2, PanelLeft, PanelRight, Eye, EyeOff, X, ChevronDown, ChevronUp, Maximize2, Minimize2, AlertTriangle } from 'lucide-react';
 import { DEFAULT_SITE_ID, useSiteStore } from '../stores/useSiteStore';
 import { COMPONENTS } from '../utils/constants';
 import type { Layout3DFootprint, Site } from '../types/site';
@@ -8,7 +8,6 @@ import type { DerivedLayout3DTopology } from '../utils/layout3dSimulation';
 import LayerToggle from '../components/ui/LayerToggle';
 import ScenarioSlider from '../components/ui/ScenarioSlider';
 import ThreeDModel from '../components/ui/ThreeDModel';
-import WarningBanner from '../components/ui/WarningBanner';
 import { buildComponentsDetail, COORDINATE_CONFIDENCE_LABELS, PDHES_TYPE_LABELS } from '../utils/siteDerived';
 import { publicAssetUrl } from '../utils/publicUrl';
 import { footprintLayerKey, groupFootprintsByLayer, isValidLayout3DFootprint, shouldClearActiveFootprintComponent } from '../utils/layout3dFootprints';
@@ -412,13 +411,15 @@ export default function ThreeDPage({ site: propSite, dataLoading = false, dataEr
 
   const [showTerrain, setShowTerrain] = useState(true);
   const [showLabels, setShowLabels] = useState(false);
-  const [terrainOpacity, setTerrainOpacity] = useState(70);
+  // Transparent by default: preserve the context without hiding underground works.
+  const [terrainOpacity, setTerrainOpacity] = useState(14);
   const [xray, setXray] = useState(false);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [infoTab, setInfoTab] = useState<InfoTab>('general');
-  // Dar ekranda çekmeceler kapalı açılır; sahne görünür kalır.
-  const [treeOpen, setTreeOpen] = useState(() => (typeof window === 'undefined' ? true : window.innerWidth > 1100));
-  const [infoOpen, setInfoOpen] = useState(() => (typeof window === 'undefined' ? true : window.innerWidth > 1100));
+  // The scene owns the viewport on every screen; tools open as overlay drawers.
+  const [treeOpen, setTreeOpen] = useState(false);
+  const [infoOpen, setInfoOpen] = useState(false);
+  const [focusMode, setFocusMode] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [bottomOpen, setBottomOpen] = useState(true);
   const [siteSearch, setSiteSearch] = useState('');
@@ -545,7 +546,7 @@ export default function ThreeDPage({ site: propSite, dataLoading = false, dataEr
     : undefined;
 
   return (
-    <section className="panel active no-pad threed-page threed-shell">
+    <section className={`panel active no-pad threed-page threed-shell ${focusMode ? 'threed-focus' : ''}`}>
       {/* ÜST TESİS ÇUBUĞU */}
       <div className="threed-topbar">
         <button
@@ -634,11 +635,10 @@ export default function ThreeDPage({ site: propSite, dataLoading = false, dataEr
             </div>
           )}
         </div>
-        <div className="threed-site-meta">
+        <div className="threed-site-meta" title={`${site.name} · ${LAYOUT_3D_DISPLAY_STATUS_LABELS[displayStatus]}`}>
           <b>{site.name}</b>
           <span className="muted">
-            {PDHES_TYPE_LABELS[site.pdhesType]} · {site.capacityMW.toLocaleString('tr-TR')} MW
-            {' '}· {LAYOUT_3D_DISPLAY_STATUS_LABELS[displayStatus]}{manualFootprints.length > 0 ? ` · ${manualFootprints.length} elle çizim` : ''}
+            {site.capacityMW.toLocaleString('tr-TR')} MW · {LAYOUT_3D_DISPLAY_STATUS_LABELS[displayStatus]}{manualFootprints.length > 0 ? ` · ${manualFootprints.length} elle çizim` : ''}
           </span>
         </div>
         <button
@@ -650,6 +650,15 @@ export default function ThreeDPage({ site: propSite, dataLoading = false, dataEr
           onClick={() => setInfoOpen((open) => !open)}
         >
           <PanelRight size={16} aria-hidden="true" />
+        </button>
+        <button
+          type="button"
+          className="btn ghost threed-focus-toggle"
+          aria-label="Sahneye odaklan"
+          title="Panelleri gizleyerek 3D sahneyi büyüt"
+          onClick={() => { setFocusMode(true); setTreeOpen(false); setInfoOpen(false); setSettingsOpen(false); }}
+        >
+          <Maximize2 size={16} aria-hidden="true" />
         </button>
         <button
           type="button"
@@ -752,6 +761,16 @@ export default function ThreeDPage({ site: propSite, dataLoading = false, dataEr
         {/* ORTA 3D SAHNE */}
         <div className="threed-stage">
           <div className="threed-scene-stage">
+            {focusMode && (
+              <button type="button" className="threed-focus-exit" onClick={() => setFocusMode(false)} aria-label="Odak görünümünden çık">
+                <Minimize2 size={16} aria-hidden="true" /> Normal görünüm
+              </button>
+            )}
+            {unresolvedWaterway.length > 0 && (
+              <button type="button" className="threed-scene-issue" onClick={() => { setFocusMode(false); setInfoOpen(true); setInfoTab('source'); }} title="Su yolu kaynak geometrisindeki açıklıkları göster">
+                <AlertTriangle size={14} aria-hidden="true" /> {unresolvedWaterway.length} açık bağlantı
+              </button>
+            )}
             <ThreeDModel
               siteId={site.id}
               activeComponent={activeComponent}
@@ -793,14 +812,21 @@ export default function ThreeDPage({ site: propSite, dataLoading = false, dataEr
               <X size={15} aria-hidden="true" />
             </button>
           </div>
-          {(footprintWarning || representationalWarning) && (
-            <div style={{ marginBottom: 12 }}>
-              <WarningBanner type="danger" message={combinedWarning} />
-              {footprintWarning && (
-                <button type="button" className="btn ghost" style={{ marginTop: 8 }} onClick={() => setFootprintRetry((v) => v + 1)}>
-                  Geometriyi yeniden yükle
-                </button>
-              )}
+          <div className="threed-brief-status">
+            <span className="threed-source-tag">{displayStatus === 'footprint' ? 'Footprint / temsili kesit' : 'Temsili 3D'}</span>
+            {unresolvedWaterway.length > 0 && <span className="threed-source-tag is-warning">{unresolvedWaterway.length} bağlantı açığı</span>}
+          </div>
+          {(footprintWarning || representationalWarning || waterwayWarning) && (
+            <div className="threed-disclosure" role="alert">
+              <details>
+                <summary>Model ve veri sınırlamaları</summary>
+                <p>{combinedWarning}</p>
+                {footprintWarning && (
+                  <button type="button" className="btn ghost" onClick={() => setFootprintRetry((v) => v + 1)}>
+                    Geometriyi yeniden yükle
+                  </button>
+                )}
+              </details>
             </div>
           )}
           <div className="threed-tabs" role="tablist" aria-label="Bilgi sekmeleri">
@@ -1030,7 +1056,7 @@ export default function ThreeDPage({ site: propSite, dataLoading = false, dataEr
           />
           {isFootprintMode && (
             <p className="muted" style={{ fontSize: 12, margin: '4px 0 8px' }}>
-              Gerçek DEM bağlı değil; zemin footprint sahnesinde temsili yüzey olarak gösterilir.
+              Gerçek DEM bağlı değil. Zemin yarı saydamdır; 0 tamamen görünmez, 100 opaktır.
             </p>
           )}
           <LayerToggle
@@ -1042,7 +1068,7 @@ export default function ThreeDPage({ site: propSite, dataLoading = false, dataEr
           <div style={{ height: 8 }} />
           <h4>Arazi Görünümü</h4>
           <ScenarioSlider
-            label="Arazi Şeffaflığı"
+            label="Arazi görünürlüğü"
             value={terrainOpacity}
             min={0} max={100} step={5} unit="%"
             onChange={setTerrainOpacity}
