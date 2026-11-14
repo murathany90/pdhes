@@ -115,7 +115,8 @@ function formatObservedDate(value: unknown): string {
 export function hesPopupHtml(properties: Record<string, unknown>): string {
   const producer = properties.isProducer === true ? '<span class="hydro-popup-producer">⚡</span>' : '';
   const hasValue = properties.occupancy !== null && properties.occupancy !== undefined;
-  const fullness = hasValue ? `%${Math.round(Number(properties.occupancy))}` : 'Veri yok';
+  const isStale = properties.fullnessStatus === 'stale';
+  const fullness = hasValue ? `%${Math.round(Number(properties.occupancy))}${isStale ? ' (Eski)' : ''}` : 'Veri yok';
   const badge = fullnessBadge({ fullnessPercent: hasValue ? Number(properties.occupancy) : null, status: String(properties.fullnessStatus ?? ''), sourceClass: String(properties.fullnessSourceClass ?? '') });
   const power = properties.installedPowerMw === null || properties.installedPowerMw === undefined ? '—' : `${escapePopup(properties.installedPowerMw)} MW`;
   const observed = formatObservedDate(properties.fullnessObservedAt);
@@ -714,7 +715,7 @@ export function BaseMap() {
         ? [`${props.installedPowerMw ?? '—'} MW · ${String(props.riverName ?? props.displayRiverName ?? 'Akarsu doğrulanamadı')}`, `Doluluk: ${props.occupancy === null || props.occupancy === undefined ? 'Veri yok' : `%${Math.round(Number(props.occupancy))}`}`, `Kaynak: ${shortSourceLabel(props)}`]
           .join('\n')
         : kind === 'river' ? `${props.hasForecast ? 'GEOGLOWS tahmini mevcut' : 'GEOGLOWS tahmini yok'}\nHavza: ${String(props.basinName ?? props.HavzaAdi ?? props.basinId ?? '—')}`
-          : kind === 'dam' ? `${props.occupancy !== null && props.occupancy !== undefined ? `Doluluk: %${Math.round(Number(props.occupancy))}` : 'Doluluk: Veri yok'}${props.isProducer === true ? '\n⚡ Bağlı HES tesisi' : ''}`
+          : kind === 'dam' ? `${props.occupancy !== null && props.occupancy !== undefined ? `Doluluk: %${Math.round(Number(props.occupancy))}${props.fullnessStatus === 'stale' ? ' (Eski)' : ''}` : 'Doluluk: Veri yok'}${props.isProducer === true ? '\n⚡ Bağlı HES tesisi' : ''}`
             : `Alan: ${props.areaKm2 ? `${Number(props.areaKm2).toLocaleString('tr-TR')} km²` : 'özet veri yok'}`;
       popupRef.current?.remove();
       popupRef.current = new maplibregl.Popup({ closeButton: false, closeOnClick: false, offset: 10, className: themeRef.current === 'light' ? 'hydro-tooltip hydro-tooltip-light' : 'hydro-tooltip' })

@@ -21,7 +21,6 @@ export const HesToolbar: React.FC = () => {
   const dataMode = useHydrologyStore((state) => state.dataMode);
   const dataStatus = useHydrologyStore((state) => state.hydroDataStatus);
   const hydroDataError = useHydrologyStore((state) => state.hydroDataError);
-  const lastRefreshAt = useHydrologyStore((state) => state.lastRefreshAt);
   const refreshHydroData = useHydrologyStore((state) => state.refreshHydroData);
   const [basemapMenuOpen, setBasemapMenuOpen] = useState(false);
 
@@ -51,13 +50,18 @@ export const HesToolbar: React.FC = () => {
       notApplicable: sources.filter((source) => source.status === 'not_applicable').length,
       unavailable: sources.filter((source) => source.status === 'unavailable').length,
       applicable: Number(fullnessPayload?.coverage?.applicableCount ?? sources.filter((source) => source.status !== 'not_applicable').length),
-      available: Number(fullnessPayload?.coverage?.availableCount ?? sources.filter((source) => source.status === 'available').length) + Number(fullnessPayload?.coverage?.staleCount ?? sources.filter((source) => source.status === 'stale').length),
+      // Stale observations must never be counted as current/available data.
+      available: Number(fullnessPayload?.coverage?.availableCount ?? sources.filter((source) => source.status === 'available').length),
       latestObservationAt: fullnessPayload?.latestObservationAt ?? sources.map((source) => source.observedAt).filter(Boolean).sort().at(-1) ?? null,
     };
   }, [basins.features.length, dataMode, epias?.records, fullnessPayload, hes177.features, manifest, relations?.cascadeEdges?.length, rivers.features.length]);
 
-  const statusLabel = dataStatus === 'ready' ? 'Veri hazır' : dataStatus === 'loading' ? 'Yükleniyor' : dataStatus === 'partial' ? 'Kısmi veri' : dataStatus === 'failed' ? 'Veri paketi yüklenemedi' : 'Veri bekleniyor';
-  const pipelineRunAt = fullnessPayload?.pipelineRunAt ?? lastRefreshAt;
+  const staleSnapshot = fullnessPayload?.status === 'degraded' || kpis.stale > 0;
+  const statusLabel = dataStatus === 'loading' ? 'Yükleniyor' : dataStatus === 'failed' ? 'Veri paketi yüklenemedi' : staleSnapshot ? 'Eski gözlem' : dataStatus === 'ready' ? 'Veri hazır' : dataStatus === 'partial' ? 'Kısmi veri' : 'Veri bekleniyor';
+  const pipelineRunAt = fullnessPayload?.pipelineRunAt;
+  const observationLabel = kpis.latestObservationAt ? `Son gözlem ${formatDataDate(kpis.latestObservationAt)}` : 'Gözlem yok';
+  const coverageTitle = `Güncel doluluk ${kpis.available}/${kpis.applicable} · Eski ${kpis.stale} · Veri yok ${kpis.unavailable} · Hesaplanan ${kpis.calculated} · EPİAŞ ${kpis.epias} · Uydu ${kpis.satellite} · Uygulanamaz ${kpis.notApplicable}`;
+  const pipelineTitle = [pipelineRunAt ? `Son veri paketi: ${formatDataDate(pipelineRunAt)}` : 'Veri paketi zamanı bilinmiyor', observationLabel, coverageTitle, 'Yenile düğmesi mevcut yayınlanan dosyaları tekrar okur; sağlayıcıdan yeni gözlem üretmez.'].join(' · ');
 
   return (
     <section className="hes-toolbar" aria-label="HES araç çubuğu">
@@ -65,19 +69,19 @@ export const HesToolbar: React.FC = () => {
       <div className="hes-toolbar-title">
         <span className="text-xs font-semibold">HESLER</span>
         <span className="rounded-md bg-cyan-500/10 px-1.5 py-0.5 font-mono text-[9px] font-semibold text-[var(--primary)]">20 MW+</span>
-        <span className="hidden font-mono text-[9px] text-[var(--muted)] sm:inline" title={hydroDataError ?? (pipelineRunAt ? `Pipeline çalışması: ${formatDataDate(pipelineRunAt)}` : undefined)}>{statusLabel}{kpis.latestObservationAt ? ` · Son gözlem ${formatDataDate(kpis.latestObservationAt)}` : ' · Gözlem yok'}</span>
+        <span className="hidden font-mono text-[9px] text-[var(--muted)] sm:inline" title={hydroDataError ?? pipelineTitle}>{statusLabel}{` · ${observationLabel}`}</span>
       </div>
 
       <div className="hydro-kpis">
         <Kpi label="HES" value={kpis.hes.toLocaleString('tr-TR')} />
         <Kpi label="MW" value={Math.round(kpis.power).toLocaleString('tr-TR')} />
-        <Kpi label="Doluluk" value={`${kpis.available}/${kpis.applicable}`} title={`Mevcut ${kpis.available} · Uygulanabilir ${kpis.applicable} · Hesaplanan ${kpis.calculated} · EPİAŞ ${kpis.epias} · Uydu ${kpis.satellite} · Eski ${kpis.stale} · Veri yok ${kpis.unavailable} · Uygulanamaz ${kpis.notApplicable}`} />
+        <Kpi label="Doluluk" value={`${kpis.available}/${kpis.applicable}`} title={coverageTitle} />
         <button type="button" className="hydro-kpi-info" title={`Havza ${kpis.basins} · Akarsu ${kpis.rivers} · Kaskat ${kpis.cascades} · Konumlu ${kpis.located}`} aria-label="Diğer HES göstergeleri"><Info className="h-3.5 w-3.5" /></button>
       </div>
 
       <div className="hes-toolbar-actions">
-        <span className="hydro-status-badge" title={hydroDataError ?? 'Doluluk, kanonik resolver ve mevcut doğrulanmış kaynaklara göre gösterilir'}>{statusLabel}</span>
-        <button type="button" onClick={() => void refreshHydroData()} disabled={dataStatus === 'loading'} className="hidden items-center gap-1.5 rounded-lg border border-cyan-500/35 px-2 py-1.5 text-[10px] font-medium text-[var(--primary)] transition hover:bg-cyan-500/8 disabled:opacity-50 sm:flex"><RefreshCw className={`h-3.5 w-3.5 ${dataStatus === 'loading' ? 'animate-spin' : ''}`} />Yenile</button>
+        <span className="hydro-status-badge" role="status" title={hydroDataError ?? pipelineTitle}>{statusLabel}{staleSnapshot && dataStatus !== 'loading' ? ` · ${kpis.stale} eski` : ''}</span>
+        <button type="button" onClick={() => void refreshHydroData()} title="Yayımlanmış hidroloji dosyalarını yeniden kontrol et; yeni ölçüm oluşturmaz" disabled={dataStatus === 'loading'} className="hidden items-center gap-1.5 rounded-lg border border-cyan-500/35 px-2 py-1.5 text-[10px] font-medium text-[var(--primary)] transition hover:bg-cyan-500/8 disabled:opacity-50 sm:flex"><RefreshCw className={`h-3.5 w-3.5 ${dataStatus === 'loading' ? 'animate-spin' : ''}`} />Yenile</button>
         <div className="hydro-basemap-picker">
           <button type="button" onClick={() => setBasemapMenuOpen((open) => !open)} className="hydro-basemap-button" aria-expanded={basemapMenuOpen} aria-controls="hydro-basemap-menu" title={`Altlık: ${basemapLabels[basemap]}`}><MapIcon className="h-3.5 w-3.5 text-[var(--primary)]" /><span>Altlık</span><ChevronDown className="h-3 w-3" /></button>
           {basemapMenuOpen && <div id="hydro-basemap-menu" className="hydro-basemap-menu" role="group" aria-label="Harita altlığı">{Object.entries(basemapLabels).map(([value, label]) => <button type="button" key={value} aria-pressed={basemap === value} onClick={() => { setBasemap(value as typeof basemap); setBasemapMenuOpen(false); }}>{label}</button>)}</div>}
