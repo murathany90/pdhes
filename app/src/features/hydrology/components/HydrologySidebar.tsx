@@ -65,7 +65,7 @@ function fullnessCell(row: Row): React.ReactNode {
   const described = describeFullness(result);
   const sourceLabel = `${fullnessSourceLabel(result)} · ${hydrologyDisplay(result.method)}`;
   if (row.fullness === null) return <span title={`${described.title} · ${sourceLabel}`}>—</span>;
-  return <span title={`${described.title} · ${sourceLabel}`}>{`%${Math.round(row.fullness)} · ${row.source}`}</span>;
+  return <span title={`${described.title} · ${sourceLabel}`}>{`%${Math.round(row.fullness)} · ${row.source}${result.status === 'stale' ? ' · Eski' : ''}`}</span>;
 }
 
 function hesNameCell(row: Row): React.ReactNode {
@@ -178,7 +178,7 @@ export const Sidebar: React.FC = () => {
     const bySource = currentTab !== 'hes' || fullnessFilter === 'all' ? rows : rows.filter((row) => {
       if (fullnessFilter === 'official') return row.fullnessSourceClass === 'official' || row.fullnessSourceClass === 'official_live' || row.fullnessSourceClass === 'official_published';
       if (fullnessFilter === 'satellite') return row.fullnessSourceClass === 'satellite_altimetry' || row.fullnessSourceClass === 'satellite_area';
-      if (fullnessFilter === 'available') return row.fullnessStatus === 'available' || row.fullnessStatus === 'stale';
+      if (fullnessFilter === 'available') return row.fullnessStatus === 'available';
       return row.fullnessStatus === fullnessFilter || (fullnessFilter === 'calculated' && row.fullnessSourceClass === 'calculated_storage' && row.fullness !== null);
     });
     if (!query) return bySource;
@@ -274,7 +274,7 @@ export const Sidebar: React.FC = () => {
       {selectedRiver && relatedRiverRows.length > 0 && <div className="hydro-related-panel"><div className="hydro-related-heading"><div className="hydro-related-title">İlgili HES tesisleri</div>{selectedRiver.forecast && <button type="button" className={`hydro-related-flow ${timelineOpen ? 'active' : ''}`} onClick={() => setTimelineOpen(!timelineOpen)} aria-expanded={timelineOpen}>Akış tahmini</button>}</div>{relatedRiverRows.slice(0, 4).map((row) => <button key={row.id} onClick={() => selectRow(row)}>⚡ {row.name} · {formatMw(row.power)}</button>)}</div>}
     </div>
     <div className="hydro-list-header">
-      <div className="hydro-list-filter"><span>{currentTab === 'hes' ? `${sortedRows.length.toLocaleString('tr-TR')} HES` : `${sortedRows.length.toLocaleString('tr-TR')} kayıt`}</span>{currentTab === 'hes' && <select value={fullnessFilter} onChange={(event) => setFullnessFilter(event.target.value as typeof fullnessFilter)} aria-label="Doluluk veri filtresi"><option value="all">Tüm doluluk</option><option value="available">Verisi var</option><option value="official">Resmî</option><option value="satellite">Uydu/türetilmiş</option><option value="calculated">Hacim hesabı</option><option value="stale">Eski</option><option value="unavailable">Veri yok</option><option value="not_applicable">Uygulanamaz</option></select>}</div>
+      <div className="hydro-list-filter"><span>{currentTab === 'hes' ? `${sortedRows.length.toLocaleString('tr-TR')} HES` : `${sortedRows.length.toLocaleString('tr-TR')} kayıt`}</span>{currentTab === 'hes' && <select value={fullnessFilter} onChange={(event) => setFullnessFilter(event.target.value as typeof fullnessFilter)} aria-label="Doluluk veri filtresi"><option value="all">Tüm doluluk</option><option value="available">Güncel veri</option><option value="official">Resmî</option><option value="satellite">Uydu/türetilmiş</option><option value="calculated">Hacim hesabı</option><option value="stale">Eski</option><option value="unavailable">Veri yok</option><option value="not_applicable">Uygulanamaz</option></select>}</div>
       <div className={`hydro-column-header ${currentTab === 'hes' ? '' : 'wide-columns'}`} style={{ gridTemplateColumns: gridTemplate }}>{columns.map((column) => <button key={column.key} type="button" onClick={() => onSort(column.key)} className={column.className ?? ''} title={`${column.label} göre sırala`}>{column.label}{sortKey === column.key ? <ArrowUpDown className="ml-0.5 inline h-2.5 w-2.5" /> : null}</button>)}</div>
     </div>
     <div className="hydro-list-scroll">
