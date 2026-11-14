@@ -2194,7 +2194,7 @@ function RepresentativeFootprintTerrain({ opacity, theme, quality, size }: { opa
   const dark = theme === 'dark';
   // Büyük rezervuarlarda düşük kalitede sadeleştirilmiş görüntüleme
   // geometrisi; kaynak footprint halkaları değişmez.
-  const segments = quality === 'low' ? 20 : 32;
+  const segments = quality === 'low' ? 24 : quality === 'high' ? 64 : 48;
   const geometry = useMemo(() => {
     const terrain = new THREE.PlaneGeometry(size, size, segments, segments);
     terrain.rotateX(-Math.PI / 2);
@@ -2244,7 +2244,7 @@ function RepresentativeFootprintTerrain({ opacity, theme, quality, size }: { opa
           opacity={normalizedOpacity * 0.82}
           roughness={0.96}
           metalness={0}
-          flatShading
+          side={THREE.DoubleSide}
         />
       </mesh>
       {guides.map((offset) => (
@@ -2813,6 +2813,7 @@ class ThreeDCanvasBoundary extends Component<{ children: React.ReactNode }, { er
 export default function ThreeDModel(props: ThreeDModelProps) {
   const theme = useSettingsStore(state => state.theme);
   const [webglContextLost, setWebglContextLost] = useState(false);
+  const [rendererAttempt, setRendererAttempt] = useState(0);
   const [cameraRequest, setCameraRequest] = useState<{ revision: number; selected: boolean; view?: CameraViewId; itemId?: string }>({ revision: 0, selected: false, view: 'site' });
   
   return (
@@ -2833,15 +2834,19 @@ export default function ThreeDModel(props: ThreeDModelProps) {
       </div>
       {webglContextLost && (
         <div role="alert" style={{ position: 'absolute', zIndex: 2, top: 16, left: 16, right: 16, padding: 12, borderRadius: 8, color: '#fff', background: 'rgba(153, 27, 27, 0.94)' }}>
-          WebGL görüntü bağlamı kaybedildi. Tarayıcı bağlamı geri yüklemeye çalışıyor; sorun sürerse sayfayı yenileyin.
+          WebGL görüntü bağlamı kaybedildi. Bağlam geri gelmezse 3D sahnesini yeniden başlatın.
+          <button type="button" className="btn ghost" style={{ marginLeft: 12, background: '#fff', color: '#7f1d1d' }}
+            onClick={() => { setWebglContextLost(false); setRendererAttempt((value) => value + 1); }}>
+            3D sahnesini yeniden başlat
+          </button>
         </div>
       )}
-      <ThreeDCanvasBoundary>
+      <ThreeDCanvasBoundary key={rendererAttempt}>
       <Canvas
         shadows="basic"
         dpr={[1, 1.5]}
         frameloop={props.isPlaying ? 'always' : 'demand'}
-        gl={{ antialias: false, powerPreference: 'high-performance' }}
+        gl={{ antialias: true, powerPreference: 'high-performance', alpha: false }}
         camera={{ position: [150, 120, 180], fov: 45, far: 30000 }}
         fallback={<div role="alert" style={{ padding: 24, color: '#f8fafc' }}>WebGL başlatılamadı. 3D görünüm bu tarayıcıda kullanılamıyor.</div>}
       >
