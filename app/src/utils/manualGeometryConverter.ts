@@ -26,14 +26,16 @@ const MATERIAL_OVERRIDES: Partial<Record<ManualFeatureType, Layout3DMaterial>> =
 
 export function manualGeometryToFootprints(features: ManualGeometryFeature[]): Layout3DFootprint[] {
   return features.flatMap((feature, index) => {
-    const type = feature.properties?.featureType;
+    const props = feature.properties;
+    const geometry = feature.geometry;
+    if (!props || !geometry) return [];
+    const type = props.featureType;
     const component = COMPONENT_BY_FEATURE_TYPE[type];
     // Distances, point markers and unknown roles are not surveyed 3D areas or
     // routes. Do not invent a footprint around a point or a measurement line.
-    if (!component || feature.geometry?.type === 'Point') return [];
+    if (!component || geometry.type === 'Point') return [];
 
-    const material = MATERIAL_OVERRIDES[type] ?? feature.properties.material;
-    const geometry = feature.geometry;
+    const material = MATERIAL_OVERRIDES[type] ?? props.material;
     const parts: number[][][] = geometry.type === 'Polygon'
       ? [geometry.coordinates[0]]
       : geometry.type === 'LineString'
@@ -52,8 +54,8 @@ export function manualGeometryToFootprints(features: ManualGeometryFeature[]): L
         kind,
         material: material as Layout3DMaterial,
         coords: part.map((point) => [point[0], point[1]] as [number, number]),
-        baseElevationM: feature.properties.minElevationM,
-        topElevationM: feature.properties.maxElevationM,
+        baseElevationM: props.minElevationM,
+        topElevationM: props.maxElevationM,
       };
       return isValidLayout3DFootprint(footprint) ? [footprint] : [];
     });
