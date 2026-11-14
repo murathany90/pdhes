@@ -62,17 +62,24 @@ try {
   await page.locator('.threed-scene-stage canvas').waitFor({ state: 'visible', timeout: 45000 });
   await page.waitForTimeout(4500);
   const initial = await capture('first-open');
+  // Reproduce the viewport dimensions supplied in the user's screenshots.
+  await page.setViewportSize({ width: 1815, height: 824 });
+  await page.waitForTimeout(1400);
+  const userViewport = await capture('first-open-1815x824');
   await page.getByRole('button', { name: 'Santral', exact: true }).click();
   await page.waitForTimeout(1200);
   const clicked = await capture('camera-plant');
   const loss = await page.getByText(/WebGL görüntü bağlamı kaybedildi/).count();
-  metrics = { initial, clicked, contextLostWarnings: loss, consoleMessages: events };
+  metrics = { initial, userViewport, clicked, contextLostWarnings: loss, consoleMessages: events };
   await fs.writeFile(path.join(output, 'metrics.json'), JSON.stringify(metrics, null, 2));
   console.log('VISUAL_METRICS ' + JSON.stringify(metrics));
 
   if (loss > 0) throw Error('WebGL context was lost during the visual smoke test');
-  if (initial.paletteBins < 12 || initial.coloredFraction < 0.001) {
-    throw Error('Initial 3D canvas is effectively blank: ' + JSON.stringify(initial));
+  if (initial.paletteBins < 12 || initial.coloredFraction < 0.025) {
+    throw Error('Initial 3D subject occupies too little canvas or is blank: ' + JSON.stringify(initial));
+  }
+  if (userViewport.paletteBins < 12 || userViewport.coloredFraction < 0.025) {
+    throw Error('3D subject is too small or blank at actual 1815x824 user viewport: ' + JSON.stringify(userViewport));
   }
   if (clicked.paletteBins < 12 || clicked.coloredFraction < 0.001) {
     throw Error('3D canvas is blank after camera preset: ' + JSON.stringify(clicked));
