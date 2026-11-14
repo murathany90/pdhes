@@ -75,10 +75,10 @@ try {
   console.log('VISUAL_METRICS ' + JSON.stringify(metrics));
 
   if (loss > 0) throw Error('WebGL context was lost during the visual smoke test');
-  if (initial.paletteBins < 12 || initial.coloredFraction < 0.025) {
+  if (initial.paletteBins < 12 || initial.coloredFraction < 0.045) {
     throw Error('Initial 3D subject occupies too little canvas or is blank: ' + JSON.stringify(initial));
   }
-  if (userViewport.paletteBins < 12 || userViewport.coloredFraction < 0.025) {
+  if (userViewport.paletteBins < 12 || userViewport.coloredFraction < 0.045) {
     throw Error('3D subject is too small or blank at actual 1815x824 user viewport: ' + JSON.stringify(userViewport));
   }
   if (clicked.paletteBins < 12 || clicked.coloredFraction < 0.001) {
