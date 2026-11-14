@@ -1,28 +1,69 @@
-import type { ManualGeometryFeature } from '../types/manualGeometry';
-import type { Layout3DFootprint, Site } from '../types/site';
+import type { ManualGeometryFeature, ManualFeatureType } from '../types/manualGeometry';
+import type { Layout3DFootprint, Layout3DMaterial, Site } from '../types/site';
+import { isValidLayout3DFootprint } from './layout3dFootprints';
+
+// Manual-map feature roles use camelCase names that the 3D renderer does
+// not recognize. Translate them to the canonical footprint component keys.
+const COMPONENT_BY_FEATURE_TYPE: Partial<Record<ManualFeatureType, string>> = {
+  existing_dam_embankment: 'lower_reservoir',
+  lower_reservoir: 'lower_reservoir',
+  sea_boundary: 'lower_reservoir',
+  upper_reservoir: 'upper_reservoir',
+  upper_reservoir_embankment: 'upper_reservoir',
+  powerhouse: 'powerhouse',
+  existing_switchyard: 'existing_switchyard',
+  new_switchyard: 'new_switchyard',
+  penstock_tunnel_axis: 'penstock',
+  intake_structure: 'intake',
+  tailrace_outfall: 'tailrace_channel',
+  surge_tank: 'surge_tank',
+  service_drainage_portal: 'portal',
+};
+
+const MATERIAL_OVERRIDES: Partial<Record<ManualFeatureType, Layout3DMaterial>> = {
+  penstock_tunnel_axis: 'tunnel_axis',
+};
+
+export function manualGeometryToFootprints(features: ManualGeometryFeature[]): Layout3DFootprint[] {
+  return features.flatMap((feature, index) => {
+    const type = feature.properties?.featureType;
+    const component = COMPONENT_BY_FEATURE_TYPE[type];
+    // Distances, point markers and unknown roles are not surveyed 3D areas or
+    // routes. Do not invent a footprint around a point or a measurement line.
+    if (!component || feature.geometry?.type === 'Point') return [];
+
+    const material = MATERIAL_OVERRIDES[type] ?? feature.properties.material;
+    const geometry = feature.geometry;
+    const parts: number[][][] = geometry.type === 'Polygon'
+      ? [geometry.coordinates[0]]
+      : geometry.type === 'LineString'
+        ? [geometry.coordinates]
+        : geometry.type === 'MultiLineString'
+          ? geometry.coordinates
+          : [];
+    const kind = geometry.type === 'Polygon' ? 'polygon' as const : 'polyline' as const;
+    const baseId = feature.id === undefined || feature.id === null
+      ? `manual-${type}-${index + 1}` : String(feature.id);
+
+    return parts.flatMap((part, partIndex) => {
+      const footprint: Layout3DFootprint = {
+        id: parts.length === 1 ? baseId : `${baseId}-part-${partIndex + 1}`,
+        component,
+        kind,
+        material: material as Layout3DMaterial,
+        coords: part.map((point) => [point[0], point[1]] as [number, number]),
+        baseElevationM: feature.properties.minElevationM,
+        topElevationM: feature.properties.maxElevationM,
+      };
+      return isValidLayout3DFootprint(footprint) ? [footprint] : [];
+    });
+  });
+}
 
 export function overrideSiteWithManualGeometries(site: Site, features: ManualGeometryFeature[]): Site {
-  if (!features || features.length === 0) return site;
-
-  // Convert manual features to Layout3DFootprint format
-  const manualFootprints: Layout3DFootprint[] = features.map(feature => {
-    // Only polygon coordinates are strictly matched to the footprint format right now
-    // But we can pass linestrings by just taking their coordinates array
-    const isPolygon = feature.geometry.type === 'Polygon';
-    const coords = isPolygon 
-      ? (feature.geometry as any).coordinates[0] 
-      : (feature.geometry as any).coordinates;
-
-    return {
-      id: feature.id as string || Date.now().toString(36) + Math.random().toString(36).substring(2),
-      component: feature.properties.role, // role acts as the component key in ThreeDModel
-      kind: isPolygon ? 'polygon' : 'polyline',
-      material: feature.properties.material as any,
-      coords: coords as [number, number][],
-      baseElevationM: feature.properties.minElevationM,
-      topElevationM: feature.properties.maxElevationM,
-    };
-  });
+  if (!features?.length) return site;
+  const manualFootprints = manualGeometryToFootprints(features);
+  if (manualFootprints.length === 0) return site;
 
   const baseLayout = site.layout3D || {
     scale: 'macro',
@@ -39,14 +80,10 @@ export function overrideSiteWithManualGeometries(site: Site, features: ManualGeo
     layout3D: {
       ...baseLayout,
       useFootprintPolygons: true,
-      // The manual footprints override default footprints, but we can also hide legacy reservoirs
-      hideLegacySquareReservoir: baseLayout.hideLegacySquareReservoir || manualFootprints.some(f => 
-        f.component === 'upperReservoirWater' || f.component === 'lowerReservoirWater'
-      ),
       componentFootprints: [
         ...(baseLayout.componentFootprints || []),
-        ...manualFootprints
-      ]
-    }
+        ...manualFootprints,
+      ],
+    },
   };
 }
