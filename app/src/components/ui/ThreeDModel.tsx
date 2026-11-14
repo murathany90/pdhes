@@ -34,7 +34,7 @@ import {
 import { footprintItemLabel } from '../../utils/layout3dLabels';
 import { useManualGeometryStore } from '../../stores/useManualGeometryStore';
 import { overrideSiteWithManualGeometries } from '../../utils/manualGeometryConverter';
-import { createFootprintPolygonGeometry, footprintRing, generationWaterwayPoints, representativeWaterwayLinks, reservoirSurfaceOffset } from '../../utils/layout3dGeometry';
+import { createFootprintPolygonGeometry, footprintRing, footprintTerrainSize, generationWaterwayPoints, representativeWaterwayLinks, reservoirSurfaceOffset } from '../../utils/layout3dGeometry';
 import { useShallow } from 'zustand/react/shallow';
 
 
@@ -2165,14 +2165,14 @@ function CameraTarget({ frame, controlsRef, userInteractedRef, tweenRef }: {
   return null;
 }
 
-function RepresentativeFootprintTerrain({ opacity, theme, quality }: { opacity: number; theme?: string; quality?: SimulationQuality }) {
+function RepresentativeFootprintTerrain({ opacity, theme, quality, size }: { opacity: number; theme?: string; quality?: SimulationQuality; size: number }) {
   const normalizedOpacity = normalizeTerrainOpacity(opacity);
   const dark = theme === 'dark';
   // Büyük rezervuarlarda düşük kalitede sadeleştirilmiş görüntüleme
   // geometrisi; kaynak footprint halkaları değişmez.
   const segments = quality === 'low' ? 20 : 32;
   const geometry = useMemo(() => {
-    const terrain = new THREE.PlaneGeometry(1000, 1000, segments, segments);
+    const terrain = new THREE.PlaneGeometry(size, size, segments, segments);
     terrain.rotateX(-Math.PI / 2);
     const positions = terrain.attributes.position as THREE.BufferAttribute;
     let minY = Infinity;
@@ -2202,13 +2202,13 @@ function RepresentativeFootprintTerrain({ opacity, theme, quality }: { opacity: 
     positions.needsUpdate = true;
     terrain.computeVertexNormals();
     return terrain;
-  }, [dark, segments]);
+  }, [dark, segments, size]);
 
   useEffect(() => () => geometry.dispose(), [geometry]);
 
   const gridColor = dark ? '#2dd4bf' : '#346b5e';
   const gridOpacity = dark ? 0.14 : 0.18;
-  const guides = [-360, -240, -120, 0, 120, 240, 360];
+  const guides = [-3, -2, -1, 0, 1, 2, 3].map((step) => step * size / 8);
 
   return (
     <group>
@@ -2225,7 +2225,7 @@ function RepresentativeFootprintTerrain({ opacity, theme, quality }: { opacity: 
       {guides.map((offset) => (
         <Line
           key={`terrain-x-${offset}`}
-          points={[[-420, -1.2, offset], [420, -1.2, offset]]}
+          points={[[ -size / 2, -1.2, offset], [size / 2, -1.2, offset]]}
           color={gridColor}
           lineWidth={0.35}
           transparent
@@ -2235,7 +2235,7 @@ function RepresentativeFootprintTerrain({ opacity, theme, quality }: { opacity: 
       {guides.map((offset) => (
         <Line
           key={`terrain-z-${offset}`}
-          points={[[offset, -1.15, -420], [offset, -1.15, 420]]}
+          points={[[offset, -1.15, -size / 2], [offset, -1.15, size / 2]]}
           color={gridColor}
           lineWidth={0.28}
           transparent
@@ -2420,11 +2420,16 @@ function Scene({
           key: `${site.id}:${revision}:repr-view:${view}`,
         };
       }
-      return { target: [0, 20, 0], horizontalSpan: 120, verticalSpan: 40, depthSpan: 120, key: `${site.id}:fallback:${revision}` };
+      return frameFromPoints(
+        [upperPos, surgeTankPos, powerhousePos, lowerPos, switchyardPos, portalUpperPos, portalLowerPos,
+          new THREE.Vector3(170, getTerrainHeight(170, -35, isPresenzano), -35)],
+        'representative-site',
+      ) ?? { target: [0, 20, 0], horizontalSpan: 120, verticalSpan: 40, depthSpan: 120, key: `${site.id}:fallback:${revision}` };
     }
     return { target: [0, 20, 0], horizontalSpan: 120, verticalSpan: 40, depthSpan: 120, key: `${site.id}:fallback:${revision}` };
-  }, [footprintPlan, site.id, cameraRequest, activeComponent, upperPos, surgeTankPos, powerhousePos, lowerPos, switchyardPos]);
+  }, [footprintPlan, site.id, cameraRequest, activeComponent, upperPos, surgeTankPos, powerhousePos, lowerPos, switchyardPos, portalUpperPos, portalLowerPos, isPresenzano]);
   const fogSpan = Math.max(cameraFrame.horizontalSpan, cameraFrame.verticalSpan, cameraFrame.depthSpan);
+  const footprintGroundSize = useMemo(() => footprintTerrainSize(footprintPlan.items), [footprintPlan.items]);
   const fogNear = Math.max(600, fogSpan * 3);
   const fogFar = Math.max(fogNear + 1000, fogSpan * 10);
   const controlsRef = useRef<OrbitControlsImpl | null>(null);
@@ -2502,7 +2507,7 @@ function Scene({
       {showTerrain && terrainAlpha > 0 && !footprintPlan.enabled && <InstancedEnvironment assets={environmentAssets} opacity={terrainAlpha} />}
 
       {showTerrain && footprintPlan.enabled && (
-        <RepresentativeFootprintTerrain opacity={terrainAlpha} theme={theme} quality={quality} />
+        <RepresentativeFootprintTerrain opacity={terrainAlpha} theme={theme} quality={quality} size={footprintGroundSize} />
       )}
 
       {footprintPlan.enabled && (

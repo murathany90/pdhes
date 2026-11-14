@@ -17,7 +17,7 @@ import { FLOW_VISUAL, resolveSceneQuality } from '../utils/layout3dVisual';
 import { componentDescription, componentLabel, footprintItemDetailLabel, footprintItemLabel } from '../utils/layout3dLabels';
 import { useLayout3DSnapshot } from '../hooks/useLayout3DSnapshot';
 import { useManualGeometryStore } from '../stores/useManualGeometryStore';
-import { overrideSiteWithManualGeometries } from '../utils/manualGeometryConverter';
+import { manualGeometryToFootprints, overrideSiteWithManualGeometries } from '../utils/manualGeometryConverter';
 import { useShallow } from 'zustand/react/shallow';
 import {
   advanceReservoirSoc,
@@ -275,6 +275,11 @@ export default function ThreeDPage({ site: propSite, dataLoading = false, dataEr
   // Telemetri ile sahne aynı anlık görüntüyü kullanır: girdi her iki
   // tarafta da manuel geometri override'lı efektif tesistir.
   const manualFeatures = useManualGeometryStore(useShallow((state) => state.getFeaturesForSite(site?.id ?? '')));
+  const manualFootprints = useMemo(() => manualGeometryToFootprints(manualFeatures), [manualFeatures]);
+  const ignoredManualCount = useMemo(
+    () => manualFeatures.filter((feature) => manualGeometryToFootprints([feature]).length === 0).length,
+    [manualFeatures],
+  );
   const siteWithFootprints = useMemo(() => {
     if (!site) return undefined;
     const footprints = footprintLoad.siteId === site.id ? footprintLoad.footprints : [];
@@ -452,17 +457,20 @@ export default function ThreeDPage({ site: propSite, dataLoading = false, dataEr
   const detail = componentsDetail ?? buildComponentsDetail(site);
   // Aşama 2'de UI bu durumu doğrudan kullanabilir: footprint / yükleniyor /
   // temsili / yüklenemeyen-geometri-geri-dönüşü.
-  const displayStatus = resolveLayout3DDisplayStatus({
+  const sourceDisplayStatus = resolveLayout3DDisplayStatus({
     useFootprintPolygons: site.layout3D?.useFootprintPolygons,
     loadStatus: footprintLoad.siteId === site.id ? footprintLoad.status : 'loading',
     hasFootprints: (footprintLoad.siteId === site.id ? footprintLoad.footprints : []).length > 0,
   });
-  const footprintWarning = displayStatus === 'fallback'
+  // Manual drawing geometries can form a real footprint-mode scene even
+  // when the original site has no remote footprint file.
+  const displayStatus = manualFootprints.length > 0 && footprintPlan.enabled ? 'footprint' : sourceDisplayStatus;
+  const footprintWarning = sourceDisplayStatus === 'fallback'
     ? `Footprint verisi yüklenemedi; temsili model gösteriliyor (${footprintLoad.status}). Doğrulanmış yerleşim gibi değerlendirme.`
     : '';
   const representationalWarning = `Kaynak footprint koordinatları korunur; ekipman kesitleri, bağlantılar ve su seviyesi hareketi temsilidir. Koordinat güveni: ${COORDINATE_CONFIDENCE_LABELS[site.coordinates.coordinateConfidence]}. DEM ve kot–hacim eğrisi bağlı değildir.`;
   const combinedWarning = [footprintWarning, representationalWarning].filter(Boolean).join(' ');
-  const isFootprintMode = Boolean(site.layout3D?.useFootprintPolygons);
+  const isFootprintMode = footprintPlan.enabled;
   const terrainLabel = 'Temsili arazi';
   const selectedComponent = COMPONENTS.find(c => c.key === activeComponent);
   const toggleUnit = (id: string) => {
@@ -619,7 +627,7 @@ export default function ThreeDPage({ site: propSite, dataLoading = false, dataEr
           <b>{site.name}</b>
           <span className="muted">
             {PDHES_TYPE_LABELS[site.pdhesType]} · {site.capacityMW.toLocaleString('tr-TR')} MW
-            {' '}· {LAYOUT_3D_DISPLAY_STATUS_LABELS[displayStatus]}
+            {' '}· {LAYOUT_3D_DISPLAY_STATUS_LABELS[displayStatus]}{manualFootprints.length > 0 ? ` · ${manualFootprints.length} elle çizim` : ''}
           </span>
         </div>
         <button
@@ -878,6 +886,12 @@ export default function ThreeDPage({ site: propSite, dataLoading = false, dataEr
                 </div>
               ) : (
                 <p className="muted" style={{ fontSize: 13, marginBottom: 12 }}>Tekil footprint kaydı seçilmedi; katman görünümü aktif.</p>
+              )}
+              {manualFeatures.length > 0 && (
+                <p className="threed-data-note">
+                  Elle çizilen nesneler: {manualFootprints.length} geçerli 3D footprint.
+                  {ignoredManualCount > 0 ? ` ${ignoredManualCount} ölçüm/nokta veya geçersiz nesne 3D sahnede gösterilmez; harita düzenleyicisindeki kaynak kaydı korunur.` : ''}
+                </p>
               )}
               <p className="threed-data-note">
                 Koordinat güveni: {COORDINATE_CONFIDENCE_LABELS[site.coordinates.coordinateConfidence]} (yerleşim kaynağından ayrı değerlendirilir).

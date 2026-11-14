@@ -60,3 +60,16 @@ export function representativeWaterwayLinks(items: Layout3DProjectedFootprint[])
   }
   return links.filter(({ points: [a, b] }) => a && b && Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]) > 0.2);
 }
+
+/** Keep the representative terrain underneath the entire georeferenced
+ * footprint plan, including long intake/tailrace routes. Scene units only:
+ * this plane is not surveyed DEM. */
+export function footprintTerrainSize(items: Layout3DProjectedFootprint[]): number {
+  const maxRadius = items.flatMap((item) => item.points)
+    .reduce((radius, point) => (
+      Number.isFinite(point.x) && Number.isFinite(point.z)
+        ? Math.max(radius, Math.abs(point.x), Math.abs(point.z))
+        : radius
+    ), 0);
+  return Math.ceil(Math.max(1000, (maxRadius + 100) * 2) / 100) * 100;
+}
