@@ -34,7 +34,7 @@ import {
 import { footprintItemLabel } from '../../utils/layout3dLabels';
 import { useManualGeometryStore } from '../../stores/useManualGeometryStore';
 import { overrideSiteWithManualGeometries } from '../../utils/manualGeometryConverter';
-import { createFootprintPolygonGeometry, footprintRing, footprintSurfacePositionOffset, footprintTerrainSize, generationWaterwayPoints, representativeWaterwayLinks, reservoirSurfaceOffset } from '../../utils/layout3dGeometry';
+import { createFootprintPolygonGeometry, footprintRing, footprintSurfacePositionOffset, footprintTerrainSize, generationWaterwayPoints, representativeWaterwayLinks, reservoirSurfaceOffset, schematicTerrainGuide, schematicTerrainHeight } from '../../utils/layout3dGeometry';
 import { useShallow } from 'zustand/react/shallow';
 
 
@@ -2191,12 +2191,13 @@ function CameraTarget({ frame, controlsRef, userInteractedRef, tweenRef }: {
   return null;
 }
 
-function RepresentativeFootprintTerrain({ opacity, theme, quality, size }: { opacity: number; theme?: string; quality?: SimulationQuality; size: number }) {
+function RepresentativeFootprintTerrain({ opacity, theme, quality, size, items }: { opacity: number; theme?: string; quality?: SimulationQuality; size: number; items: Layout3DProjectedFootprint[] }) {
   const normalizedOpacity = normalizeTerrainOpacity(opacity);
   const dark = theme === 'dark';
   // Büyük rezervuarlarda düşük kalitede sadeleştirilmiş görüntüleme
   // geometrisi; kaynak footprint halkaları değişmez.
-  const segments = quality === 'low' ? 24 : quality === 'high' ? 64 : 48;
+  const segments = quality === 'low' ? 32 : quality === 'high' ? 96 : 64;
+  const elevationGuide = useMemo(() => schematicTerrainGuide(items), [items]);
   const geometry = useMemo(() => {
     const terrain = new THREE.PlaneGeometry(size, size, segments, segments);
     terrain.rotateX(-Math.PI / 2);
@@ -2206,9 +2207,7 @@ function RepresentativeFootprintTerrain({ opacity, theme, quality, size }: { opa
     for (let index = 0; index < positions.count; index += 1) {
       const x = positions.getX(index);
       const z = positions.getZ(index);
-      const ridge = Math.sin(x / 130) * 5.5 + Math.cos(z / 160) * 4;
-      const basin = -8 * Math.exp(-(x * x + (z - 60) * (z - 60)) / 160000);
-      const y = -6 + ridge + basin;
+      const y = schematicTerrainHeight(x, z, elevationGuide);
       positions.setY(index, y);
       if (y < minY) minY = y;
       if (y > maxY) maxY = y;
@@ -2228,7 +2227,7 @@ function RepresentativeFootprintTerrain({ opacity, theme, quality, size }: { opa
     positions.needsUpdate = true;
     terrain.computeVertexNormals();
     return terrain;
-  }, [dark, segments, size]);
+  }, [dark, segments, size, elevationGuide]);
 
   useEffect(() => () => geometry.dispose(), [geometry]);
 
@@ -2566,7 +2565,7 @@ function Scene({
       {showTerrain && terrainAlpha > 0 && !footprintPlan.enabled && <InstancedEnvironment assets={environmentAssets} opacity={terrainAlpha} />}
 
       {showTerrain && footprintPlan.enabled && (
-        <RepresentativeFootprintTerrain opacity={terrainAlpha} theme={theme} quality={quality} size={footprintGroundSize} />
+        <RepresentativeFootprintTerrain opacity={terrainAlpha} theme={theme} quality={quality} size={footprintGroundSize} items={footprintPlan.items} />
       )}
 
       {footprintPlan.enabled && (
