@@ -3,7 +3,7 @@ import * as THREE from 'three';
 import { readFileSync } from 'node:fs';
 import { makeTestSite } from '../test-utils/makeTestSite';
 import { buildLayout3DFootprintPlan, isFootprintLayerVisible } from './layout3dFootprints';
-import { createFootprintPolygonGeometry, generationWaterwayPoints, reservoirSurfaceOffset } from './layout3dGeometry';
+import { auditWaterwayConnections, createFootprintPolygonGeometry, footprintSurfacePositionOffset, generationWaterwayPoints, representativeWaterwayLinks, reservoirSurfaceOffset } from './layout3dGeometry';
 
 describe('source footprint rendering', () => {
   it.each(['kamu-gokcekaya-pspp', 'kamu-sariyar-pspp'])('keeps %s coordinates and exposes the water through the embankment', (id) => {
@@ -37,5 +37,43 @@ describe('source footprint rendering', () => {
     expect(item.points[0].y).toBe(0);
     expect(isFootprintLayerVisible(item, { tunnel: false, penstock: true })).toBe(false);
     expect(isFootprintLayerVisible({ component: 'tailrace_channel' }, { tailrace: false })).toBe(false);
+  });
+});
+
+describe('reference site hydraulic source continuity', () => {
+  const load = (id) => {
+    const footprints = JSON.parse(readFileSync(new URL(`../../public/footprints/${id}.json`, import.meta.url), 'utf8'));
+    const site = makeTestSite({ layout3D: { scale: 'macro', preferredBearing: 0, terrainExaggeration: 1, reservoirSurfaceMode: 'polygon', useFootprintPolygons: true, hideLegacySquareReservoir: true, componentFootprints: footprints } });
+    return { footprints, plan: buildLayout3DFootprintPlan(site) };
+  };
+
+  it('does not disguise the two broken Gökçekaya penstock branches as connected surveyed tunnels', () => {
+    const { footprints, plan } = load('kamu-gokcekaya-pspp');
+    const before = JSON.stringify(footprints);
+    const audit = auditWaterwayConnections(plan.items);
+    const broken = audit.filter((row) => row.status === 'disconnected');
+    expect(audit).toHaveLength(8);
+    expect(broken.map((row) => [row.penstockId, row.side])).toEqual([
+      ['penstock03', 'inlet'], ['penstock03', 'outlet'],
+      ['penstock04', 'inlet'], ['penstock04', 'outlet'],
+    ]);
+    expect(broken.every((row) => row.gapMeters > 80)).toBe(true);
+    const guides = representativeWaterwayLinks(plan.items);
+    expect(guides.map((link) => link.id)).toEqual(['penstock01-outlet', 'penstock02-outlet']);
+    expect(JSON.stringify(footprints)).toBe(before);
+  });
+
+  it('does not add fake schematic connectors to the joined Sarıyar line', () => {
+    const { plan } = load('kamu-sariyar-pspp');
+    const audit = auditWaterwayConnections(plan.items);
+    expect(audit).toHaveLength(2);
+    expect(audit.every((row) => row.status === 'connected')).toBe(true);
+    expect(representativeWaterwayLinks(plan.items)).toEqual([]);
+  });
+
+  it('never moves dam embankments or powerhouse footprints with simulated SOC', () => {
+    expect(footprintSurfacePositionOffset('embankment', 0.1)).toBe(0);
+    expect(footprintSurfacePositionOffset('industrial', 0.9)).toBe(0);
+    expect(footprintSurfacePositionOffset('water', 0.1)).toBeLessThan(footprintSurfacePositionOffset('water', 0.9));
   });
 });
