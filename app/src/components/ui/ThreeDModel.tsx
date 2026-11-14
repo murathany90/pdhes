@@ -34,7 +34,7 @@ import {
 import { footprintItemLabel } from '../../utils/layout3dLabels';
 import { useManualGeometryStore } from '../../stores/useManualGeometryStore';
 import { overrideSiteWithManualGeometries } from '../../utils/manualGeometryConverter';
-import { createFootprintPolygonGeometry, footprintRing, footprintTerrainSize, generationWaterwayPoints, representativeWaterwayLinks, reservoirSurfaceOffset } from '../../utils/layout3dGeometry';
+import { createFootprintPolygonGeometry, footprintRing, footprintSurfacePositionOffset, footprintTerrainSize, generationWaterwayPoints, representativeWaterwayLinks, reservoirSurfaceOffset } from '../../utils/layout3dGeometry';
 import { useShallow } from 'zustand/react/shallow';
 
 
@@ -1407,7 +1407,7 @@ const FootprintPolygon = memo(function FootprintPolygon({ item, layerKey, active
       if (onSelectItem) onSelectItem(layerKey, item.id);
       else onSelectComponent(layerKey);
     }}>
-      <mesh ref={meshRef} geometry={geometry} position={[0, reservoirSurfaceOffset(soc ?? 1), 0]} castShadow={!isWater} receiveShadow>
+      <mesh ref={meshRef} geometry={geometry} position={[0, footprintSurfacePositionOffset(item.material, soc ?? 1), 0]} castShadow={!isWater} receiveShadow>
         <meshStandardMaterial
           color={color}
           transparent={isWater}
