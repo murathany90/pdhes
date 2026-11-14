@@ -173,14 +173,15 @@ function RealisticTerrain({ opacity, isPresenzano }: { opacity: number; isPresen
 
   return (
     <group rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]}>
-      <mesh ref={mesh} geometry={geometry} receiveShadow><meshStandardMaterial vertexColors roughness={0.85} metalness={0.1} flatShading transparent opacity={normalizedOpacity} /></mesh>
+      <mesh ref={mesh} geometry={geometry} receiveShadow={false} renderOrder={-20}><meshStandardMaterial vertexColors roughness={0.85} metalness={0.1} flatShading transparent depthWrite={false} opacity={normalizedOpacity} /></mesh>
       {/* Topographic grid overlay to make the 3D surface obvious */}
       <mesh geometry={geometry}>
         <meshBasicMaterial 
           color="#000000" 
           wireframe 
-          transparent 
-          opacity={0.06} 
+          transparent
+          depthWrite={false}
+          opacity={normalizedOpacity * 0.1} 
         />
       </mesh>
     </group>
