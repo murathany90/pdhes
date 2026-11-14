@@ -47,18 +47,90 @@ export function generationWaterwayPoints(item: Layout3DProjectedFootprint, plan:
   return Math.hypot(first[0] - x, first[2] - z) > Math.hypot(last[0] - x, last[2] - z) ? points.reverse() : points;
 }
 
-/** Diagram connectors between existing route ends. Never edits a source ring
- * or asserts an engineering alignment for the intervening gap. */
-export function representativeWaterwayLinks(items: Layout3DProjectedFootprint[]) {
-  const headrace = items.find((item) => ['headrace_tunnel', 'pressure_tunnel'].includes(item.component));
-  const tailrace = items.find((item) => item.component.startsWith('tailrace') && item.kind === 'polyline');
-  const links: { id: string; from: Layout3DProjectedFootprint; to: Layout3DProjectedFootprint; points: [number, number, number][] }[] = [];
+/**
+ * The source geometry remains immutable. A short dashed connector may help
+ * visualize small schematic endpoint gaps; large gaps must remain visibly
+ * disconnected until a surveyed branch or junction geometry is supplied.
+ *
+ * Projected X/Z coordinates use 0.11 scene units per meter. Y uses the same
+ * scale when terrain exaggeration is 1. Values are approximate scene-distance
+ * diagnostics, NOT a surveyed as-built pipeline length.
+ */
+export const WATERWAY_SCENE_UNITS_PER_METER = 0.11;
+export const WATERWAY_MAX_SCHEMATIC_GAP_METERS = 25;
+
+export interface WaterwayConnectionAudit {
+  penstockId: string;
+  side: 'inlet' | 'outlet';
+  adjacentId: string | null;
+  gapMeters: number | null;
+  status: 'connected' | 'schematic-gap' | 'disconnected' | 'missing-reference';
+  /** Only these two unmodified source endpoint positions can be bridged. */
+  points: [[number, number, number], [number, number, number]] | null;
+}
+
+function endpointGapMeters(a: [number, number, number], b: [number, number, number]): number {
+  return Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]) / WATERWAY_SCENE_UNITS_PER_METER;
+}
+
+export function auditWaterwayConnections(items: Layout3DProjectedFootprint[]): WaterwayConnectionAudit[] {
+  const headraces = items.filter((item) => ['headrace_tunnel', 'pressure_tunnel'].includes(item.component) && item.kind === 'polyline');
+  const tailraces = items.filter((item) => item.component.startsWith('tailrace') && item.kind === 'polyline');
+  const audits: WaterwayConnectionAudit[] = [];
+
   for (const pipe of items.filter((item) => item.component === 'penstock' && item.kind === 'polyline')) {
     const pipePoints = generationWaterwayPoints(pipe, items);
-    if (headrace) links.push({ id: `${pipe.id}-inlet`, from: headrace, to: pipe, points: [generationWaterwayPoints(headrace, items).at(-1)!, pipePoints[0]] });
-    if (tailrace) links.push({ id: `${pipe.id}-outlet`, from: pipe, to: tailrace, points: [pipePoints.at(-1)!, generationWaterwayPoints(tailrace, items)[0]] });
+    if (pipePoints.length < 2) continue;
+
+    for (const side of ['inlet', 'outlet'] as const) {
+      const candidates = side === 'inlet' ? headraces : tailraces;
+      const pipeEnd = side === 'inlet' ? pipePoints[0] : pipePoints.at(-1)!;
+      const matches = candidates.flatMap((candidate) => {
+        const points = generationWaterwayPoints(candidate, items);
+        if (points.length < 2) return [];
+        const neighborEnd = side === 'inlet' ? points.at(-1)! : points[0];
+        const ends: [[number, number, number], [number, number, number]] = side === 'inlet'
+          ? [neighborEnd, pipeEnd] : [pipeEnd, neighborEnd];
+        return [{ candidate, ends, distance: endpointGapMeters(...ends) }];
+      }).sort((a, b) => a.distance - b.distance);
+
+      const best = matches[0];
+      if (!best) {
+        audits.push({ penstockId: pipe.id, side, adjacentId: null, gapMeters: null, status: 'missing-reference', points: null });
+        continue;
+      }
+      const status = best.distance <= 2
+        ? 'connected' as const
+        : best.distance <= WATERWAY_MAX_SCHEMATIC_GAP_METERS
+          ? 'schematic-gap' as const : 'disconnected' as const;
+      audits.push({
+        penstockId: pipe.id,
+        side,
+        adjacentId: best.candidate.id,
+        gapMeters: best.distance,
+        status,
+        points: best.ends,
+      });
+    }
   }
-  return links.filter(({ points: [a, b] }) => a && b && Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]) > 0.2);
+  return audits;
+}
+
+/** Represent ONLY short, explicitly classified gaps using dashed guide lines.
+ * Never generate a false branch between distant footprint endpoints. */
+export function representativeWaterwayLinks(items: Layout3DProjectedFootprint[]) {
+  return auditWaterwayConnections(items).filter((audit) => audit.status === 'schematic-gap' && audit.points).map((audit) => ({
+    id: `${audit.penstockId}-${audit.side}`,
+    from: items.find((item) => item.id === (audit.side === 'inlet' ? audit.adjacentId : audit.penstockId))!,
+    to: items.find((item) => item.id === (audit.side === 'inlet' ? audit.penstockId : audit.adjacentId))!,
+    points: audit.points!,
+  }));
+}
+
+/** Water levels are a visual SOC approximation; concrete and embankments
+ * must never move with reservoir SOC. */
+export function footprintSurfacePositionOffset(material: string, soc: number): number {
+  return material === 'water' ? reservoirSurfaceOffset(soc) : 0;
 }
 
 /** Keep the representative terrain underneath the entire georeferenced
