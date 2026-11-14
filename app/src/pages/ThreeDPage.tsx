@@ -18,6 +18,7 @@ import { componentDescription, componentLabel, footprintItemDetailLabel, footpri
 import { useLayout3DSnapshot } from '../hooks/useLayout3DSnapshot';
 import { useManualGeometryStore } from '../stores/useManualGeometryStore';
 import { manualGeometryToFootprints, overrideSiteWithManualGeometries } from '../utils/manualGeometryConverter';
+import { auditWaterwayConnections } from '../utils/layout3dGeometry';
 import { useShallow } from 'zustand/react/shallow';
 import {
   advanceReservoirSoc,
@@ -303,6 +304,11 @@ export default function ThreeDPage({ site: propSite, dataLoading = false, dataEr
     simulationState,
     isPlaying,
   });
+  const waterwayAudit = useMemo(() => auditWaterwayConnections(footprintPlan.items), [footprintPlan.items]);
+  const unresolvedWaterway = useMemo(
+    () => waterwayAudit.filter((row) => row.status === 'disconnected' || row.status === 'missing-reference'),
+    [waterwayAudit],
+  );
 
 
   const setAllLayerVisibility = (visible: boolean) => {
@@ -466,10 +472,15 @@ export default function ThreeDPage({ site: propSite, dataLoading = false, dataEr
   // when the original site has no remote footprint file.
   const displayStatus = manualFootprints.length > 0 && footprintPlan.enabled ? 'footprint' : sourceDisplayStatus;
   const footprintWarning = sourceDisplayStatus === 'fallback'
-    ? `Footprint verisi yüklenemedi; temsili model gösteriliyor (${footprintLoad.status}). Doğrulanmış yerleşim gibi değerlendirme.`
+    ? displayStatus === 'footprint'
+      ? `Harici footprint dosyası yüklenemedi (${footprintLoad.status}); yalnız erişilebilir ve elle çizilmiş geçerli geometri gösteriliyor.`
+      : `Footprint verisi yüklenemedi; temsili model gösteriliyor (${footprintLoad.status}). Doğrulanmış yerleşim gibi değerlendirme.`
+    : '';
+  const waterwayWarning = unresolvedWaterway.length > 0
+    ? `Su yolu bağlantı denetimi: ${unresolvedWaterway.length} uçta 25 m üzeri boşluk veya karşı hat eksik. Kesikli köprü çizilmedi; Kaynak / Veri sekmesinden inceleyin.`
     : '';
   const representationalWarning = `Kaynak footprint koordinatları korunur; ekipman kesitleri, bağlantılar ve su seviyesi hareketi temsilidir. Koordinat güveni: ${COORDINATE_CONFIDENCE_LABELS[site.coordinates.coordinateConfidence]}. DEM ve kot–hacim eğrisi bağlı değildir.`;
-  const combinedWarning = [footprintWarning, representationalWarning].filter(Boolean).join(' ');
+  const combinedWarning = [footprintWarning, waterwayWarning, representationalWarning].filter(Boolean).join(' ');
   const isFootprintMode = footprintPlan.enabled;
   const terrainLabel = 'Temsili arazi';
   const selectedComponent = COMPONENTS.find(c => c.key === activeComponent);
@@ -886,6 +897,20 @@ export default function ThreeDPage({ site: propSite, dataLoading = false, dataEr
                 </div>
               ) : (
                 <p className="muted" style={{ fontSize: 13, marginBottom: 12 }}>Tekil footprint kaydı seçilmedi; katman görünümü aktif.</p>
+              )}
+              {waterwayAudit.length > 0 && (
+                <div className="threed-data-note" aria-label="Su yolu süreklilik denetimi">
+                  <b>Su yolu sürekliliği:</b> {waterwayAudit.length} boru ucu; {unresolvedWaterway.length} kopuk/karşı bağlantısı eksik.
+                  <p>25 m üzerindeki boşluklarda hayalî bağlantı çizilmez. Kısa kesikli çizgiler yalnızca şematik geçiştir, doğrulanmış boru güzergâhı değildir.</p>
+                  {unresolvedWaterway.map((row) => (
+                    <p key={`${row.penstockId}-${row.side}`}>
+                      <b>{row.penstockId}</b> · {row.side === 'inlet' ? 'Memba' : 'Mansap'}:
+                      {' '}{row.status === 'missing-reference'
+                        ? 'Karşı güzergâh dosyada bulunmuyor'
+                        : `${row.gapMeters?.toLocaleString('tr-TR', { maximumFractionDigits: 1 })} m yaklaşık 3B açıklık`}
+                    </p>
+                  ))}
+                </div>
               )}
               {manualFeatures.length > 0 && (
                 <p className="threed-data-note">
